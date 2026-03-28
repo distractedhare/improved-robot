@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "generatedDate": "2026-03-26",
+    "coversFrom": "2026-02-26",
+    "coversTo": "2026-03-26",
+    "sourcesSearched": ["https://example.com"],
+    "confidence": "low",
+    "previousUpdateDate": "first_run"
+  },
+  "tmobileCampaigns": {
+    "new": [],
+    "ended": [],
+    "changed": []
+  },
+  "competitorUpdates": {},
+  "regionalIntel": {},
+  "weeklyHighlights": {
+    "biggestThreat": {
+      "competitor": "placeholder",
+      "why": "placeholder",
+      "counterStrategy": "placeholder"
+    },
+    "biggestOpportunity": {
+      "description": "placeholder",
+      "targetCustomer": "placeholder",
+      "pitch": "placeholder"
+    },
+    "trendingTopics": [],
+    "keyNumbersThisPeriod": []
+  }
+}

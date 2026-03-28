@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "updatedDate": "2026-03-26",
+    "validUntil": "2026-04-02",
+    "version": "0.0.1-placeholder"
+  },
+  "weeklyFocus": {
+    "headline": "Galaxy S26 Launch Week + 3rd Line Free",
+    "context": "Samsung Galaxy S26 series launched March 11. iPhone 17e also just dropped. Push BTS add-ons on every support call — Galaxy Watch8 is FREE with wearable line."
+  },
+  "currentPromos": [
+    {
+      "name": "Galaxy S26 Ultra FREE",
+      "details": "Free with new line on Experience Beyond (no trade-in needed, up to $1,300 off via 24 monthly bill credits)",
+      "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
+      "commonObjections": [
+        {
+          "objection": "I don't want to commit to 24 months of credits",
+          "response": "The credits start on your first bill and you're never locked in — no contract. If you leave, you just pay the remaining balance on the device. Most people stay because the plan is that good."
+        }
+      ]
+    },
+    {
+      "name": "3rd Line Free",
+      "details": "Add a 3rd voice line free on Experience Beyond or Experience More (via monthly bill credits). Limited time.",
+      "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
+      "commonObjections": [
+        {
+          "objection": "What happens if I cancel a line later?",
+          "response": "The credits are tied to keeping 3 active voice lines. If you drop below 3, the credit stops. But honestly, most families find they need the lines anyway."
+        }
+      ]
+    },
+    {
+      "name": "Galaxy Watch8 FREE",
+      "details": "Free via 36 monthly bill credits with new wearable line ($5/mo line cost)",
+      "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line", "order support", "tech support", "account support"],
+      "commonObjections": [
+        {
+          "objection": "$5/month adds up",
+          "response": "True, but think about it — for $5 a month you get a device that handles calls, texts, payments, and fitness tracking. That's less than a coffee. And the watch itself is free."
+        }
+      ]
+    },
+    {
+      "name": "iPhone 17e FREE",
+      "details": "Free with trade-in on qualifying $60+/month plan. Great entry-level iPhone with A19 chip.",
+      "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
+      "commonObjections": []
+    }
+  ],
+  "planUpdates": [
+    {
+      "planName": "Experience Beyond",
+      "change": "Apple TV+ pricing changed to $3/month customer cost (T-Mobile covers $9.99 of $12.99). Was fully free through end of 2025.",
+      "effectiveDate": "2026-01-01",
+      "talkingPoint": "Apple TV+ is still a massive deal at $3/month — that's saving you almost $10 every month compared to paying full price."
+    },
+    {
+      "planName": "All Plans",
+      "change": "Regulatory Programs & Telco Recovery Fee increased $0.50/line to $4.49/line/month (second increase in under a year).",
+      "effectiveDate": "2026-01-01",
+      "talkingPoint": "This is a regulatory fee, not a plan price change. Your plan rate is still locked under the 5-Year Price Guarantee."
+    }
+  ],
+  "competitiveIntel": [
+    {
+      "carrier": "AT&T",
+      "intel": "AT&T launched Unlimited Your Way 2.0 on March 13, 2026 — stripped ALL streaming perks from every plan. Zero Netflix, zero Max, zero Disney+.",
+      "talkingPoint": "AT&T just removed every streaming perk from their plans. We include Netflix, Hulu, and Apple TV+ — that's about $30/month in value they just took away from their customers.",
+      "appliesToIntents": ["exploring", "upgrade / add a line"]
+    },
+    {
+      "carrier": "AT&T",
+      "intel": "AT&T raising legacy plan prices AGAIN in April 2026 ($10-20/month increases). At least the 4th increase in ~2 years.",
+      "talkingPoint": "AT&T is raising prices again next month. With our 5-Year Price Guarantee, that doesn't happen here. Your rate is locked.",
+      "appliesToIntents": ["exploring", "upgrade / add a line", "account support"]
+    },
+    {
+      "carrier": "Verizon",
+      "intel": "Verizon settled $100M class action over hidden Administrative & Telco Recovery Charge ($3.78/line/month that grew 8x from original $0.40).",
+      "talkingPoint": "Verizon literally got sued for hiding fees. We're upfront about everything — and our 5-Year Price Guarantee locks your rate.",
+      "appliesToIntents": ["exploring", "upgrade / add a line"]
+    }
+  ],
+  "knownIssues": [
+    {
+      "issue": "Some customers reporting delayed bill credits for 3rd-line-free promo (credits not appearing until 2nd billing cycle)",
+      "workaround": "Set expectations: credits typically start on the 2nd bill. If missing after 2 cycles, escalate to care for manual credit.",
+      "appliesToIntents": ["order support", "account support"]
+    },
+    {
+      "issue": "Galaxy S26 Ultra back-ordered in Phantom Black 512GB — 2-3 week wait",
+      "workaround": "Offer Phantom Silver (in stock) or suggest 256GB. If they insist on Black 512GB, set up pre-order and manage the wait expectation.",
+      "appliesToIntents": ["ready to buy", "order support"]
+    }
+  ],
+  "intentPlaybooks": {
+    "exploring": {
+      "openers": [
+        "What caught your eye today? No pressure — let's just explore what's out there.",
+        "Are you checking things out for yourself or for the whole family?",
+        "Have you seen any of the deals we're running right now? There's some good stuff."
+      ],
+      "discovery": [
+        "What phone are you using right now?",
+        "What carrier are you on? Just curious what you're working with.",
+        "What matters most to you — price, coverage, or the phone itself?"
+      ],
+      "keyMoves": [
+        "Plant the seed: mention the streaming perks and 5-Year Price Guarantee",
+        "If they mention a competitor, pull up the side-by-side comparison",
+        "Offer to save a quote so they can think it over"
+      ],
+      "closingTips": [
+        "No pressure close: 'Let me save this for you so you have the numbers when you're ready.'",
+        "Give them your card and mention the promo deadline"
+      ],
+      "avoidMoves": [
+        "Don't push hard — browsers need space",
+        "Don't mention contract terms or ETFs unless they ask"
+      ]
+    },
+    "ready to buy": {
+      "openers": [
+        "Let's get you set up! What are you looking to grab today?",
+        "Perfect timing — we've got some great deals running. What do you have in mind?",
+        "Awesome! Do you already know what device you want, or want me to walk you through the options?"
+      ],
+      "discovery": [
+        "How many lines do you need?",
+        "Are you trading in your current device? We take them in any condition.",
+        "Do you have a plan in mind, or want me to recommend one based on what you need?"
+      ],
+      "keyMoves": [
+        "Move quickly — they're ready. Don't over-explain.",
+        "Lead with the best current promo for their device/plan combo",
+        "Mention Protection 360 before they ask about cases",
+        "Pitch a watch or tablet as an add-on before checkout"
+      ],
+      "closingTips": [
+        "Direct close: 'I can get you out of here in 20 minutes with everything set up.'",
+        "Start the trade-in process immediately to build momentum"
+      ],
+      "avoidMoves": [
+        "Don't slow them down with too many options",
+        "Don't skip the P360 pitch — it's easy commission"
+      ]
+    },
+    "upgrade / add a line": {
+      "openers": [
+        "Looking to upgrade or add someone to the account?",
+        "Great timing — we've got some solid upgrade deals right now. What are you working with?",
+        "Are you adding a line for someone, or upgrading your own device?"
+      ],
+      "discovery": [
+        "What device are you on now? We can check your trade-in value.",
+        "Are you looking at the same brand, or open to switching?",
+        "Is your plan still working for you, or do you want to look at what's new?"
+      ],
+      "keyMoves": [
+        "Check trade-in value immediately — show them the math",
+        "If adding a line, mention the 3rd-line-free promo",
+        "Compare their current plan to Experience Beyond/More",
+        "Pitch a connected device (watch/tablet) as a bundle add-on"
+      ],
+      "closingTips": [
+        "Show the side-by-side: current plan vs new plan with trade-in credits applied",
+        "If adding a line: 'With the 3rd line free, you're basically getting this for nothing.'"
+      ],
+      "avoidMoves": [
+        "Don't assume they want the same brand — ask",
+        "Don't skip the plan review — they might be on a retired plan paying more"
+      ]
+    },
+    "order support": {
+      "openers": [
+        "Let me pull that up and get it sorted for you.",
+        "No worries — I deal with order stuff all day. What's going on?",
+        "I've got you. What's the order number or what are you seeing?"
+      ],
+      "discovery": [
+        "When did you place the order?",
+        "What's the status showing on your end?",
+        "Did you get a confirmation email or tracking number?"
+      ],
+      "keyMoves": [
+        "Resolve their issue FIRST — earn trust before pivoting",
+        "After resolution: 'By the way, do you have a watch or tablet on your account?'",
+        "Mention Galaxy Watch8 FREE deal or SyncUP Tracker",
+        "If they're on an old plan, mention the upgrade opportunity"
+      ],
+      "closingTips": [
+        "Service-to-sales: 'All set on the order! Quick question — do you have anything protecting your car or tracking your luggage?'",
+        "If they bite: 'It's only $5/month for the line, and the device is free right now.'"
+      ],
+      "avoidMoves": [
+        "Don't pitch before resolving their issue",
+        "Don't make them feel like the support call was just a sales opportunity"
+      ]
+    },
+    "tech support": {
+      "openers": [
+        "Let's figure this out. What's going on with your device?",
+        "I deal with this stuff all day — we'll get it sorted.",
+        "No stress — tech issues happen. Walk me through what you're seeing."
+      ],
+      "discovery": [
+        "What device are you using?",
+        "When did this start happening?",
+        "Have you tried restarting the device?"
+      ],
+      "keyMoves": [
+        "Fix the issue first — build trust and gratitude",
+        "After fix: pivot to Protection 360 — 'This is exactly what P360 covers'",
+        "Mention watch as backup connectivity: 'If your phone ever acts up, a watch with cellular means you're still connected'",
+        "Check if they have an old device that could be traded in"
+      ],
+      "closingTips": [
+        "Gratitude pivot: 'Glad that's working! While I have you — are you using any kind of smartwatch or tracker?'",
+        "P360 pitch: 'If you had P360, stuff like this would be covered. Plus you get $0 screen repairs and JUMP! upgrades.'"
+      ],
+      "avoidMoves": [
+        "Don't rush the fix to get to the sale",
+        "Don't make them feel dumb about the tech issue"
+      ]
+    },
+    "account support": {
+      "openers": [
+        "Let me pull up your account and see what's going on.",
+        "No problem — what do you need help with on your account?",
+        "I've got you. What's the account question?"
+      ],
+      "discovery": [
+        "What specifically are you seeing on your account?",
+        "Is this about billing, plan changes, or something else?",
+        "How long have you been with T-Mobile?"
+      ],
+      "keyMoves": [
+        "Resolve their issue first",
+        "While in the account: look for missing connected devices, old plans, missing P360",
+        "After resolution: 'I noticed you don't have any connected devices — did you know a watch line is only $5/month?'",
+        "Check if they qualify for Better Value plan (5+ years tenure)"
+      ],
+      "closingTips": [
+        "Account review pivot: 'While I was in your account, I noticed a couple things that could save you money or add value.'",
+        "Home Internet pitch: 'With your voice line, Home Internet is only $35/month. What are you paying your ISP?'"
+      ],
+      "avoidMoves": [
+        "Don't upsell if they're frustrated about a billing error — fix it first",
+        "Don't assume they want to hear about new products if they're upset"
+      ]
+    }
+  }
+}

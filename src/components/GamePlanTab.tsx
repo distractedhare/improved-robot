@@ -1,0 +1,324 @@
+import {
+  Sparkles, ArrowRight, Loader2, CheckCircle2, Coffee, Target,
+  ChevronRight, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import { SalesContext, SalesScript, AccessoryRecommendation } from '../types';
+import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
+
+interface GamePlanTabProps {
+  context: SalesContext;
+  setContext: React.Dispatch<React.SetStateAction<SalesContext>>;
+  script: SalesScript | null;
+  loading: boolean;
+  selectedGamePlanItems: string[];
+  onGenerate: (e: React.FormEvent) => void;
+  onToggleItem: (item: string) => void;
+  onReset: () => void;
+  onSwitchToObjections: () => void;
+}
+
+export default function GamePlanTab({
+  loading, onGenerate,
+}: Pick<GamePlanTabProps, 'loading' | 'onGenerate'>) {
+  return (
+    <>
+      {/* Generate button — the intent selector is now in App.tsx */}
+      <motion.section
+        key="gameplan"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+      >
+        <button
+          onClick={onGenerate}
+          disabled={loading}
+          className="w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-berry transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-xl shadow-t-magenta/20"
+        >
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              Build my game plan
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
+        </button>
+      </motion.section>
+    </>
+  );
+}
+
+interface GamePlanResultsProps {
+  context: SalesContext;
+  script: SalesScript | null;
+  selectedGamePlanItems: string[];
+  onToggleItem: (item: string) => void;
+  onReset: () => void;
+  onSwitchToObjections: () => void;
+}
+
+/** The results display once a script is generated */
+export function GamePlanResults({
+  context, script, selectedGamePlanItems,
+  onToggleItem, onReset, onSwitchToObjections,
+}: GamePlanResultsProps) {
+  if (!script) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="space-y-6"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-black uppercase tracking-tight">Your Game Plan</h2>
+        <button
+          onClick={onReset}
+          className="text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest"
+        >
+          <RefreshCw className="w-3 h-3" /> Reset
+        </button>
+      </div>
+
+      <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray mb-4">
+        <p className="text-xs text-t-dark-gray font-medium">
+          <span className="font-bold text-t-magenta">Pro tip:</span> Tap the moves you've already made — it sharpens your objection plays.
+        </p>
+      </div>
+
+      {/* Welcome Messages */}
+      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
+        </h3>
+        <div className="space-y-3">
+          {script.welcomeMessages.map((msg, i) => {
+            const isSelected = selectedGamePlanItems.includes(msg);
+            return (
+              <button
+                key={i}
+                onClick={() => onToggleItem(msg)}
+                className={`w-full text-left group flex items-start gap-3 p-3 rounded-xl transition-colors border ${
+                  isSelected
+                    ? 'bg-t-magenta/10 border-t-magenta shadow-sm'
+                    : 'bg-white border-transparent hover:border-t-light-gray hover:bg-t-light-gray/30'
+                }`}
+              >
+                <div className={`mt-1 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition-colors ${
+                  isSelected ? 'bg-t-magenta text-white' : 'bg-t-light-gray text-t-dark-gray group-hover:bg-t-magenta group-hover:text-white'
+                }`}>
+                  {isSelected ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
+                </div>
+                <p className={`text-sm leading-relaxed italic font-bold ${isSelected ? 'text-t-magenta' : 'text-t-dark-gray'}`}>"{msg}"</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Icebreakers */}
+      <div className="bg-t-magenta/5 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
+        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <Coffee className="w-3 h-3 text-t-magenta" /> Icebreakers
+        </h3>
+        <div className="space-y-3">
+          {script.smallTalk.length > 0 ? (
+            script.smallTalk.map((talk, i) => (
+              <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-white border border-t-magenta/10 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
+                    {talk.category}
+                  </span>
+                </div>
+                <p className="text-sm text-t-dark-gray font-bold italic">"{talk.text}"</p>
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center gap-2 text-t-magenta/60 animate-pulse p-3">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              <span className="text-xs font-bold uppercase tracking-widest">Pulling local flavor...</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Discovery Questions */}
+      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {script.discoveryQuestions.map((q, i) => {
+            const isSelected = selectedGamePlanItems.includes(q);
+            return (
+              <button
+                key={i}
+                onClick={() => onToggleItem(q)}
+                className={`text-left p-4 rounded-2xl border text-sm font-bold flex items-start gap-2 transition-all ${
+                  isSelected
+                    ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
+                    : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
+                }`}
+              >
+                {isSelected ? (
+                  <CheckCircle2 className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
+                )}
+                {q}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Value Props */}
+      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
+        </h3>
+        <div className="space-y-3">
+          {script.valuePropositions.map((prop, i) => {
+            const isSelected = selectedGamePlanItems.includes(prop);
+            return (
+              <button
+                key={i}
+                onClick={() => onToggleItem(prop)}
+                className={`w-full text-left text-xs p-3 rounded-xl border font-bold transition-all flex items-start gap-2 ${
+                  isSelected
+                    ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
+                    : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
+                }`}
+              >
+                {isSelected && <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                {prop}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Accessory Recommendations */}
+      {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
+        <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch
+          </h3>
+
+          {/* Bundle deal banner */}
+          <div className="bg-gradient-to-r from-t-magenta to-t-berry rounded-2xl p-4 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <Tag className="w-4 h-4" />
+              <p className="text-xs font-black uppercase tracking-wider">{ESSENTIAL_BUNDLE_DEAL.headline}</p>
+            </div>
+            <p className="text-[11px] font-medium opacity-90">{ESSENTIAL_BUNDLE_DEAL.pitch}</p>
+          </div>
+
+          {/* Individual recs */}
+          <div className="space-y-3">
+            {script.accessoryRecommendations.map((rec, i) => (
+              <AccessoryCard key={i} rec={rec} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Next Steps */}
+      <div className="bg-black rounded-3xl p-6 text-white shadow-xl shadow-black/10">
+        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3 text-t-magenta" /> Close It Out
+        </h3>
+        <div className="space-y-3">
+          {script.purchaseSteps.map((step, i) => (
+            <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+              <div className="w-1.5 h-1.5 rounded-full bg-t-magenta shrink-0" />
+              <p className="text-sm font-black uppercase tracking-tight">{step}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Coach's Corner */}
+      {script.coachsCorner && (
+        <div className="bg-t-magenta/10 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
+          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Lightbulb className="w-3 h-3 text-t-magenta" /> Coach's Corner
+          </h3>
+          <p className="text-sm text-t-dark-gray font-bold italic">
+            "{script.coachsCorner}"
+          </p>
+        </div>
+      )}
+
+
+      <div className="pt-4">
+        <button
+          onClick={onSwitchToObjections}
+          className="w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-magenta/90 transition-all shadow-xl shadow-t-magenta/20"
+        >
+          <MessageSquare className="w-5 h-5" /> Getting Pushback? Let's Flip It
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
+  return (
+    <div className={`p-4 rounded-2xl border-2 transition-all ${
+      rec.bundleEligible
+        ? 'border-t-magenta/30 bg-t-magenta/5'
+        : 'border-t-light-gray bg-t-light-gray/10'
+    }`}>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          {rec.bundleEligible ? (
+            <Tag className="w-3 h-3 text-t-magenta shrink-0" />
+          ) : rec.name === 'Protection 360' ? (
+            <Shield className="w-3 h-3 text-t-magenta shrink-0" />
+          ) : (
+            <ShoppingBag className="w-3 h-3 text-t-dark-gray/40 shrink-0" />
+          )}
+          <span className="text-xs font-black text-t-dark-gray uppercase tracking-wide">{rec.name}</span>
+          {rec.bundleEligible && (
+            <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+              25% off w/ 3+
+            </span>
+          )}
+        </div>
+        <p className="text-[11px] text-t-dark-gray/80 font-medium leading-relaxed ml-5">
+          {rec.why}
+        </p>
+
+        {/* Verified prices */}
+        {rec.verifiedPrices && rec.verifiedPrices.length > 0 && (
+          <div className="ml-5 mt-2 space-y-1">
+            {rec.verifiedPrices.map((vp, i) => (
+              <div key={i} className="flex items-center gap-2 text-[10px]">
+                <span className="font-bold text-t-dark-gray/70">{vp.item}:</span>
+                {vp.salePrice ? (
+                  <>
+                    <span className="line-through text-t-dark-gray/40">{vp.fullPrice}</span>
+                    <span className="font-black text-green-600">{vp.salePrice}</span>
+                  </>
+                ) : (
+                  <span className="font-black text-t-magenta">{vp.fullPrice}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 mt-2 ml-5">
+          {!rec.verifiedPrices?.length && (
+            <span className="text-[10px] font-black text-t-magenta">{rec.priceRange}</span>
+          )}
+          <span className="text-[9px] text-t-dark-gray/50 font-bold">
+            {rec.brands.slice(0, 3).join(' · ')}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
