@@ -1,10 +1,13 @@
 import {
   Sparkles, ArrowRight, Loader2, CheckCircle2, Coffee, Target,
-  ChevronRight, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield
+  ChevronRight, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useMemo } from 'react';
 import { SalesContext, SalesScript, AccessoryRecommendation } from '../types';
 import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
+import { EcosystemMatrix } from '../types/ecosystem';
+import { getDemoProductRecs, getCrossDemoPitches, getDemoSection, DemoProductRec } from '../services/ecosystemService';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -56,13 +59,31 @@ interface GamePlanResultsProps {
   onToggleItem: (item: string) => void;
   onReset: () => void;
   onSwitchToObjections: () => void;
+  ecosystemMatrix?: EcosystemMatrix | null;
 }
 
 /** The results display once a script is generated */
 export function GamePlanResults({
   context, script, selectedGamePlanItems,
   onToggleItem, onReset, onSwitchToObjections,
+  ecosystemMatrix,
 }: GamePlanResultsProps) {
+  // Demographic-aware product recs from ecosystem matrix
+  const demoRecs = useMemo(() => {
+    if (!ecosystemMatrix || context.age === 'Not Specified') return [];
+    return getDemoProductRecs(ecosystemMatrix, context.age, context.product);
+  }, [ecosystemMatrix, context.age, context.product]);
+
+  const crossDemo = useMemo(() => {
+    if (!ecosystemMatrix || context.age === 'Not Specified') return null;
+    return getCrossDemoPitches(ecosystemMatrix, context.age);
+  }, [ecosystemMatrix, context.age]);
+
+  const demoSection = useMemo(() => {
+    if (!ecosystemMatrix || context.age === 'Not Specified') return null;
+    return getDemoSection(ecosystemMatrix, context.age);
+  }, [ecosystemMatrix, context.age]);
+
   if (!script) return null;
 
   return (
@@ -199,6 +220,41 @@ export function GamePlanResults({
         </div>
       </div>
 
+      {/* Demographic Product Recommendations */}
+      {demoRecs.length > 0 && demoSection && (
+        <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+            <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
+          </h3>
+          <p className="text-[10px] text-t-dark-gray/60 font-medium italic mb-3">
+            {demoSection.trustLanguage}
+          </p>
+          <div className="space-y-3">
+            {demoRecs.map((rec, i) => (
+              <DemoRecCard key={`${rec.name}-${i}`} rec={rec} />
+            ))}
+          </div>
+
+          {/* Cross-demographic: P360 + T-Life */}
+          {crossDemo && (
+            <div className="space-y-2 pt-3 border-t border-t-light-gray">
+              {crossDemo.p360 && (
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-t-magenta/5 border border-t-magenta/10">
+                  <Shield className="w-3.5 h-3.5 text-t-magenta mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{crossDemo.p360}</p>
+                </div>
+              )}
+              {crossDemo.tLife && (
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{crossDemo.tLife}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
         <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
@@ -319,6 +375,30 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  smartphones: 'Phone',
+  tablets: 'Tablet',
+  wearables: 'Wearable',
+  iotProducts: 'IoT / Connected',
+  accessories: 'Accessory',
+};
+
+function DemoRecCard({ rec }: { rec: DemoProductRec }) {
+  return (
+    <div className="p-3 rounded-xl border border-t-light-gray bg-t-light-gray/10 hover:border-t-magenta/30 transition-all">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+          {CATEGORY_LABELS[rec.category] ?? rec.category}
+        </span>
+        <span className="text-xs font-black text-t-dark-gray">{rec.name}</span>
+      </div>
+      <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug ml-0.5">
+        {rec.pitch}
+      </p>
     </div>
   );
 }

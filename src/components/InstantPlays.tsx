@@ -1,10 +1,15 @@
-import { Home, Zap, Tag, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard } from 'lucide-react';
 import { motion } from 'motion/react';
+import { EcosystemMatrix } from '../types/ecosystem';
+import { getSupportAccessory } from '../services/ecosystemService';
+import { useMemo } from 'react';
 
 type Intent = 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
 
 interface InstantPlaysProps {
   intent: Intent;
+  age?: string;
+  ecosystemMatrix?: EcosystemMatrix | null;
 }
 
 // Always-on reminder — HINT check on every call
@@ -164,9 +169,16 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: s
 
 const isSalesIntent = (intent: Intent) => ['exploring', 'ready to buy', 'upgrade / add a line'].includes(intent);
 
-export default function InstantPlays({ intent }: InstantPlaysProps) {
+export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPlaysProps) {
   const plays = INTENT_PLAYS[intent];
   const showAccessories = isSalesIntent(intent);
+  const isSupportCall = !showAccessories;
+
+  // Get a premium accessory recommendation for support intents
+  const supportAccessory = useMemo(() => {
+    if (!isSupportCall || !ecosystemMatrix) return null;
+    return getSupportAccessory(ecosystemMatrix, age ?? 'Not Specified');
+  }, [isSupportCall, ecosystemMatrix, age, intent]);
 
   return (
     <motion.div
@@ -323,18 +335,39 @@ export default function InstantPlays({ intent }: InstantPlaysProps) {
         </div>
       )}
 
-      {/* Support-specific accessory note */}
-      {!showAccessories && (
-        <div className="bg-t-light-gray/20 rounded-2xl border border-t-light-gray p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Accessories — don't miss the easy ones</p>
-          <div className="space-y-2">
-            <p className="text-[10px] text-t-dark-gray font-medium">
-              If they don't have P360, now's the time. Especially after a tech issue — "want to make sure you're covered if this happens again?"
-            </p>
-            <p className="text-[10px] text-t-dark-gray font-medium">
-              If they just got a new device and didn't buy accessories: "By the way — did anyone set you up with a case and screen protector? Grab three and you save 25%."
-            </p>
+      {/* Support intent: premium accessory awareness card */}
+      {isSupportCall && supportAccessory && (
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 p-4 space-y-3">
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+            <Headphones className="w-3 h-3" />
+            After you've helped them:
+          </p>
+          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5 flex-1">
+                <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
+                <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug">{supportAccessory.pitch}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
+                <p className="text-[9px] font-bold text-green-600">{supportAccessory.item.commission}</p>
+              </div>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5">
+              <CreditCard className="w-3 h-3 text-t-magenta shrink-0" />
+              <p className="text-[9px] text-t-dark-gray/60 font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
+            </div>
           </div>
+          <p className="text-[9px] text-slate-400 font-medium italic">{supportAccessory.item.naturalTransition}</p>
+        </div>
+      )}
+
+      {/* Support fallback: P360 reminder (always show for support) */}
+      {isSupportCall && (
+        <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
+          <p className="text-[10px] text-t-magenta font-bold">
+            <strong>P360 check:</strong> If they don't have it, now's the time. Especially after a tech issue — "want to make sure you're covered if this happens again?"
+          </p>
         </div>
       )}
 

@@ -9,6 +9,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal } from './services/localGenerationService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
+import { EcosystemMatrix } from './types/ecosystem';
+import { loadEcosystemMatrix } from './services/ecosystemService';
+import { resetRotation } from './services/rotationService';
 import { DemoScenario } from './constants/demoScenarios';
 import { Device } from './data/devices';
 import { AppMode } from './components/Header';
@@ -69,6 +72,14 @@ export default function App() {
     loadWeeklyUpdate().then(data => {
       setWeeklyData(data);
       setWeeklyLoaded(true);
+    });
+  }, []);
+
+  // Ecosystem matrix state
+  const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
+  useEffect(() => {
+    loadEcosystemMatrix().then(data => {
+      if (data) setEcosystemMatrix(data);
     });
   }, []);
 
@@ -145,6 +156,7 @@ export default function App() {
       currentCarrier: 'Not Specified'
     });
     setIntentTapped(true);
+    resetRotation();
   }, []);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
@@ -343,7 +355,7 @@ export default function App() {
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays intent={context.purchaseIntent} />
+                <InstantPlays intent={context.purchaseIntent} age={context.age} ecosystemMatrix={ecosystemMatrix} />
               )}
 
               {/* Devices tab: comparison + accessories */}
@@ -438,6 +450,7 @@ export default function App() {
                   onToggleItem={toggleGamePlanItem}
                   onReset={reset}
                   onSwitchToObjections={() => setActiveTab('objections')}
+                  ecosystemMatrix={ecosystemMatrix}
                 />
               )}
             </AnimatePresence>
