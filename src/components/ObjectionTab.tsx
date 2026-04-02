@@ -25,7 +25,7 @@ const OBJECTIONS = [
   { id: "Worried about coverage", desc: "Customer has heard negative things about T-Mobile's network in their area." },
   { id: "Too much hassle to switch", desc: "Customer dreads the process of porting numbers, transferring data, and setting up new accounts." },
   { id: "Contract/ETF concerns", desc: "Customer is locked into a contract or owes money on their current devices." },
-  { id: "Waiting for the new iPhone/Samsung", desc: "Customer wants to delay purchase until the next flagship device is released." },
+  { id: "Waiting for the next phone launch", desc: "Customer wants to delay purchase until a newer or better device is released." },
   { id: "I need to talk to my spouse", desc: "Customer is not the sole decision maker or wants to discuss finances first." },
   { id: "Bad past experience with T-Mobile", desc: "Customer or someone they know had a negative experience with T-Mobile previously." },
 ];

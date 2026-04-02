@@ -22,7 +22,7 @@ export default function HomeInternetSection() {
             Up to $300 rebate + "Month On Us" promo active now.
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
+            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $30/mo w/ voice line</span>
             <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
             <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
           </div>
@@ -231,7 +231,7 @@ export default function HomeInternetSection() {
             <div className="space-y-3">
               {[
                 { step: '1', title: 'Check the Address', desc: '"Let me see if Home Internet is available at your address — takes two seconds."' },
-                { step: '2', title: 'If Available — Hook Them', desc: '"Great news — it\'s available! Starts at $35/month with your phone line. No contract, no data caps, no equipment fees."' },
+                { step: '2', title: 'If Available — Hook Them', desc: '"Great news — it\'s available! Starts at $30/month with your phone line. No contract, no data caps, no equipment fees."' },
                 { step: '3', title: 'Ask About Current ISP', desc: '"Who do you use now? What are you paying?" (They\'re almost always paying more.)' },
                 { step: '4', title: 'Stack the Value', desc: '"So you\'d save $[X]/month, and with All-In you also get Hulu and Paramount+ included — that\'s another $20+ in value."' },
                 { step: '5', title: 'Close with Test Drive', desc: '"And the best part — there\'s a 15-day test drive. Try it risk-free. If it doesn\'t work for your home, full refund. No commitment."' },

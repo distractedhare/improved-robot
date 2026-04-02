@@ -93,11 +93,11 @@ function buildValueProps(context: SalesContext): string[] {
 
   // For SUPPORT calls: lead with BTS/IOT add-on opportunities — that's the commission play
   if (isSupport) {
-    props.push(`🎯 WATCH DEAL: Galaxy Watch8 is FREE with new wearable line ($5/mo). Leave your phone behind and still get calls, texts, payments.`);
-    props.push(`🎯 TABLET DEAL: iPad up to $400 off with new tablet line ($5/mo). Galaxy Tab A11+ FREE with S26 purchase.`);
+    props.push(`🎯 WATCH DEAL: Galaxy Watch8 is FREE with new wearable line ($5/mo on Experience Beyond/Better Value; $10–$15/mo on other plans). Leave your phone behind and still get calls, texts, payments.`);
+    props.push(`🎯 TABLET DEAL: iPad up to $400 off with new tablet line ($5/mo on Experience Beyond/Better Value; $20/mo on other plans). Galaxy Tab A11+ FREE with S26 purchase.`);
     props.push(`🎯 TRACKER: SyncUP Tracker — real GPS on T-Mobile's network, not Bluetooth like AirTag. Great for kids, pets, cars, luggage.`);
     props.push(`🎯 PROTECTION: P360 covers drops, theft, screen at $0 — includes AppleCare Services + JUMP! upgrades. Better than AppleCare+ alone.`);
-    props.push(`🎯 HOME INTERNET: $35/mo with their voice line, no contract, 15-day test drive. Ask what they're paying their ISP.`);
+    props.push(`🎯 HOME INTERNET: $30/mo with their voice line (Rely), no contract, 15-day test drive. Ask what they're paying their ISP.`);
     // Also add any product-specific props below
   }
 
@@ -128,13 +128,13 @@ function buildValueProps(context: SalesContext): string[] {
   }
 
   if (context.product.includes('Home Internet')) {
-    props.push(`T-Mobile Home Internet starting at $35/mo with a voice line (Rely tier). No annual contract, 5-Year Price Guarantee.`);
-    props.push(`All-In tier: $55/mo with voice line — includes Hulu, Paramount+, Wi-Fi 7, mesh extender. Over $480/year in added value.`);
+    props.push(`T-Mobile Home Internet starting at $30/mo with a voice line (Rely tier). No annual contract, 5-Year Price Guarantee.`);
+    props.push(`All-In tier: $50/mo with voice line — includes Hulu, Paramount+, Wi-Fi 7, mesh extender. Over $480/year in added value.`);
     props.push('15-day test drive — full refund if not satisfied. Risk-free trial.');
   }
 
   if (context.product.includes('BTS')) {
-    props.push(`Connected device lines: just $5/month on Experience Beyond for tablets, watches, laptops.`);
+    props.push(`Connected device lines: just $5/mo on Experience Beyond or Better Value for tablets, watches, laptops ($10–$20/mo on other plans).`);
     props.push(`Galaxy Watch8: FREE via 36 monthly bill credits with new wearable line. Apple Watch SE 3: $200 off with new line.`);
     props.push(`iPad (A16): up to $400 off with new tablet line. Galaxy Tab A11+: FREE with S26 purchase + tablet line.`);
     props.push(`Kids safety: Galaxy Watch for Kids or Apple Watch SE — they can call/text without needing a phone.`);

@@ -273,7 +273,7 @@ export const CLOSING_TECHNIQUES: Record<string, string[]> = {
   'account support': [
     '"Got that taken care of! While you\'re here — I noticed you don\'t have any connected devices. A watch line is only $5/month and the Galaxy Watch8 is free right now."',
     '"All set on the account! Quick question — do you have kids? The SyncUP Tracker is great for peace of mind, and it\'s way more reliable than AirTag."',
-    '"You\'re all good! Before I let you go — have you looked at Home Internet? With your voice line you\'d get it for $35/month, no contract."',
+    '"You\'re all good! Before I let you go — have you looked at Home Internet? With your voice line you\'d get it for $30/month, no contract."',
   ],
 };
 
@@ -315,7 +315,7 @@ export const SERVICE_TO_SALES: Record<string, { timing: string; pivots: string[]
     pivots: [
       '"By the way, while I have you — do you have a watch or tablet on your account? It\'s only $5/month to add one, and we\'ve got some free device deals running."',
       '"Quick question before you go — do you have kids or pets? Our SyncUP Trackers use real GPS on our network. Way better than Bluetooth trackers."',
-      '"I see you\'ve got [X] lines — have you thought about Home Internet? With your account it\'d be $35/month, no contract, and you can test drive it free for 15 days."',
+      '"I see you\'ve got [X] lines — have you thought about Home Internet? With your account it\'d be $30/month, no contract, and you can test drive it free for 15 days."',
       '"The Galaxy Watch8 is FREE right now with a new wearable line. You\'d never miss a call or text even when your phone\'s in the other room."',
     ],
   },
@@ -334,7 +334,7 @@ export const SERVICE_TO_SALES: Record<string, { timing: string; pivots: string[]
       '"I see you\'ve got [X] phone lines but no connected devices. Did you know you can add a watch line for just $5/month? The Galaxy Watch8 is free right now."',
       '"Looking at your account — you\'re on Experience Beyond, which means you get connected device lines at $5/month. That\'s the cheapest way to add a tablet or watch."',
       '"Have you looked at SyncUP DRIVE? It plugs into your car\'s OBD port and gives you GPS tracking, trip history, and vehicle diagnostics. Great for families with teen drivers."',
-      '"I notice you don\'t have Home Internet. With your voice line it\'s $35/month for Rely — no contract, 5-Year Price Guarantee. What are you paying your ISP right now?"',
+      '"I notice you don\'t have Home Internet. With your voice line it\'s $30/month for Rely — no contract, 5-Year Price Guarantee. What are you paying your ISP right now?"',
     ],
   },
 };
@@ -342,7 +342,7 @@ export const SERVICE_TO_SALES: Record<string, { timing: string; pivots: string[]
 // --- BTS/IOT VALUE PROPOSITIONS (for injection into any support or sales flow) ---
 export const BTS_IOT_VALUE_PROPS = {
   watches: {
-    headline: 'Smartwatches — $5/month line, FREE devices',
+    headline: 'Smartwatches — $5/mo line on Experience Beyond/Better Value ($10–$15/mo on other plans), FREE devices',
     props: [
       'Galaxy Watch8 (40mm): FREE via 36 monthly bill credits with new wearable line',
       'Apple Watch SE 3: $200 off with new line — Always-On display, great for fitness',

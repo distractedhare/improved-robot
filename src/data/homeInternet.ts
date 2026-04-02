@@ -14,7 +14,7 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'Rely',
     standalonePrice: 50,
-    withVoiceLine: 35,
+    withVoiceLine: 30,
     typicalDownload: '72-245 Mbps',
     typicalUpload: '6-31 Mbps',
     gateway: '4G LTE / 5G gateway',
@@ -25,7 +25,7 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'Amplified',
     standalonePrice: 60,
-    withVoiceLine: 45,
+    withVoiceLine: 40,
     typicalDownload: '100-405 Mbps',
     typicalUpload: '6-55 Mbps',
     gateway: 'Wi-Fi 7 premium gateway',
@@ -36,7 +36,7 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'All-In',
     standalonePrice: 70,
-    withVoiceLine: 55,
+    withVoiceLine: 50,
     typicalDownload: '100-405 Mbps',
     typicalUpload: '6-55 Mbps',
     gateway: 'Wi-Fi 7 premium gateway',
@@ -51,7 +51,7 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   },
 ];
 
-export const HOME_INTERNET_BUNDLE_DISCOUNT = '$15/month bill credit when combined with any T-Mobile postpaid voice line. All-In streaming and security perks deliver over $480/year in added value.';
+export const HOME_INTERNET_BUNDLE_DISCOUNT = '$20/month bill credit when combined with any T-Mobile postpaid voice line. All-In streaming and security perks deliver over $480/year in added value.';
 
 export const OTHER_HOME_PRODUCTS = {
   away: {
@@ -87,7 +87,7 @@ export const HINT_SELLING_FRAMEWORK = {
   objectionHandlers: [
     {
       objection: '"I already have internet"',
-      response: 'That\'s perfect — most people do. But are you paying $60, $70, $80 a month? Our All-In plan is $55 with your phone line and includes Hulu and Paramount+. Plus no contract, no data caps, no equipment fees. Most people save $20-40/month switching.',
+      response: 'That\'s perfect — most people do. But are you paying $60, $70, $80 a month? Our All-In plan is $50 with your phone line and includes Hulu and Paramount+. Plus no contract, no data caps, no equipment fees. Most people save $20-40/month switching.',
     },
     {
       objection: '"Is it fast enough?"',
@@ -135,7 +135,7 @@ export const HINT_SELLING_FRAMEWORK = {
     {
       competitor: 'Spectrum',
       tmobileAdvantages: [
-        'Cheaper at every tier ($35-55 with voice line vs Spectrum\'s $50-90)',
+        'Cheaper at every tier ($30-50 with voice line vs Spectrum\'s $50-90)',
         'No contract (same as Spectrum, but we price-lock for 5 years)',
         'Streaming perks included on All-In (Hulu + Paramount+ vs nothing)',
         'No equipment fees (Spectrum charges $5/mo for Wi-Fi)',
@@ -187,7 +187,7 @@ export const HINT_QUICK_FACTS = [
   'Self-install takes under 15 minutes — no technician visit, no appointment scheduling',
   'The gateway plugs in and connects to T-Mobile\'s 5G/4G network — no cables, no drilling holes',
   '5-Year Price Guarantee means the price won\'t go up. Most ISPs raise rates after the promo period ends',
-  'With a voice line discount, All-In is $55/mo and includes $480+/year in streaming perks',
+  'With a voice line discount, All-In is $50/mo and includes $480+/year in streaming perks',
   'The 15-day test drive means zero risk for the customer — if it doesn\'t work, full refund',
   'Average customer saves $20-40/month compared to cable internet',
   'Wi-Fi 7 gateway on Amplified and All-In is cutting-edge — customers probably don\'t have Wi-Fi 7 on their current router',

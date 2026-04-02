@@ -16,6 +16,7 @@ import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGene
 import { DemoScenario } from './constants/demoScenarios';
 import { AppMode, ThemePreference } from './components/Header';
 
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import CustomerContextForm from './components/CustomerContextForm';
 import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
@@ -230,7 +231,12 @@ export default function App() {
     { id: 'account support' as const, label: 'Account Support', icon: UserCircle },
   ];
 
+  const isDataExpired = weeklyLoaded && weeklyData?.metadata.validUntil
+    ? new Date(weeklyData.metadata.validUntil) < new Date()
+    : false;
+
   return (
+    <ErrorBoundary>
     <div className="min-h-screen font-sans selection:bg-t-magenta/20 text-foreground relative">
       {/* Floating orbs — ambient magenta energy */}
       <div className="bg-orb bg-orb-1" aria-hidden="true" />
@@ -238,6 +244,12 @@ export default function App() {
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
 
       <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
+
+      {isDataExpired && (
+        <div className="sticky top-0 z-50 bg-amber-500 text-amber-950 text-center py-2 px-4 text-xs font-bold shadow-md">
+          ⚠️ Weekly update expired — data may be stale. Upload a fresh update.
+        </div>
+      )}
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
         {mode === 'level-up' ? (
@@ -570,5 +582,6 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+    </ErrorBoundary>
   );
 }

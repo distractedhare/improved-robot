@@ -78,14 +78,14 @@ export const PHONES: Device[] = [
     keySpecs: '6.3" FHD+ AMOLED (2340x1080, 411ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12GB RAM, 50MP Wide + 12MP UW + 10MP 3x Tele / 12MP front, 256GB/512GB, 4,300 mAh, 25W wired + 15W wireless',
     sellingNotes: '256GB minimum (no more 128GB). Same processor as Ultra — on-device AI is the same. Most affordable way into the S26 ecosystem. Compare to iPhone 17 at $799 — similar positioning.',
   },
-  { name: 'Galaxy Z Fold7', category: 'samsung', startingPrice: 'Premium', released: '2025', keySpecs: 'Slimmer, virtually invisible crease, no S Pen' },
+  { name: 'Galaxy Z Fold7', category: 'samsung', startingPrice: 1799.99, released: '2025', keySpecs: 'Slimmer, virtually invisible crease, no S Pen' },
   { name: 'Galaxy Z Flip7', category: 'samsung', startingPrice: 1099.99, released: '2025', keySpecs: 'Slimmest Flip ever (6.35mm), edge-to-edge external display' },
   { name: 'Galaxy A17 5G', category: 'samsung', startingPrice: 229.99, released: '2026', keySpecs: 'Budget 5G phone' },
   // Google Pixel lineup
   { name: 'Pixel 10 Pro XL', category: 'pixel', startingPrice: 1099, released: 'Aug 2025', keySpecs: 'Largest Pixel battery (5,200mAh), Tensor G5' },
   { name: 'Pixel 10 Pro', category: 'pixel', startingPrice: 999, released: 'Aug 2025', keySpecs: 'Tensor G5, 100x zoom' },
   { name: 'Pixel 10', category: 'pixel', startingPrice: 799, released: 'Aug 2025', keySpecs: 'Tensor G5, 4,970mAh' },
-  { name: 'Pixel 10 Pro Fold', category: 'pixel', startingPrice: 'Premium', released: 'Oct 2025', keySpecs: 'Foldable, dual-cell 5,015mAh, Tensor G5' },
+  { name: 'Pixel 10 Pro Fold', category: 'pixel', startingPrice: 1799, released: 'Oct 2025', keySpecs: 'Foldable, dual-cell 5,015mAh, Tensor G5' },
   { name: 'Pixel 10a', category: 'pixel', startingPrice: 499.99, released: 'March 2026', keySpecs: 'Tensor G5, 128GB, Gorilla Glass 7i, 30+ hr battery' },
   // Other / Niche
   { name: 'Samsung Galaxy XCover7 Pro', category: 'other', startingPrice: 499.99, released: '2025', keySpecs: 'MIL-STD-810H rugged, IP68, removable battery, programmable key. Great backup phone for B2G1 deals — basically a satellite phone on Beyond.' },
@@ -96,12 +96,12 @@ export const PHONES: Device[] = [
 
 export const TABLETS: Device[] = [
   { name: 'iPad (A16)', category: 'tablet', startingPrice: 499.99, released: '2024', keySpecs: '10.9", A16 chip, USB-C, 128GB. Solid entry iPad for media, school, and light productivity.' },
-  { name: 'iPad mini (A17 Pro)', category: 'tablet', startingPrice: 'Premium', released: '2024', keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.' },
+  { name: 'iPad mini (A17 Pro)', category: 'tablet', startingPrice: 499, released: '2024', keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.' },
   { name: 'iPad Air 11" (M4)', category: 'tablet', startingPrice: 599, released: 'March 2026', keySpecs: '11", M4 chip, Apple Pencil Pro support. Best balance of power and price.' },
   { name: 'iPad Air 13" (M4)', category: 'tablet', startingPrice: 799, released: 'March 2026', keySpecs: '13", M4 chip, Apple Pencil Pro support. Bigger screen for productivity and creative work.' },
-  { name: 'iPad Pro 11" (M5)', category: 'tablet', startingPrice: 'Premium', released: '2025', keySpecs: '11" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Laptop replacement for creatives and pros.' },
-  { name: 'iPad Pro 13" (M5)', category: 'tablet', startingPrice: 'Premium', released: '2025', keySpecs: '13" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Ultimate creative canvas.' },
-  { name: 'Samsung Galaxy Tab S10+ 5G', category: 'tablet', startingPrice: 'Premium', released: '2025', keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.' },
+  { name: 'iPad Pro 11" (M5)', category: 'tablet', startingPrice: 999, released: '2025', keySpecs: '11" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Laptop replacement for creatives and pros.' },
+  { name: 'iPad Pro 13" (M5)', category: 'tablet', startingPrice: 1299, released: '2025', keySpecs: '13" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Ultimate creative canvas.' },
+  { name: 'Samsung Galaxy Tab S10+ 5G', category: 'tablet', startingPrice: 999.99, released: '2025', keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.' },
   { name: 'Samsung Galaxy Tab S10 FE 5G', category: 'tablet', startingPrice: 599.99, released: '2025', keySpecs: '5G tablet with S Pen included. Samsung DeX desktop mode. Pairs with Galaxy ecosystem.' },
   { name: 'Samsung Galaxy Tab A11+ 5G', category: 'tablet', startingPrice: 289.99, released: '2026', keySpecs: 'Budget 5G tablet. Great for kids in the car, streaming, or as a second screen. FREE with S26 purchase + tablet line.' },
 ];
@@ -110,7 +110,7 @@ export const WATCHES: Device[] = [
   {
     name: 'Apple Watch Series 11',
     category: 'watch',
-    startingPrice: 'New',
+    startingPrice: 399,
     released: '2025',
     keySpecs: 'Latest Apple Watch flagship, Apple Pay, haptic maps, health sensors, fall detection',
     sellingNotes: 'Acts as a mini travel assistant — Apple Pay for contactless transit, haptic directions on your wrist so you never look at your phone while navigating. Ecosystem lock-in: automatic handoff with iPhone, AirPods seamless switching.',
@@ -126,14 +126,14 @@ export const WATCHES: Device[] = [
   {
     name: 'Apple Watch SE 2nd Gen',
     category: 'watch',
-    startingPrice: 'Budget',
+    startingPrice: 249,
     released: '2024',
     keySpecs: '40mm/44mm. Previous-gen SE still available at lower price.',
   },
   {
     name: 'Apple Watch Ultra 3',
     category: 'watch',
-    startingPrice: 'Premium',
+    startingPrice: 799,
     released: '2025',
     keySpecs: 'Advanced sports metrics, rugged titanium build, dual-frequency GPS, 36hr battery',
     sellingNotes: 'Built for extreme sports, diving, hiking. Action button for quick access. Premium positioning — sells itself to outdoor enthusiasts.',
@@ -141,7 +141,7 @@ export const WATCHES: Device[] = [
   {
     name: 'Samsung Galaxy Watch8 Ultra',
     category: 'watch',
-    startingPrice: 'Premium',
+    startingPrice: 649.99,
     released: '2025',
     keySpecs: '47mm, Wear OS, BioActive Sensor (body composition, heart rate, SpO2)',
     sellingNotes: 'Samsung\'s answer to the Apple Watch Ultra. BioActive Sensor does body composition analysis. Premium titanium build for outdoor/adventure users.',
@@ -149,7 +149,7 @@ export const WATCHES: Device[] = [
   {
     name: 'Samsung Galaxy Watch8 Classic',
     category: 'watch',
-    startingPrice: 'Premium',
+    startingPrice: 349.99,
     released: '2025',
     keySpecs: '46mm, rotating bezel, ECG, Wear OS',
     sellingNotes: 'Physical rotating bezel is back — classic look that appeals to traditional watch wearers. ECG and heart monitoring built in.',
@@ -225,8 +225,8 @@ export const ECOSYSTEM_HOOKS = {
 export const CONNECTED_DEVICE_INFO = {
   plans: {
     magentaDrive: { price: 20, desc: 'Unlimited in-car Wi-Fi for up to 8 simultaneous connections' },
-    tabletLine: { price: 20, desc: '$20/month (with voice line discount)' },
-    wearableLine: { price: '10–15', desc: '$10–$15/month with AutoPay' },
+    tabletLine: { price: '5–20', desc: '$5/mo on Experience Beyond or Better Value; $20/mo on other plans (with voice line discount)' },
+    wearableLine: { price: '5–15', desc: '$5/mo on Experience Beyond or Better Value; $10–$15/mo on other plans (with AutoPay)' },
     syncUpTracker: { price: 5, desc: '$5/month with AutoPay' },
     homeInternet: { desc: 'Up to $300 virtual prepaid card rebate + "Month On Us" promo' },
   },

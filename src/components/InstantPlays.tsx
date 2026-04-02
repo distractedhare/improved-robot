@@ -36,7 +36,7 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: s
     mindset: 'Don\'t re-sell. They already decided. Remove friction and maximize the order.',
     plays: [
       'Validate their choice immediately. "Nice — you know what you want. Let me make sure we get you the best version of that."',
-      'Before you close: premium plan check. Are they on Essentials when Go5G Plus makes more sense?',
+      'Before you close: premium plan check. Are they on Essentials when Experience Beyond makes more sense?',
       'P360 on every device. Don\'t skip it. "This covers loss and theft — AppleCare doesn\'t do that."',
       'Stack accessories — case, screen protector, charger. Three items unlocks 25% off, then swing for a bigger item.',
       'Push the order through T-Life app or tmobile.com. Better for the customer, better for you.',
@@ -55,7 +55,7 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: s
       'Reference their current plan/device. "I can see you\'ve been on [plan] for a while — how\'s it been working for you?"',
       'Frame upgrades as solving a current pain, not just "getting the new thing."',
       'For add-a-line: consolidating under one account drops the per-line cost. Run the numbers.',
-      'Plan upgrade opportunity: if they\'re on Essentials or base Go5G, the premium tiers unlock real value.',
+      'Plan upgrade opportunity: if they\'re on Essentials or Experience More, the premium tiers unlock real value.',
       'P360 re-attach on the new device. If they had it before, they know the value.',
       'US Cellular migration: get them set up NOW while they still qualify for new customer deals.',
     ],
@@ -107,7 +107,7 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: s
       'Walk through the bill in plain language. If there\'s a charge they don\'t recognize, explain it simply.',
       'If they\'re upset about charges: validate first, explain second. "I can see why that looks weird — here\'s what it actually is."',
       'Plan review opportunity: "While I\'ve got your account up — want me to make sure you\'re on the best plan for how you use your phone?"',
-      'If they\'re on Essentials and they\'re a heavy data user: "You\'re using [X]GB a month — Go5G Plus would give you unlimited premium data for $[difference]."',
+      'If they\'re on Essentials and they\'re a heavy data user: "You\'re using [X]GB a month — Experience Beyond would give you unlimited premium data for $[difference]."',
     ],
     pivots: [
       'Home Internet address check — always.',
@@ -138,9 +138,9 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
         'Self-install takes 15 minutes. No appointment, no technician, no waiting around.',
       ],
       'upgrade / add a line': [
-        'They\'re already a customer — HINT with a voice line is $35-55/mo. Run the savings.',
+        'They\'re already a customer — HINT with a voice line is $30-50/mo. Run the savings.',
         'If they\'re on a premium phone plan, they already trust T-Mobile. Easy transition.',
-        'All-In bundle discount ($55/mo) + streaming perks = over $480/year in value.',
+        'All-In bundle discount ($50/mo) + streaming perks = over $480/year in value.',
       ],
       'order support': [
         'They placed a HINT order — check status, give a clear ETA, and confirm gateway shipping.',
@@ -179,7 +179,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
       ],
       'upgrade / add a line': [
         'Check what devices they already have — are any due for upgrade?',
-        'Adding a tablet line for a kid? Go5G plan benefits extend to connected devices.',
+        'Adding a tablet line for a kid? Your plan benefits extend to connected devices.',
         'Watch trade-in values can be decent — check before they dismiss it.',
       ],
       'order support': [
