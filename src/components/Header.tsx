@@ -40,17 +40,14 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
         {/* Logo — compact */}
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 bg-gradient-to-br from-t-magenta to-t-berry shadow-lg shadow-t-magenta/30"
-            style={{
-              boxShadow: '0 4px 20px rgba(226,0,116,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
-            }}
+            className="p-1.5 sm:p-2 rounded-xl shrink-0 bg-gradient-to-br from-t-magenta to-t-berry shadow-lg shadow-t-magenta/30"
           >
             <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
           </div>
-          <h1 className="text-sm sm:text-base md:text-xl font-extrabold tracking-tight uppercase italic truncate" style={{ color: '#fff' }}>
+          <h1 className="text-sm sm:text-base md:text-xl font-extrabold tracking-tight uppercase italic truncate text-white">
             <span className="hidden sm:inline">CustomerConnect</span>
             <span className="sm:hidden">CC</span>
-            <span style={{ textShadow: '0 0 10px rgba(255,255,255,0.5)' }}> AI</span>
+            <span className="drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"> AI</span>
           </h1>
         </div>
 
@@ -99,7 +96,7 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
               >
                 <m.icon className="w-2.5 h-2.5" />
                 <span className="hidden sm:inline">{m.label}</span>
-                {m.id === 'live' && mode === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />}
+                {m.id === 'live' && mode === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-live" aria-label="Live mode active" />}
               </button>
             ))}
           </div>

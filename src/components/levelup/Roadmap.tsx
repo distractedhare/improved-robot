@@ -54,23 +54,23 @@ const ROADMAP_ITEMS: RoadmapItem[] = [
   },
 ];
 
-const STATUS_CONFIG: Record<RoadmapStatus, { bg: string; border: string; dot: string; icon: typeof Code2 }> = {
+const STATUS_CONFIG: Record<RoadmapStatus, { className: string; dotClass: string; textClass: string; icon: typeof Code2 }> = {
   'IN DEVELOPMENT': {
-    bg: 'rgba(59, 130, 246, 0.12)',
-    border: 'rgba(59, 130, 246, 0.35)',
-    dot: '#3B82F6',
+    className: 'bg-info-surface border-info-border',
+    dotClass: 'bg-info-surface',
+    textClass: 'text-info-foreground',
     icon: Code2,
   },
   'PLANNED': {
-    bg: 'rgba(134, 27, 84, 0.12)',
-    border: 'rgba(134, 27, 84, 0.35)',
-    dot: '#861B54',
+    className: 'bg-t-berry/10 border-t-berry/30',
+    dotClass: 'bg-t-berry/10',
+    textClass: 'text-t-berry',
     icon: Calendar,
   },
   'UNDER CONSIDERATION': {
-    bg: 'rgba(255, 255, 255, 0.04)',
-    border: 'rgba(255, 255, 255, 0.1)',
-    dot: '#6A6A6A',
+    className: 'bg-support-surface border-support-border',
+    dotClass: 'bg-support-surface',
+    textClass: 'text-support-foreground',
     icon: Lightbulb,
   },
 };
@@ -104,21 +104,16 @@ export default function Roadmap({ onSwitchToFeedback }: RoadmapProps) {
           return (
             <div
               key={item.id}
-              className="rounded-2xl p-4 transition-all glass"
-              style={{
-                borderColor: config.border,
-              }}
+              className={`rounded-2xl p-4 transition-all border glass ${config.className}`}
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div
-                  className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
-                  style={{ background: `${config.dot}22` }}
+                  className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${config.dotClass}`}
                 >
-                  <StatusIcon className="w-3 h-3" style={{ color: config.dot }} />
+                  <StatusIcon className={`w-3 h-3 ${config.textClass}`} />
                 </div>
                 <span
-                  className="text-[8px] font-black uppercase tracking-widest"
-                  style={{ color: config.dot }}
+                  className={`text-[8px] font-black uppercase tracking-widest ${config.textClass}`}
                 >
                   {item.status}
                 </span>
