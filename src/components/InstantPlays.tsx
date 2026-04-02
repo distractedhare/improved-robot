@@ -1,4 +1,4 @@
-import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Wifi } from 'lucide-react';
+import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
@@ -162,6 +162,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
   const plays = INTENT_PLAYS[intent];
   const showAccessories = isSalesIntent(intent);
   const isSupportCall = !showAccessories;
+  const [accOpen, setAccOpen] = useState(false);
 
   // Get product-specific tips
   const activeProducts = product?.filter(p => p !== 'No Specific Product' && p !== 'Phone') ?? [];
@@ -234,80 +235,62 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         ))}
       </div>
 
-      {/* Pivots */}
-      {plays.pivots.length > 0 && (
-        <div className="bg-info-surface rounded-2xl border-2 border-info-border p-5 space-y-2.5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Pivot opportunities</p>
-          {plays.pivots.map((pivot, i) => (
-            <div key={i} className="flex items-start gap-2.5">
-              <Zap className="w-3.5 h-3.5 text-info-accent mt-0.5 shrink-0" />
-              <p className="break-words text-[11px] text-info-foreground font-medium leading-snug">{pivot}</p>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Watch outs */}
-      {plays.watchouts && plays.watchouts.length > 0 && (
-        <div className="bg-warning-surface rounded-2xl border-2 border-warning-border p-5 space-y-2.5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground">Watch out</p>
-          {plays.watchouts.map((w, i) => (
-            <div key={i} className="flex items-start gap-2.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-warning-accent mt-0.5 shrink-0" />
-              <p className="break-words text-[11px] text-warning-foreground font-medium leading-snug">{w}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Accessories section for sales intents */}
+      {/* Accessories section for sales intents — collapsible */}
       {showAccessories && (
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-t-magenta to-t-berry rounded-2xl p-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
-              <Tag className="w-4 h-4" />
-              <p className="text-xs font-black uppercase tracking-wider">The Accessories Play</p>
-            </div>
-            <p className="text-[11px] font-medium opacity-90">
-              {intent === 'exploring'
-                ? 'They\'re still deciding on a device — but you can plant the seed now. Mention the bundle discount early so accessories feel like part of the deal, not an afterthought.'
-                : intent === 'ready to buy'
-                ? 'They\'re already committed. This is your best window to layer on accessories — they\'re in buying mode. Bundle 3+ essentials for 25% off and pitch it as part of the setup.'
-                : 'New device or new line = fresh start. They\'ll need a case, a charger, protection. Position the bundle as "everything you need to walk out ready." 3+ essentials = 25% off.'
-              }
-            </p>
-          </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => setAccOpen(!accOpen)}
+            className="focus-ring w-full flex items-center justify-between p-3 rounded-xl glass-card text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60"
+          >
+            <span className="flex items-center gap-2"><Tag className="w-3 h-3 text-t-magenta" /> Accessories play</span>
+            <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${accOpen ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {accOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-4 pt-3">
+                  {/* Bundle plays */}
+                  <div className="bg-success-surface rounded-2xl border-2 border-success-border p-4 space-y-3">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Quick bundle plays</p>
+                    <div className="space-y-2">
+                      <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
+                        <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Cheapest bundle (under $50)</p>
+                        <p className="text-[10px] text-t-dark-gray font-medium">
+                          Samsung 25W charger ($19.99) + USB-C cable ($19.99) + ZAGG Camera Protector ($24.99) = <strong>$64.97 → ~$48.73 with 25% off.</strong>
+                        </p>
+                      </div>
+                      <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
+                        <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Balanced bundle (solid ticket)</p>
+                        <p className="text-[10px] text-t-dark-gray font-medium">
+                          Tech21 EvoLite case ($39.99) + ZAGG Glass Elite ($44.99) + Samsung 25W charger ($19.99) = <strong>$104.97 → ~$78.73 with 25% off.</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-          {/* Bundle plays */}
-          <div className="bg-success-surface rounded-2xl border-2 border-success-border p-4 space-y-3">
-            <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Quick bundle plays</p>
-            <div className="space-y-2">
-              <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
-                <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Cheapest bundle (under $50)</p>
-                <p className="text-[10px] text-t-dark-gray font-medium">
-                  Samsung 25W charger ($19.99) + USB-C cable ($19.99) + ZAGG Camera Protector ($24.99) = <strong>$64.97 → ~$48.73 with 25% off.</strong>
-                </p>
-              </div>
-              <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
-                <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Balanced bundle (solid ticket)</p>
-                <p className="text-[10px] text-t-dark-gray font-medium">
-                  Tech21 EvoLite case ($39.99) + ZAGG Glass Elite ($44.99) + Samsung 25W charger ($19.99) = <strong>$104.97 → ~$78.73 with 25% off.</strong>
-                </p>
-              </div>
-            </div>
-          </div>
+                  {/* Essentials — collapsible categories */}
+                  <EssentialsAccordion intent={intent} age={age} />
 
-          {/* Essentials — collapsible categories */}
-          <EssentialsAccordion intent={intent} age={age} />
+                  {/* Big adds */}
+                  <BigAddsSection age={age} />
 
-          {/* Big adds */}
-          <BigAddsSection age={age} />
-
-          <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
-            <p className="text-[10px] text-t-magenta font-bold">
-              <strong>P360 isn't an accessory — it's a given.</strong> Pitch it like it's part of the phone purchase, not an add-on. $7–$26/mo depending on the device.
-            </p>
-          </div>
+                  <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
+                    <p className="text-[10px] text-t-magenta font-bold">
+                      <strong>P360 isn't an accessory — it's a given.</strong> Pitch it like it's part of the phone purchase, not an add-on. $7–$26/mo depending on the device.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
@@ -338,19 +321,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         </div>
       )}
 
-      {/* Support fallback: P360 reminder (always show for support) */}
-      {isSupportCall && (
-        <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
-          <p className="text-[10px] text-t-magenta font-bold">
-            <strong>P360 check:</strong> If they don't have it, now's the time. Especially after a tech issue — "want to make sure you're covered if this happens again?"
-          </p>
-        </div>
-      )}
 
-      {/* Footer — verified pricing note */}
-      <p className="text-[8px] text-t-dark-gray/40 font-medium text-center">
-        Prices verified as of March 2026. Always confirm current pricing in PromoHub before quoting.
-      </p>
     </motion.div>
   );
 }
