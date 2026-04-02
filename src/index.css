@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-t-magenta: #E20074;
   --color-t-magenta-hover: #C70066;

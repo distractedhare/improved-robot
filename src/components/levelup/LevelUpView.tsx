@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { AlertTriangle, Trophy, BarChart3, TrendingUp, Target, Clock, Plus, ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, Trophy, BarChart3, TrendingUp, Target, Clock, Plus, ArrowUpRight, MessageSquare } from 'lucide-react';
 import BingoBoard from './BingoBoard';
+import FeedbackForm from './FeedbackForm';
 
-type LevelUpTab = 'bingo' | 'tracker';
+type LevelUpTab = 'bingo' | 'tracker' | 'feedback';
 
 export default function LevelUpView() {
   const [tab, setTab] = useState<LevelUpTab>('bingo');
@@ -31,39 +32,35 @@ export default function LevelUpView() {
       </div>
 
       {/* Sub-tab toggle */}
-      <div className="flex rounded-full p-0.5 border bg-t-light-gray/30 border-t-light-gray max-w-xs mx-auto">
-        <button
-          type="button"
-          onClick={() => setTab('bingo')}
-          aria-pressed={tab === 'bingo'}
-          className={`focus-ring flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-            tab === 'bingo'
-              ? 'bg-t-berry text-white shadow-sm'
-              : 'text-t-dark-gray/60 hover:text-t-dark-gray'
-          }`}
-        >
-          <Trophy className="w-3 h-3" />
-          Bingo
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('tracker')}
-          aria-pressed={tab === 'tracker'}
-          className={`focus-ring flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-            tab === 'tracker'
-              ? 'bg-t-berry text-white shadow-sm'
-              : 'text-t-dark-gray/60 hover:text-t-dark-gray'
-          }`}
-        >
-          <BarChart3 className="w-3 h-3" />
-          Tracker
-        </button>
+      <div className="flex rounded-full p-0.5 border bg-t-light-gray/30 border-t-light-gray max-w-sm mx-auto">
+        {([
+          { id: 'bingo' as const, icon: Trophy, label: 'Bingo' },
+          { id: 'tracker' as const, icon: BarChart3, label: 'Tracker' },
+          { id: 'feedback' as const, icon: MessageSquare, label: 'Feedback' },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            aria-pressed={tab === t.id}
+            className={`focus-ring flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-full transition-all ${
+              tab === t.id
+                ? 'bg-t-berry text-white shadow-sm'
+                : 'text-t-dark-gray/60 hover:text-t-dark-gray'
+            }`}
+          >
+            <t.icon className="w-3 h-3" />
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
       <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
         {tab === 'bingo' ? (
           <BingoBoard />
+        ) : tab === 'feedback' ? (
+          <FeedbackForm />
         ) : (
           <SalesTrackerComingSoon />
         )}
