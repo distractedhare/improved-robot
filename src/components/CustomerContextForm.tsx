@@ -125,59 +125,6 @@ export default function CustomerContextForm({ context, setContext, inline }: Cus
         </AnimatePresence>
       </div>
 
-      {/* Product Category */}
-      <fieldset className="space-y-2">
-        <legend className="text-xs font-bold text-t-dark-gray">
-          What product?
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          {(['Phone', 'Home Internet', 'BTS', 'IOT', 'No Specific Product'] as const).map((p) => {
-            const isSelected = context.product.includes(p);
-            return (
-              <button
-                key={p}
-                type="button"
-                onClick={() => {
-                  setContext(prev => {
-                    if (p === 'No Specific Product') {
-                      return { ...prev, product: ['No Specific Product'] };
-                    }
-                    let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
-                    if (newProducts.includes(p)) {
-                      newProducts = newProducts.filter(prod => prod !== p);
-                    } else {
-                      newProducts.push(p);
-                    }
-                    if (newProducts.length === 0) {
-                      newProducts = ['No Specific Product'];
-                    }
-                    return { ...prev, product: newProducts };
-                  });
-                }}
-                aria-pressed={isSelected}
-                className={`focus-ring py-2 px-3 text-xs font-black rounded-lg border-2 uppercase transition-all flex flex-col items-start gap-1 ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
-                  isSelected
-                    ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
-                    : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span>{p}</span>
-                  {isSelected && <CheckCircle2 className="w-3 h-3" />}
-                </div>
-                <span className={`text-[8px] normal-case font-medium ${isSelected ? 'text-white/80' : 'text-t-dark-gray/60'}`}>
-                  {p === 'BTS' ? 'Tablets, Watches, etc.' :
-                   p === 'IOT' ? 'SyncUP Trackers, SyncUP DRIVE' :
-                   p === 'Phone' ? 'Smartphones & Plans' :
-                   p === 'Home Internet' ? 'High-Speed Home Wi-Fi' :
-                   'General Offers & Promos'}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
       {/* Current Carrier */}
       <fieldset className="space-y-2">
         <legend className="text-xs font-bold text-t-dark-gray">

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
@@ -242,27 +242,84 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
-            {/* INTENT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl border-2 border-t-light-gray p-5 shadow-sm lg:sticky lg:top-[60px] lg:z-[5] bg-surface-elevated">
-              <label className="text-xs font-bold mb-3 block text-t-dark-gray">
-                Why are they calling?
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {INTENTS.map((intent) => (
-                  <button
-                    key={intent.id}
-                    type="button"
-                    onClick={() => handleIntentSelect(intent.id)}
-                    aria-pressed={context.purchaseIntent === intent.id}
-                    className={`focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-black rounded-xl border-2 uppercase transition-all ${
-                      context.purchaseIntent === intent.id
-                        ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
-                        : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
-                    }`}
-                  >
-                    <span className="leading-tight">{intent.label}</span>
-                  </button>
-                ))}
+            {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
+            <section className="rounded-3xl border-2 border-t-light-gray p-5 shadow-sm lg:sticky lg:top-[60px] lg:z-[5] bg-surface-elevated space-y-4">
+              <div>
+                <label className="text-xs font-bold mb-3 block text-t-dark-gray">
+                  Why are they calling?
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {INTENTS.map((intent) => (
+                    <button
+                      key={intent.id}
+                      type="button"
+                      onClick={() => handleIntentSelect(intent.id)}
+                      aria-pressed={context.purchaseIntent === intent.id}
+                      className={`focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-black rounded-xl border-2 uppercase transition-all ${
+                        context.purchaseIntent === intent.id
+                          ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
+                          : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
+                      }`}
+                    >
+                      <span className="leading-tight">{intent.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Product type — always visible */}
+              <div>
+                <label className="text-xs font-bold mb-2 block text-t-dark-gray">
+                  What product?
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['Phone', 'Home Internet', 'BTS', 'IOT', 'No Specific Product'] as const).map((p) => {
+                    const isSelected = context.product.includes(p);
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => {
+                          setContext(prev => {
+                            if (p === 'No Specific Product') {
+                              return { ...prev, product: ['No Specific Product'] };
+                            }
+                            let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
+                            if (newProducts.includes(p)) {
+                              newProducts = newProducts.filter(prod => prod !== p);
+                            } else {
+                              newProducts.push(p);
+                            }
+                            if (newProducts.length === 0) {
+                              newProducts = ['No Specific Product'];
+                            }
+                            return { ...prev, product: newProducts };
+                          });
+                          setScript(null);
+                          setObjectionResult(null);
+                        }}
+                        aria-pressed={isSelected}
+                        className={`focus-ring py-2 px-3 text-[10px] font-black rounded-xl border-2 uppercase transition-all flex items-center justify-between ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
+                          isSelected
+                            ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
+                            : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
+                        }`}
+                      >
+                        <div className="text-left">
+                          <span>{p}</span>
+                          <span className={`block text-[8px] normal-case font-medium mt-0.5 ${isSelected ? 'text-white/80' : 'text-t-dark-gray/60'}`}>
+                            {p === 'BTS' ? 'Tablets, Watches, etc.' :
+                             p === 'IOT' ? 'SyncUP Trackers, DRIVE' :
+                             p === 'Phone' ? 'Smartphones & Plans' :
+                             p === 'Home Internet' ? 'HINT — Wireless & Fiber' :
+                             'General Offers & Promos'}
+                          </span>
+                        </div>
+                        {isSelected && <CheckCircle2 className="w-3 h-3 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </section>
 
@@ -349,7 +406,7 @@ export default function App() {
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays intent={context.purchaseIntent} age={context.age} ecosystemMatrix={ecosystemMatrix} />
+                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
               )}
 
 

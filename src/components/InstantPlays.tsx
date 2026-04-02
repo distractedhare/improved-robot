@@ -5,9 +5,12 @@ import { getSupportAccessory } from '../services/ecosystemService';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ESSENTIALS_TABLE, BIG_ADDS, getRecommendedCategories, Intent } from '../data/essentialAccessories';
 
+type ProductType = 'Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product';
+
 interface InstantPlaysProps {
   intent: Intent;
   age?: string;
+  product?: ProductType[];
   ecosystemMatrix?: EcosystemMatrix | null;
 }
 
@@ -116,10 +119,119 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: s
 
 const isSalesIntent = (intent: Intent) => ['exploring', 'ready to buy', 'upgrade / add a line'].includes(intent);
 
-export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPlaysProps) {
+// Product-specific context cards that overlay on top of intent plays
+const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Record<string, string[]> }> = {
+  'Home Internet': {
+    label: 'Home Internet',
+    color: 'from-t-magenta to-t-berry',
+    tips: {
+      'exploring': [
+        'Check the address FIRST — everything else depends on availability.',
+        'Ask who their current ISP is and what they pay. Most people overpay and don\'t realize it.',
+        'Lead with "no contract, no data caps, no equipment fees." That\'s what hooks them.',
+        'If they stream a lot: "All-In is $55 with your phone line and includes Hulu and Paramount+."',
+      ],
+      'ready to buy': [
+        'Confirm address availability, then push All-In — the streaming perks sell themselves.',
+        'Mention the 15-day test drive to remove any last-minute hesitation.',
+        'Up to $300 virtual prepaid card rebate + "Month On Us" — stack the value.',
+        'Self-install takes 15 minutes. No appointment, no technician, no waiting around.',
+      ],
+      'upgrade / add a line': [
+        'They\'re already a customer — HINT with a voice line is $35-55/mo. Run the savings.',
+        'If they\'re on a premium phone plan, they already trust T-Mobile. Easy transition.',
+        'All-In bundle discount ($55/mo) + streaming perks = over $480/year in value.',
+      ],
+      'order support': [
+        'They placed a HINT order — check status, give a clear ETA, and confirm gateway shipping.',
+        'If the gateway hasn\'t arrived: reassure them, check tracking, offer to expedite if possible.',
+        'If they\'re waiting: "While we wait, your setup will take about 15 minutes once it arrives — just plug it in."',
+        'After resolving: "By the way, have you thought about the All-In tier? It includes Hulu and Paramount+."',
+      ],
+      'tech support': [
+        'Gateway issues? Start with: unplug for 30 seconds, plug back in. Fixes most problems.',
+        'Check signal strength — gateway placement matters. Near a window, elevated, away from walls.',
+        'If speeds are slow: "Let me check your area. Sometimes a gateway swap or firmware update helps."',
+        'After resolving: check if they have the mesh extender (All-In includes one free).',
+      ],
+      'account support': [
+        'Review their HINT tier — are they on Rely when Amplified or All-In would be better?',
+        'If they\'re asking about charges: walk through the HINT line item clearly.',
+        'Mention the 5-Year Price Guarantee — their rate is locked. Most ISPs raise prices yearly.',
+        'If they\'re considering canceling: "What\'s the main issue? Let me see if we can fix it before you cancel."',
+      ],
+    },
+  },
+  'BTS': {
+    label: 'Behind the Screen (Tablets, Watches)',
+    color: 'from-blue-600 to-indigo-600',
+    tips: {
+      'exploring': [
+        'What device are they interested in? Tablet, watch, or both?',
+        'Tablet line is $20/mo. Watch line is $10-15/mo. Both are easy add-ons.',
+        'If they have an iPhone: Apple Watch is the natural add. Android: Galaxy Watch or Pixel Watch.',
+        'Galaxy Ring ($399.99) is a great conversation starter — no monthly line needed, just Bluetooth.',
+      ],
+      'ready to buy': [
+        'Confirm the device, add the line, pitch P360 on the new device.',
+        'If adding a watch: they need a compatible phone on the same account.',
+        'SyncUP KIDS Watch 2 ($174) for parents — GPS tracking, no social media, $10/mo line.',
+      ],
+      'upgrade / add a line': [
+        'Check what devices they already have — are any due for upgrade?',
+        'Adding a tablet line for a kid? Go5G plan benefits extend to connected devices.',
+        'Watch trade-in values can be decent — check before they dismiss it.',
+      ],
+      'order support': [
+        'Check if the device and line are both active. Sometimes the line activates before the device ships.',
+        'For watches: eSIM activation can be tricky. Walk them through the carrier app setup.',
+      ],
+      'tech support': [
+        'Watch connectivity issues? Check: is the phone nearby? Is Bluetooth on? Is the watch plan active?',
+        'Tablet won\'t connect to cellular? Check the SIM/eSIM, APN settings, and line status.',
+      ],
+      'account support': [
+        'Review their connected device lines — are they paying for lines they\'re not using?',
+        'If removing a line: check for any device payment remaining.',
+      ],
+    },
+  },
+  'IOT': {
+    label: 'IoT (SyncUP, Trackers)',
+    color: 'from-emerald-600 to-teal-600',
+    tips: {
+      'exploring': [
+        'SyncUP Tracker ($5/mo) — pets, luggage, kids\' backpacks. Dead simple.',
+        'SyncUP DRIVE ($108 + $20/mo) — turns any car into a connected car. Wi-Fi hotspot, diagnostics, GPS.',
+        'Franklin T10 hotspot for customers who need dedicated mobile internet.',
+      ],
+      'ready to buy': [
+        'SyncUP Tracker is the easiest add — $5/mo, no device payment needed for most.',
+        'SyncUP DRIVE: confirm their vehicle is OBD-II compatible (2008+ vehicles usually are).',
+      ],
+      'order support': [
+        'Tracker or DRIVE orders — confirm activation status and shipping.',
+        'Franklin T10 orders: make sure the data plan is attached correctly.',
+      ],
+      'tech support': [
+        'SyncUP Tracker not updating? Check the app, battery, and cellular coverage.',
+        'SyncUP DRIVE not connecting? Confirm it\'s seated properly in the OBD-II port and the vehicle is running.',
+      ],
+      'account support': [
+        'Review IoT lines — $5/mo tracker lines are easy to forget about if they stopped using the device.',
+        'DRIVE data plan review: $20/mo for Magenta Drive plan.',
+      ],
+    },
+  },
+};
+
+export default function InstantPlays({ intent, age, product, ecosystemMatrix }: InstantPlaysProps) {
   const plays = INTENT_PLAYS[intent];
   const showAccessories = isSalesIntent(intent);
   const isSupportCall = !showAccessories;
+
+  // Get product-specific tips
+  const activeProducts = product?.filter(p => p !== 'No Specific Product' && p !== 'Phone') ?? [];
 
   // Get a premium accessory recommendation for support intents
   const supportAccessory = useMemo(() => {
@@ -154,6 +266,34 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
           </div>
         </div>
       </motion.div>
+
+      {/* Product-specific context cards */}
+      {activeProducts.map((prod) => {
+        const ctx = PRODUCT_CONTEXT[prod];
+        if (!ctx) return null;
+        const tips = ctx.tips[intent] || [];
+        if (tips.length === 0) return null;
+        return (
+          <motion.div
+            key={prod}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`rounded-2xl bg-gradient-to-r ${ctx.color} p-4 shadow-md text-white`}
+          >
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70 mb-2">
+              {ctx.label} — {intent}
+            </p>
+            <div className="space-y-2">
+              {tips.map((tip, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <ChevronRight className="w-3 h-3 text-white/70 mt-0.5 shrink-0" />
+                  <p className="text-[11px] font-medium text-white/90 leading-snug">{tip}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })}
 
       {/* Intent header */}
       <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm">
