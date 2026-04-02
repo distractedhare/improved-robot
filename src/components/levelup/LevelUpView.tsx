@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { AlertTriangle, Trophy, BarChart3, TrendingUp, Target, Clock, Plus, ArrowUpRight, MessageSquare } from 'lucide-react';
+import { AlertTriangle, Trophy, BarChart3, TrendingUp, Target, Clock, Plus, ArrowUpRight, MessageSquare, Rocket } from 'lucide-react';
 import BingoBoard from './BingoBoard';
 import FeedbackForm from './FeedbackForm';
+import Roadmap from './Roadmap';
 
-type LevelUpTab = 'bingo' | 'tracker' | 'feedback';
+type LevelUpTab = 'bingo' | 'tracker' | 'feedback' | 'roadmap';
 
 export default function LevelUpView() {
   const [tab, setTab] = useState<LevelUpTab>('bingo');
@@ -32,11 +33,12 @@ export default function LevelUpView() {
       </div>
 
       {/* Sub-tab toggle */}
-      <div className="flex rounded-full p-0.5 max-w-sm mx-auto glass-tab">
+      <div className="flex rounded-full p-0.5 max-w-md mx-auto glass-tab">
         {([
           { id: 'bingo' as const, icon: Trophy, label: 'Bingo' },
           { id: 'tracker' as const, icon: BarChart3, label: 'Tracker' },
           { id: 'feedback' as const, icon: MessageSquare, label: 'Feedback' },
+          { id: 'roadmap' as const, icon: Rocket, label: 'Roadmap' },
         ]).map((t) => (
           <button
             key={t.id}
@@ -61,6 +63,8 @@ export default function LevelUpView() {
           <BingoBoard />
         ) : tab === 'feedback' ? (
           <FeedbackForm />
+        ) : tab === 'roadmap' ? (
+          <Roadmap onSwitchToFeedback={() => setTab('feedback')} />
         ) : (
           <SalesTrackerComingSoon />
         )}

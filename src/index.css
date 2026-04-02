@@ -159,23 +159,23 @@ html[data-theme="light"],
    ============================================ */
 html[data-theme="dark"],
 .dark {
-  --bg-page: #0A0711;
-  --bg-page-secondary: #151218;
-  --bg-surface-primary: rgba(30, 24, 35, 0.7);
-  --bg-surface-secondary: rgba(37, 30, 42, 0.7);
-  --bg-surface-elevated: rgba(42, 34, 50, 0.65);
-  --border-surface: rgba(226, 0, 116, 0.12);
-  --border-surface-strong: rgba(226, 0, 116, 0.25);
+  --bg-page: #0E0E0E;
+  --bg-page-secondary: #161616;
+  --bg-surface-primary: rgba(28, 28, 28, 0.75);
+  --bg-surface-secondary: rgba(34, 34, 34, 0.75);
+  --bg-surface-elevated: rgba(40, 40, 40, 0.7);
+  --border-surface: rgba(255, 255, 255, 0.1);
+  --border-surface-strong: rgba(255, 255, 255, 0.18);
   --shadow-surface: 0 2px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(226, 0, 116, 0.05);
   --shadow-surface-hover: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(226, 0, 116, 0.08);
 
-  /* Glass — Dark: magenta-tinted edges with specular white highlights */
-  --glass-bg: rgba(30, 24, 38, 0.55);
-  --glass-bg-strong: rgba(42, 34, 52, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-subtle: rgba(255, 255, 255, 0.04);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(226, 0, 116, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(226, 0, 116, 0.08);
-  --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 40px rgba(226, 0, 116, 0.08), inset 0 1.5px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(226, 0, 116, 0.12);
+  /* Glass — Dark: subtle white edges for card definition */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-strong: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(226, 0, 116, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 40px rgba(226, 0, 116, 0.08), inset 0 1.5px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   --glass-blur: blur(24px) saturate(160%);
   --glass-blur-strong: blur(32px) saturate(190%);
 
@@ -196,21 +196,21 @@ html[data-theme="dark"],
   --text-pitch: #FF6BB5;
 
   /* Intent buttons */
-  --bg-intent: rgba(42, 34, 50, 0.6);
+  --bg-intent: rgba(255, 255, 255, 0.04);
   --bg-intent-hover: rgba(226, 0, 116, 0.1);
   --bg-intent-active: #E20074;
   --text-intent: #F0ECF2;
   --text-intent-active: #FFFFFF;
-  --border-intent: rgba(226, 0, 116, 0.12);
+  --border-intent: rgba(255, 255, 255, 0.12);
   --border-intent-hover: #E20074;
 
   /* Section-specific */
-  --bg-mindset: rgba(226, 0, 116, 0.12);
+  --bg-mindset: rgba(226, 0, 116, 0.1);
   --text-mindset: #FF6BB5;
 
   /* Plays */
-  --bg-plays: rgba(30, 24, 35, 0.6);
-  --border-play-item: rgba(226, 0, 116, 0.08);
+  --bg-plays: rgba(255, 255, 255, 0.04);
+  --border-play-item: rgba(255, 255, 255, 0.08);
   --bg-play-hover: rgba(226, 0, 116, 0.08);
 
   /* CTA */
@@ -271,12 +271,7 @@ html[data-theme="light"] body {
 }
 
 html[data-theme="dark"] body {
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 8%, rgba(226, 0, 116, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 88% 25%, rgba(134, 27, 84, 0.14) 0%, transparent 45%),
-    radial-gradient(ellipse 60% 50% at 50% 92%, rgba(226, 0, 116, 0.07) 0%, transparent 45%),
-    radial-gradient(ellipse 40% 30% at 40% 50%, rgba(80, 20, 120, 0.08) 0%, transparent 40%),
-    #0A0711;
+  background: #0E0E0E;
   background-attachment: fixed;
 }
 
@@ -384,15 +379,13 @@ html[data-theme="dark"] body {
 }
 
 @utility btn-magenta-shimmer {
-  background: linear-gradient(110deg, #E20074 0%, #E20074 40%, #FF4DA6 50%, #E20074 60%, #E20074 100%);
-  background-size: 200% 100%;
-  animation: shimmer-sweep 3s ease-in-out infinite;
+  background: #E20074;
   color: white;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  box-shadow: 0 4px 20px rgba(226, 0, 116, 0.4), 0 0 40px rgba(226, 0, 116, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(226, 0, 116, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 @utility text-gradient-magenta {
