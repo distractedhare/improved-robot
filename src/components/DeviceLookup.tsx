@@ -391,12 +391,15 @@ export function DeviceDetail({
 
       {/* Weekly promos only — no stale static promos */}
       {weeklyPromos.length > 0 && (
-        <div className="bg-success-surface rounded-xl border border-success-border p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2 flex items-center gap-1">
-            <Tag className="w-2.5 h-2.5" /> This Week's Deals
+        <div className="rounded-xl border border-success-border p-3 space-y-2">
+          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground flex items-center gap-1">
+            <Tag className="w-2.5 h-2.5" /> This Week's Deals ({weeklyPromos.length})
           </p>
           {weeklyPromos.map((promo, i) => (
-            <p key={i} className="text-xs text-success-foreground font-bold">{promo.name}: {promo.details}</p>
+            <div key={i} className="rounded-lg bg-success-surface/60 border border-success-border/50 p-2.5 space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-wide text-success-foreground">{promo.name}</p>
+              <p className="text-[11px] text-success-foreground/80 font-medium leading-relaxed">{promo.details}</p>
+            </div>
           ))}
         </div>
       )}
