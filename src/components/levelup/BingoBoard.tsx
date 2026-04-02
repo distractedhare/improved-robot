@@ -112,37 +112,36 @@ export default function BingoBoard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(226, 0, 116, 0.95) 0%, rgba(134, 27, 84, 0.98) 50%, rgba(90, 20, 60, 0.95) 100%)' }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-t-magenta/95 via-t-berry/98 to-t-berry/95"
           >
-            {/* Full-screen confetti particles */}
+            {/* Full-screen confetti particles — index-derived for render stability */}
             {[...Array(40)].map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute rounded-sm"
                 style={{
-                  width: `${4 + Math.random() * 8}px`,
-                  height: `${4 + Math.random() * 8}px`,
-                  left: `${Math.random() * 100}%`,
+                  width: `${4 + (i % 8)}px`,
+                  height: `${4 + ((i * 3) % 8)}px`,
+                  left: `${(i * 2.5)}%`,
                   top: '-5%',
                   backgroundColor: [
-                    '#E20074', '#FF4DA6', '#FFFFFF', '#FF8AC7', '#861B54',
-                    '#FFD700', '#FF6BB5', '#FFFFFF', '#E20074', '#FF4DA6',
+                    'var(--color-t-magenta)', 'var(--color-text-accent)', 'white', 'var(--color-map-state-selected)', 'var(--color-t-berry)',
+                    'var(--color-warning-accent)', 'var(--color-text-pitch)', 'white', 'var(--color-t-magenta)', 'var(--color-text-accent)',
                   ][i % 10],
                   borderRadius: i % 3 === 0 ? '50%' : i % 3 === 1 ? '2px' : '0',
                 }}
                 initial={{ y: -20, x: 0, rotate: 0, opacity: 1 }}
                 animate={{
                   y: typeof window !== 'undefined' ? window.innerHeight + 50 : 900,
-                  x: (Math.random() - 0.5) * 200,
-                  rotate: Math.random() * 720 - 360,
+                  x: ((i % 10) - 5) * 20,
+                  rotate: (i * 18) - 360,
                   opacity: [1, 1, 1, 0.8, 0],
                 }}
                 transition={{
-                  duration: 2.5 + Math.random() * 2,
-                  delay: Math.random() * 1.5,
+                  duration: 2.5 + (i % 2),
+                  delay: (i % 15) * 0.1,
                   repeat: Infinity,
-                  repeatDelay: Math.random() * 0.5,
+                  repeatDelay: (i % 5) * 0.1,
                   ease: 'easeIn',
                 }}
               />
@@ -165,7 +164,7 @@ export default function BingoBoard() {
                 className="mx-auto"
               >
                 <div className="w-20 h-20 mx-auto rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
-                  <span className="text-4xl font-black text-white" style={{ fontStyle: 'italic', letterSpacing: '-0.05em' }}>T</span>
+                  <span className="text-4xl font-black text-white italic tracking-tighter">T</span>
                 </div>
               </motion.div>
 
