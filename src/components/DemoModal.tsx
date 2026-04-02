@@ -29,7 +29,7 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
             role="dialog"
             aria-modal="true"
             aria-labelledby="demo-modal-title"
-            className="relative rounded-3xl glass-card shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 z-10"
+            className="relative rounded-3xl glass-modal glass-specular max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 z-10"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 id="demo-modal-title" className="text-xl font-black uppercase tracking-tight">
@@ -54,7 +54,7 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
                     onSelectScenario(scenario);
                     onClose();
                   }}
-                  className="focus-ring w-full text-left p-4 rounded-2xl border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group"
+                  className="focus-ring w-full text-left p-4 rounded-2xl glass-button hover:border-t-magenta/50 hover:bg-t-magenta/5 group"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">{scenario.emoji}</span>

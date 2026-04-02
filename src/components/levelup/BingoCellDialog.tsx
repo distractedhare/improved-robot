@@ -46,7 +46,7 @@ export default function BingoCellDialog({ cell, completed, onClose, onConfirm }:
             role="dialog"
             aria-modal="true"
             aria-labelledby="bingo-cell-title"
-            className="relative z-10 w-full max-w-sm rounded-3xl border-2 border-t-light-gray bg-surface-elevated p-5 shadow-2xl"
+            className="relative z-10 w-full max-w-sm rounded-3xl p-5 glass-modal glass-specular"
           >
             <button
               type="button"
@@ -70,7 +70,7 @@ export default function BingoCellDialog({ cell, completed, onClose, onConfirm }:
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-t-light-gray bg-surface p-3">
+              <div className="rounded-2xl border border-t-light-gray bg-surface/50 p-3">
                 <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
                   <ShieldCheck className={`h-3 w-3 ${CATEGORY_STYLES[cell.category].accent}`} />
                   Counts When

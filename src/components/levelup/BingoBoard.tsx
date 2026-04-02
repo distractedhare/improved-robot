@@ -105,75 +105,118 @@ export default function BingoBoard() {
         }}
       />
 
-      {/* Celebration overlay */}
+      {/* Full-screen celebration overlay */}
       <AnimatePresence>
         {showCelebration && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(226, 0, 116, 0.95) 0%, rgba(134, 27, 84, 0.98) 50%, rgba(90, 20, 60, 0.95) 100%)' }}
           >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCelebration(false)} />
+            {/* Full-screen confetti particles */}
+            {[...Array(40)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-sm"
+                style={{
+                  width: `${4 + Math.random() * 8}px`,
+                  height: `${4 + Math.random() * 8}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: '-5%',
+                  backgroundColor: [
+                    '#E20074', '#FF4DA6', '#FFFFFF', '#FF8AC7', '#861B54',
+                    '#FFD700', '#FF6BB5', '#FFFFFF', '#E20074', '#FF4DA6',
+                  ][i % 10],
+                  borderRadius: i % 3 === 0 ? '50%' : i % 3 === 1 ? '2px' : '0',
+                }}
+                initial={{ y: -20, x: 0, rotate: 0, opacity: 1 }}
+                animate={{
+                  y: typeof window !== 'undefined' ? window.innerHeight + 50 : 900,
+                  x: (Math.random() - 0.5) * 200,
+                  rotate: Math.random() * 720 - 360,
+                  opacity: [1, 1, 1, 0.8, 0],
+                }}
+                transition={{
+                  duration: 2.5 + Math.random() * 2,
+                  delay: Math.random() * 1.5,
+                  repeat: Infinity,
+                  repeatDelay: Math.random() * 0.5,
+                  ease: 'easeIn',
+                }}
+              />
+            ))}
+
+            {/* Central content */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              initial={{ opacity: 0, scale: 0.6, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 30 }}
-              className="relative z-10 bg-surface-elevated rounded-3xl border-2 border-t-magenta/30 shadow-2xl p-8 max-w-sm w-full text-center space-y-4"
+              exit={{ opacity: 0, scale: 0.8, y: 40 }}
+              transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+              className="relative z-10 max-w-sm w-full text-center space-y-6 p-8"
+              onClick={(e) => e.stopPropagation()}
             >
-              <button
+              {/* T-Mobile Logo Mark */}
+              <motion.div
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.2 }}
+                className="mx-auto"
+              >
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                  <span className="text-4xl font-black text-white" style={{ fontStyle: 'italic', letterSpacing: '-0.05em' }}>T</span>
+                </div>
+              </motion.div>
+
+              {/* Trophy burst */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 0.3 }}
+              >
+                <Trophy className="w-16 h-16 text-yellow-300 mx-auto drop-shadow-lg" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="text-4xl font-black uppercase tracking-tight text-white drop-shadow-md">
+                  BINGO!
+                </h3>
+                <p className="text-lg text-white/80 font-semibold mt-2">
+                  You crushed it today.
+                </p>
+              </motion.div>
+
+              {/* Code card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-5 space-y-2"
+              >
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/60">Your Code</p>
+                <p className="text-2xl font-black tracking-[0.15em] text-white select-all">{bingoCode}</p>
+                <p className="text-xs text-white/50 font-medium">
+                  Screenshot this and show your coach!
+                </p>
+              </motion.div>
+
+              {/* Dismiss button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
                 type="button"
                 onClick={() => setShowCelebration(false)}
-                className="absolute top-3 right-3 text-t-dark-gray/40 hover:text-t-magenta transition-colors"
-                aria-label="Close celebration"
+                className="focus-ring mx-auto flex items-center gap-2 px-6 py-3 rounded-full bg-white text-t-magenta font-black text-sm uppercase tracking-wider shadow-xl hover:bg-white/90 transition-all"
               >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Confetti-like animation */}
-              <div className="relative w-20 h-20 mx-auto">
-                {[...Array(12)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 rounded-sm"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                      backgroundColor: i % 3 === 0 ? 'var(--color-t-magenta)' : i % 3 === 1 ? 'var(--color-t-berry)' : 'var(--color-warning-accent)',
-                    }}
-                    initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
-                    animate={{
-                      x: Math.cos((i * 30 * Math.PI) / 180) * 40,
-                      y: Math.sin((i * 30 * Math.PI) / 180) * 40,
-                      opacity: [1, 1, 0],
-                      scale: [0, 1.5, 0.5],
-                      rotate: i * 30,
-                    }}
-                    transition={{ duration: 1.2, delay: i * 0.05, repeat: Infinity, repeatDelay: 1 }}
-                  />
-                ))}
-                <motion.div
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <Trophy className="w-12 h-12 text-warning-accent" />
-                </motion.div>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tight">BINGO!</h3>
-                <p className="text-sm text-t-dark-gray font-medium mt-1">You crushed it today.</p>
-              </div>
-
-              <div className="bg-t-magenta/10 border-2 border-t-magenta/20 rounded-2xl p-4 space-y-2">
-                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Your code</p>
-                <p className="text-lg font-black tracking-wider text-t-dark-gray select-all">{bingoCode}</p>
-                <p className="text-[10px] text-t-dark-gray/60 font-medium">
-                  Screenshot this and show your coach for a prize!
-                </p>
-              </div>
+                <X className="w-4 h-4" />
+                Close
+              </motion.button>
             </motion.div>
           </motion.div>
         )}

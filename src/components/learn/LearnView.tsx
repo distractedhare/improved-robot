@@ -174,7 +174,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         </div>
       </div>
 
-      <div className="rounded-2xl px-4 py-3 glass-card">
+      <div className="rounded-2xl px-4 py-3 glass-card glass-specular">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
           {TAB_MOMENT_GUIDANCE[tab].moment}
         </p>
@@ -185,14 +185,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
       {/* Content */}
       {tab === 'briefing' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
         </div>
       )}
 
       {tab === 'devices' && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+          <div className="rounded-2xl border border-info-border bg-info-surface p-4 glass-specular">
             <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
               Fast Call Rule
             </p>
@@ -228,14 +228,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
           {/* Accessories — standalone reference */}
           {deviceCategory === 'accessories' ? (
-            <div className="rounded-3xl p-5 glass-card">
+            <div className="rounded-3xl p-5 glass-card glass-specular">
               <AccessoriesReference ecosystemMatrix={ecosystemMatrix} />
             </div>
           ) : (
             /* Device lookup + comparison for phones/tablets/wearables */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-5">
-                <div className="rounded-3xl p-5 glass-card">
+                <div className="rounded-3xl p-5 glass-card glass-specular">
                   <DeviceLookup
                     selectedDevices={selectedDevices}
                     onToggleDevice={toggleDevice}
@@ -254,7 +254,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card" style={{ borderStyle: 'dashed' }}>
+                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular" style={{ borderStyle: 'dashed' }}>
                     <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                       {deviceCategory === 'phones' && <Smartphone className="w-8 h-8 text-t-magenta" />}
                       {deviceCategory === 'tablets' && <Tablet className="w-8 h-8 text-t-magenta" />}
@@ -282,31 +282,31 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       )}
 
       {tab === 'plans' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <PlansSection />
         </div>
       )}
 
       {tab === 'homeinternet' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <HomeInternetSection />
         </div>
       )}
 
       {tab === 'playbook' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <PlaybookSection />
         </div>
       )}
 
       {tab === 'edge' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <EdgeSection />
         </div>
       )}
 
       {tab === 'practice' && (
-        <div className="rounded-3xl p-5 glass-card">
+        <div className="rounded-3xl p-5 glass-card glass-specular">
           <div className="mb-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">
               Practice Mode

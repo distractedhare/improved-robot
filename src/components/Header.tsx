@@ -31,22 +31,17 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
 
   return (
     <header
-      className="sticky top-0 z-10 transition-all px-3 sm:px-4 md:px-6 pb-2 sm:pb-3"
+      className="sticky top-0 z-10 transition-all px-3 sm:px-4 md:px-6 pb-2 sm:pb-3 glass-header-gradient glass-specular"
       style={{
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)',
-        background: 'linear-gradient(135deg, #E20074 0%, #A1004D 60%, #861B54 100%)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.15)',
-        boxShadow: '0 4px 24px rgba(226,0,116,0.3), 0 1px 0 rgba(255,255,255,0.1) inset',
       }}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
         {/* Logo — compact */}
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0"
+            className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl shrink-0 bg-gradient-to-br from-t-magenta to-t-berry shadow-lg shadow-t-magenta/30"
             style={{
-              background: 'linear-gradient(135deg, #E20074, #861B54)',
               boxShadow: '0 4px 20px rgba(226,0,116,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
             }}
           >
@@ -63,11 +58,7 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Theme toggle — icons only on mobile, icons+label on sm+ */}
           <div
-            className="flex rounded-full p-0.5 gap-px"
-            style={{
-              background: 'rgba(255,255,255,0.12)',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}
+            className="flex rounded-full p-0.5 gap-px bg-white/12 border border-white/10"
           >
             {THEMES.map((t) => (
               <button
@@ -77,13 +68,11 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
                 aria-label={t.label}
                 aria-pressed={themePreference === t.id}
                 title={t.label}
-                className="focus-ring p-1 sm:p-1.5 rounded-full transition-all"
-                style={{
-                  background: themePreference === t.id
-                    ? 'rgba(255,255,255,0.25)'
-                    : 'transparent',
-                  color: themePreference === t.id ? '#fff' : 'rgba(255,255,255,0.5)',
-                }}
+                className={`focus-ring p-1 sm:p-1.5 rounded-full transition-all ${
+                  themePreference === t.id
+                    ? 'bg-white/25 text-white'
+                    : 'text-white/50 hover:text-white/70 hover:bg-white/10'
+                }`}
               >
                 <t.icon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </button>
@@ -92,11 +81,7 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
 
           {/* Mode toggle — icon only on mobile, icon+label on sm+ */}
           <div
-            className="flex rounded-full p-0.5"
-            style={{
-              background: 'rgba(255,255,255,0.12)',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}
+            className="flex rounded-full p-0.5 bg-white/12 border border-white/10"
           >
             {MODES.map((m) => (
               <button
@@ -106,18 +91,11 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
                 aria-label={m.label}
                 aria-pressed={mode === m.id}
                 title={m.label}
-                className="focus-ring flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-full transition-all"
-                style={{
-                  background: mode === m.id
-                    ? 'rgba(255,255,255,0.95)'
-                    : 'transparent',
-                  color: mode === m.id
-                    ? '#E20074'
-                    : 'rgba(255,255,255,0.6)',
-                  boxShadow: mode === m.id
-                    ? '0 2px 8px rgba(0,0,0,0.15)'
-                    : 'none',
-                }}
+                className={`focus-ring flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-full transition-all ${
+                  mode === m.id
+                    ? 'bg-white/95 text-t-magenta shadow-md'
+                    : 'text-white/60 hover:text-white/80 hover:bg-white/10'
+                }`}
               >
                 <m.icon className="w-2.5 h-2.5" />
                 <span className="hidden sm:inline">{m.label}</span>
@@ -132,14 +110,7 @@ export default function Header({ onReset, mode, themePreference, onThemeChange, 
             onClick={handleNewCall}
             aria-label="New Call"
             title="New Call"
-            className="focus-ring flex items-center gap-1 text-[10px] font-extrabold px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-full transition-all uppercase tracking-widest"
-            style={{
-              border: '1.5px solid rgba(255,255,255,0.4)',
-              color: '#fff',
-              background: 'rgba(255,255,255,0.2)',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+            className="focus-ring flex items-center gap-1 text-[10px] font-extrabold px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-full transition-all uppercase tracking-widest border-[1.5px] border-white/40 text-white bg-white/20 hover:bg-white/30 hover:border-white/60"
           >
             <UserPlus className="w-3 h-3" />
             <span className="hidden sm:inline">New Call</span>
