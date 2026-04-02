@@ -69,7 +69,11 @@ export function toggleBingoCell(cellId: string): Set<string> {
   } else {
     state.add(cellId);
   }
-  localStorage.setItem(storageKey(), JSON.stringify([...state]));
+  try {
+    localStorage.setItem(storageKey(), JSON.stringify([...state]));
+  } catch {
+    return state;
+  }
   cleanOldEntries();
   return state;
 }
@@ -111,11 +115,19 @@ export function generateBingoCode(completedIds: Set<string>): string {
 
 /** Track whether bingo celebration has been shown today */
 export function hasCelebratedToday(): boolean {
-  return localStorage.getItem(`cc-bingo-celebrated-${todayKey()}`) === 'true';
+  try {
+    return localStorage.getItem(`cc-bingo-celebrated-${todayKey()}`) === 'true';
+  } catch {
+    return false;
+  }
 }
 
 export function markCelebrated(): void {
-  localStorage.setItem(`cc-bingo-celebrated-${todayKey()}`, 'true');
+  try {
+    localStorage.setItem(`cc-bingo-celebrated-${todayKey()}`, 'true');
+  } catch {
+    // Ignore storage issues; celebration state is non-critical.
+  }
 }
 
 /** Remove bingo entries older than 7 days */

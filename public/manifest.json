@@ -1,7 +1,7 @@
 {
-  "name": "CustomerConnect AI",
-  "short_name": "ConnectAI",
-  "description": "Your AI-Powered Sales Co-Pilot",
+  "name": "T-Sales Assistant (Unoff.)",
+  "short_name": "T-Sales",
+  "description": "Fast offline sales coaching for T-Mobile Virtual Retail reps.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,14 +9,14 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/icon-192.svg",
-      "sizes": "192x192",
+      "src": "/tmo-logo-v4.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.svg",
-      "sizes": "512x512",
+      "src": "/tmo-logo-v4.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

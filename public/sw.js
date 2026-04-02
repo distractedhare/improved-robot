@@ -1,4 +1,10 @@
-const CACHE_NAME = 'customerconnect-v6';
+const CACHE_NAME = 'customerconnect-v7';
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // On install, cache static shell assets (not index.html — that uses network-first)
 self.addEventListener('install', (event) => {
@@ -9,6 +15,7 @@ self.addEventListener('install', (event) => {
         '/weekly-update.json',
         '/device-ecosystem-matrix.json',
         '/states-10m.json',
+        '/tmo-logo-v4.svg',
         '/icon-192.svg',
         '/icon-512.svg',
       ]);

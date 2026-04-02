@@ -1,6 +1,6 @@
 import {
   Sparkles, ArrowRight, Loader2, CheckCircle2, Coffee, Target,
-  ChevronRight, ChevronDown, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users
+  ChevronRight, ChevronDown, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users, Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -16,40 +16,74 @@ interface GamePlanTabProps {
   loading: boolean;
   selectedGamePlanItems: string[];
   onGenerate: () => void;
+  onRunDemoScenario: () => void;
+  lastDemoScenarioName?: string | null;
   onToggleItem: (item: string) => void;
   onReset: () => void;
   onSwitchToObjections: () => void;
 }
 
 export default function GamePlanTab({
-  loading, onGenerate,
-}: Pick<GamePlanTabProps, 'loading' | 'onGenerate'>) {
+  loading,
+  onGenerate,
+  onRunDemoScenario,
+  lastDemoScenarioName,
+}: Pick<GamePlanTabProps, 'loading' | 'onGenerate' | 'onRunDemoScenario' | 'lastDemoScenarioName'>) {
   return (
-    <>
-      {/* Generate button — the intent selector is now in App.tsx */}
-      <motion.section
-        key="gameplan"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
+    <motion.section
+      key="gameplan"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-3"
+    >
+      <button
+        type="button"
+        onClick={onGenerate}
+        disabled={loading}
+        className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform"
       >
-        <button
-          type="button"
-          onClick={onGenerate}
-          disabled={loading}
-          className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform"
-        >
-          {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <>
-              Build my game plan
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </>
-          )}
-        </button>
-      </motion.section>
-    </>
+        {loading ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <>
+            Build my game plan
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </>
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={onRunDemoScenario}
+        disabled={loading}
+        className="focus-ring w-full rounded-2xl border-2 border-t-magenta/30 bg-t-magenta/8 px-4 py-4 text-left transition-all hover:border-t-magenta/55 hover:bg-t-magenta/12 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta text-white shadow-lg shadow-t-magenta/20">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-t-magenta">
+                Run a Test Scenario
+              </p>
+              <span className="rounded-full bg-t-magenta/12 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+                Beta Safe
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+              Auto-load one of the Learn &gt; Practice presets so testers can try the app instantly without filling anything out first.
+            </p>
+            {lastDemoScenarioName && (
+              <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray/60">
+                Last loaded: {lastDemoScenarioName}
+              </p>
+            )}
+          </div>
+        </div>
+      </button>
+    </motion.section>
   );
 }
 

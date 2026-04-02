@@ -21,7 +21,13 @@ function canUseSessionStorage(): boolean {
 function readStats(): SessionStats {
   if (!canUseSessionStorage()) return DEFAULT_STATS;
 
-  const raw = sessionStorage.getItem(SESSION_STATS_KEY);
+  let raw: string | null = null;
+  try {
+    raw = sessionStorage.getItem(SESSION_STATS_KEY);
+  } catch {
+    return DEFAULT_STATS;
+  }
+
   if (!raw) return DEFAULT_STATS;
 
   try {
@@ -39,7 +45,11 @@ function readStats(): SessionStats {
 
 function writeStats(stats: SessionStats): void {
   if (!canUseSessionStorage()) return;
-  sessionStorage.setItem(SESSION_STATS_KEY, JSON.stringify(stats));
+  try {
+    sessionStorage.setItem(SESSION_STATS_KEY, JSON.stringify(stats));
+  } catch {
+    // Session tracking should never block the selling flow.
+  }
 }
 
 function incrementFrequencyMap(map: Record<string, number>, key: string): Record<string, number> {

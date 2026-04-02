@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
@@ -13,7 +13,7 @@ import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
 import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGenerated } from './services/sessionTracker';
-import { DemoScenario } from './constants/demoScenarios';
+import { DEMO_SCENARIOS, DemoScenario } from './constants/demoScenarios';
 import { AppMode, ThemePreference } from './components/Header';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -48,6 +48,8 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>('live');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
+  const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
+  const [refreshingApp, setRefreshingApp] = useState(false);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
@@ -55,7 +57,11 @@ export default function App() {
   // Theme — 3-state: auto / light / dark
   const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('cc-theme') as ThemePreference) || 'auto';
+      try {
+        return (localStorage.getItem('cc-theme') as ThemePreference) || 'auto';
+      } catch {
+        return 'auto';
+      }
     }
     return 'auto';
   });
@@ -68,7 +74,11 @@ export default function App() {
       document.documentElement.classList.toggle('dark', resolved === 'dark');
     }
     applyTheme(themePreference);
-    localStorage.setItem('cc-theme', themePreference);
+    try {
+      localStorage.setItem('cc-theme', themePreference);
+    } catch {
+      console.warn('Theme preference could not be saved.');
+    }
 
     // Listen for OS changes when on auto
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -113,7 +123,11 @@ export default function App() {
   const lastGenerateTime = useRef(0);
 
   const refreshSessionStats = useCallback(() => {
-    setSessionStats(getSessionStats());
+    try {
+      setSessionStats(getSessionStats());
+    } catch (err) {
+      console.warn('Session stats could not be refreshed.', err);
+    }
   }, []);
 
   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
@@ -124,8 +138,12 @@ export default function App() {
     setSelectedObjections([]);
     setSelectedGamePlanItems([]);
     setError(null);
-    trackIntentUsed(intent);
-    refreshSessionStats();
+    try {
+      trackIntentUsed(intent);
+      refreshSessionStats();
+    } catch (err) {
+      console.warn('Intent tracking failed, but the app will keep going.', err);
+    }
   }, [refreshSessionStats]);
 
   const handleGenerate = useCallback((overrideContext?: SalesContext) => {
@@ -144,11 +162,15 @@ export default function App() {
       setSelectedObjections([]);
       setSelectedGamePlanItems([]);
       if (!overrideContext) {
-        trackPlanGenerated();
-        refreshSessionStats();
+        try {
+          trackPlanGenerated();
+          refreshSessionStats();
+        } catch (trackingError) {
+          console.warn('Plan tracking failed, but the game plan was built.', trackingError);
+        }
       }
     } catch (err) {
-      setError('Couldn\'t build your game plan — the weekly update file may be missing or out of date.');
+      setError('Couldn\'t build your game plan. Try again, and if it keeps happening refresh the app.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -168,8 +190,12 @@ export default function App() {
         weeklyData,
       );
       setObjectionResult(result);
-      trackObjectionAnalyzed(selectedObjections);
-      refreshSessionStats();
+      try {
+        trackObjectionAnalyzed(selectedObjections);
+        refreshSessionStats();
+      } catch (trackingError) {
+        console.warn('Objection tracking failed, but the analysis was built.', trackingError);
+      }
     } catch (err) {
       setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
       console.error(err);
@@ -211,8 +237,13 @@ export default function App() {
     setIntentTapped(true);
     setError(null);
     setTimeout(() => {
-      const result = generateScript(scenario.context, weeklyData);
-      setScript(result);
+      try {
+        const result = generateScript(scenario.context, weeklyData);
+        setScript(result);
+      } catch (err) {
+        setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
+        console.error(err);
+      }
     }, 50);
   }, [weeklyData]);
 
@@ -221,6 +252,45 @@ export default function App() {
     handleDemoScenario(scenario);
     setMode('live');
   }, [handleDemoScenario]);
+
+  const handleRunDemoScenario = useCallback(() => {
+    const pool = DEMO_SCENARIOS.filter((scenario) => scenario.name !== lastDemoScenarioName);
+    const choices = pool.length > 0 ? pool : DEMO_SCENARIOS;
+    const scenario = choices[Math.floor(Math.random() * choices.length)];
+    setLastDemoScenarioName(scenario.name);
+    handlePracticeScenario(scenario);
+  }, [handlePracticeScenario, lastDemoScenarioName]);
+
+  const handleRefreshApp = useCallback(async () => {
+    if (refreshingApp) return;
+    setRefreshingApp(true);
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.update().catch(() => undefined)));
+
+        for (const registration of registrations) {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+        }
+      }
+
+      if (navigator.onLine && 'caches' in window) {
+        const cacheKeys = await caches.keys();
+        await Promise.all(
+          cacheKeys
+            .filter((key) => key.startsWith('customerconnect-'))
+            .map((key) => caches.delete(key))
+        );
+      }
+    } catch (err) {
+      console.warn('App refresh encountered an issue, falling back to a normal reload.', err);
+    }
+
+    window.location.reload();
+  }, [refreshingApp]);
 
   const INTENTS = [
     { id: 'exploring' as const, label: 'Exploring', icon: Search },
@@ -252,17 +322,42 @@ export default function App() {
       )}
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
-        {mode === 'level-up' ? (
-          <LevelUpView />
-        ) : mode === 'learn' ? (
-          <LearnView
-            weeklyData={weeklyData}
-            weeklySource={weeklySource}
-            ecosystemMatrix={ecosystemMatrix}
-            onDataUpdate={refreshWeeklyData}
-            onSelectScenario={handlePracticeScenario}
-          />
-        ) : (<>
+        <AnimatePresence mode="wait">
+          {mode === 'level-up' ? (
+            <motion.section
+              key="mode-level-up"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <LevelUpView />
+            </motion.section>
+          ) : mode === 'learn' ? (
+            <motion.section
+              key="mode-learn"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <LearnView
+                weeklyData={weeklyData}
+                weeklySource={weeklySource}
+                ecosystemMatrix={ecosystemMatrix}
+                onDataUpdate={refreshWeeklyData}
+                onSelectScenario={handlePracticeScenario}
+              />
+            </motion.section>
+          ) : (
+            <motion.section
+              key="mode-live"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+        <>
         {/* On-the-clock disclaimer */}
         <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
@@ -433,6 +528,8 @@ export default function App() {
             <GamePlanTab
               loading={loading}
               onGenerate={handleGenerate}
+              onRunDemoScenario={handleRunDemoScenario}
+              lastDemoScenarioName={lastDemoScenarioName}
             />
 
             {/* Tabs — Plan + Objections */}
@@ -552,7 +649,10 @@ export default function App() {
             )}
           </div>
         </div>
-        </>)}
+        </>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </main>
 
 
@@ -573,8 +673,22 @@ export default function App() {
             No real customer info. Everything here runs on generic context — CPNI compliant, always.
           </p>
         </div>
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { void handleRefreshApp(); }}
+            disabled={refreshingApp}
+            className="focus-ring inline-flex items-center gap-2 rounded-full border border-t-light-gray bg-surface-elevated px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:opacity-60 disabled:cursor-wait"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
+            {refreshingApp ? 'Refreshing App...' : 'Refresh App'}
+          </button>
+          <p className="text-[10px] font-medium text-t-dark-gray/55">
+            Use this if the app looks stale or a tester thinks they are seeing an older version.
+          </p>
+        </div>
         <p className="text-[10px] font-black uppercase tracking-widest pt-4 text-t-dark-gray/60">
-          &copy; 2026 CustomerConnect AI. Runs fully offline.
+          &copy; 2026 T-Sales Assistant (Unoff.). Runs fully offline.
         </p>
       </footer>
 

@@ -26,7 +26,14 @@ export interface WeeklyUpdateUploadResult {
 function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   if (typeof window === 'undefined') return null;
 
-  const stored = localStorage.getItem(UPLOADED_WEEKLY_UPDATE_KEY);
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(UPLOADED_WEEKLY_UPDATE_KEY);
+  } catch {
+    console.warn('Stored weekly update could not be accessed, falling back to bundled data');
+    return null;
+  }
+
   if (!stored) return null;
 
   try {
@@ -90,7 +97,12 @@ export function uploadWeeklyUpdate(jsonString: string): WeeklyUpdateUploadResult
       return { success: false, error: 'Uploads are only available in the browser.' };
     }
 
-    localStorage.setItem(UPLOADED_WEEKLY_UPDATE_KEY, jsonString);
+    try {
+      localStorage.setItem(UPLOADED_WEEKLY_UPDATE_KEY, jsonString);
+    } catch {
+      return { success: false, error: 'This browser blocked local storage, so the upload could not be saved.' };
+    }
+
     cachedWeeklyUpdate = parsed;
     cachedWeeklySource = 'uploaded';
     return { success: true, metadata: parsed.metadata, source: 'uploaded' };
@@ -102,7 +114,11 @@ export function uploadWeeklyUpdate(jsonString: string): WeeklyUpdateUploadResult
 /** Clear uploaded weekly update (revert to bundled) */
 export function clearUploadedUpdate(): void {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(UPLOADED_WEEKLY_UPDATE_KEY);
+    try {
+      localStorage.removeItem(UPLOADED_WEEKLY_UPDATE_KEY);
+    } catch {
+      console.warn('Uploaded weekly update could not be cleared from local storage');
+    }
   }
   cachedWeeklyUpdate = null;
   cachedWeeklySource = 'placeholder';
