@@ -58,7 +58,7 @@ export default function LevelUpView() {
       </div>
 
       {/* Content */}
-      <div className="rounded-3xl p-5 glass-card">
+      <div className="rounded-3xl p-5 glass-card glass-specular">
         {tab === 'bingo' ? (
           <BingoBoard />
         ) : tab === 'feedback' ? (
@@ -147,7 +147,7 @@ function SalesTrackerComingSoon() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="rounded-xl border border-t-light-gray p-3 space-y-1.5 bg-surface">
+    <div className="rounded-xl p-3 space-y-1.5 glass">
       <div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-lg bg-t-berry/10 flex items-center justify-center shrink-0">
           {icon}

@@ -246,8 +246,10 @@ export default function App() {
       <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
 
       {isDataExpired && (
-        <div className="sticky top-0 z-50 bg-amber-500 text-amber-950 text-center py-2 px-4 text-xs font-bold shadow-md">
-          ⚠️ Weekly update expired — data may be stale. Upload a fresh update.
+        <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border"
+          style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+        >
+          Weekly update expired — data may be stale. Upload a fresh update.
         </div>
       )}
 
@@ -489,7 +491,7 @@ export default function App() {
               {/* Objections empty state */}
               {activeTab === 'objections' && !objectionResult && !analyzing && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine glass-specular"
                   style={{ borderStyle: 'dashed' }}
                 >
                   <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -516,7 +518,7 @@ export default function App() {
               {/* Loading state */}
               {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 rounded-3xl glass-card magenta-glow"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 rounded-3xl glass-card glass-specular magenta-glow"
                 >
                   <Loader2 className="w-10 h-10 text-t-magenta animate-spin mb-4" />
                   <p className="text-t-magenta font-black uppercase tracking-widest animate-pulse">

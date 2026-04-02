@@ -25,23 +25,22 @@ export default class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-8">
-          <div className="text-center max-w-md space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-[#E20074]/10 flex items-center justify-center">
-              <svg className="w-8 h-8 text-[#E20074]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="min-h-screen flex items-center justify-center p-8" style={{ background: 'var(--bg-page)' }}>
+          <div className="text-center max-w-md space-y-6 rounded-3xl p-8 glass-card glass-specular">
+            <div className="w-16 h-16 mx-auto rounded-full bg-t-magenta/10 flex items-center justify-center">
+              <svg className="w-8 h-8 text-t-magenta" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">
               Something went wrong
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-t-dark-gray font-medium">
               An unexpected error occurred. Reloading usually fixes it.
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm uppercase tracking-wider transition-all hover:opacity-90 shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #E20074, #861B54)' }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm uppercase tracking-wider transition-all hover:opacity-90 btn-magenta-shimmer"
             >
               Reload
             </button>

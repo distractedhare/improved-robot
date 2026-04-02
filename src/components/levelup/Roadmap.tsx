@@ -104,10 +104,9 @@ export default function Roadmap({ onSwitchToFeedback }: RoadmapProps) {
           return (
             <div
               key={item.id}
-              className="rounded-xl p-4 transition-all"
+              className="rounded-2xl p-4 transition-all glass"
               style={{
-                background: config.bg,
-                border: `1px solid ${config.border}`,
+                borderColor: config.border,
               }}
             >
               <div className="flex items-center gap-2 mb-1.5">
