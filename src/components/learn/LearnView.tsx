@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones } from 'lucide-react';
+import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
@@ -19,8 +19,9 @@ import AccessoriesReference from '../AccessoriesReference';
 import PlaybookSection from './PlaybookSection';
 import EdgeSection from './EdgeSection';
 import PracticeScenarios from '../levelup/PracticeScenarios';
+import HomeInternetSection from './HomeInternetSection';
 
-type LearnTab = 'briefing' | 'devices' | 'playbook' | 'edge' | 'practice';
+type LearnTab = 'briefing' | 'devices' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
 
 interface LearnViewProps {
@@ -34,6 +35,7 @@ interface LearnViewProps {
 const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
   { id: 'briefing', icon: Newspaper, label: 'Briefing' },
   { id: 'devices', icon: Smartphone, label: 'Devices' },
+  { id: 'homeinternet', icon: Wifi, label: 'HINT' },
   { id: 'playbook', icon: BookOpen, label: 'Playbook' },
   { id: 'edge', icon: Shield, label: 'Edge' },
   { id: 'practice', icon: Play, label: 'Practice' },
@@ -66,6 +68,10 @@ const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
   playbook: {
     moment: 'Best for a fast phrasing reset',
     tip: 'Come here when you know the offer, but want cleaner discovery, pivots, or closes before the next caller.',
+  },
+  homeinternet: {
+    moment: 'Best for every single call',
+    tip: 'Home Internet is a massive growth driver. Know the plans, the pitch, the objection handles, and why we beat the competition.',
   },
   edge: {
     moment: 'Best for sharpening the T-Mobile story',
@@ -239,6 +245,12 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'homeinternet' && (
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+          <HomeInternetSection />
         </div>
       )}
 
