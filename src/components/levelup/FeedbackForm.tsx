@@ -219,7 +219,7 @@ export default function FeedbackForm() {
                   key={r.id}
                   type="button"
                   onClick={() => handleRoleSelect(r.id)}
-                  className="focus-ring w-full flex items-center justify-between p-4 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-berry/50 transition-all text-left group"
+                  className="focus-ring w-full flex items-center justify-between p-4 rounded-2xl glass-button hover:border-t-berry/50 text-left group"
                 >
                   <div>
                     <p className="text-sm font-black uppercase tracking-tight group-hover:text-t-berry transition-colors">{r.label}</p>
@@ -260,11 +260,11 @@ export default function FeedbackForm() {
                     key={r}
                     type="button"
                     onClick={() => setOverallRating(r)}
-                    className="focus-ring p-2 rounded-xl transition-all"
-                    style={{
-                      background: overallRating && r <= overallRating ? '#E20074' : 'var(--bg-surface-secondary, #f8f5f9)',
-                      color: overallRating && r <= overallRating ? '#fff' : 'var(--text-tertiary, #999)',
-                    }}
+                    className={`focus-ring p-2 rounded-xl transition-all ${
+                      overallRating && r <= overallRating
+                        ? 'bg-t-magenta text-white shadow-lg shadow-t-magenta/20'
+                        : 'bg-surface-elevated text-t-dark-gray/40 hover:bg-t-magenta/10 hover:text-t-magenta'
+                    }`}
                   >
                     <Star className={`w-5 h-5 ${overallRating && r <= overallRating ? 'fill-current' : ''}`} />
                   </button>
@@ -284,12 +284,11 @@ export default function FeedbackForm() {
                         key={opt.value}
                         type="button"
                         onClick={() => handleAnswer(q.id, opt.value)}
-                        className="focus-ring flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-[10px] font-bold uppercase tracking-wide transition-all"
-                        style={{
-                          background: selected ? '#E20074' : 'var(--bg-intent, #fff)',
-                          color: selected ? '#fff' : 'var(--text-intent, #1a1a1a)',
-                          borderColor: selected ? '#E20074' : 'var(--border-intent, #e8e8e8)',
-                        }}
+                        className={`focus-ring flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 text-[10px] font-bold uppercase tracking-wide transition-all ${
+                          selected
+                            ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
+                            : 'bg-[var(--bg-intent)] text-[var(--text-intent)] border-[var(--border-intent)] hover:border-t-magenta/50 hover:bg-t-magenta/5'
+                        }`}
                       >
                         {opt.icon && <opt.icon className="w-3 h-3" />}
                         {opt.label}
@@ -312,11 +311,11 @@ export default function FeedbackForm() {
                 type="button"
                 onClick={() => setStep('comment')}
                 disabled={!allAnswered}
-                className="focus-ring flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{
-                  background: allAnswered ? '#E20074' : 'var(--border-surface)',
-                  color: allAnswered ? '#fff' : 'var(--text-tertiary)',
-                }}
+                className={`focus-ring flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  allAnswered
+                    ? 'bg-t-magenta text-white shadow-lg shadow-t-magenta/30'
+                    : 'bg-[var(--border-surface)] text-[var(--text-tertiary)]'
+                }`}
               >
                 {allAnswered ? 'Next — Add a comment (optional)' : 'Answer all to continue'}
               </button>
@@ -361,12 +360,7 @@ export default function FeedbackForm() {
                 type="button"
                 onClick={handleSend}
                 disabled={sending}
-                className="focus-ring flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                style={{
-                  background: '#E20074',
-                  color: '#fff',
-                  boxShadow: '0 4px 14px rgba(226, 0, 116, 0.35)',
-                }}
+                className="focus-ring flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 btn-magenta-shimmer"
               >
                 {sending ? (
                   'Sending...'
