@@ -12,6 +12,21 @@
     <link rel="apple-touch-icon" href="/icon-192.svg" />
     <link rel="icon" type="image/svg+xml" href="/icon-192.svg" />
     <title>CustomerConnect AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+    <script>
+      // Apply stored theme before first paint to prevent FOUC
+      (function() {
+        var pref = localStorage.getItem('cc-theme') || 'auto';
+        var resolved = pref === 'auto'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : pref;
+        document.documentElement.setAttribute('data-theme', resolved);
+        // Legacy compat: also set .dark class
+        if (resolved === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

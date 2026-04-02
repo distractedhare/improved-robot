@@ -28,11 +28,18 @@ function getTopIntent(intentsUsed: Record<string, number>): string | null {
 }
 
 export default function SessionStats({ stats }: SessionStatsProps) {
-  const topIntent = formatIntentLabel(getTopIntent(stats.intentsUsed));
+  // Don't show zero states
+  if (stats.plansGenerated === 0 && stats.objectionsAnalyzed === 0) return null;
+
+  const parts: string[] = [];
+  if (stats.plansGenerated > 0) parts.push(`${stats.plansGenerated} plan${stats.plansGenerated !== 1 ? 's' : ''} saved`);
+  if (stats.objectionsAnalyzed > 0) parts.push(`${stats.objectionsAnalyzed} objection${stats.objectionsAnalyzed !== 1 ? 's' : ''}`);
+  const topIntent = getTopIntent(stats.intentsUsed);
+  if (topIntent) parts.push(`top: ${formatIntentLabel(topIntent)}`);
 
   return (
-    <p className="text-[9px] font-bold text-center text-t-dark-gray/40 px-2">
-      Plans: {stats.plansGenerated} | Objections: {stats.objectionsAnalyzed} | Top: {topIntent}
+    <p className="text-[9px] font-medium text-center px-2" style={{ color: 'var(--text-tertiary)' }}>
+      {parts.join(' \u00b7 ')}
     </p>
   );
 }

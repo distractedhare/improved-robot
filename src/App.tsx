@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2 } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
@@ -14,7 +14,7 @@ import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
 import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGenerated } from './services/sessionTracker';
 import { DemoScenario } from './constants/demoScenarios';
-import { AppMode } from './components/Header';
+import { AppMode, ThemePreference } from './components/Header';
 
 import Header from './components/Header';
 import CustomerContextForm from './components/CustomerContextForm';
@@ -51,17 +51,32 @@ export default function App() {
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
 
-  // Dark mode — persist in localStorage
-  const [darkMode, setDarkMode] = useState(() => {
+  // Theme — 3-state: auto / light / dark
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('cc-dark-mode') === 'true';
+      return (localStorage.getItem('cc-theme') as ThemePreference) || 'auto';
     }
-    return false;
+    return 'auto';
   });
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('cc-dark-mode', String(darkMode));
-  }, [darkMode]);
+    function applyTheme(pref: ThemePreference) {
+      const resolved = pref === 'auto'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : pref;
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.classList.toggle('dark', resolved === 'dark');
+    }
+    applyTheme(themePreference);
+    localStorage.setItem('cc-theme', themePreference);
+
+    // Listen for OS changes when on auto
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => {
+      if (themePreference === 'auto') applyTheme('auto');
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [themePreference]);
 
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -207,17 +222,17 @@ export default function App() {
   }, [handleDemoScenario]);
 
   const INTENTS = [
-    { id: 'exploring' as const, label: 'Exploring' },
-    { id: 'ready to buy' as const, label: 'Ready to Buy' },
-    { id: 'upgrade / add a line' as const, label: 'Upgrade / Add a Line' },
-    { id: 'order support' as const, label: 'Order Support' },
-    { id: 'tech support' as const, label: 'Tech Support' },
-    { id: 'account support' as const, label: 'Account Support' },
+    { id: 'exploring' as const, label: 'Exploring', icon: Search },
+    { id: 'ready to buy' as const, label: 'Ready to Buy', icon: ShoppingBag },
+    { id: 'upgrade / add a line' as const, label: 'Upgrade / Add a Line', icon: ArrowUpCircle },
+    { id: 'order support' as const, label: 'Order Support', icon: Package },
+    { id: 'tech support' as const, label: 'Tech Support', icon: Wrench },
+    { id: 'account support' as const, label: 'Account Support', icon: UserCircle },
   ];
 
   return (
     <div className="min-h-screen font-sans selection:bg-t-magenta/20 bg-surface text-foreground">
-      <Header onReset={reset} mode={mode} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} onModeChange={setMode} />
+      <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10">
         {mode === 'level-up' ? (
@@ -249,21 +264,42 @@ export default function App() {
                   Why are they calling?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {INTENTS.map((intent) => (
-                    <button
-                      key={intent.id}
-                      type="button"
-                      onClick={() => handleIntentSelect(intent.id)}
-                      aria-pressed={context.purchaseIntent === intent.id}
-                      className={`focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-black rounded-xl border-2 uppercase transition-all ${
-                        context.purchaseIntent === intent.id
-                          ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
-                          : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
-                      }`}
-                    >
-                      <span className="leading-tight">{intent.label}</span>
-                    </button>
-                  ))}
+                  {INTENTS.map((intent) => {
+                    const isActive = context.purchaseIntent === intent.id;
+                    return (
+                      <button
+                        key={intent.id}
+                        type="button"
+                        onClick={() => handleIntentSelect(intent.id)}
+                        aria-pressed={isActive}
+                        className="focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-extrabold rounded-xl border-[1.5px] uppercase tracking-wide transition-all flex items-center gap-2"
+                        style={{
+                          background: isActive ? 'var(--bg-intent-active)' : 'var(--bg-intent)',
+                          color: isActive ? 'var(--text-intent-active)' : 'var(--text-intent)',
+                          borderColor: isActive ? 'var(--bg-intent-active)' : 'var(--border-intent)',
+                          boxShadow: isActive ? '0 2px 8px rgba(226, 0, 116, 0.3)' : 'var(--shadow-surface)',
+                          transform: isActive ? 'none' : undefined,
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'var(--bg-intent-hover)';
+                            e.currentTarget.style.borderColor = 'var(--border-intent-hover)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.background = 'var(--bg-intent)';
+                            e.currentTarget.style.borderColor = 'var(--border-intent)';
+                            e.currentTarget.style.transform = 'none';
+                          }
+                        }}
+                      >
+                        <intent.icon className="w-3.5 h-3.5 shrink-0" />
+                        <span className="leading-tight">{intent.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -324,7 +360,13 @@ export default function App() {
             </section>
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
-            <section className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray shadow-sm overflow-hidden">
+            <section
+              className="rounded-3xl shadow-sm overflow-hidden"
+              style={{
+                background: contextExpanded ? 'var(--bg-surface-elevated)' : 'var(--bg-page-secondary)',
+                border: contextExpanded ? '2px solid var(--border-surface)' : '2px dashed var(--border-surface)',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setContextExpanded(!contextExpanded)}
@@ -332,8 +374,13 @@ export default function App() {
                 aria-controls="customer-context-panel"
                 className="focus-ring w-full flex items-center justify-between p-5"
               >
-                <span className="text-xs font-bold text-t-dark-gray">Customer details <span className="text-t-dark-gray/50 font-medium">(optional — makes your game plan sharper)</span></span>
-                {contextExpanded ? <ChevronUp className="w-4 h-4 text-t-dark-gray/50" /> : <ChevronDown className="w-4 h-4 text-t-dark-gray/50" />}
+                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+                  {contextExpanded ? 'Customer details' : 'Got more context?'}
+                  {' '}<span style={{ color: 'var(--text-tertiary)' }} className="font-medium">
+                    {contextExpanded ? '(optional)' : '— fill in for a sharper plan'}
+                  </span>
+                </span>
+                {contextExpanded ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />}
               </button>
               <AnimatePresence>
                 {contextExpanded && (
@@ -510,7 +557,8 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label="Scroll to top"
-            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-colors bg-surface-elevated text-t-dark-gray border-2 border-t-light-gray hover:border-t-magenta hover:text-t-magenta"
+            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-colors text-white"
+            style={{ background: 'var(--bg-scroll-top, rgba(226, 0, 116, 0.9))' }}
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>
