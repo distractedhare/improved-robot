@@ -5,7 +5,7 @@ import { BingoCell as BingoCellType } from '../../constants/bingoBoard';
 interface BingoCellProps {
   cell: BingoCellType;
   completed: boolean;
-  onToggle: () => void;
+  onSelect: () => void;
   isWinning: boolean;
 }
 
@@ -27,14 +27,14 @@ const CATEGORY_STYLES = {
   },
 };
 
-export default function BingoCell({ cell, completed, onToggle, isWinning }: BingoCellProps) {
+export default function BingoCell({ cell, completed, onSelect, isWinning }: BingoCellProps) {
   const styles = CATEGORY_STYLES[cell.category];
   const isFree = cell.id === 'free-space';
 
   return (
     <motion.button
       type="button"
-      onClick={onToggle}
+      onClick={onSelect}
       disabled={isFree}
       whileTap={isFree ? undefined : { scale: 0.92 }}
       title={cell.description}

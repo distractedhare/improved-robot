@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, X, RotateCcw } from 'lucide-react';
+import { Trophy, X } from 'lucide-react';
 import { BingoCell as BingoCellType } from '../../constants/bingoBoard';
 import {
   shuffleBoardForDay,
@@ -12,12 +12,14 @@ import {
   markCelebrated,
 } from '../../services/bingoService';
 import BingoCell, { CategoryLegend } from './BingoCell';
+import BingoCellDialog from './BingoCellDialog';
 
 export default function BingoBoard() {
   const board = useMemo(() => shuffleBoardForDay(), []);
   const [completed, setCompleted] = useState(() => getBingoState());
   const [showCelebration, setShowCelebration] = useState(false);
   const [bingoCode, setBingoCode] = useState<string | null>(null);
+  const [selectedCell, setSelectedCell] = useState<BingoCellType | null>(null);
 
   const { hasBingo, winningLines } = useMemo(
     () => checkBingo(completed, board),
@@ -35,6 +37,7 @@ export default function BingoBoard() {
   const handleToggle = useCallback((cell: BingoCellType) => {
     const next = toggleBingoCell(cell.id);
     setCompleted(new Set(next));
+    setSelectedCell(null);
 
     // Check if this toggle created a bingo
     const result = checkBingo(next, board);
@@ -81,7 +84,7 @@ export default function BingoBoard() {
             key={cell.id}
             cell={cell}
             completed={completed.has(cell.id)}
-            onToggle={() => handleToggle(cell)}
+            onSelect={() => setSelectedCell(cell)}
             isWinning={winningIndices.has(i)}
           />
         ))}
@@ -92,6 +95,15 @@ export default function BingoBoard() {
       <p className="text-[9px] text-center text-t-dark-gray/40 font-medium">
         Self-reported, honor system. Tap a square when you've earned it. Board resets daily.
       </p>
+
+      <BingoCellDialog
+        cell={selectedCell}
+        completed={selectedCell ? completed.has(selectedCell.id) : false}
+        onClose={() => setSelectedCell(null)}
+        onConfirm={() => {
+          if (selectedCell) handleToggle(selectedCell);
+        }}
+      />
 
       {/* Celebration overlay */}
       <AnimatePresence>

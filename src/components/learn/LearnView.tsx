@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown } from 'lucide-react';
+import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
@@ -60,32 +60,32 @@ const PHONE_FILTERS = [
 
 const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
   plans: {
-    moment: 'Best for understanding the "why" behind the push',
-    tip: 'Know exactly why Go 5G Next and Plus matter — for the customer AND your commission. Premium plans = premium payouts.',
+    moment: 'Best for live plan positioning while you are on shift',
+    tip: 'Use this during working hours when you need the cleanest customer-facing reason to move into Go 5G Next or Plus without sounding scripted.',
   },
   briefing: {
-    moment: 'Best for pre-shift and quick resets',
-    tip: 'Use this first when you need the shortest path to today’s promos, issues, and talking points.',
+    moment: 'Best for shift-start and mid-shift resets',
+    tip: 'Open this while you are on the clock when you need the shortest path to today’s promos, issues, and current talking points.',
   },
   devices: {
-    moment: 'Best for between-call coaching',
-    tip: 'Lead with the phone line, then the proof points. Let the specs back up the story instead of driving it.',
+    moment: 'Best for between-call coaching during your shift',
+    tip: 'Use one quick customer angle, then one proof point. Let the specs support the story instead of slowing the call down.',
   },
   playbook: {
-    moment: 'Best for a fast phrasing reset',
-    tip: 'Come here when you know the offer, but want cleaner discovery, pivots, or closes before the next caller.',
+    moment: 'Best for a fast phrasing reset on the clock',
+    tip: 'Come here between calls when you know the offer but want a cleaner discovery question, pivot, or close before the next caller.',
   },
   homeinternet: {
-    moment: 'Best for every single call',
-    tip: 'Home Internet is a massive growth driver. Know the plans, the pitch, the objection handles, and why we beat the competition.',
+    moment: 'Best for every live shift',
+    tip: 'Home Internet should be top of mind while you are working. Use this when you need the pitch, the fit, and the competitive edge fast.',
   },
   edge: {
-    moment: 'Best for sharpening the T-Mobile story',
-    tip: 'Use this when you need a simple reason why T-Mobile wins without sounding rehearsed or overly technical.',
+    moment: 'Best for sharpening the T-Mobile story on demand',
+    tip: 'Use this on shift when you need one simple reason T-Mobile wins without drifting into jargon or an overlong explanation.',
   },
   practice: {
-    moment: 'Best for low-volume windows',
-    tip: 'Run a quick scenario when the phones are quiet so the live-call flow feels automatic later.',
+    moment: 'Best for low-volume windows during scheduled work hours',
+    tip: 'Run a quick scenario while the phones are quiet so the live-call flow feels automatic later in the same shift.',
   },
 };
 
@@ -127,13 +127,25 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
+            On-the-clock only
+          </p>
+          <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
+            Learn mode is built for scheduled work hours only: shift-start prep, between-call coaching, and live-call support while you are working.
+          </p>
+        </div>
+      </div>
+
       {/* Hero */}
       <div className="text-center">
         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
           Know Your <span className="text-t-magenta">Stuff</span>
         </h2>
         <p className="text-sm text-t-dark-gray font-medium mt-1">
-          Pre-shift prep, fast phone-sales coaching, and the T-Mobile story without the data dump.
+          On-the-clock coaching for live calls, quick resets, and the T-Mobile story without the data dump.
         </p>
       </div>
 
@@ -296,7 +308,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               Practice Mode
             </p>
             <p className="text-xs text-t-dark-gray font-medium">
-              Pick a customer scenario below. It'll load into Live mode with a full game plan so you can practice your pitch.
+              Pick a customer scenario below during a low-volume window on shift. It will load into Live mode with a full game plan so you can rehearse quickly and get back to the queue.
             </p>
           </div>
           <PracticeScenarios onSelectScenario={onSelectScenario} />
