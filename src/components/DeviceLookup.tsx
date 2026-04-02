@@ -1,6 +1,6 @@
-import { useState, useMemo, useDeferredValue } from 'react';
-import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, AlertTriangle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useState, useMemo, useDeferredValue, type ReactNode } from 'react';
+import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, ChevronDown, ArrowRightLeft, Lightbulb } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } from '../data/devices';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { EcosystemMatrix } from '../types/ecosystem';
@@ -9,7 +9,7 @@ import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/pos
 export interface DevicePreset {
   label: string;
   deviceNames: string[];
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   primary?: boolean;
 }
 
@@ -302,12 +302,13 @@ export function DeviceComparison({
             </thead>
             <tbody>
               <CompRow label="Price" values={devices.map(d => typeof d.startingPrice === 'number' ? `$${d.startingPrice}` : String(d.startingPrice))} />
+              <CompRow label="Lead With" values={summaries.map(summary => summary.primaryAngle.title)} />
               <CompRow label="Best For" values={summaries.map(summary => summary.bestFit.slice(0, 2).join(', '))} />
               <CompRow label="Why They Say Yes" values={summaries.map(summary => summary.shortHook)} />
-              <CompRow label="Standout" values={summaries.map(summary => summary.proofPoints[0] ?? 'Strong overall fit')} />
+              <CompRow label="Proof Point" values={summaries.map(summary => summary.primaryAngle.proof)} />
+              <CompRow label="Backup Angle" values={summaries.map(summary => summary.backupAngle?.title ?? 'Stay on the primary angle')} />
               <CompRow label="Released" values={devices.map(d => d.released)} />
               <CompRow label="Specs" values={devices.map(d => d.keySpecs)} />
-              <CompRow label="Category" values={devices.map(d => d.category)} />
             </tbody>
           </table>
         </div>
@@ -342,6 +343,7 @@ export function DeviceDetail({
   weeklyData: WeeklyUpdate | null;
   ecosystemMatrix?: EcosystemMatrix | null;
 }) {
+  const [showMore, setShowMore] = useState(false);
   const summary = useMemo(
     () => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix),
     [device, weeklyData, ecosystemMatrix]
@@ -373,6 +375,9 @@ export function DeviceDetail({
           <MessageSquareQuote className="w-3 h-3" /> Say It Like This
         </p>
         <p className="text-sm font-bold leading-relaxed">{summary.sayThis}</p>
+        <p className="mt-2 text-[10px] font-medium text-white/70 dark:text-t-dark-gray">
+          Open with the line, give one proof, then stop and listen.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -389,14 +394,13 @@ export function DeviceDetail({
         ))}
       </div>
 
-      {/* Weekly promos only — no stale static promos */}
       {weeklyPromos.length > 0 && (
-        <div className="rounded-xl border border-success-border p-3 space-y-2">
+        <div className="rounded-xl border border-success-border bg-success-surface p-3 space-y-2">
           <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground flex items-center gap-1">
             <Tag className="w-2.5 h-2.5" /> This Week's Deals ({weeklyPromos.length})
           </p>
           {weeklyPromos.map((promo, i) => (
-            <div key={i} className="rounded-lg bg-success-surface/60 border border-success-border/50 p-2.5 space-y-1">
+            <div key={i} className="rounded-lg bg-surface-elevated border border-success-border/50 p-2.5 space-y-1">
               <p className="text-[10px] font-black uppercase tracking-wide text-success-foreground">{promo.name}</p>
               <p className="text-[11px] text-success-foreground/80 font-medium leading-relaxed">{promo.details}</p>
             </div>
@@ -405,31 +409,23 @@ export function DeviceDetail({
       )}
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-t-light-gray bg-info-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2 flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3" /> Why Customers Care
-          </p>
-          <p className="text-[11px] font-medium leading-relaxed text-info-foreground">{summary.whyItLands}</p>
+        <CoachPanel
+          title="Primary Angle"
+          icon={<Sparkles className="w-3 h-3" />}
+          tone="info"
+        >
+          <p className="text-[11px] font-black text-info-foreground">{summary.primaryAngle.title}</p>
+          <p className="mt-2 text-[11px] font-medium leading-relaxed text-info-foreground">{summary.primaryAngle.why}</p>
+          <p className="mt-3 text-[9px] font-black uppercase tracking-widest text-info-foreground">Proof</p>
+          <p className="mt-1 text-[10px] font-medium leading-snug text-info-foreground">{summary.primaryAngle.proof}</p>
+        </CoachPanel>
 
-          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-2">
-            Logic Chain
-          </p>
-          <div className="space-y-1.5">
-            {summary.reasonChain.map((step, index) => (
-              <div key={step} className="flex items-start gap-2">
-                <span className="mt-0.5 rounded-full bg-info-border px-1.5 py-0.5 text-[8px] font-black text-info-foreground">
-                  {index + 1}
-                </span>
-                <p className="text-[10px] font-medium leading-snug text-info-foreground">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2 flex items-center gap-1.5">
-            <Ear className="w-3 h-3 text-t-magenta" /> Listen For These Cues
-          </p>
+        <CoachPanel
+          title="Call Fit"
+          icon={<Ear className="w-3 h-3" />}
+          tone="neutral"
+        >
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">Listen For</p>
           <div className="flex flex-wrap gap-2">
             {summary.listenFor.map(cue => (
               <span
@@ -454,85 +450,173 @@ export function DeviceDetail({
               </span>
             ))}
           </div>
-        </div>
-      </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">Proof Points</p>
-          <div className="space-y-1.5">
-            <SellingPoint text={`Released ${device.released}`} />
-            {summary.proofPoints.map(point => (
-              <SellingPoint key={point} text={point} />
-            ))}
-            {(device.category === 'watch' || device.category === 'tablet') && (
-              <SellingPoint text={`Connected line: $${device.category === 'watch' ? CONNECTED_DEVICE_INFO.plans.wearableLine.price : CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo`} />
-            )}
-            {['iphone', 'samsung', 'pixel'].includes(device.category) && (
-              <SellingPoint text="Trade-in: We accept devices in ANY condition — up to $1,100 credit" />
-            )}
-          </div>
-        </div>
-
-        {summary.featureTranslations.length > 0 && (
-          <div className="rounded-2xl border border-t-light-gray bg-warning-surface p-4">
-            <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-2">
-              Translate The Tech
-            </p>
-            <div className="space-y-2">
-              {summary.featureTranslations.map((translation) => (
-                <div key={translation.feature} className="rounded-xl border border-warning-border bg-surface-elevated p-3">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-warning-foreground">{translation.feature}</p>
-                  <p className="text-[10px] font-medium leading-snug text-t-dark-gray mt-1">{translation.benefit}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {summary.demoAngles.length > 0 && (
-        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2 flex items-center gap-1.5">
-            <Users className="w-3 h-3 text-t-magenta" /> Why Certain Demographics Respond
+          <p className="mt-4 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+            {summary.leadWith}
           </p>
-          <div className="grid gap-3 md:grid-cols-2">
-            {summary.demoAngles.map(angle => (
-              <div key={angle.demographic} className="rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta">{angle.label}</p>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/50">{angle.demographic}</span>
-                </div>
-                <p className="text-[10px] font-medium leading-snug text-t-dark-gray mt-2">{angle.whyThisDemoResponds}</p>
-                {angle.trustLanguage.length > 0 && (
-                  <p className="mt-2 text-[9px] font-bold text-success-foreground">
-                    Lead with: <span className="font-medium text-t-dark-gray">{angle.trustLanguage.slice(0, 2).join(' • ')}</span>
+        </CoachPanel>
+      </div>
+
+      <CoachPanel
+        title="One Proof Line"
+        icon={<Lightbulb className="w-3 h-3" />}
+        tone="neutral"
+      >
+        <div className="space-y-1.5">
+          <SellingPoint text={`Released ${device.released}`} />
+          {summary.proofPoints.map(point => (
+            <SellingPoint key={point} text={point} />
+          ))}
+          {(device.category === 'watch' || device.category === 'tablet') && (
+            <SellingPoint text={`Connected line: $${device.category === 'watch' ? CONNECTED_DEVICE_INFO.plans.wearableLine.price : CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo`} />
+          )}
+          {['iphone', 'samsung', 'pixel'].includes(device.category) && (
+            <SellingPoint text="Trade-in: We accept devices in any condition — up to $1,100 credit." />
+          )}
+        </div>
+      </CoachPanel>
+
+      <DisclosureButton expanded={showMore} onToggle={() => setShowMore(prev => !prev)} />
+
+      <AnimatePresence initial={false}>
+        {showMore && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="grid gap-3 md:grid-cols-2 pt-1">
+              {summary.backupAngle && (
+                <CoachPanel
+                  title="Backup Angle"
+                  icon={<ArrowRightLeft className="w-3 h-3" />}
+                  tone="warning"
+                >
+                  <p className="text-[11px] font-black text-warning-foreground">{summary.backupAngle.title}</p>
+                  <p className="mt-2 text-[11px] font-medium leading-relaxed text-warning-foreground">
+                    {summary.backupAngle.script}
+                  </p>
+                  <p className="mt-3 text-[9px] font-black uppercase tracking-widest text-warning-foreground">Why It Still Works</p>
+                  <p className="mt-1 text-[10px] font-medium leading-snug text-warning-foreground">
+                    {summary.backupAngle.why}
+                  </p>
+                </CoachPanel>
+              )}
+
+              <CoachPanel
+                title="Tone + Guardrails"
+                icon={<Users className="w-3 h-3" />}
+                tone="neutral"
+              >
+                {summary.demoAngles[0] && (
+                  <div className="rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">
+                      Why {summary.demoAngles[0].label} callers respond
+                    </p>
+                    <p className="mt-2 text-[10px] font-medium leading-snug text-t-dark-gray">
+                      {summary.demoAngles[0].whyThisDemoResponds}
+                    </p>
+                  </div>
+                )}
+
+                {summary.trustLanguage.length > 0 && (
+                  <p className="mt-3 text-[9px] font-bold text-success-foreground">
+                    Lead with: <span className="font-medium text-t-dark-gray">{summary.trustLanguage.join(' • ')}</span>
                   </p>
                 )}
-                {angle.avoidLanguage.length > 0 && (
+                {summary.avoidLanguage.length > 0 && (
                   <p className="mt-1 text-[9px] font-bold text-error-foreground">
-                    Avoid: <span className="font-medium text-t-dark-gray">{angle.avoidLanguage.slice(0, 2).join(' • ')}</span>
+                    Avoid: <span className="font-medium text-t-dark-gray">{summary.avoidLanguage.join(' • ')}</span>
                   </p>
                 )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+                <p className="mt-3 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                  {summary.avoidIf}
+                </p>
+              </CoachPanel>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-success-border bg-success-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Lead With This When</p>
-          <p className="text-[10px] font-medium leading-relaxed text-success-foreground">{summary.whenToLead}</p>
-        </div>
-        <div className="rounded-2xl border border-error-border bg-error-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-error-foreground mb-2 flex items-center gap-1.5">
-            <AlertTriangle className="w-3 h-3" /> Do Not Lead With This When
-          </p>
-          <p className="text-[10px] font-medium leading-relaxed text-error-foreground">{summary.whenNotToLead}</p>
-        </div>
-      </div>
+              {summary.featureTranslations.length > 0 && (
+                <CoachPanel
+                  title="Translate The Tech"
+                  icon={<Sparkles className="w-3 h-3" />}
+                  tone="warning"
+                >
+                  <div className="space-y-2">
+                    {summary.featureTranslations.map((translation) => (
+                      <div key={translation.feature} className="rounded-xl border border-warning-border bg-surface-elevated p-3">
+                        <p className="text-[9px] font-black uppercase tracking-wider text-warning-foreground">{translation.feature}</p>
+                        <p className="mt-1 text-[10px] font-medium leading-snug text-t-dark-gray">{translation.benefit}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CoachPanel>
+              )}
+
+              <CoachPanel
+                title="Why It Works"
+                icon={<Users className="w-3 h-3" />}
+                tone="success"
+              >
+                <p className="text-[10px] font-medium leading-relaxed text-success-foreground">{summary.callerMindset}</p>
+                <p className="mt-3 text-[10px] font-medium leading-relaxed text-success-foreground">{summary.whyItLands}</p>
+              </CoachPanel>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
+  );
+}
+
+function DisclosureButton({ expanded, onToggle }: { expanded: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
+      className="focus-ring flex w-full items-center justify-between rounded-2xl border border-t-light-gray bg-surface px-4 py-3 text-left transition-colors hover:border-t-magenta/40"
+    >
+      <div>
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">
+          {expanded ? 'Keep It Simple' : 'Need Another Angle?'}
+        </p>
+        <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+          {expanded
+            ? 'Collapse the extra coaching and stay on the fast version.'
+            : 'Open backup language, tone guidance, and tech translation only if you need it.'}
+        </p>
+      </div>
+      <ChevronDown className={`w-4 h-4 shrink-0 text-t-dark-gray/50 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+    </button>
+  );
+}
+
+function CoachPanel({
+  title,
+  icon,
+  tone,
+  children,
+}: {
+  title: string;
+  icon: ReactNode;
+  tone: 'info' | 'warning' | 'success' | 'neutral';
+  children: ReactNode;
+}) {
+  const styles = {
+    info: 'border-t-light-gray bg-info-surface text-info-foreground',
+    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
+    success: 'border-success-border bg-success-surface text-success-foreground',
+    neutral: 'border-t-light-gray bg-surface text-t-dark-gray',
+  }[tone];
+
+  return (
+    <div className={`rounded-2xl border p-4 ${styles}`}>
+      <p className="text-[9px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+        {icon}
+        {title}
+      </p>
+      {children}
+    </div>
   );
 }
 

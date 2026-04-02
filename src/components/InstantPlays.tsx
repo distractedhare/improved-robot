@@ -257,22 +257,15 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                 className="overflow-hidden"
               >
                 <div className="space-y-4 pt-3">
-                  {/* Bundle plays */}
-                  <div className="bg-success-surface rounded-2xl border-2 border-success-border p-4 space-y-3">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Quick bundle plays</p>
-                    <div className="space-y-2">
-                      <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
-                        <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Cheapest bundle (under $50)</p>
-                        <p className="text-[10px] text-t-dark-gray font-medium">
-                          Samsung 25W charger ($19.99) + USB-C cable ($19.99) + ZAGG Camera Protector ($24.99) = <strong>$64.97 → ~$48.73 with 25% off.</strong>
-                        </p>
-                      </div>
-                      <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
-                        <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Balanced bundle (solid ticket)</p>
-                        <p className="text-[10px] text-t-dark-gray font-medium">
-                          Tech21 EvoLite case ($39.99) + ZAGG Glass Elite ($44.99) + Samsung 25W charger ($19.99) = <strong>$104.97 → ~$78.73 with 25% off.</strong>
-                        </p>
-                      </div>
+                  <div className="rounded-2xl border-2 border-success-border bg-success-surface p-4 space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Fast accessory flow</p>
+                    <p className="text-[10px] font-medium leading-snug text-success-foreground">
+                      Protect the purchase first, solve one daily friction point second, then save the fun add-on for callers who want the upgrade to feel exciting.
+                    </p>
+                    <div className="space-y-1.5 text-[10px] font-medium text-success-foreground">
+                      <p><span className="font-black">1.</span> Case or screen: protect the device they just spent money on.</p>
+                      <p><span className="font-black">2.</span> Charger, cable, or mount: remove an everyday annoyance.</p>
+                      <p><span className="font-black">3.</span> Audio or premium extra: only when the caller wants more than the basics.</p>
                     </div>
                   </div>
 

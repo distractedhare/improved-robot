@@ -1,6 +1,6 @@
-import { ShoppingBag, MessageSquare, DollarSign, Ear, Users, AlertTriangle } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useMemo } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ShoppingBag, MessageSquare, DollarSign, Ear, Users, AlertTriangle, ChevronDown, ArrowRightLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
 import { EcosystemMatrix } from '../types/ecosystem';
@@ -43,9 +43,9 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
     if (!device) return {};
 
     return accessories.reduce<GroupedAccessorySummaries>((acc, item) => {
-      const cat = item.category;
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push({
+      const category = item.category;
+      if (!acc[category]) acc[category] = [];
+      acc[category].push({
         accessory: item,
         summary: getAccessoryPitchPositioningSummary(item, device, ecosystemMatrix),
         outcomeLabel: getAccessoryOutcomeLabel(item.name, item.category),
@@ -56,9 +56,9 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
 
   if (!device) {
     return (
-      <div className="flex flex-col items-center justify-center text-center p-8 bg-t-light-gray/20 rounded-2xl border-2 border-t-light-gray border-dashed min-h-[200px]">
-        <ShoppingBag className="w-8 h-8 text-t-dark-gray/30 mb-3" />
-        <p className="text-xs font-bold text-t-dark-gray/50 uppercase tracking-widest">
+      <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-t-light-gray bg-t-light-gray/20 p-8 text-center">
+        <ShoppingBag className="mb-3 h-8 w-8 text-t-dark-gray/30" />
+        <p className="text-xs font-bold uppercase tracking-widest text-t-dark-gray/50">
           Pick a device to unlock accessory plays
         </p>
       </div>
@@ -71,17 +71,17 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">Accessory Pitch Builder</p>
+      <div className="rounded-2xl bg-t-dark-gray p-4 text-white dark:border-2 dark:border-t-light-gray dark:bg-surface-elevated dark:text-foreground">
+        <p className="mb-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">Accessory Pitch Builder</p>
         <p className="text-sm font-black">{device.name}</p>
-        <p className="text-[10px] text-white/60 font-medium mt-1">
-          {accessories.length} add-ons • Top earners first
+        <p className="mt-1 text-[10px] font-medium text-white/60 dark:text-t-dark-gray">
+          {accessories.length} add-ons • Top earners first • Start with the problem it solves, not the price.
         </p>
       </div>
 
       {Object.entries(grouped).map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <h4 className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 px-1">
+          <h4 className="px-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
             {CATEGORY_LABELS[category] || category}
           </h4>
           {items.map(({ accessory, summary, outcomeLabel }) => (
@@ -90,21 +90,17 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
         </div>
       ))}
 
-      {/* Quick pitch tip */}
-      <div className="bg-t-magenta/5 rounded-2xl border border-t-magenta/20 p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-2">Pitch Flow</p>
+      <div className="rounded-2xl border border-t-magenta/20 bg-t-magenta/5 p-4">
+        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-t-magenta">Phone Flow</p>
         <ol className="space-y-1.5">
-          <li className="text-[11px] text-t-dark-gray font-medium flex items-start gap-2">
-            <span className="text-t-magenta font-black">1.</span> Always pitch P360 first — highest margin, easiest yes
+          <li className="flex items-start gap-2 text-[11px] font-medium text-t-dark-gray">
+            <span className="font-black text-t-magenta">1.</span> Protect the purchase first if they just bought a new device.
           </li>
-          <li className="text-[11px] text-t-dark-gray font-medium flex items-start gap-2">
-            <span className="text-t-magenta font-black">2.</span> Screen protector while you're setting up the phone
+          <li className="flex items-start gap-2 text-[11px] font-medium text-t-dark-gray">
+            <span className="font-black text-t-magenta">2.</span> Add one convenience piece that removes friction every day.
           </li>
-          <li className="text-[11px] text-t-dark-gray font-medium flex items-start gap-2">
-            <span className="text-t-magenta font-black">3.</span> Case — "want to protect that investment?"
-          </li>
-          <li className="text-[11px] text-t-dark-gray font-medium flex items-start gap-2">
-            <span className="text-t-magenta font-black">4.</span> Audio/charging — "one more thing that pairs great with this"
+          <li className="flex items-start gap-2 text-[11px] font-medium text-t-dark-gray">
+            <span className="font-black text-t-magenta">3.</span> Save the fun or premium add-on for callers who want the upgrade to feel exciting.
           </li>
         </ol>
       </div>
@@ -121,108 +117,174 @@ function AccessoryCard({
   summary: PositioningSummary;
   outcomeLabel: string;
 }) {
+  const [showMore, setShowMore] = useState(false);
   const margin = MARGIN_COLORS[accessory.margin];
   const topDemo = summary.demoAngles[0];
 
   return (
-    <div className="rounded-xl glass-card p-4 hover:border-t-magenta/30 transition-all">
-      <div className="flex items-start justify-between gap-2 mb-2">
+    <div className="rounded-xl glass-card p-4 transition-all hover:border-t-magenta/30">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-black text-t-magenta">{accessory.price}</span>
-            <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${margin.bg} ${margin.text}`}>
+            <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase ${margin.bg} ${margin.text}`}>
               {margin.label}
             </span>
-            <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full bg-t-magenta/10 text-t-magenta">
+            <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black uppercase text-t-magenta">
               {getAppealTypeLabel(summary.appealType)}
             </span>
-            <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full bg-t-light-gray/30 text-t-dark-gray/70">
+            <span className="rounded-full bg-t-light-gray/30 px-1.5 py-0.5 text-[8px] font-black uppercase text-t-dark-gray/70">
               {outcomeLabel}
             </span>
           </div>
         </div>
-        <DollarSign className={`w-4 h-4 shrink-0 ${
-          accessory.margin === 'high' ? 'text-success-accent' :
-          accessory.margin === 'medium' ? 'text-warning-accent' :
-          'text-t-dark-gray/30'
-        }`} />
+        <DollarSign
+          className={`h-4 w-4 shrink-0 ${
+            accessory.margin === 'high'
+              ? 'text-success-accent'
+              : accessory.margin === 'medium'
+              ? 'text-warning-accent'
+              : 'text-t-dark-gray/30'
+          }`}
+        />
       </div>
 
-      {/* Transition script */}
-      <div className="bg-t-light-gray/20 rounded-lg p-3 mt-2">
+      <div className="mt-2 rounded-lg bg-t-light-gray/20 p-3">
         <div className="flex items-start gap-2">
-          <MessageSquare className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
-          <p className="text-[11px] text-t-dark-gray font-bold italic leading-relaxed">
+          <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
+          <p className="text-[11px] font-bold italic leading-relaxed text-t-dark-gray">
             {summary.sayThis}
           </p>
         </div>
       </div>
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-t-light-gray bg-info-surface p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-1">Why This Lands</p>
+        <MiniPanel title="Why This Lands" icon={<MessageSquare className="h-3 w-3" />} tone="info">
           <p className="text-[10px] font-medium leading-snug text-info-foreground">{summary.whyItLands}</p>
-          {summary.proofPoints[0] && (
-            <p className="mt-2 text-[9px] font-bold text-info-foreground">
-              Proof: <span className="font-medium">{summary.proofPoints[0]}</span>
-            </p>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-t-light-gray bg-surface p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1 flex items-center gap-1.5">
-            <Ear className="w-3 h-3 text-t-magenta" /> Listen For
+          <p className="mt-2 text-[9px] font-bold text-info-foreground">
+            Proof: <span className="font-medium">{summary.primaryAngle.proof}</span>
           </p>
+        </MiniPanel>
+
+        <MiniPanel title="Use It When" icon={<Ear className="h-3 w-3" />} tone="neutral">
           <div className="flex flex-wrap gap-1.5">
             {summary.listenFor.slice(0, 3).map(cue => (
-              <span key={cue} className="rounded-lg border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-bold text-t-dark-gray/75">
+              <span
+                key={cue}
+                className="rounded-lg border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-bold text-t-dark-gray/75"
+              >
                 {cue}
               </span>
             ))}
           </div>
-          <p className="mt-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">Who It Fits</p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {summary.bestFit.slice(0, 3).map(fit => (
-              <span key={fit} className="rounded-full bg-t-magenta/8 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+              <span
+                key={fit}
+                className="rounded-full bg-t-magenta/8 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta"
+              >
                 {fit}
               </span>
             ))}
           </div>
-        </div>
+          <p className="mt-3 text-[10px] font-medium leading-relaxed text-t-dark-gray">{summary.leadWith}</p>
+        </MiniPanel>
       </div>
 
-      {topDemo && (
-        <div className="mt-3 rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1 flex items-center gap-1.5">
-            <Users className="w-3 h-3 text-t-magenta" /> Why {topDemo.label} Responds
+      <button
+        type="button"
+        onClick={() => setShowMore(prev => !prev)}
+        aria-expanded={showMore}
+        className="focus-ring mt-3 flex w-full items-center justify-between rounded-xl border border-t-light-gray bg-surface px-3 py-2 text-left transition-colors hover:border-t-magenta/40"
+      >
+        <div>
+          <p className="text-[8px] font-black uppercase tracking-widest text-t-magenta">
+            {showMore ? 'Keep It Tight' : 'Need Another Angle?'}
           </p>
-          <p className="text-[10px] font-medium leading-snug text-t-dark-gray">{topDemo.whyThisDemoResponds}</p>
-          {topDemo.trustLanguage.length > 0 && (
-            <p className="mt-2 text-[9px] font-bold text-success-foreground">
-              Lead with: <span className="font-medium text-t-dark-gray">{topDemo.trustLanguage.slice(0, 2).join(' • ')}</span>
-            </p>
-          )}
-          {topDemo.avoidLanguage.length > 0 && (
-            <p className="mt-1 text-[9px] font-bold text-error-foreground">
-              Avoid: <span className="font-medium text-t-dark-gray">{topDemo.avoidLanguage.slice(0, 1).join(' • ')}</span>
-            </p>
-          )}
+          <p className="mt-1 text-[10px] font-medium text-t-dark-gray">
+            {showMore
+              ? 'Hide the extra coaching and stay on the fast version.'
+              : 'Open the backup angle, tone guidance, and call guardrail only if you need them.'}
+          </p>
         </div>
-      )}
+        <ChevronDown className={`h-4 w-4 shrink-0 text-t-dark-gray/50 transition-transform ${showMore ? 'rotate-180' : ''}`} />
+      </button>
 
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-success-border bg-success-surface p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-1">Lead With This When</p>
-          <p className="text-[10px] font-medium leading-snug text-success-foreground">{summary.whenToLead}</p>
-        </div>
-        <div className="rounded-xl border border-error-border bg-error-surface p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-error-foreground mb-1 flex items-center gap-1.5">
-            <AlertTriangle className="w-3 h-3" /> Do Not Lead With This When
-          </p>
-          <p className="text-[10px] font-medium leading-snug text-error-foreground">{summary.whenNotToLead}</p>
-        </div>
-      </div>
+      <AnimatePresence initial={false}>
+        {showMore && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="grid gap-3 pt-3 md:grid-cols-2">
+              {summary.backupAngle && (
+                <MiniPanel title="Backup Angle" icon={<ArrowRightLeft className="h-3 w-3" />} tone="warning">
+                  <p className="text-[10px] font-black text-warning-foreground">{summary.backupAngle.title}</p>
+                  <p className="mt-2 text-[10px] font-medium leading-relaxed text-warning-foreground">
+                    {summary.backupAngle.script}
+                  </p>
+                </MiniPanel>
+              )}
+
+              <MiniPanel title="Guardrail" icon={<AlertTriangle className="h-3 w-3" />} tone="neutral">
+                <p className="text-[10px] font-medium leading-relaxed text-t-dark-gray">{summary.avoidIf}</p>
+              </MiniPanel>
+
+              {(topDemo || summary.trustLanguage.length > 0 || summary.avoidLanguage.length > 0) && (
+                <MiniPanel title="Tone Match" icon={<Users className="h-3 w-3" />} tone="success">
+                  {topDemo && (
+                    <p className="text-[10px] font-medium leading-snug text-success-foreground">
+                      {topDemo.label} callers usually respond because {topDemo.whyThisDemoResponds}
+                    </p>
+                  )}
+                  {summary.trustLanguage.length > 0 && (
+                    <p className="mt-2 text-[9px] font-bold text-success-foreground">
+                      Lead with: <span className="font-medium">{summary.trustLanguage.join(' • ')}</span>
+                    </p>
+                  )}
+                  {summary.avoidLanguage.length > 0 && (
+                    <p className="mt-1 text-[9px] font-bold text-success-foreground">
+                      Avoid: <span className="font-medium">{summary.avoidLanguage.join(' • ')}</span>
+                    </p>
+                  )}
+                </MiniPanel>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function MiniPanel({
+  title,
+  icon,
+  tone,
+  children,
+}: {
+  title: string;
+  icon: ReactNode;
+  tone: 'info' | 'warning' | 'success' | 'neutral';
+  children: ReactNode;
+}) {
+  const styles = {
+    info: 'border-t-light-gray bg-info-surface text-info-foreground',
+    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
+    success: 'border-success-border bg-success-surface text-success-foreground',
+    neutral: 'border-t-light-gray bg-surface text-t-dark-gray',
+  }[tone];
+
+  return (
+    <div className={`rounded-xl border p-3 ${styles}`}>
+      <p className="mb-1 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest">
+        {icon}
+        {title}
+      </p>
+      {children}
     </div>
   );
 }

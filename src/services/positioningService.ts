@@ -42,6 +42,13 @@ export interface FeatureTranslation {
   benefit: string;
 }
 
+export interface CoachingAngle {
+  title: string;
+  script: string;
+  why: string;
+  proof: string;
+}
+
 export interface PositioningSummary {
   sayThis: string;
   shortHook: string;
@@ -50,15 +57,15 @@ export interface PositioningSummary {
   appealType: AppealType;
   proofPoints: string[];
   featureTranslations: FeatureTranslation[];
-  lifeContext: string[];
-  reasonChain: string[];
-  whenToLead: string;
-  whenNotToLead: string;
   listenFor: string[];
   trustLanguage: string[];
   avoidLanguage: string[];
   demoAngles: DemoCoachingAngle[];
-  confidence: 'high' | 'medium' | 'light';
+  primaryAngle: CoachingAngle;
+  backupAngle?: CoachingAngle;
+  callerMindset: string;
+  leadWith: string;
+  avoidIf: string;
 }
 
 interface AccessoryEvidence {
@@ -66,22 +73,18 @@ interface AccessoryEvidence {
   demoAngles: DemoCoachingAngle[];
 }
 
+interface DriverProfile {
+  title: string;
+  appealType: AppealType;
+  mindset: string;
+  leadWith: string;
+  avoidIf: string;
+  fitHints: string[];
+  cues: string[];
+}
+
 const DEMOGRAPHIC_KEYS: DemographicKey[] = ['18-24', '25-34', '35-54', '55+'];
 type DeviceDemoCategory = 'smartphones' | 'tablets' | 'wearables' | 'iotProducts';
-
-const DRIVER_LABELS: Record<FitDriver, string> = {
-  budget: 'value without overspending',
-  simplicity: 'something that feels easy right away',
-  safety: 'peace of mind and protection',
-  convenience: 'less friction in everyday use',
-  productivity: 'something that can pull real work duty',
-  entertainment: 'better music, streaming, gaming, or content',
-  identity: 'a product that feels personal or different',
-  'social-status': 'a premium experience they can see and feel',
-  'family-coordination': 'tools that make family life easier to manage',
-  'travel-mobility': 'something that helps on the go',
-  'heavy-usage': 'all-day reliability for people who lean on their device hard',
-};
 
 const APPEAL_LABELS: Record<AppealType, string> = {
   practical: 'Practical',
@@ -95,27 +98,139 @@ const APPEAL_LABELS: Record<AppealType, string> = {
 };
 
 const DRIVER_KEYWORDS: Record<FitDriver, RegExp[]> = {
-  budget: [/\bbudget\b/i, /\bvalue\b/i, /\baffordable\b/i, /\bfree\b/i, /\baccessible\b/i, /\bsweet spot\b/i, /\bwithout the pro price\b/i, /\bentry[- ]level\b/i, /\bprice\b/i, /\bdeal\b/i],
-  simplicity: [/\bsimple\b/i, /\beasy\b/i, /\bjust set\b/i, /\binstantly\b/i, /\bseamless\b/i, /\bno fuss\b/i, /\bno contract\b/i, /\bno screen\b/i, /\bone[- ]hand\b/i],
-  safety: [/\bprotection\b/i, /\bprivacy\b/i, /\btheft\b/i, /\bloss\b/i, /\bfall detection\b/i, /\bcrash detection\b/i, /\bpeace of mind\b/i, /\bsecure\b/i, /\bgeofence\b/i, /\btracking\b/i],
-  convenience: [/\bwireless\b/i, /\bmagsafe\b/i, /\bqi2\b/i, /\bauto[- ]switch\b/i, /\bhands[- ]free\b/i, /\bnightstand\b/i, /\bdesk\b/i, /\bcar\b/i, /\bone cable\b/i, /\bset the phone down\b/i],
-  productivity: [/\bwork\b/i, /\bremote\b/i, /\bproductivity\b/i, /\bkeyboard\b/i, /\bnotes\b/i, /\bmarkup\b/i, /\bs pen\b/i, /\bdex\b/i, /\blaptop replacement\b/i, /\bcalendar\b/i],
-  entertainment: [/\bgaming\b/i, /\bstreaming\b/i, /\bmusic\b/i, /\bvideo\b/i, /\bcontent\b/i, /\bcamera\b/i, /\bspatial audio\b/i, /\bnoise cancel/i],
-  identity: [/\bconversation starter\b/i, /\bdifferent\b/i, /\bretro\b/i, /\bshow off\b/i, /\bpersonality\b/i, /\bfashion/i, /\bfun\b/i, /\btech-forward\b/i],
-  'social-status': [/\bpremium\b/i, /\bflagship\b/i, /\bluxury\b/i, /\bpro\b/i, /\bultra\b/i, /\bstatus\b/i, /\bbest\b/i, /\bshow off the phone color\b/i],
-  'family-coordination': [/\bparent\b/i, /\bparents\b/i, /\bfamily\b/i, /\bkids\b/i, /\bteen\b/i, /\bshared car\b/i, /\bpartner\b/i, /\bfamily memories\b/i],
-  'travel-mobility': [/\btravel\b/i, /\btraveler\b/i, /\bcommut/i, /\broad trip\b/i, /\bluggage\b/i, /\bflight\b/i, /\btransit\b/i, /\bon the go\b/i, /\bportable\b/i],
-  'heavy-usage': [/\bbattery\b/i, /\b39hr\b/i, /\b36hr\b/i, /\b30\+ hr\b/i, /\b2tb\b/i, /\b1tb\b/i, /\b256gb\b/i, /\b512gb\b/i, /\bheavy\b/i, /\bpower user\b/i],
+  budget: [
+    /\bbudget\b/i,
+    /\bvalue\b/i,
+    /\baffordable\b/i,
+    /\baccessible\b/i,
+    /\bdeal\b/i,
+    /\bfree\b/i,
+    /\bwithout the pro price\b/i,
+    /\bwithout paying\b/i,
+    /\bentry[- ]level\b/i,
+  ],
+  simplicity: [
+    /\bsimple\b/i,
+    /\beasy\b/i,
+    /\bjust set\b/i,
+    /\bjust works?\b/i,
+    /\bseamless\b/i,
+    /\bno fuss\b/i,
+    /\bone[- ]hand\b/i,
+    /\bno screen\b/i,
+  ],
+  safety: [
+    /\bprotection\b/i,
+    /\bprivacy\b/i,
+    /\btheft\b/i,
+    /\bloss\b/i,
+    /\bfall detection\b/i,
+    /\bcrash detection\b/i,
+    /\bpeace of mind\b/i,
+    /\bsecure\b/i,
+    /\bgeofence\b/i,
+    /\btracking\b/i,
+  ],
+  convenience: [
+    /\bwireless\b/i,
+    /\bmagsafe\b/i,
+    /\bqi2\b/i,
+    /\bauto[- ]switch\b/i,
+    /\bhands[- ]free\b/i,
+    /\bnightstand\b/i,
+    /\bdesk\b/i,
+    /\bcar\b/i,
+    /\bone cable\b/i,
+    /\bset the phone down\b/i,
+  ],
+  productivity: [
+    /\bwork\b/i,
+    /\bremote\b/i,
+    /\bproductivity\b/i,
+    /\bkeyboard\b/i,
+    /\bnotes?\b/i,
+    /\bmarkup\b/i,
+    /\bs pen\b/i,
+    /\bdex\b/i,
+    /\blaptop replacement\b/i,
+    /\bcalendar\b/i,
+    /\bsign\b/i,
+  ],
+  entertainment: [
+    /\bgaming\b/i,
+    /\bstreaming\b/i,
+    /\bmusic\b/i,
+    /\bvideo\b/i,
+    /\bcontent\b/i,
+    /\bcamera\b/i,
+    /\bspatial audio\b/i,
+    /\bnoise cancel/i,
+  ],
+  identity: [
+    /\bconversation starter\b/i,
+    /\bdifferent\b/i,
+    /\bretro\b/i,
+    /\bshow off\b/i,
+    /\bpersonality\b/i,
+    /\bfashion\b/i,
+    /\bfun\b/i,
+    /\btech-forward\b/i,
+  ],
+  'social-status': [
+    /\bpremium\b/i,
+    /\bflagship\b/i,
+    /\bluxury\b/i,
+    /\bpro\b/i,
+    /\bultra\b/i,
+    /\bshow off the phone color\b/i,
+    /\bbest\b/i,
+  ],
+  'family-coordination': [
+    /\bparent\b/i,
+    /\bparents\b/i,
+    /\bfamily\b/i,
+    /\bkids?\b/i,
+    /\bteen\b/i,
+    /\bshared car\b/i,
+    /\bpartner\b/i,
+    /\bfamily memories\b/i,
+  ],
+  'travel-mobility': [
+    /\btravel\b/i,
+    /\btraveler\b/i,
+    /\bcommut/i,
+    /\broad trip\b/i,
+    /\bluggage\b/i,
+    /\bflight\b/i,
+    /\btransit\b/i,
+    /\bon the go\b/i,
+    /\bportable\b/i,
+  ],
+  'heavy-usage': [
+    /\bbattery\b/i,
+    /\b39hr\b/i,
+    /\b36hr\b/i,
+    /\b30\+ hr\b/i,
+    /\b5200mah\b/i,
+    /\b5000mah\b/i,
+    /\b2tb\b/i,
+    /\b1tb\b/i,
+    /\b256gb\b/i,
+    /\b512gb\b/i,
+    /\bheavy\b/i,
+    /\bpower user\b/i,
+  ],
 };
 
 const LIFE_CONTEXT_RULES: Array<{ label: string; test: RegExp[] }> = [
   { label: 'traveler', test: [/\btravel\b/i, /\bflight\b/i, /\bluggage\b/i, /\bairport\b/i, /\broad trip\b/i] },
   { label: 'commuter', test: [/\bcommut/i, /\btransit\b/i, /\btrain\b/i, /\bmaps\b/i, /\bcar\b/i] },
-  { label: 'remote worker', test: [/\bremote work\b/i, /\bwork from home\b/i, /\bwork calls\b/i, /\bcoffee shop\b/i, /\bVPN\b/i] },
-  { label: 'parent', test: [/\bparent\b/i, /\bkids\b/i, /\bfamily\b/i, /\bteen drivers?\b/i] },
+  { label: 'remote worker', test: [/\bremote work\b/i, /\bwork from home\b/i, /\bwork calls?\b/i, /\bcoffee shop\b/i, /\bvpn\b/i] },
+  { label: 'parent', test: [/\bparent\b/i, /\bkids?\b/i, /\bfamily\b/i, /\bteen drivers?\b/i] },
   { label: 'gamer', test: [/\bgaming\b/i, /\bgame pass\b/i, /\bplaystation\b/i, /\bxbox\b/i] },
   { label: 'creator', test: [/\bcontent\b/i, /\bcreator\b/i, /\bvideo editing\b/i, /\binstagram\b/i, /\btiktok\b/i, /\bcamera\b/i] },
-  { label: 'heavy user', test: [/\bbattery\b/i, /\bpower user\b/i, /\b2tb\b/i, /\b1tb\b/i, /\ball-day\b/i] },
+  { label: 'student', test: [/\bschool\b/i, /\bclass\b/i, /\bstudy\b/i, /\bnotes?\b/i, /\bbag\b/i] },
+  { label: 'heavy user', test: [/\bbattery\b/i, /\bpower user\b/i, /\ball-day\b/i] },
   { label: 'budget-focused', test: [/\bbudget\b/i, /\bvalue\b/i, /\bprice\b/i, /\baffordable\b/i, /\bfree\b/i] },
   { label: 'simplicity-first', test: [/\bsimple\b/i, /\beasy\b/i, /\bjust set\b/i, /\bno fuss\b/i, /\bwithout a phone\b/i] },
   { label: 'privacy-minded', test: [/\bprivacy\b/i, /\bsensitive info\b/i, /\bscreen looks black\b/i] },
@@ -123,46 +238,109 @@ const LIFE_CONTEXT_RULES: Array<{ label: string; test: RegExp[] }> = [
   { label: 'active lifestyle', test: [/\boutdoor\b/i, /\bworkout\b/i, /\bsports\b/i, /\bhiking\b/i, /\badventure\b/i] },
 ];
 
-const DRIVER_LISTEN_FOR: Record<FitDriver, string[]> = {
-  budget: ['"I want something good without spending a ton"', '"What is the best value option?"', '"I do not need the most expensive phone"'],
-  simplicity: ['"I just want it to work"', '"I do not want anything complicated"', '"I am tired of extra setup"'],
-  safety: ['"I break phones"', '"I travel with it everywhere"', '"I do not want to worry if it gets lost or cracked"'],
-  convenience: ['"I hate dealing with cables"', '"I use my phone in the car a lot"', '"I want this to fit into my routine"'],
-  productivity: ['"I work off my phone"', '"I need to take notes or mark stuff up"', '"I need something that can actually help me get work done"'],
-  entertainment: ['"I stream a lot"', '"I listen to music or podcasts constantly"', '"I game on my phone"'],
-  identity: ['"I want something different"', '"I want it to look good"', '"Everybody has the same phone"'],
-  'social-status': ['"I want the best one"', '"I care about the premium model"', '"I use my phone for everything and want to feel the upgrade"'],
-  'family-coordination': ['"This is for my kid"', '"I need to keep track of family stuff"', '"We share the car or device"'],
-  'travel-mobility': ['"I am in the car all the time"', '"I travel for work"', '"I need this to work on the go"'],
-  'heavy-usage': ['"My battery dies too early"', '"I run out of storage"', '"I use my phone constantly all day"'],
+const DRIVER_PROFILES: Record<FitDriver, DriverProfile> = {
+  budget: {
+    title: 'Value that still feels current',
+    appealType: 'value',
+    mindset: 'This lands with callers who want to feel smart with their money, not cheap.',
+    leadWith: 'Lead with what they still get for the money before you mention what they are skipping.',
+    avoidIf: 'Do not start here if they already told you they want the absolute best camera, biggest screen, or premium finish.',
+    fitHints: ['budget-focused', 'value shoppers'],
+    cues: ['best value', 'monthly cost', 'do not need the most expensive'],
+  },
+  simplicity: {
+    title: 'Easy right out of the box',
+    appealType: 'convenience',
+    mindset: 'This works best when the caller wants less friction, not more features to learn.',
+    leadWith: 'Lead with how easy it feels on day one, then use one concrete example.',
+    avoidIf: 'Do not over-explain the tech. Simplicity buyers tune out when the pitch gets too technical.',
+    fitHints: ['simplicity-first', 'first-time upgraders'],
+    cues: ['just want it to work', 'not techy', 'do not want extra setup'],
+  },
+  safety: {
+    title: 'Peace of mind before regret',
+    appealType: 'safety',
+    mindset: 'This is for callers who worry more about loss, damage, privacy, or family safety than raw specs.',
+    leadWith: 'Start with the risk they already know is real, then show how this removes it.',
+    avoidIf: 'Do not lead here until you connect it to a real risk or pain point they recognize.',
+    fitHints: ['peace-of-mind buyers', 'protective planners'],
+    cues: ['break phones', 'worry about theft', 'need to keep track of someone or something'],
+  },
+  convenience: {
+    title: 'Removes daily friction',
+    appealType: 'convenience',
+    mindset: 'This lands when the caller values smoother daily use more than a longer spec comparison.',
+    leadWith: 'Tie it to one annoying everyday friction point, then show how this removes it.',
+    avoidIf: 'Do not bury the convenience angle under a spec list.',
+    fitHints: ['routine-driven buyers', 'commuters'],
+    cues: ['hate cables', 'use it in the car', 'want it to fit the routine'],
+  },
+  productivity: {
+    title: 'Real work gets easier',
+    appealType: 'productivity',
+    mindset: 'This fits callers who actually expect the device to help them work, organize, or multitask.',
+    leadWith: 'Lead with what it helps them get done, not the chip or hardware language.',
+    avoidIf: 'Do not start here if they are clearly shopping for the simplest low-cost option and never work from the device.',
+    fitHints: ['remote worker', 'multitaskers'],
+    cues: ['work off my phone', 'take notes', 'need to sign or mark things up'],
+  },
+  entertainment: {
+    title: 'Fun feels better immediately',
+    appealType: 'cool-factor',
+    mindset: 'This works when the caller cares about music, gaming, streaming, or making the upgrade feel more fun.',
+    leadWith: 'Lead with the fun outcome first, then back it up with one feature.',
+    avoidIf: 'Do not lead here if the entire call is about cost control, billing, or protection only.',
+    fitHints: ['gamer', 'creator'],
+    cues: ['stream a lot', 'game on the phone', 'always listening to music'],
+  },
+  identity: {
+    title: 'Feels different enough to be exciting',
+    appealType: 'cool-factor',
+    mindset: 'This lands with callers who want personality, novelty, or something that does not look like every other device.',
+    leadWith: 'Lead with why it feels different or more personal, then prove it is still practical.',
+    avoidIf: 'Do not lead here when the caller only wants the most practical answer.',
+    fitHints: ['style-first', 'trend-aware'],
+    cues: ['want something different', 'want it to look cool', 'every phone feels the same'],
+  },
+  'social-status': {
+    title: 'Premium enough to feel the upgrade',
+    appealType: 'status',
+    mindset: 'This lands when the buyer wants the upgrade to feel premium every single day.',
+    leadWith: 'Lead with the premium experience they will notice, not with price.',
+    avoidIf: 'Do not lead here if they are clearly value-first or resistant to premium upsells.',
+    fitHints: ['premium shoppers', 'upgrade seekers'],
+    cues: ['want the best one', 'want the premium model', 'want to feel the upgrade'],
+  },
+  'family-coordination': {
+    title: 'Makes family life easier to manage',
+    appealType: 'family',
+    mindset: 'This fits callers trying to keep family logistics, safety, or shared routines under control.',
+    leadWith: 'Anchor it to the family problem it solves first, then give one proof point.',
+    avoidIf: 'Do not lead here unless there is a family, kid, partner, or shared-life use case in the call.',
+    fitHints: ['parent', 'family-focused'],
+    cues: ['for my kid', 'shared car or device', 'need to keep up with family'],
+  },
+  'travel-mobility': {
+    title: 'Better on the move',
+    appealType: 'convenience',
+    mindset: 'This works for callers who live in the car, commute, or need the device to hold up away from home.',
+    leadWith: 'Connect it to travel, commuting, or being away from a charger before you mention the feature.',
+    avoidIf: 'Do not start here if they mostly use the device in one place and never mention being on the go.',
+    fitHints: ['traveler', 'commuter'],
+    cues: ['travel for work', 'live in the car', 'need it on the go'],
+  },
+  'heavy-usage': {
+    title: 'Built for people who lean on it hard',
+    appealType: 'practical',
+    mindset: 'This fits heavy users who notice battery, storage, and durability problems faster than anyone else.',
+    leadWith: 'Lead with the pain they already feel today, then show why this holds up better.',
+    avoidIf: 'Do not lead here if they barely use the device and will not value the extra headroom.',
+    fitHints: ['heavy user', 'all-day users'],
+    cues: ['battery dies early', 'run out of storage', 'use the phone all day'],
+  },
 };
 
-const APPEAL_WATCH_OUT: Record<AppealType, string> = {
-  practical: 'Do not lead with this if the caller is mainly shopping for premium flex or a standout toy.',
-  value: 'Do not lead with this if they have already told you they want the absolute best camera, biggest screen, or most premium finish.',
-  convenience: 'Do not lead with this if the whole conversation is purely about monthly cost and nothing else.',
-  family: 'Do not lead with this if there is no family, kid, or shared-life use case anywhere in the conversation.',
-  productivity: 'Do not lead with this if they want the simplest low-cost option and do not use their device for work at all.',
-  safety: 'Do not lead with this before you establish the risk or pain point it is protecting them from.',
-  status: 'Do not lead with this if they are clearly budget-first or resistant to premium upsells.',
-  'cool-factor': 'Do not lead with this if the caller is solving a basic bill, repair, or protection problem and has shown zero interest in novelty.',
-};
-
-const APPEAL_HOOKS: Record<AppealType, string> = {
-  practical: 'Dependable and easy to justify',
-  value: 'Current tech without the premium hit',
-  convenience: 'Removes friction every day',
-  family: 'Fits family life and shared routines',
-  productivity: 'Helps the device pull real duty',
-  safety: 'Peace-of-mind before regret hits',
-  status: 'Premium experience they can feel',
-  'cool-factor': 'Fun, different, and easy to get excited about',
-};
-
-const ACCESSORY_RECOMMENDATION_MATCHERS: Array<{
-  name: string;
-  test: RegExp;
-}> = [
+const ACCESSORY_RECOMMENDATION_MATCHERS: Array<{ name: string; test: RegExp }> = [
   { name: 'Protective Case', test: /\b(case|otterbox|case-mate|tech21|rainier|crystal palace|evolite|evoclear)\b/i },
   { name: 'Screen Protector', test: /\b(screen protector|glass elite|privacy 360|camera protector)\b/i },
   { name: 'Fast Charger + Cable', test: /\b(charger|cable|power adapter|car charger|charging bundle)\b/i },
@@ -215,7 +393,21 @@ function toLanguageList(value: string): string[] {
   return value
     .split(',')
     .map(part => part.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function cleanSentence(sentence: string): string {
+  return sentence.replace(/\s+/g, ' ').trim();
+}
+
+function trimSentence(sentence: string, maxLength = 145): string {
+  const cleaned = cleanSentence(sentence);
+  if (cleaned.length <= maxLength) return cleaned;
+
+  const shortened = cleaned.slice(0, maxLength);
+  const cutAt = Math.max(shortened.lastIndexOf(','), shortened.lastIndexOf(' '));
+  return `${shortened.slice(0, cutAt > 70 ? cutAt : maxLength).trim()}...`;
 }
 
 export function getAppealTypeLabel(appealType: AppealType): string {
@@ -304,16 +496,7 @@ function deriveLifeContext(texts: string[], drivers: FitDriver[]): string[] {
 }
 
 function chooseAppealType(drivers: FitDriver[], fallback: AppealType = 'practical'): AppealType {
-  for (const driver of drivers) {
-    if (driver === 'budget') return 'value';
-    if (driver === 'safety') return 'safety';
-    if (driver === 'family-coordination') return 'family';
-    if (driver === 'productivity') return 'productivity';
-    if (driver === 'social-status') return 'status';
-    if (driver === 'identity' || driver === 'entertainment') return 'cool-factor';
-    if (driver === 'convenience' || driver === 'simplicity' || driver === 'travel-mobility') return 'convenience';
-  }
-  return fallback;
+  return drivers[0] ? DRIVER_PROFILES[drivers[0]].appealType : fallback;
 }
 
 function getBrandKey(device: Device): keyof typeof ECOSYSTEM_HOOKS | null {
@@ -331,8 +514,9 @@ function getDeviceBoosts(device: Device): Partial<Record<FitDriver, number>> {
   if (price !== null && price >= 999) boosts['social-status'] = 2;
   if (/watch|tracker|drive/i.test(normalizedName)) boosts.safety = 1;
   if (/flip|fold|ray-ban|backbone/i.test(normalizedName)) boosts.identity = 2;
-  if (/ultra|pro max|airpods max/i.test(normalizedName)) boosts['social-status'] = (boosts['social-status'] ?? 0) + 1;
-  if (/tab|ipad|s pen|dex/i.test(normalizedName)) boosts.productivity = 1;
+  if (/ultra|pro max|air/i.test(normalizedName)) boosts['social-status'] = (boosts['social-status'] ?? 0) + 1;
+  if (/tab|ipad|s pen|dex/i.test(normalizedName)) boosts.productivity = 2;
+  if (/battery|5000mah|5200mah|2tb|1tb/i.test(normalizedName)) boosts['heavy-usage'] = 1;
   return boosts;
 }
 
@@ -343,9 +527,10 @@ function getAccessoryBoosts(name: string, category: string): Partial<Record<FitD
   if (/p360|protection/.test(normalizedName) || category === 'protection') boosts.safety = 3;
   if (/charger|battery|mount|magsafe|qi2|wireless/.test(normalizedName) || category === 'charging') boosts.convenience = 2;
   if (/airpods|buds|headphones|audio/.test(normalizedName) || category === 'audio') boosts.entertainment = 2;
-  if (/backbone|ray ban|meta|flip|fold/.test(normalizedName)) boosts.identity = 2;
-  if (/tracker|kids watch|syncup/.test(normalizedName)) boosts['family-coordination'] = 2;
+  if (/backbone|ray ban|meta|flip|fold/.test(normalizedName)) boosts.identity = 3;
+  if (/tracker|kids watch|syncup/.test(normalizedName)) boosts['family-coordination'] = 3;
   if (/case|glass|camera protector/.test(normalizedName)) boosts.safety = (boosts.safety ?? 0) + 1;
+  if (/battery/.test(normalizedName)) boosts['heavy-usage'] = 2;
   return boosts;
 }
 
@@ -357,10 +542,10 @@ function translateFeature(feature: string): string | null {
     return 'More room for photos, apps, and offline media before storage becomes a problem.';
   }
   if (/\b(39hr|36hr|30 hr|30+ hr|5200mah|5000mah|4900mah|4823|5088)\b/.test(normalized) || normalized.includes('battery')) {
-    return 'Stronger battery story for heavy users, travel days, and people who hate charging mid-shift.';
+    return 'Stronger battery story for heavy users, travel days, and people who hate charging mid-day.';
   }
   if (/\b(60w|45w|40w|30w|25w|15w)\b/.test(normalized) || normalized.includes('charging')) {
-    return 'Lets the rep turn charging speed into a real life benefit instead of a spec sheet number.';
+    return 'Turns charging speed into a real convenience story instead of a spec sheet number.';
   }
   if (normalized.includes('camera') || /\b(200mp|48mp|50mp|100x zoom|tele)\b/.test(normalized)) {
     return 'Easy proof point for family photos, travel, and anyone who wants the upgrade to feel obvious.';
@@ -369,19 +554,19 @@ function translateFeature(feature: string): string | null {
     return 'The screen will look brighter, sharper, and smoother every single day.';
   }
   if (normalized.includes('magsafe') || normalized.includes('qi2')) {
-    return 'Magnetic alignment makes charging and car mounting easier, which is a simple over-the-phone win.';
+    return 'Magnetic alignment makes charging and car mounting easier, which is an easy over-the-phone win.';
   }
   if (normalized.includes('s pen') || normalized.includes('pencil')) {
-    return 'Turns the device into something they can take notes, sign, and mark up with instead of just consume on.';
+    return 'Turns the device into something they can note-take, sign, and mark up with instead of just watch content on.';
   }
   if (normalized.includes('dex') || normalized.includes('desktop mode')) {
-    return 'Gives the rep a clean productivity story: tablet convenience with laptop-style multitasking.';
+    return 'Gives you a clean productivity story: tablet convenience with laptop-style multitasking.';
   }
   if (normalized.includes('fitbit') || normalized.includes('bioactive') || normalized.includes('sleep') || normalized.includes('heart') || normalized.includes('hearing')) {
     return 'Health features become a daily-use reason to keep the product, not just a novelty demo.';
   }
   if (normalized.includes('gps') || normalized.includes('tracker') || normalized.includes('geofence')) {
-    return 'Makes location, safety, and peace-of-mind easy to explain in plain English.';
+    return 'Makes location, safety, and peace of mind easy to explain in plain English.';
   }
   if (normalized.includes('usb c')) {
     return 'Fewer charger headaches because it matches the cable standard most people already use now.';
@@ -391,11 +576,12 @@ function translateFeature(feature: string): string | null {
 
 function getFeatureTranslations(sourceText: string): FeatureTranslation[] {
   const candidates = sourceText.split(',').map(part => part.trim()).filter(Boolean);
-  const translations = compact(candidates.map(feature => {
-    const benefit = translateFeature(feature);
-    return benefit ? { feature, benefit } : null;
-  }));
-  return translations.slice(0, 3);
+  return compact(
+    candidates.map(feature => {
+      const benefit = translateFeature(feature);
+      return benefit ? { feature, benefit: trimSentence(benefit, 120) } : null;
+    })
+  ).slice(0, 2);
 }
 
 function getPromoMatches(device: Device, weeklyData: WeeklyUpdate | null | undefined) {
@@ -435,7 +621,7 @@ function getDeviceDemoAngles(device: Device, ecosystemMatrix: EcosystemMatrix | 
         results.push({
           demographic,
           label: section.label,
-          whyThisDemoResponds: entry.why,
+          whyThisDemoResponds: trimSentence(entry.why, 150),
           trustLanguage: toLanguageList(section.trustLanguage),
           avoidLanguage: toLanguageList(section.avoidLanguage),
           score,
@@ -467,7 +653,7 @@ function getAccessoryMatrixAngles(name: string, ecosystemMatrix: EcosystemMatrix
       matches.push({
         demographic,
         label: section.label,
-        whyThisDemoResponds: entry.why,
+        whyThisDemoResponds: trimSentence(entry.why, 150),
         trustLanguage: toLanguageList(section.trustLanguage),
         avoidLanguage: toLanguageList(section.avoidLanguage),
         score: itemScore,
@@ -487,7 +673,7 @@ function getProtection360Angles(ecosystemMatrix: EcosystemMatrix | null | undefi
   return DEMOGRAPHIC_KEYS.map(demographic => ({
     demographic,
     label: ecosystemMatrix.demographics[demographic].label,
-    whyThisDemoResponds: ecosystemMatrix.crossDemographicProducts.protection360.pitchByDemo[demographic],
+    whyThisDemoResponds: trimSentence(ecosystemMatrix.crossDemographicProducts.protection360.pitchByDemo[demographic], 150),
     trustLanguage: toLanguageList(ecosystemMatrix.demographics[demographic].trustLanguage),
     avoidLanguage: toLanguageList(ecosystemMatrix.demographics[demographic].avoidLanguage),
   }));
@@ -537,27 +723,21 @@ function getAccessoryRecommendationAngles(
     return {
       demographic,
       label: section?.label ?? demographic,
-      whyThisDemoResponds: match.why,
+      whyThisDemoResponds: trimSentence(match.why, 150),
       trustLanguage: section ? toLanguageList(section.trustLanguage) : [],
       avoidLanguage: section ? toLanguageList(section.avoidLanguage) : [],
     };
   }));
 }
 
-function buildDeviceTexts(
-  device: Device,
-  weeklyData: WeeklyUpdate | null | undefined,
-  ecosystemMatrix: EcosystemMatrix | null | undefined
-) {
+function buildDeviceTexts(device: Device, ecosystemMatrix: EcosystemMatrix | null | undefined) {
   const demoAngles = getDeviceDemoAngles(device, ecosystemMatrix);
-  const promos = getPromoMatches(device, weeklyData);
   const brandKey = getBrandKey(device);
   const ecosystemHooks = brandKey ? ECOSYSTEM_HOOKS[brandKey].slice(0, 2) : [];
   const texts = compact([
     device.keySpecs,
     device.sellingNotes,
     ...demoAngles.map(angle => angle.whyThisDemoResponds),
-    ...promos.map(promo => `${promo.name}. ${promo.details}`),
     ...ecosystemHooks,
     device.category === 'watch'
       ? `${CONNECTED_DEVICE_INFO.plans.wearableLine.desc}.`
@@ -596,103 +776,172 @@ function buildAccessoryEvidence(
   return { whyTexts, demoAngles };
 }
 
-function buildProofPoints(texts: string[], fallbackFeatureTranslations: FeatureTranslation[]): string[] {
-  const sentenceProofs = texts.flatMap(splitSentences).filter(Boolean);
-  const translatedProofs = fallbackFeatureTranslations.map(item => `${item.feature}: ${item.benefit}`);
-  return unique([...sentenceProofs, ...translatedProofs]).slice(0, 4);
+function rankSentence(sentence: string, drivers: FitDriver[]): number {
+  const clean = cleanSentence(sentence);
+  if (!clean) return 0;
+
+  let score = 1;
+  for (const driver of drivers) {
+    score += DRIVER_KEYWORDS[driver].reduce((count, pattern) => count + (pattern.test(clean) ? 1 : 0), 0);
+  }
+  if (/\b(best|great|ideal|perfect|worth|huge|great for|good for|for people who)\b/i.test(clean)) score += 2;
+  if (clean.length <= 150) score += 1;
+  return score;
+}
+
+function buildProofPoints(texts: string[], fallbackFeatureTranslations: FeatureTranslation[], drivers: FitDriver[]): string[] {
+  const sentences = unique(texts.flatMap(splitSentences).map(cleanSentence).filter(Boolean));
+  const rankedSentences = sentences
+    .map(sentence => ({ sentence, score: rankSentence(sentence, drivers) }))
+    .sort((a, b) => b.score - a.score || a.sentence.length - b.sentence.length)
+    .map(item => trimSentence(item.sentence));
+
+  const translatedProofs = fallbackFeatureTranslations.map(item => trimSentence(`${item.feature}: ${item.benefit}`));
+  return unique([...rankedSentences, ...translatedProofs]).slice(0, 3);
 }
 
 function buildBestFit(drivers: FitDriver[], lifeContext: string[], fallbackLabel: string): string[] {
   const fit = [...lifeContext];
 
-  if (drivers.includes('productivity') && !fit.includes('remote worker')) fit.push('remote worker');
-  if (drivers.includes('family-coordination') && !fit.includes('parent')) fit.push('parent');
-  if (drivers.includes('travel-mobility') && !fit.includes('traveler')) fit.push('traveler');
-  if (drivers.includes('entertainment') && !fit.includes('creator')) fit.push('creator');
-  if (drivers.includes('identity') && !fit.includes('style-first')) fit.push('style-first');
+  for (const driver of drivers.slice(0, 2)) {
+    fit.push(...DRIVER_PROFILES[driver].fitHints);
+  }
 
   if (fit.length === 0) fit.push(fallbackLabel);
-  return fit.slice(0, 4);
+  return unique(fit).slice(0, 3);
 }
 
-function buildWhyItLands(name: string, drivers: FitDriver[], baseText: string | undefined, bestFit: string[]): string {
-  const driver = drivers[0];
-  const firstSentence = baseText ? splitSentences(baseText)[0] : '';
-  if (!driver && firstSentence) return firstSentence;
-
-  const fitText = bestFit.slice(0, 2).join(' and ');
-  const driverText = driver ? DRIVER_LABELS[driver] : 'a clear everyday benefit';
-  if (firstSentence) {
-    return `${capitalize(fitText || 'This fit')} respond well when the pitch centers on ${driverText}. ${firstSentence}`;
-  }
-  return `${capitalize(fitText || 'This fit')} respond well when the pitch centers on ${driverText}.`;
+function buildShortHook(driver: FitDriver | undefined, proof: string | undefined): string {
+  if (!driver) return proof ?? 'Strong everyday fit';
+  return proof ? `${DRIVER_PROFILES[driver].title}: ${proof}` : DRIVER_PROFILES[driver].title;
 }
 
-function buildShortHook(appealType: AppealType, proofPoints: string[]): string {
-  const proof = proofPoints[0];
-  return proof ? `${APPEAL_HOOKS[appealType]}: ${proof}` : APPEAL_HOOKS[appealType];
-}
+function buildPrimaryScript(name: string, driver: FitDriver | undefined, proof: string): string {
+  if (!driver) return `${name} is the clean lead when they want a straightforward upgrade. ${proof}`;
 
-function buildSayThis(name: string, appealType: AppealType, proofPoints: string[]): string {
-  const proof = proofPoints[0] ?? 'it gives them a clear everyday upgrade they will notice';
-  switch (appealType) {
-    case 'value':
-      return `If they want current tech without paying premium money, ${name} is the easy lead. ${proof}`;
-    case 'convenience':
-      return `If they want something that fits into daily life with less friction, I would lead with ${name}. ${proof}`;
-    case 'family':
-      return `If the device has to fit family life, ${name} is a strong lead. ${proof}`;
-    case 'productivity':
-      return `If they actually work off this device, ${name} gives you a clean productivity story. ${proof}`;
+  switch (driver) {
+    case 'budget':
+      return `${name} is the easy lead when they want current features without paying flagship money. ${proof}`;
+    case 'simplicity':
+      return `If they just want something that feels easy right away, ${name} is the clean answer. ${proof}`;
     case 'safety':
-      return `If peace of mind is the real need, ${name} is the one to lead with. ${proof}`;
-    case 'status':
-      return `If they want the premium version they will actually feel every day, ${name} is the flex without sounding gimmicky. ${proof}`;
-    case 'cool-factor':
-      return `If they want something fun, different, or conversation-starting, ${name} is the easiest way to build excitement. ${proof}`;
+      return `If peace of mind is the real need, ${name} gives you a strong protection story. ${proof}`;
+    case 'convenience':
+      return `${name} makes day-to-day use easier fast. ${proof}`;
+    case 'productivity':
+      return `If they actually work from this device, ${name} gives you a real productivity story. ${proof}`;
+    case 'entertainment':
+      return `If they want the upgrade to feel more fun right away, ${name} is the easiest way in. ${proof}`;
+    case 'identity':
+      return `If they want something that feels different instead of more of the same, ${name} is the hook. ${proof}`;
+    case 'social-status':
+      return `If they want the premium version they will actually feel every day, ${name} is the lead. ${proof}`;
+    case 'family-coordination':
+      return `If the device has to make family life easier, ${name} is the smart lead. ${proof}`;
+    case 'travel-mobility':
+      return `If they are always on the move, ${name} is the one to position first. ${proof}`;
+    case 'heavy-usage':
+      return `If they are hard on their phone or use it all day, ${name} gives you the durability-and-battery angle. ${proof}`;
     default:
-      return `If they want something dependable that makes sense fast, ${name} is a clean lead. ${proof}`;
+      return `${name} is the clean lead when they want a straightforward upgrade. ${proof}`;
   }
 }
 
-function buildListenFor(drivers: FitDriver[]): string[] {
-  return unique(drivers.flatMap(driver => DRIVER_LISTEN_FOR[driver])).slice(0, 3);
+function buildBackupScript(name: string, driver: FitDriver | undefined, proof: string): string {
+  if (!driver) return `If the first angle does not land, pivot back to the everyday proof: ${proof}`;
+  return `If the first angle does not land, pivot to ${DRIVER_PROFILES[driver].title.toLowerCase()}. ${name} still gives you this proof point: ${proof}`;
 }
 
-function buildWhenToLead(name: string, drivers: FitDriver[], listenFor: string[]): string {
-  if (listenFor.length === 0) {
-    return `Best when you have a clear fit story for ${name} instead of reading specs at them.`;
+function buildAngleWhy(
+  driver: FitDriver | undefined,
+  detail: string | undefined,
+  topDemo: DemoCoachingAngle | undefined
+): string {
+  const mindset = driver ? DRIVER_PROFILES[driver].mindset : 'This lands when the product clearly solves something the caller already cares about.';
+  const supportingDetail = detail ? trimSentence(detail, 170) : '';
+
+  if (!supportingDetail && topDemo) {
+    return `${mindset} ${topDemo.whyThisDemoResponds}`;
   }
 
-  const cues = listenFor
-    .slice(0, 2)
-    .map(cue => cue.replace(/^"|"$/g, ''))
-    .join(', ');
-  const driverText = drivers[0] ? DRIVER_LABELS[drivers[0]] : 'real-life fit';
-
-  return `Best when the caller gives you cues like ${cues}. That opens the door to a ${driverText} story instead of a generic pitch.`;
+  return [mindset, supportingDetail].filter(Boolean).join(' ');
 }
 
-function buildReasonChain(name: string, drivers: FitDriver[], proofPoints: string[], bestFit: string[]): string[] {
-  const driverText = drivers[0] ? DRIVER_LABELS[drivers[0]] : 'an easier day-to-day experience';
-  const fitText = bestFit.slice(0, 2).join(' and ') || 'this kind of caller';
-  const proof = proofPoints[0] ?? `${name} gives the rep a concrete benefit to point at.`;
-
-  return [
-    `${capitalize(fitText)} usually respond when the pitch centers on ${driverText}.`,
-    `${name} works because it turns that driver into something the caller can actually feel right away.`,
-    `Proof point: ${proof}`,
-  ];
+function buildListenFor(primaryDriver: FitDriver | undefined, backupDriver: FitDriver | undefined): string[] {
+  return unique(compact([
+    ...(primaryDriver ? DRIVER_PROFILES[primaryDriver].cues : []),
+    ...(backupDriver ? DRIVER_PROFILES[backupDriver].cues : []),
+  ])).slice(0, 3);
 }
 
-function capitalize(value: string): string {
-  return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+function buildLeadWith(driver: FitDriver | undefined): string {
+  if (!driver) return 'Lead with the most obvious everyday benefit, then stop after one proof point.';
+  return DRIVER_PROFILES[driver].leadWith;
 }
 
-function buildConfidence(demoAngles: DemoCoachingAngle[], proofPoints: string[], hasNativeText: boolean): 'high' | 'medium' | 'light' {
-  if (demoAngles.length > 0 && proofPoints.length >= 3 && hasNativeText) return 'high';
-  if (proofPoints.length >= 2 && hasNativeText) return 'medium';
-  return 'light';
+function buildSummary(params: {
+  name: string;
+  drivers: FitDriver[];
+  demoAngles: DemoCoachingAngle[];
+  evidenceTexts: string[];
+  baseScript?: string;
+  featureTranslations: FeatureTranslation[];
+  fallbackAppeal: AppealType;
+  fallbackFit: string;
+}): PositioningSummary {
+  const { name, drivers, demoAngles, evidenceTexts, baseScript, featureTranslations, fallbackAppeal, fallbackFit } = params;
+  const appealType = chooseAppealType(drivers, fallbackAppeal);
+  const lifeContext = deriveLifeContext(evidenceTexts, drivers);
+  const bestFit = buildBestFit(drivers, lifeContext, fallbackFit);
+  const proofPoints = buildProofPoints(evidenceTexts, featureTranslations, drivers);
+  const topProof = proofPoints[0] ?? 'It gives the rep a clean everyday reason to position it.';
+  const secondaryProof = proofPoints[1] ?? proofPoints[0] ?? topProof;
+  const topDemo = demoAngles[0];
+  const primaryDriver = drivers[0];
+  const backupDriver = drivers[1];
+  const primaryWhySource = evidenceTexts[0] ?? topDemo?.whyThisDemoResponds;
+  const backupWhySource = evidenceTexts[1] ?? topDemo?.whyThisDemoResponds;
+
+  const primaryAngle: CoachingAngle = {
+    title: primaryDriver ? DRIVER_PROFILES[primaryDriver].title : 'Clear everyday fit',
+    script: baseScript ? trimSentence(baseScript, 170) : buildPrimaryScript(name, primaryDriver, topProof),
+    why: buildAngleWhy(primaryDriver, primaryWhySource, topDemo),
+    proof: topProof,
+  };
+
+  const backupAngle = backupDriver || topDemo
+    ? {
+        title: backupDriver
+          ? DRIVER_PROFILES[backupDriver].title
+          : `${topDemo?.label ?? 'Customer-fit'} language`,
+        script: backupDriver
+          ? buildBackupScript(name, backupDriver, secondaryProof)
+          : `If they sound more like a ${topDemo?.label.toLowerCase()} caller, keep the wording around ${topDemo?.trustLanguage[0] ?? 'what feels useful right away'}.`,
+        why: backupDriver
+          ? buildAngleWhy(backupDriver, backupWhySource, topDemo)
+          : topDemo?.whyThisDemoResponds ?? '',
+        proof: backupDriver ? secondaryProof : topDemo?.whyThisDemoResponds ?? secondaryProof,
+      }
+    : undefined;
+
+  return {
+    sayThis: primaryAngle.script,
+    shortHook: buildShortHook(primaryDriver, topProof),
+    whyItLands: buildAngleWhy(primaryDriver, primaryWhySource, topDemo),
+    bestFit,
+    appealType,
+    proofPoints,
+    featureTranslations: featureTranslations.slice(0, 2),
+    listenFor: buildListenFor(primaryDriver, backupDriver),
+    trustLanguage: topDemo?.trustLanguage ?? [],
+    avoidLanguage: topDemo?.avoidLanguage ?? [],
+    demoAngles,
+    primaryAngle,
+    backupAngle,
+    callerMindset: primaryDriver ? DRIVER_PROFILES[primaryDriver].mindset : 'Lead with the reason this makes daily life easier.',
+    leadWith: buildLeadWith(primaryDriver),
+    avoidIf: primaryDriver ? DRIVER_PROFILES[primaryDriver].avoidIf : `Do not overcomplicate ${name}. Keep it tied to the caller's real use case.`,
+  };
 }
 
 export function getDevicePositioningSummary(
@@ -700,48 +949,30 @@ export function getDevicePositioningSummary(
   weeklyData: WeeklyUpdate | null | undefined,
   ecosystemMatrix: EcosystemMatrix | null | undefined
 ): PositioningSummary {
-  const { demoAngles, texts } = buildDeviceTexts(device, weeklyData, ecosystemMatrix);
+  const { demoAngles, texts } = buildDeviceTexts(device, ecosystemMatrix);
+  const promos = getPromoMatches(device, weeklyData);
   const drivers = scoreDrivers(texts, getDeviceBoosts(device));
-  const appealType = chooseAppealType(drivers, device.category === 'hotspot' ? 'practical' : 'value');
-  const lifeContext = deriveLifeContext(texts, drivers);
-  const bestFit = buildBestFit(drivers, lifeContext, device.category === 'watch' ? 'everyday wearable shoppers' : 'everyday upgraders');
   const featureTranslations = getFeatureTranslations(device.keySpecs);
-  const proofPoints = buildProofPoints(
-    compact([device.sellingNotes, ...demoAngles.map(angle => angle.whyThisDemoResponds)]),
-    featureTranslations
-  );
 
-  if (device.category === 'watch') {
-    proofPoints.push(`Connected line runs ${CONNECTED_DEVICE_INFO.plans.wearableLine.desc}.`);
-  }
-  if (device.category === 'tablet') {
-    proofPoints.push(`Tablet line runs ${CONNECTED_DEVICE_INFO.plans.tabletLine.desc}.`);
-  }
+  const evidenceTexts = compact([
+    device.sellingNotes,
+    ...demoAngles.map(angle => angle.whyThisDemoResponds),
+    ...promos.map(promo => `${promo.name}. ${promo.details}`),
+    ...texts.filter(text => text !== device.keySpecs),
+    ...featureTranslations.map(item => `${item.feature}: ${item.benefit}`),
+    device.category === 'watch' ? `Connected line runs ${CONNECTED_DEVICE_INFO.plans.wearableLine.desc}.` : null,
+    device.category === 'tablet' ? `Tablet line runs ${CONNECTED_DEVICE_INFO.plans.tabletLine.desc}.` : null,
+  ]);
 
-  const uniqueProofPoints = unique(proofPoints).slice(0, 4);
-  const topAngle = demoAngles[0];
-  const whyItLands = buildWhyItLands(device.name, drivers, device.sellingNotes ?? topAngle?.whyThisDemoResponds, bestFit);
-  const sayThis = buildSayThis(device.name, appealType, uniqueProofPoints);
-  const listenFor = buildListenFor(drivers);
-
-  return {
-    sayThis,
-    shortHook: buildShortHook(appealType, uniqueProofPoints),
-    whyItLands,
-    bestFit,
-    appealType,
-    proofPoints: uniqueProofPoints,
-    featureTranslations,
-    lifeContext,
-    reasonChain: buildReasonChain(device.name, drivers, uniqueProofPoints, bestFit),
-    whenToLead: buildWhenToLead(device.name, drivers, listenFor),
-    whenNotToLead: APPEAL_WATCH_OUT[appealType],
-    listenFor,
-    trustLanguage: topAngle?.trustLanguage ?? [],
-    avoidLanguage: topAngle?.avoidLanguage ?? [],
+  return buildSummary({
+    name: device.name,
+    drivers,
     demoAngles,
-    confidence: buildConfidence(demoAngles, uniqueProofPoints, Boolean(device.sellingNotes)),
-  };
+    evidenceTexts,
+    featureTranslations,
+    fallbackAppeal: device.category === 'hotspot' ? 'practical' : 'value',
+    fallbackFit: device.category === 'watch' ? 'connected lifestyle shoppers' : device.category === 'tablet' ? 'second-screen shoppers' : 'everyday upgraders',
+  });
 }
 
 function trimQuotes(value: string): string {
@@ -762,33 +993,18 @@ export function getAccessoryPitchPositioningSummary(
     ecosystemMatrix
   );
   const drivers = scoreDrivers(evidence.whyTexts, getAccessoryBoosts(accessory.name, accessory.category));
-  const appealType = chooseAppealType(drivers, accessory.category === 'protection' ? 'safety' : 'practical');
-  const lifeContext = deriveLifeContext(evidence.whyTexts, drivers);
-  const bestFit = buildBestFit(drivers, lifeContext, `${getAppealTypeLabel(appealType).toLowerCase()} shoppers`);
   const featureTranslations = getFeatureTranslations(evidence.whyTexts.join(', '));
-  const proofPoints = buildProofPoints(evidence.whyTexts, featureTranslations);
-  const topAngle = evidence.demoAngles[0];
-  const whyItLands = buildWhyItLands(accessory.name, drivers, evidence.whyTexts[0] ?? topAngle?.whyThisDemoResponds, bestFit);
-  const listenFor = buildListenFor(drivers);
 
-  return {
-    sayThis: trimQuotes(accessory.transitionScript),
-    shortHook: buildShortHook(appealType, proofPoints),
-    whyItLands,
-    bestFit,
-    appealType,
-    proofPoints,
-    featureTranslations,
-    lifeContext,
-    reasonChain: buildReasonChain(accessory.name, drivers, proofPoints, bestFit),
-    whenToLead: buildWhenToLead(accessory.name, drivers, listenFor),
-    whenNotToLead: APPEAL_WATCH_OUT[appealType],
-    listenFor,
-    trustLanguage: topAngle?.trustLanguage ?? [],
-    avoidLanguage: topAngle?.avoidLanguage ?? [],
+  return buildSummary({
+    name: accessory.name,
+    drivers,
     demoAngles: evidence.demoAngles,
-    confidence: buildConfidence(evidence.demoAngles, proofPoints, evidence.whyTexts.length > 0),
-  };
+    evidenceTexts: evidence.whyTexts,
+    baseScript: trimQuotes(accessory.transitionScript),
+    featureTranslations,
+    fallbackAppeal: accessory.category === 'protection' ? 'safety' : 'practical',
+    fallbackFit: 'everyday accessory shoppers',
+  });
 }
 
 export function getReferenceAccessoryPositioningSummary(
@@ -798,33 +1014,19 @@ export function getReferenceAccessoryPositioningSummary(
 ): PositioningSummary {
   const whyText = 'why' in item ? item.why : undefined;
   const pitchText = 'pitch' in item ? item.pitch : undefined;
+  const noteText = 'note' in item ? item.note : undefined;
   const evidence = buildAccessoryEvidence(item.name, categoryLabel, pitchText, whyText, null, ecosystemMatrix);
-  const drivers = scoreDrivers(evidence.whyTexts, getAccessoryBoosts(item.name, categoryLabel));
-  const appealType = chooseAppealType(drivers, categoryLabel.toLowerCase().includes('screen') ? 'safety' : 'practical');
-  const lifeContext = deriveLifeContext(evidence.whyTexts, drivers);
-  const bestFit = buildBestFit(drivers, lifeContext, `${getAppealTypeLabel(appealType).toLowerCase()} shoppers`);
+  const drivers = scoreDrivers(compact([noteText, ...evidence.whyTexts]), getAccessoryBoosts(item.name, categoryLabel));
   const featureTranslations = getFeatureTranslations(item.why);
-  const proofPoints = buildProofPoints(evidence.whyTexts, featureTranslations);
-  const topAngle = evidence.demoAngles[0];
-  const whyItLands = buildWhyItLands(item.name, drivers, item.why ?? topAngle?.whyThisDemoResponds, bestFit);
-  const listenFor = buildListenFor(drivers);
 
-  return {
-    sayThis: trimQuotes(item.pitch),
-    shortHook: buildShortHook(appealType, proofPoints),
-    whyItLands,
-    bestFit,
-    appealType,
-    proofPoints,
-    featureTranslations,
-    lifeContext,
-    reasonChain: buildReasonChain(item.name, drivers, proofPoints, bestFit),
-    whenToLead: buildWhenToLead(item.name, drivers, listenFor),
-    whenNotToLead: APPEAL_WATCH_OUT[appealType],
-    listenFor,
-    trustLanguage: topAngle?.trustLanguage ?? [],
-    avoidLanguage: topAngle?.avoidLanguage ?? [],
+  return buildSummary({
+    name: item.name,
+    drivers,
     demoAngles: evidence.demoAngles,
-    confidence: buildConfidence(evidence.demoAngles, proofPoints, Boolean(item.why)),
-  };
+    evidenceTexts: compact([noteText, ...evidence.whyTexts]),
+    baseScript: trimQuotes(item.pitch),
+    featureTranslations,
+    fallbackAppeal: categoryLabel.toLowerCase().includes('screen') ? 'safety' : 'practical',
+    fallbackFit: 'everyday add-on shoppers',
+  });
 }

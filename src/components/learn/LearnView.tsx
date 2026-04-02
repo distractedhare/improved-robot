@@ -133,7 +133,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           Know Your <span className="text-t-magenta">Stuff</span>
         </h2>
         <p className="text-sm text-t-dark-gray font-medium mt-1">
-          Pre-shift prep, device specs, sales techniques, and T-Mobile's biggest advantages.
+          Pre-shift prep, fast phone-sales coaching, and the T-Mobile story without the data dump.
         </p>
       </div>
 
@@ -176,6 +176,17 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
       {tab === 'devices' && (
         <div className="space-y-4">
+          <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+            <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
+              Fast Call Rule
+            </p>
+            <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
+              <p><span className="font-black">1.</span> Open with one angle, not three.</p>
+              <p><span className="font-black">2.</span> Back it up with one proof point.</p>
+              <p><span className="font-black">3.</span> Only open the backup angle if the caller needs a different reason to say yes.</p>
+            </div>
+          </div>
+
           {/* Device category sub-tabs */}
           <div className="flex rounded-2xl p-1 max-w-sm mx-auto gap-1 glass-tab">
             {DEVICE_CATEGORIES.map((cat) => (
