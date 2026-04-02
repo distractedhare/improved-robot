@@ -334,7 +334,7 @@ export const SERVICE_TO_SALES: Record<string, { timing: string; pivots: string[]
       '"I see you\'ve got [X] phone lines but no connected devices. Did you know you can add a watch line for just $5/month? The Galaxy Watch8 is free right now."',
       '"Looking at your account — you\'re on Experience Beyond, which means you get connected device lines at $5/month. That\'s the cheapest way to add a tablet or watch."',
       '"Have you looked at SyncUP DRIVE? It plugs into your car\'s OBD port and gives you GPS tracking, trip history, and vehicle diagnostics. Great for families with teen drivers."',
-      '"I notice you don\'t have Home Internet. With your voice line it\'s $30/month for Rely — no contract, 5-Year Price Guarantee. What are you paying your ISP right now?"',
+      '"I notice you don\'t have Home Internet. With your voice line it\'s $35/month for Rely — no contract, 5-Year Price Guarantee. What are you paying your ISP right now?"',
     ],
   },
 };

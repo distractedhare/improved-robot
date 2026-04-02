@@ -14,9 +14,9 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'Rely',
     standalonePrice: 50,
-    withVoiceLine: 30,
-    typicalDownload: '72-245 Mbps',
-    typicalUpload: '6-31 Mbps',
+    withVoiceLine: 35,
+    typicalDownload: '87-318 Mbps',
+    typicalUpload: '14-56 Mbps',
     gateway: '4G LTE / 5G gateway',
     features: ['Unlimited data', 'No annual contract', '5-Year Price Guarantee', 'No data caps', 'No equipment fees'],
     includedPerks: [],
@@ -25,9 +25,9 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'Amplified',
     standalonePrice: 60,
-    withVoiceLine: 40,
-    typicalDownload: '100-405 Mbps',
-    typicalUpload: '6-55 Mbps',
+    withVoiceLine: 45,
+    typicalDownload: '87-318 Mbps',
+    typicalUpload: '14-56 Mbps',
     gateway: 'Wi-Fi 7 premium gateway',
     features: ['Unlimited data', 'No annual contract', '5-Year Price Guarantee', 'Wi-Fi 7 gateway', 'No data caps', 'No equipment fees'],
     includedPerks: [],
@@ -36,9 +36,9 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   {
     name: 'All-In',
     standalonePrice: 70,
-    withVoiceLine: 50,
-    typicalDownload: '100-405 Mbps',
-    typicalUpload: '6-55 Mbps',
+    withVoiceLine: 55,
+    typicalDownload: '133-415 Mbps',
+    typicalUpload: '12-56 Mbps',
     gateway: 'Wi-Fi 7 premium gateway',
     features: [
       'Unlimited data', 'No annual contract', '5-Year Price Guarantee',
@@ -51,7 +51,7 @@ export const HOME_INTERNET_PLANS: HomeInternetPlan[] = [
   },
 ];
 
-export const HOME_INTERNET_BUNDLE_DISCOUNT = '$20/month bill credit when combined with any T-Mobile postpaid voice line. All-In streaming and security perks deliver over $480/year in added value.';
+export const HOME_INTERNET_BUNDLE_DISCOUNT = '$15/month bundle discount when combined with any T-Mobile postpaid voice line. Current limited-time promo adds extra $5/month off (making it $20 total off). All-In streaming and security perks deliver over $480/year in added value.';
 
 export const OTHER_HOME_PRODUCTS = {
   away: {
@@ -187,7 +187,7 @@ export const HINT_QUICK_FACTS = [
   'Self-install takes under 15 minutes — no technician visit, no appointment scheduling',
   'The gateway plugs in and connects to T-Mobile\'s 5G/4G network — no cables, no drilling holes',
   '5-Year Price Guarantee means the price won\'t go up. Most ISPs raise rates after the promo period ends',
-  'With a voice line discount, All-In is $50/mo and includes $480+/year in streaming perks',
+  'With a voice line discount, All-In is $55/mo and includes $480+/year in streaming perks',
   'The 15-day test drive means zero risk for the customer — if it doesn\'t work, full refund',
   'Average customer saves $20-40/month compared to cable internet',
   'Wi-Fi 7 gateway on Amplified and All-In is cutting-edge — customers probably don\'t have Wi-Fi 7 on their current router',

@@ -266,8 +266,8 @@ export default function App() {
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-4">
           <div className="space-y-0.5">
-            <p className="text-sm font-bold text-t-dark-gray">Pick why they're calling. Get instant plays.</p>
-            <p className="text-xs font-medium text-t-dark-gray/70">Want the full game plan? Fill in the details below and hit Generate.</p>
+            <p className="text-sm font-bold text-t-dark-gray">Pick the vibe. Get instant plays. 🔥</p>
+            <p className="text-xs font-medium text-t-dark-gray/70">Go deeper — fill in the details and build your full game plan.</p>
           </div>
         </div>
 
@@ -294,8 +294,8 @@ export default function App() {
                           background: isActive ? 'var(--bg-intent-active)' : 'var(--bg-intent)',
                           color: isActive ? 'var(--text-intent-active)' : 'var(--text-intent)',
                           borderColor: isActive ? 'var(--bg-intent-active)' : 'var(--border-intent)',
-                          boxShadow: isActive ? '0 2px 8px rgba(226, 0, 116, 0.3)' : 'var(--shadow-surface)',
-                          transform: isActive ? 'none' : undefined,
+                          boxShadow: isActive ? '0 4px 16px rgba(226, 0, 116, 0.4), 0 0 30px rgba(226, 0, 116, 0.1)' : 'var(--shadow-surface)',
+                          transform: isActive ? 'scale(1.02)' : undefined,
                         }}
                         onMouseEnter={(e) => {
                           if (!isActive) {
@@ -423,7 +423,7 @@ export default function App() {
             />
 
             {/* Tabs — Plan + Objections */}
-            <div className="grid grid-cols-2 md:flex p-1.5 rounded-2xl gap-1.5 md:gap-0 glass-tab">
+            <div className="grid grid-cols-2 md:flex p-1.5 rounded-2xl gap-1.5 md:gap-0 glass-tab" style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}>
               {([
                 { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
                 { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
@@ -482,7 +482,7 @@ export default function App() {
                   <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                     <AlertCircle className="w-8 h-8 text-t-magenta" />
                   </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight mb-6">Flip the Script</h3>
+                  <h3 className="text-xl font-black uppercase tracking-tight mb-6" style={{ background: 'linear-gradient(135deg, #E20074, #FF4DA6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Flip the Script</h3>
                   <div className="text-left space-y-4 max-w-sm w-full">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
@@ -507,7 +507,7 @@ export default function App() {
                 >
                   <Loader2 className="w-10 h-10 text-t-magenta animate-spin mb-4" />
                   <p className="text-t-magenta font-black uppercase tracking-widest animate-pulse">
-                    {activeTab === 'gameplan' ? "Building your playbook..." : "Working on your rebuttal..."}
+                    {activeTab === 'gameplan' ? "⚡ Cooking up your game plan..." : "⚡ Flipping the script..."}
                   </p>
                 </motion.div>
               )}
@@ -552,7 +552,7 @@ export default function App() {
             <span>Valid until: {weeklyData.metadata.validUntil}</span>
           </div>
         )}
-        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card">
+        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card" style={{ borderTop: '2px solid rgba(226, 0, 116, 0.3)' }}>
           <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
             <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
           </p>
@@ -574,7 +574,7 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label="Scroll to top"
-            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full transition-colors text-white magenta-glow"
+            className="focus-ring fixed bottom-6 right-6 z-50 p-3.5 rounded-full transition-colors text-white magenta-glow shadow-2xl"
             style={{ background: 'linear-gradient(135deg, #E20074, #861B54)' }}
           >
             <ArrowUp className="w-5 h-5" />

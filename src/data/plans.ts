@@ -2,6 +2,8 @@ export interface PlanPricing {
   lines: number;
   monthlyTotal: number;
   perLine: number;
+  insider?: number;        // 20% Insider discount total
+  insiderPerLine?: number;
   promoNote?: string;
 }
 
@@ -16,17 +18,31 @@ export interface Plan {
   notes?: string[];
 }
 
+/** Regulatory fees — from internal rate card */
+export const REG_FEES = {
+  voiceLine: 3.99,       // per voice line / standalone watch line
+  miLine: 1.80,          // all other MI (mobile internet) lines
+  note: 'Plus federal & local surcharges ($0.36–$4.79/line, varies by location)',
+};
+
 export const POSTPAID_PLANS: Plan[] = [
   {
     name: 'Experience Beyond',
     tier: 'flagship',
     status: 'current',
     pricing: [
-      { lines: 1, monthlyTotal: 100, perLine: 100 },
-      { lines: 2, monthlyTotal: 170, perLine: 85 },
-      { lines: 3, monthlyTotal: 170, perLine: 56.67, promoNote: '3rd-line-free promo (limited time, bill credits). Standard: ~$215' },
-      { lines: 4, monthlyTotal: 215, perLine: 53.75, promoNote: 'With 3rd-line-free promo' },
-      { lines: 5, monthlyTotal: 260, perLine: 52, promoNote: 'With 3rd-line-free promo' },
+      { lines: 1, monthlyTotal: 100, perLine: 100, insider: 80, insiderPerLine: 80 },
+      { lines: 2, monthlyTotal: 170, perLine: 85, insider: 136, insiderPerLine: 68 },
+      { lines: 3, monthlyTotal: 170, perLine: 56.67, insider: 136, insiderPerLine: 45.33, promoNote: 'Includes free 3rd line promo' },
+      { lines: 4, monthlyTotal: 215, perLine: 53.75, insider: 172, insiderPerLine: 43, promoNote: 'Includes free line promo' },
+      { lines: 5, monthlyTotal: 260, perLine: 52, insider: 208, insiderPerLine: 41.60, promoNote: 'Includes free line promo' },
+      { lines: 6, monthlyTotal: 305, perLine: 50.83, insider: 244, insiderPerLine: 40.67 },
+      { lines: 7, monthlyTotal: 350, perLine: 50, insider: 280, insiderPerLine: 40 },
+      { lines: 8, monthlyTotal: 395, perLine: 49.38, insider: 316, insiderPerLine: 39.50 },
+      { lines: 9, monthlyTotal: 440, perLine: 48.89, insider: 352, insiderPerLine: 39.11 },
+      { lines: 10, monthlyTotal: 495, perLine: 49.50, insider: 396, insiderPerLine: 39.60 },
+      { lines: 11, monthlyTotal: 550, perLine: 50, insider: 440, insiderPerLine: 40 },
+      { lines: 12, monthlyTotal: 600, perLine: 50, insider: 484, insiderPerLine: 40.33 },
     ],
     features: [
       'Unlimited premium/priority data — never deprioritized',
@@ -56,11 +72,18 @@ export const POSTPAID_PLANS: Plan[] = [
     tier: 'mid',
     status: 'current',
     pricing: [
-      { lines: 1, monthlyTotal: 85, perLine: 85 },
-      { lines: 2, monthlyTotal: 140, perLine: 70 },
-      { lines: 3, monthlyTotal: 140, perLine: 46.67, promoNote: 'With 3rd-line-free promo. Standard: ~$170' },
-      { lines: 4, monthlyTotal: 170, perLine: 42.5, promoNote: 'With 3rd-line-free promo' },
-      { lines: 5, monthlyTotal: 200, perLine: 40, promoNote: 'With 3rd-line-free promo' },
+      { lines: 1, monthlyTotal: 85, perLine: 85, insider: 68, insiderPerLine: 68 },
+      { lines: 2, monthlyTotal: 140, perLine: 70, insider: 112, insiderPerLine: 56 },
+      { lines: 3, monthlyTotal: 140, perLine: 46.67, insider: 112, insiderPerLine: 37.33, promoNote: 'Includes free 3rd line promo' },
+      { lines: 4, monthlyTotal: 175, perLine: 43.75, insider: 140, insiderPerLine: 35, promoNote: 'Includes free line promo' },
+      { lines: 5, monthlyTotal: 200, perLine: 40, insider: 160, insiderPerLine: 32 },
+      { lines: 6, monthlyTotal: 230, perLine: 38.33, insider: 184, insiderPerLine: 30.67 },
+      { lines: 7, monthlyTotal: 260, perLine: 37.14, insider: 208, insiderPerLine: 29.71 },
+      { lines: 8, monthlyTotal: 290, perLine: 36.25, insider: 232, insiderPerLine: 29 },
+      { lines: 9, monthlyTotal: 320, perLine: 35.56, insider: 256, insiderPerLine: 28.44 },
+      { lines: 10, monthlyTotal: 360, perLine: 36, insider: 288, insiderPerLine: 28.80 },
+      { lines: 11, monthlyTotal: 400, perLine: 36.36, insider: 320, insiderPerLine: 29.09 },
+      { lines: 12, monthlyTotal: 440, perLine: 36.67, insider: 352, insiderPerLine: 29.33 },
     ],
     features: [
       'Unlimited premium/priority data — never deprioritized',
@@ -114,8 +137,11 @@ export const POSTPAID_PLANS: Plan[] = [
     status: 'current',
     pricing: [
       { lines: 1, monthlyTotal: 60, perLine: 60 },
-      { lines: 4, monthlyTotal: 100, perLine: 25, promoNote: '~$25/line promo available' },
-      { lines: 5, monthlyTotal: 120, perLine: 24 },
+      { lines: 2, monthlyTotal: 90, perLine: 45 },
+      { lines: 3, monthlyTotal: 90, perLine: 30, promoNote: 'Includes free 3rd line promo' },
+      { lines: 4, monthlyTotal: 120, perLine: 30 },
+      { lines: 5, monthlyTotal: 135, perLine: 27 },
+      { lines: 6, monthlyTotal: 160, perLine: 26.67 },
     ],
     features: [
       'Unlimited data (subject to deprioritization; may slow after 50GB)',

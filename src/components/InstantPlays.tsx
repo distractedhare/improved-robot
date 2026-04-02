@@ -15,104 +15,53 @@ interface InstantPlaysProps {
 }
 
 // Intent-specific play content
-const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: string[]; pivots: string[]; watchouts?: string[] }> = {
+const INTENT_PLAYS: Record<Intent, { subtitle: string; plays: string[] }> = {
   'exploring': {
-    subtitle: 'They don\'t know what they want yet. Your job: find the need, build the case.',
-    mindset: 'You\'re a guide, not a closer. Don\'t pitch yet — discover.',
+    subtitle: 'Find the need. Don\'t pitch yet.',
     plays: [
-      'Lead with questions, not plans. "What made you start looking into this today?"',
-      'Match their energy — if they\'re casual, be casual. If they\'re all-business, get to the point.',
-      'Don\'t feature-dump. Find the ONE thing they care about most, then build from there.',
-      'Steer toward premium plans when you can make the case — they fit most people better than Essentials.',
-      'If they mention a competitor, don\'t trash them — ask what they like about their current setup, then show where T-Mobile does it better.',
-    ],
-    pivots: [
-      'Even if they\'re "just looking," check the address for Home Internet.',
-      'If they\'re coming from a prepaid/MVNO carrier, a postpaid migration is a real play.',
+      'Ask what brought them in today — listen, don\'t sell.',
+      'Find the ONE thing they care about: price, phone, or coverage.',
+      'Check the address for Home Internet — every call.',
     ],
   },
   'ready to buy': {
-    subtitle: 'They know what they want. Your job: confirm, stack value, make it easy.',
-    mindset: 'Don\'t re-sell. They already decided. Remove friction and maximize the order.',
+    subtitle: 'Confirm, stack value, close fast.',
     plays: [
-      'Validate their choice immediately. "Nice — you know what you want. Let me make sure we get you the best version of that."',
-      'Before you close: premium plan check. Are they on Essentials when Experience Beyond makes more sense?',
-      'P360 on every device. Don\'t skip it. "This covers loss and theft — AppleCare doesn\'t do that."',
-      'Stack accessories — case, screen protector, charger. Three items unlocks 25% off, then swing for a bigger item.',
-      'Push the order through T-Life app or tmobile.com. Better for the customer, better for you.',
-      '"Before we wrap up — let me check your address for Home Internet. A lot of people don\'t know it\'s available."',
-    ],
-    pivots: [],
-    watchouts: [
-      'Don\'t over-explain. They\'re ready. Keep it moving.',
-      'If they push back on a premium plan, don\'t force it — you\'ll lose the whole sale chasing an upsell.',
+      'Confirm their choice, add P360 on every device.',
+      'Bundle 3+ accessories for 25% off — don\'t skip it.',
+      'Check the address for Home Internet before you wrap.',
     ],
   },
   'upgrade / add a line': {
-    subtitle: 'Existing customer. Show incremental value based on what they already have.',
-    mindset: 'You know their history. Use it. Don\'t re-sell T-Mobile — sell the upgrade.',
+    subtitle: 'Check trade-in. Review plan. Stack.',
     plays: [
-      'Reference their current plan/device. "I can see you\'ve been on [plan] for a while — how\'s it been working for you?"',
-      'Frame upgrades as solving a current pain, not just "getting the new thing."',
-      'For add-a-line: consolidating under one account drops the per-line cost. Run the numbers.',
-      'Plan upgrade opportunity: if they\'re on Essentials or Experience More, the premium tiers unlock real value.',
-      'P360 re-attach on the new device. If they had it before, they know the value.',
-      'US Cellular migration: get them set up NOW while they still qualify for new customer deals.',
-    ],
-    pivots: [
-      'Home Internet check. They\'re already a customer — if HINT is available, it\'s an easy add.',
-      'Accessories on the new device — especially if they\'re switching phone brands (new cables needed).',
+      'Check trade-in value and review their current plan.',
+      'Pitch connected devices — watch, tablet, SyncUP.',
+      'Check the address for Home Internet — easy add.',
     ],
   },
   'order support': {
-    subtitle: 'They already bought. Handle it fast, then pivot smart.',
-    mindset: 'Resolve first, sell second. But don\'t hang up without looking for the angle.',
+    subtitle: 'Fix it first. Then find the angle.',
     plays: [
-      'Handle their issue first. Always. Check order status, give them a clear answer.',
-      'Once they\'re taken care of: "While I\'ve got you — let me check something real quick." → Home Internet address check.',
-      'If their order is active and the account is live, you CAN add a line.',
-      'If they\'re on a basic plan, soft-mention premium options: "By the way, I noticed you\'re on [plan]..."',
-      'Don\'t spend 45 minutes on an order support call. Handle it, check the address, plant a seed, move on.',
-    ],
-    pivots: [
-      'HINT not available? Don\'t defend the marketing team. "Coverage is expanding area by area — your address hasn\'t been opened up yet."',
-      'Creative solve for heavy streamers: if they\'re on premium, their phone data is unlimited 4K UHD. They can cast from phone to TV.',
+      'Resolve the order issue — clear answer, clear ETA.',
+      'After the fix, check the address for Home Internet.',
+      'Plant a seed on plan upgrade or add-a-line, then move on.',
     ],
   },
   'tech support': {
-    subtitle: 'Something\'s broken. Fix it, don\'t upsell mid-frustration, then pivot after.',
-    mindset: 'They\'re frustrated. Fix the problem. THEN look for the angle.',
+    subtitle: 'Fix the problem. Sell after, not during.',
     plays: [
-      'Validate the frustration first. "That sounds annoying — let\'s get it sorted out."',
-      'Use simple language. No jargon unless they use it first.',
-      'Walk them through steps one at a time. Confirm each one before moving on.',
-      'If you can\'t fix it: own that. "Let me get you to someone who specializes in this." Escalate cleanly.',
-      'Don\'t spend an hour troubleshooting on a call that\'s going to get transferred anyway. Triage smart.',
-    ],
-    pivots: [
-      '"Now that we\'ve got that sorted — do you have P360 on this device? It covers loss and theft. AppleCare doesn\'t."',
-      'Home Internet address check. "While I\'ve got you — have you heard about T-Mobile Home Internet?"',
-      'If their device is old and causing the issue: "The reason you\'re seeing this is [issue]. If you\'ve been thinking about upgrading, now might be a good time."',
-    ],
-    watchouts: [
-      'Don\'t pitch DURING troubleshooting. Wait until the problem is resolved.',
-      'If the issue isn\'t resolved and you\'re transferring, don\'t try to sell. Just make the handoff clean.',
+      'Fix the issue first — don\'t pitch mid-frustration.',
+      'After the fix: check P360 on the device.',
+      'Check the address for Home Internet before hanging up.',
     ],
   },
   'account support': {
-    subtitle: 'Bill confusion, plan questions, account changes. Clarify, then find the opportunity.',
-    mindset: 'They might be confused or worried. Don\'t make them feel dumb. Be their advocate.',
+    subtitle: 'Clarify the bill. Find savings.',
     plays: [
-      'Never make them feel stupid for not understanding their bill. "These things can be confusing — that\'s not your fault."',
-      'Walk through the bill in plain language. If there\'s a charge they don\'t recognize, explain it simply.',
-      'If they\'re upset about charges: validate first, explain second. "I can see why that looks weird — here\'s what it actually is."',
-      'Plan review opportunity: "While I\'ve got your account up — want me to make sure you\'re on the best plan for how you use your phone?"',
-      'If they\'re on Essentials and they\'re a heavy data user: "You\'re using [X]GB a month — Experience Beyond would give you unlimited premium data for $[difference]."',
-    ],
-    pivots: [
-      'Home Internet address check — always.',
-      'If they\'re adding/removing lines, check plan pricing: "Adding that line changes your per-line cost — let me see if a different tier saves you money."',
-      'P360 check: "I see you don\'t have P360 on [device]. Want me to add it? $8/month, covers loss and theft."',
+      'Walk through the bill simply — never make them feel dumb.',
+      'Review the plan for savings or a better-fit tier.',
+      'Check the address for Home Internet — always.',
     ],
   },
 };
@@ -140,7 +89,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
       'upgrade / add a line': [
         'They\'re already a customer — HINT with a voice line is $30-50/mo. Run the savings.',
         'If they\'re on a premium phone plan, they already trust T-Mobile. Easy transition.',
-        'All-In bundle discount ($50/mo) + streaming perks = over $480/year in value.',
+        'All-In bundle discount ($55/mo) + streaming perks = over $480/year in value.',
       ],
       'order support': [
         'They placed a HINT order — check status, give a clear ETA, and confirm gateway shipping.',

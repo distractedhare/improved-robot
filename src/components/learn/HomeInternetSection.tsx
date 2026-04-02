@@ -22,7 +22,7 @@ export default function HomeInternetSection() {
             Up to $300 rebate + "Month On Us" promo active now.
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $30/mo w/ voice line</span>
+            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
             <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
             <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
           </div>

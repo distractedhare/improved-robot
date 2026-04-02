@@ -1,9 +1,9 @@
 import {
   Sparkles, ArrowRight, Loader2, CheckCircle2, Coffee, Target,
-  ChevronRight, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users
+  ChevronRight, ChevronDown, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users
 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useMemo, useState } from 'react';
 import { SalesContext, SalesScript, AccessoryRecommendation } from '../types';
 import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
 import { EcosystemMatrix } from '../types/ecosystem';
@@ -69,6 +69,9 @@ export function GamePlanResults({
   onToggleItem, onReset, onSwitchToObjections,
   ecosystemMatrix,
 }: GamePlanResultsProps) {
+  const [showAcc, setShowAcc] = useState(false);
+  const [showDemoAcc, setShowDemoAcc] = useState(false);
+
   // Demographic-aware product recs from ecosystem matrix
   const demoRecs = useMemo(() => {
     if (!ecosystemMatrix || context.age === 'Not Specified') return [];
@@ -109,12 +112,6 @@ export function GamePlanResults({
         </button>
       </div>
 
-      <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray mb-4">
-        <p className="text-xs text-t-dark-gray font-medium">
-          <span className="font-bold text-t-magenta">Pro tip:</span> Tap the moves you've already made — it sharpens your objection plays.
-        </p>
-      </div>
-
       {/* Welcome Messages */}
       <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
@@ -147,39 +144,13 @@ export function GamePlanResults({
         </div>
       </div>
 
-      {/* Icebreakers */}
-      <div className="bg-t-magenta/5 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
-        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-          <Coffee className="w-3 h-3 text-t-magenta" /> Icebreakers
-        </h3>
-        <div className="space-y-3">
-          {script.smallTalk.length > 0 ? (
-            script.smallTalk.map((talk, i) => (
-              <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-surface-elevated border border-t-magenta/10 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
-                    {talk.category}
-                  </span>
-                </div>
-                <p className="text-sm text-t-dark-gray font-bold italic">"{talk.text}"</p>
-              </div>
-            ))
-          ) : (
-            <div className="flex items-center gap-2 text-t-magenta/60 animate-pulse p-3">
-              <RefreshCw className="w-3 h-3 animate-spin" />
-              <span className="text-xs font-bold uppercase tracking-widest">Pulling local flavor...</span>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Discovery Questions */}
       <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {script.discoveryQuestions.map((q, i) => {
+          {script.discoveryQuestions.slice(0, 4).map((q, i) => {
             const isSelected = selectedGamePlanItems.includes(q);
             return (
               <button
@@ -211,7 +182,7 @@ export function GamePlanResults({
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
         <div className="space-y-3">
-          {script.valuePropositions.map((prop, i) => {
+          {script.valuePropositions.slice(0, 4).map((prop, i) => {
             const isSelected = selectedGamePlanItems.includes(prop);
             return (
               <button
@@ -269,53 +240,90 @@ export function GamePlanResults({
       )}
 
       {demoAccessoryRecs.length > 0 && demoSection && (
-        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
-            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label}
-          </h3>
-          <div className="space-y-3">
-            {demoAccessoryRecs.map((rec) => (
-              <DemoAccessoryCard key={rec.category} rec={rec} />
-            ))}
-          </div>
+        <div className="rounded-3xl glass-card shadow-sm overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowDemoAcc(!showDemoAcc)}
+            className="focus-ring w-full flex items-center justify-between p-6"
+          >
+            <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+              <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label} ({demoAccessoryRecs.length})
+            </h3>
+            <ChevronDown className={`w-4 h-4 text-t-dark-gray/40 transition-transform ${showDemoAcc ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {showDemoAcc && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="overflow-hidden"
+              >
+                <div className="px-6 pb-6 space-y-3">
+                  {demoAccessoryRecs.map((rec) => (
+                    <DemoAccessoryCard key={rec.category} rec={rec} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
-        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
-            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch
-          </h3>
-
-          {/* Bundle deal banner */}
-          <div className="bg-gradient-to-r from-t-magenta to-t-berry rounded-2xl p-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
-              <Tag className="w-4 h-4" />
-              <p className="text-xs font-black uppercase tracking-wider">{ESSENTIAL_BUNDLE_DEAL.headline}</p>
-            </div>
-            <p className="text-[11px] font-medium opacity-90">{ESSENTIAL_BUNDLE_DEAL.pitch}</p>
-          </div>
-
-          {/* Individual recs */}
-          <div className="space-y-3">
-            {script.accessoryRecommendations.map((rec, i) => (
-              <AccessoryCard key={i} rec={rec} />
-            ))}
-          </div>
+        <div className="rounded-3xl glass-card shadow-sm overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowAcc(!showAcc)}
+            className="focus-ring w-full flex items-center justify-between p-6"
+          >
+            <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+              <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch ({script.accessoryRecommendations.length})
+            </h3>
+            <ChevronDown className={`w-4 h-4 text-t-dark-gray/40 transition-transform ${showAcc ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {showAcc && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="overflow-hidden"
+              >
+                <div className="px-6 pb-6 space-y-4">
+                  {/* Bundle deal banner */}
+                  <div className="bg-gradient-to-r from-t-magenta to-t-berry rounded-2xl p-4 text-white">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Tag className="w-4 h-4" />
+                      <p className="text-xs font-black uppercase tracking-wider">{ESSENTIAL_BUNDLE_DEAL.headline}</p>
+                    </div>
+                    <p className="text-[11px] font-medium opacity-90">{ESSENTIAL_BUNDLE_DEAL.pitch}</p>
+                  </div>
+                  <div className="space-y-3">
+                    {script.accessoryRecommendations.map((rec, i) => (
+                      <AccessoryCard key={i} rec={rec} />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
       {/* Next Steps */}
-      <div className="bg-t-dark-gray rounded-3xl p-6 text-white shadow-xl shadow-black/10 dark:bg-surface-elevated dark:border-2 dark:border-t-light-gray">
-        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-          <CheckCircle2 className="w-3 h-3 text-t-magenta" /> Close It Out
+      <div className="rounded-3xl p-5 shadow-sm" style={{ background: 'var(--bg-surface-primary)', border: '2px solid var(--border-surface-strong)' }}>
+        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3" /> Close It Out
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           {script.purchaseSteps.map((step, i) => (
-            <div key={i} className="flex items-center gap-3 bg-surface-elevated/10 p-3 rounded-xl border border-t-light-gray/20">
-              <div className="w-1.5 h-1.5 rounded-full bg-t-magenta shrink-0" />
-              <p className="text-sm font-black uppercase tracking-tight">{step}</p>
+            <div key={i} className="flex items-start gap-2 py-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-t-magenta shrink-0 mt-1.5" />
+              <p className="text-xs font-bold text-t-dark-gray">{step}</p>
             </div>
           ))}
         </div>
@@ -323,12 +331,9 @@ export function GamePlanResults({
 
       {/* Coach's Corner */}
       {script.coachsCorner && (
-        <div className="bg-t-magenta/10 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
-          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-            <Lightbulb className="w-3 h-3 text-t-magenta" /> Coach's Corner
-          </h3>
-          <p className="text-sm text-t-dark-gray font-bold italic">
-            "{script.coachsCorner}"
+        <div className="bg-t-magenta/5 rounded-xl border border-t-magenta/15 px-4 py-3">
+          <p className="text-[10px] text-t-dark-gray font-bold">
+            <span className="text-t-magenta font-black">Coach:</span> {script.coachsCorner}
           </p>
         </div>
       )}

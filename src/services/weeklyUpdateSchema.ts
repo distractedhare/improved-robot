@@ -53,6 +53,23 @@ export interface TrendingItem {
   repTip: string;      // one-line tip for the rep: "Confirm they're on Beyond or upgrading to it"
 }
 
+export interface FeatureWhyItMatters {
+  feature: string;
+  whyItMatters: Record<string, string>;  // keyed by demographic: "young-adult", "family", "senior", "business", "budget", "switcher"
+}
+
+export interface PlanSellingGuide {
+  planName: string;
+  positioning: string;         // one-line: what is this plan's identity?
+  idealCustomer: string;       // who should be on this plan?
+  whyNotCheaper: string;       // rebuttal: "why not just get the cheaper plan?"
+  whyNotPricier: string;       // rebuttal: "should I get the more expensive one?"
+  features: FeatureWhyItMatters[];
+  demographicPitch: Record<string, string>;  // keyed by demographic: full pitch paragraph
+  upgradeFrom: string;         // what to say to upgrade someone FROM a lower plan TO this one
+  anchorPrice: string;         // how to frame the price (e.g. "Less than $2/day per line")
+}
+
 export interface WeeklyUpdate {
   metadata: WeeklyUpdateMetadata;
   weeklyFocus: {
@@ -65,6 +82,7 @@ export interface WeeklyUpdate {
   competitiveIntel: CompetitiveIntel[];
   knownIssues: KnownIssue[];
   intentPlaybooks: Record<string, IntentPlaybook>;
+  planSellingGuide?: PlanSellingGuide[];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -145,6 +163,17 @@ export function getWeeklyUpdateValidationError(data: unknown): string | null {
     if (!isStringArray(playbook.keyMoves)) return `intentPlaybooks.${intent}.keyMoves must be an array of strings.`;
     if (!isStringArray(playbook.closingTips)) return `intentPlaybooks.${intent}.closingTips must be an array of strings.`;
     if (!isStringArray(playbook.avoidMoves)) return `intentPlaybooks.${intent}.avoidMoves must be an array of strings.`;
+  }
+
+  if (data.planSellingGuide !== undefined) {
+    if (!Array.isArray(data.planSellingGuide)) return 'planSellingGuide must be an array when present.';
+    for (const [index, guide] of data.planSellingGuide.entries()) {
+      if (!isRecord(guide)) return `planSellingGuide[${index}] must be an object.`;
+      if (typeof guide.planName !== 'string') return `planSellingGuide[${index}].planName must be a string.`;
+      if (typeof guide.positioning !== 'string') return `planSellingGuide[${index}].positioning must be a string.`;
+      if (typeof guide.idealCustomer !== 'string') return `planSellingGuide[${index}].idealCustomer must be a string.`;
+      if (!Array.isArray(guide.features)) return `planSellingGuide[${index}].features must be an array.`;
+    }
   }
 
   return null;
