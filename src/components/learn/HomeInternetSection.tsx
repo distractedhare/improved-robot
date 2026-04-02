@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe } from 'lucide-react';
+import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Gamepad2, Briefcase, Heart } from 'lucide-react';
 import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, HINT_QUICK_FACTS, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
 
 type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
@@ -73,7 +73,14 @@ export default function HomeInternetSection() {
       {activeSection === 'plans' && (
         <div className="space-y-4">
           {/* Plan cards */}
-          {HOME_INTERNET_PLANS.map((plan, idx) => (
+          {HOME_INTERNET_PLANS.map((plan, idx) => {
+            const tierConfig = [
+              { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: ['Budget-conscious', 'Light browsing'], icon: Users },
+              { tag: 'BETTER', tagColor: 'bg-warning-accent', customerTypes: ['Streamers', 'Work from home'], icon: Briefcase },
+              { tag: 'BEST', tagColor: 'bg-success-accent', customerTypes: ['Non-techie households', 'Families', 'Gamers'], icon: Heart },
+            ][idx] || { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: [], icon: Users };
+
+            return (
             <div
               key={plan.name}
               className={`rounded-2xl border-2 p-5 ${
@@ -82,11 +89,17 @@ export default function HomeInternetSection() {
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h4 className="text-lg font-black text-t-dark-gray">{plan.name}</h4>
-                    {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Best Value</span>}
+                    <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
+                    {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
                   </div>
                   <p className="text-[11px] text-t-dark-gray/60 font-medium mt-0.5">{plan.bestFor}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {tierConfig.customerTypes.map((ct) => (
+                      <span key={ct} className="text-[9px] font-bold text-t-dark-gray/50 bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+                    ))}
+                  </div>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-black text-t-magenta">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
@@ -127,8 +140,35 @@ export default function HomeInternetSection() {
                   <p className="text-[10px] text-success-foreground/70 mt-2 font-medium italic">Over $480/year in streaming & security value</p>
                 </div>
               )}
+
+              {/* Mesh Router callout for All-In */}
+              {idx === 2 && (
+                <div className="bg-gradient-to-r from-t-magenta/10 to-t-berry/10 rounded-xl border-2 border-t-magenta/30 p-4 mt-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-t-magenta/20 flex items-center justify-center shrink-0">
+                      <Router className="w-5 h-5 text-t-magenta" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-tight text-t-magenta mb-1">The #1 Reason to Push All-In</p>
+                      <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
+                        The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
+                      </p>
+                      <p className="text-[11px] text-t-dark-gray/70 font-medium mt-2 leading-relaxed">
+                        For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
+                      </p>
+                      <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
+                        <p className="text-sm text-white font-bold italic leading-relaxed">
+                          "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
+          );
+          })}
 
           {/* Other products */}
           <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">

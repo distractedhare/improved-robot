@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi } from 'lucide-react';
+import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
@@ -20,8 +20,9 @@ import PlaybookSection from './PlaybookSection';
 import EdgeSection from './EdgeSection';
 import PracticeScenarios from '../levelup/PracticeScenarios';
 import HomeInternetSection from './HomeInternetSection';
+import PlansSection from './PlansSection';
 
-type LearnTab = 'briefing' | 'devices' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
+type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
 
 interface LearnViewProps {
@@ -35,6 +36,7 @@ interface LearnViewProps {
 const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
   { id: 'briefing', icon: Newspaper, label: 'Briefing' },
   { id: 'devices', icon: Smartphone, label: 'Devices' },
+  { id: 'plans', icon: Crown, label: 'Plans' },
   { id: 'homeinternet', icon: Wifi, label: 'HINT' },
   { id: 'playbook', icon: BookOpen, label: 'Playbook' },
   { id: 'edge', icon: Shield, label: 'Edge' },
@@ -57,6 +59,10 @@ const PHONE_FILTERS = [
 ];
 
 const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
+  plans: {
+    moment: 'Best for understanding the "why" behind the push',
+    tip: 'Know exactly why Go 5G Next and Plus matter — for the customer AND your commission. Premium plans = premium payouts.',
+  },
   briefing: {
     moment: 'Best for pre-shift and quick resets',
     tip: 'Use this first when you need the shortest path to today’s promos, issues, and talking points.',
@@ -245,6 +251,12 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'plans' && (
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+          <PlansSection />
         </div>
       )}
 
