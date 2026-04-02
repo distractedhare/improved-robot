@@ -40,7 +40,7 @@ export default function ObjectionTab({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-5"
+      className="rounded-3xl glass-card p-6 shadow-sm space-y-5"
     >
       <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
         <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
@@ -140,7 +140,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
         </button>
       </div>
 
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <MessageSquare className="w-3 h-3 text-t-magenta" /> Key Talking Points
         </h3>
@@ -154,7 +154,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
         </div>
       </div>
 
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> How to Respond
         </h3>
@@ -168,7 +168,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       </div>
 
       {result.pivotPlays && result.pivotPlays.length > 0 && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <div className="rounded-3xl glass-card p-6 shadow-sm">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
             <Sparkles className="w-3 h-3 text-t-magenta" /> Pivot Plays
           </h3>
@@ -187,7 +187,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       )}
 
       {result.carrierSpecificArguments && result.carrierSpecificArguments.length > 0 && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <div className="rounded-3xl glass-card p-6 shadow-sm">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
             <Briefcase className="w-3 h-3 text-t-magenta" /> Carrier Weak Spots
           </h3>

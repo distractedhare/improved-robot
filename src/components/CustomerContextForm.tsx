@@ -155,7 +155,7 @@ export default function CustomerContextForm({ context, setContext, inline }: Cus
   if (inline) return content;
 
   return (
-    <section className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+    <section className="rounded-3xl glass-card p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
           <User className="w-5 h-5 text-t-magenta" /> Customer Context

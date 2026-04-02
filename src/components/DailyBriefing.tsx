@@ -115,7 +115,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
   return (
     <div className="space-y-3">
       {isAdmin && (
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 shadow-sm space-y-3">
+      <div className="rounded-2xl glass-card p-4 shadow-sm space-y-3">
         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/50">Weekly Update Loader</p>
@@ -442,7 +442,7 @@ function BriefingCard({
 
 function StatCard({ label, value, subtext }: { label: string; value: string; subtext: string }) {
   return (
-    <div className="bg-surface-elevated rounded-xl border border-t-light-gray p-3 text-center">
+    <div className="rounded-xl glass-card p-3 text-center">
       <p className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/50">{label}</p>
       <p className="text-lg font-black text-t-magenta">{value}</p>
       <p className="text-[9px] font-bold text-t-dark-gray/60">{subtext}</p>

@@ -116,7 +116,7 @@ export function GamePlanResults({
       </div>
 
       {/* Welcome Messages */}
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
         </h3>
@@ -174,7 +174,7 @@ export function GamePlanResults({
       </div>
 
       {/* Discovery Questions */}
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
@@ -206,7 +206,7 @@ export function GamePlanResults({
       </div>
 
       {/* Value Props */}
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
@@ -235,7 +235,7 @@ export function GamePlanResults({
 
       {/* Demographic Product Recommendations */}
       {demoRecs.length > 0 && demoSection && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
@@ -269,7 +269,7 @@ export function GamePlanResults({
       )}
 
       {demoAccessoryRecs.length > 0 && demoSection && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
             <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label}
           </h3>
@@ -283,7 +283,7 @@ export function GamePlanResults({
 
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
             <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch
           </h3>

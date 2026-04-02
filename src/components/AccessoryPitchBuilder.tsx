@@ -125,7 +125,7 @@ function AccessoryCard({
   const topDemo = summary.demoAngles[0];
 
   return (
-    <div className="bg-surface-elevated rounded-xl border-2 border-t-light-gray p-4 hover:border-t-magenta/30 transition-all">
+    <div className="rounded-xl glass-card p-4 hover:border-t-magenta/30 transition-all">
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>

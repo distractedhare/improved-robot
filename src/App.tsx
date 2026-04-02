@@ -231,10 +231,15 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen font-sans selection:bg-t-magenta/20 bg-surface text-foreground">
+    <div className="min-h-screen font-sans selection:bg-t-magenta/20 text-foreground relative">
+      {/* Floating orbs — ambient magenta energy */}
+      <div className="bg-orb bg-orb-1" aria-hidden="true" />
+      <div className="bg-orb bg-orb-2" aria-hidden="true" />
+      <div className="bg-orb bg-orb-3" aria-hidden="true" />
+
       <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
 
-      <main className="max-w-5xl mx-auto px-4 py-6 md:p-10">
+      <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
         {mode === 'level-up' ? (
           <LevelUpView />
         ) : mode === 'learn' ? (
@@ -258,7 +263,7 @@ export default function App() {
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl border-2 border-t-light-gray p-5 shadow-sm lg:sticky lg:top-[60px] lg:z-[5] bg-surface-elevated space-y-4">
+            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] space-y-4 glass-card">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
@@ -361,10 +366,9 @@ export default function App() {
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
             <section
-              className="rounded-3xl shadow-sm overflow-hidden"
+              className="rounded-3xl overflow-hidden glass-card"
               style={{
-                background: contextExpanded ? 'var(--bg-surface-elevated)' : 'var(--bg-page-secondary)',
-                border: contextExpanded ? '2px solid var(--border-surface)' : '2px dashed var(--border-surface)',
+                borderStyle: contextExpanded ? 'solid' : 'dashed',
               }}
             >
               <button
@@ -407,7 +411,7 @@ export default function App() {
             />
 
             {/* Tabs — Plan + Objections */}
-            <div className="grid grid-cols-2 md:flex bg-t-light-gray/30 p-1.5 rounded-2xl border-2 border-t-light-gray gap-1.5 md:gap-0">
+            <div className="grid grid-cols-2 md:flex p-1.5 rounded-2xl gap-1.5 md:gap-0 glass-tab">
               {([
                 { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
                 { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
@@ -460,7 +464,8 @@ export default function App() {
               {/* Objections empty state */}
               {activeTab === 'objections' && !objectionResult && !analyzing && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card"
+                  style={{ borderStyle: 'dashed' }}
                 >
                   <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                     <AlertCircle className="w-8 h-8 text-t-magenta" />
@@ -486,7 +491,7 @@ export default function App() {
               {/* Loading state */}
               {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 bg-surface-elevated rounded-3xl border-2 border-t-magenta/20 shadow-2xl shadow-t-magenta/10"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 rounded-3xl glass-card magenta-glow"
                 >
                   <Loader2 className="w-10 h-10 text-t-magenta animate-spin mb-4" />
                   <p className="text-t-magenta font-black uppercase tracking-widest animate-pulse">
@@ -526,7 +531,7 @@ export default function App() {
       </main>
 
 
-      <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center border-t-2 border-t-light-gray mt-10 space-y-4">
+      <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center mt-10 space-y-4 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
         {weeklyLoaded && weeklyData && (
           <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
             <Calendar className="w-3 h-3 text-t-magenta/50" />
@@ -535,7 +540,7 @@ export default function App() {
             <span>Valid until: {weeklyData.metadata.validUntil}</span>
           </div>
         )}
-        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto bg-t-magenta/5 border-2 border-t-magenta/10">
+        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card">
           <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
             <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
           </p>
@@ -557,8 +562,8 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label="Scroll to top"
-            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-colors text-white"
-            style={{ background: 'var(--bg-scroll-top, rgba(226, 0, 116, 0.9))' }}
+            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full transition-colors text-white magenta-glow"
+            style={{ background: 'linear-gradient(135deg, #E20074, #861B54)' }}
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>

@@ -11,7 +11,7 @@ export default function LevelUpView() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* On-the-clock disclaimer — always visible, non-dismissible */}
-      <div className="flex items-start gap-2.5 p-3 rounded-2xl border-2 border-warning-border bg-warning-surface">
+      <div className="flex items-start gap-2.5 p-3 rounded-2xl glass-card" style={{ borderColor: 'var(--sem-warning-border)', background: 'var(--sem-warning-surface)' }}>
         <AlertTriangle className="w-4 h-4 text-warning-accent mt-0.5 shrink-0" />
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">On-the-clock only</p>
@@ -32,7 +32,7 @@ export default function LevelUpView() {
       </div>
 
       {/* Sub-tab toggle */}
-      <div className="flex rounded-full p-0.5 border bg-t-light-gray/30 border-t-light-gray max-w-sm mx-auto">
+      <div className="flex rounded-full p-0.5 max-w-sm mx-auto glass-tab">
         {([
           { id: 'bingo' as const, icon: Trophy, label: 'Bingo' },
           { id: 'tracker' as const, icon: BarChart3, label: 'Tracker' },
@@ -56,7 +56,7 @@ export default function LevelUpView() {
       </div>
 
       {/* Content */}
-      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+      <div className="rounded-3xl p-5 glass-card">
         {tab === 'bingo' ? (
           <BingoBoard />
         ) : tab === 'feedback' ? (

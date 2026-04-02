@@ -280,7 +280,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       {/* Essentials — collapsible with highlight */}
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray shadow-sm overflow-hidden">
+      <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
         <div className="px-4 pt-4 pb-2 flex items-center justify-between">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
             Essentials — Bundle-eligible (25% off w/ 3+)
@@ -385,7 +385,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       {/* Big adds */}
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
+      <div className="rounded-2xl glass-card p-4 shadow-sm">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Premium add-ons (no bundle discount)</p>
         <div className="space-y-2">
           {bigAddSummaries.map(({ item, summary, outcomeLabel, matches }) => (

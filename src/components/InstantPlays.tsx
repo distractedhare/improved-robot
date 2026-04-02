@@ -296,7 +296,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       })}
 
       {/* Intent header */}
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm">
+      <div className="rounded-2xl glass-card p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs text-t-dark-gray/70 font-medium italic">{plays.subtitle}</p>
         <div className="mt-3 bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
@@ -307,7 +307,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       </div>
 
       {/* Plays */}
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm space-y-2.5">
+      <div className="rounded-2xl glass-card p-5 shadow-sm space-y-2.5">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Plays</p>
         {plays.plays.map((play, i) => (
           <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-t-light-gray/20 border border-t-light-gray/50">
@@ -459,7 +459,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
   }, []);
 
   return (
-    <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray shadow-sm overflow-hidden">
+    <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
       <div className="px-4 pt-4 pb-2">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
           Essentials — Bundle-eligible (25% off w/ 3+)
@@ -552,7 +552,7 @@ function BigAddsSection({ age }: { age?: string }) {
   const ageKey = age && age !== 'Not Specified' ? age : null;
 
   return (
-    <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
+    <div className="rounded-2xl glass-card p-4 shadow-sm">
       <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Then swing for the big add</p>
       <div className="space-y-2">
         {BIG_ADDS.map((item, i) => {

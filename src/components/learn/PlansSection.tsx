@@ -122,7 +122,7 @@ export default function PlansSection() {
       </div>
 
       {/* Section nav */}
-      <div className="flex rounded-2xl p-1 border bg-t-light-gray/20 border-t-light-gray gap-1 overflow-x-auto">
+      <div className="flex rounded-2xl p-1 glass-tab gap-1 overflow-x-auto">
         {([
           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },

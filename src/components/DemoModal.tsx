@@ -29,7 +29,7 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
             role="dialog"
             aria-modal="true"
             aria-labelledby="demo-modal-title"
-            className="relative bg-surface-elevated rounded-3xl border-2 border-t-light-gray shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 z-10"
+            className="relative rounded-3xl glass-card shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 z-10"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 id="demo-modal-title" className="text-xl font-black uppercase tracking-tight">

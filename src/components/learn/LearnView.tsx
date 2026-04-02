@@ -138,7 +138,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       </div>
 
       {/* Sub-tab toggle */}
-      <div className="flex rounded-full p-0.5 border bg-t-light-gray/30 border-t-light-gray max-w-lg mx-auto">
+      <div className="flex rounded-full p-0.5 max-w-2xl mx-auto glass-tab">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -158,7 +158,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         ))}
       </div>
 
-      <div className="rounded-2xl border border-t-light-gray bg-t-light-gray/15 px-4 py-3">
+      <div className="rounded-2xl px-4 py-3 glass-card">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
           {TAB_MOMENT_GUIDANCE[tab].moment}
         </p>
@@ -169,7 +169,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
       {/* Content */}
       {tab === 'briefing' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
         </div>
       )}
@@ -177,7 +177,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       {tab === 'devices' && (
         <div className="space-y-4">
           {/* Device category sub-tabs */}
-          <div className="flex rounded-2xl p-1 border bg-t-light-gray/20 border-t-light-gray max-w-sm mx-auto gap-1">
+          <div className="flex rounded-2xl p-1 max-w-sm mx-auto gap-1 glass-tab">
             {DEVICE_CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
@@ -201,14 +201,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
           {/* Accessories — standalone reference */}
           {deviceCategory === 'accessories' ? (
-            <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+            <div className="rounded-3xl p-5 glass-card">
               <AccessoriesReference ecosystemMatrix={ecosystemMatrix} />
             </div>
           ) : (
             /* Device lookup + comparison for phones/tablets/wearables */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-5">
-                <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+                <div className="rounded-3xl p-5 glass-card">
                   <DeviceLookup
                     selectedDevices={selectedDevices}
                     onToggleDevice={toggleDevice}
@@ -227,7 +227,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed">
+                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card" style={{ borderStyle: 'dashed' }}>
                     <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                       {deviceCategory === 'phones' && <Smartphone className="w-8 h-8 text-t-magenta" />}
                       {deviceCategory === 'tablets' && <Tablet className="w-8 h-8 text-t-magenta" />}
@@ -255,31 +255,31 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       )}
 
       {tab === 'plans' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <PlansSection />
         </div>
       )}
 
       {tab === 'homeinternet' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <HomeInternetSection />
         </div>
       )}
 
       {tab === 'playbook' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <PlaybookSection />
         </div>
       )}
 
       {tab === 'edge' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <EdgeSection />
         </div>
       )}
 
       {tab === 'practice' && (
-        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
+        <div className="rounded-3xl p-5 glass-card">
           <div className="mb-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">
               Practice Mode

@@ -287,7 +287,7 @@ export function DeviceComparison({
       </div>
 
       {/* Comparison table */}
-      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray overflow-hidden">
+      <div className="rounded-2xl glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-[760px] w-full text-xs">
             <thead>
@@ -355,7 +355,7 @@ export function DeviceDetail({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 space-y-3"
+      className="rounded-2xl glass-card p-4 space-y-3"
     >
       <div className="flex items-start justify-between">
         <div>

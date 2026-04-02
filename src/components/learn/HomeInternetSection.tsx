@@ -45,7 +45,7 @@ export default function HomeInternetSection() {
       </div>
 
       {/* Section nav */}
-      <div className="flex rounded-2xl p-1 border bg-t-light-gray/20 border-t-light-gray gap-1 overflow-x-auto">
+      <div className="flex rounded-2xl p-1 gap-1 overflow-x-auto glass-tab">
         {([
           { id: 'plans' as Section, icon: DollarSign, label: 'Plans' },
           { id: 'selling' as Section, icon: MessageSquareQuote, label: 'How to Sell' },
@@ -84,7 +84,7 @@ export default function HomeInternetSection() {
             <div
               key={plan.name}
               className={`rounded-2xl border-2 p-5 ${
-                idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface-elevated'
+                idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'glass-card'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -171,7 +171,7 @@ export default function HomeInternetSection() {
           })}
 
           {/* Other products */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl border-2 glass-card p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Other Home Products</p>
             <div className="space-y-3">
               <div className="bg-t-light-gray/30 rounded-xl p-3">
@@ -212,7 +212,7 @@ export default function HomeInternetSection() {
       {activeSection === 'selling' && (
         <div className="space-y-4">
           {/* Opening lines */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl border-2 glass-card p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-3 flex items-center gap-1.5">
               <MessageSquareQuote className="w-3 h-3" /> Opening Lines — Pick One
             </p>
@@ -226,7 +226,7 @@ export default function HomeInternetSection() {
           </div>
 
           {/* The pitch flow */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl border-2 glass-card p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">The 30-Second Pitch</p>
             <div className="space-y-3">
               {[
@@ -304,7 +304,7 @@ export default function HomeInternetSection() {
           </div>
 
           {/* Fiber plans */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl border-2 glass-card p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Fiber Plans (Preview)</p>
             <div className="space-y-3">
               {FIBER_INFO.plans.map((plan, i) => (
@@ -321,7 +321,7 @@ export default function HomeInternetSection() {
           </div>
 
           {/* Fiber vs Wireless differences */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl border-2 glass-card p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Fiber vs Wireless — Key Differences</p>
             <div className="space-y-2">
               {FIBER_INFO.keyDifferences.map((diff, i) => (
@@ -349,7 +349,7 @@ export default function HomeInternetSection() {
 function CollapsibleCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated overflow-hidden">
+    <div className="rounded-2xl border-2 glass-card overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(!open)}
