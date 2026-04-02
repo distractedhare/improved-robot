@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
-import { Search, Tag, Crown, X, Wrench, Zap, Layers } from 'lucide-react';
+import { useState, useMemo, useDeferredValue } from 'react';
+import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } from '../data/devices';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
+import { EcosystemMatrix } from '../types/ecosystem';
+import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/positioningService';
 
 export interface DevicePreset {
   label: string;
@@ -12,7 +14,6 @@ export interface DevicePreset {
 }
 
 interface DeviceLookupProps {
-  weeklyData: WeeklyUpdate | null;
   selectedDevices: Device[];
   onToggleDevice: (device: Device) => void;
   onClearDevices: () => void;
@@ -88,6 +89,7 @@ export default function DeviceLookup({
 }: DeviceLookupProps) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const deferredSearch = useDeferredValue(search);
   const pool = devicePool || ALL_DEVICES;
   const activePresets = presets || PHONE_PRESETS;
   const filters = customFilters || DEFAULT_FILTERS;
@@ -102,8 +104,8 @@ export default function DeviceLookup({
       });
     }
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (deferredSearch.trim()) {
+      const q = deferredSearch.toLowerCase();
       devices = devices.filter(d =>
         d.name.toLowerCase().includes(q) ||
         d.keySpecs.toLowerCase().includes(q)
@@ -111,7 +113,7 @@ export default function DeviceLookup({
     }
 
     return devices;
-  }, [search, filter, pool]);
+  }, [deferredSearch, filter, pool]);
 
   const isSelected = (device: Device) => selectedDevices.some(d => d.name === device.name);
 
@@ -253,11 +255,24 @@ export default function DeviceLookup({
 }
 
 /** Comparison view for multiple selected devices */
-export function DeviceComparison({ devices, weeklyData }: { devices: Device[]; weeklyData: WeeklyUpdate | null }) {
+export function DeviceComparison({
+  devices,
+  weeklyData,
+  ecosystemMatrix,
+}: {
+  devices: Device[];
+  weeklyData: WeeklyUpdate | null;
+  ecosystemMatrix?: EcosystemMatrix | null;
+}) {
+  const summaries = useMemo(
+    () => devices.map(device => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)),
+    [devices, weeklyData, ecosystemMatrix]
+  );
+
   if (devices.length === 0) return null;
 
   if (devices.length === 1) {
-    return <DeviceDetail device={devices[0]} weeklyData={weeklyData} />;
+    return <DeviceDetail device={devices[0]} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />;
   }
 
   return (
@@ -274,7 +289,7 @@ export function DeviceComparison({ devices, weeklyData }: { devices: Device[]; w
       {/* Comparison table */}
       <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-[560px] w-full text-xs">
+          <table className="min-w-[760px] w-full text-xs">
             <thead>
               <tr className="border-b border-t-light-gray">
                 <th className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 w-24">Feature</th>
@@ -287,6 +302,9 @@ export function DeviceComparison({ devices, weeklyData }: { devices: Device[]; w
             </thead>
             <tbody>
               <CompRow label="Price" values={devices.map(d => typeof d.startingPrice === 'number' ? `$${d.startingPrice}` : String(d.startingPrice))} />
+              <CompRow label="Best For" values={summaries.map(summary => summary.bestFit.slice(0, 2).join(', '))} />
+              <CompRow label="Why They Say Yes" values={summaries.map(summary => summary.shortHook)} />
+              <CompRow label="Standout" values={summaries.map(summary => summary.proofPoints[0] ?? 'Strong overall fit')} />
               <CompRow label="Released" values={devices.map(d => d.released)} />
               <CompRow label="Specs" values={devices.map(d => d.keySpecs)} />
               <CompRow label="Category" values={devices.map(d => d.category)} />
@@ -297,7 +315,7 @@ export function DeviceComparison({ devices, weeklyData }: { devices: Device[]; w
 
       {/* Individual details */}
       {devices.map(d => (
-        <DeviceDetail key={d.name} device={d} weeklyData={weeklyData} />
+        <DeviceDetail key={d.name} device={d} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />
       ))}
     </motion.div>
   );
@@ -315,7 +333,19 @@ function CompRow({ label, values }: { label: string; values: string[] }) {
 }
 
 /** Detail panel for a single device */
-export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyData: WeeklyUpdate | null }) {
+export function DeviceDetail({
+  device,
+  weeklyData,
+  ecosystemMatrix,
+}: {
+  device: Device;
+  weeklyData: WeeklyUpdate | null;
+  ecosystemMatrix?: EcosystemMatrix | null;
+}) {
+  const summary = useMemo(
+    () => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix),
+    [device, weeklyData, ecosystemMatrix]
+  );
   const weeklyPromos = weeklyData?.currentPromos.filter(p =>
     p.name.toLowerCase().includes(device.name.toLowerCase().split(' ')[0]) ||
     p.details.toLowerCase().includes(device.name.toLowerCase().split(' ')[0])
@@ -338,6 +368,27 @@ export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyDat
         </p>
       </div>
 
+      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface dark:text-foreground dark:border dark:border-t-light-gray">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
+          <MessageSquareQuote className="w-3 h-3" /> Say It Like This
+        </p>
+        <p className="text-sm font-bold leading-relaxed">{summary.sayThis}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">
+          {getAppealTypeLabel(summary.appealType)}
+        </span>
+        {summary.bestFit.slice(0, 3).map(fit => (
+          <span
+            key={fit}
+            className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/70"
+          >
+            {fit}
+          </span>
+        ))}
+      </div>
+
       {/* Weekly promos only — no stale static promos */}
       {weeklyPromos.length > 0 && (
         <div className="bg-success-surface rounded-xl border border-success-border p-3">
@@ -350,23 +401,133 @@ export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyDat
         </div>
       )}
 
-      {/* Key selling points */}
-      <div className="space-y-1.5">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">Selling Points</p>
-        <SellingPoint text={`Released ${device.released}`} />
-        <SellingPoint text={device.keySpecs} />
-        {device.sellingNotes && (
-          <div className="bg-t-magenta/5 rounded-lg border border-t-magenta/15 p-2.5 mt-1">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta/70 mb-1">💡 Selling Notes</p>
-            <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">{device.sellingNotes}</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-t-light-gray bg-info-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2 flex items-center gap-1.5">
+            <Sparkles className="w-3 h-3" /> Why Customers Care
+          </p>
+          <p className="text-[11px] font-medium leading-relaxed text-info-foreground">{summary.whyItLands}</p>
+
+          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-2">
+            Logic Chain
+          </p>
+          <div className="space-y-1.5">
+            {summary.reasonChain.map((step, index) => (
+              <div key={step} className="flex items-start gap-2">
+                <span className="mt-0.5 rounded-full bg-info-border px-1.5 py-0.5 text-[8px] font-black text-info-foreground">
+                  {index + 1}
+                </span>
+                <p className="text-[10px] font-medium leading-snug text-info-foreground">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2 flex items-center gap-1.5">
+            <Ear className="w-3 h-3 text-t-magenta" /> Listen For These Cues
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {summary.listenFor.map(cue => (
+              <span
+                key={cue}
+                className="rounded-xl border border-t-light-gray bg-surface-elevated px-2 py-1 text-[10px] font-bold text-t-dark-gray/80"
+              >
+                {cue}
+              </span>
+            ))}
+          </div>
+
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mt-4 mb-2">
+            Best Fit
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {summary.bestFit.map(fit => (
+              <span
+                key={fit}
+                className="rounded-full bg-t-magenta/8 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-magenta"
+              >
+                {fit}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">Proof Points</p>
+          <div className="space-y-1.5">
+            <SellingPoint text={`Released ${device.released}`} />
+            {summary.proofPoints.map(point => (
+              <SellingPoint key={point} text={point} />
+            ))}
+            {(device.category === 'watch' || device.category === 'tablet') && (
+              <SellingPoint text={`Connected line: $${device.category === 'watch' ? CONNECTED_DEVICE_INFO.plans.wearableLine.price : CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo`} />
+            )}
+            {['iphone', 'samsung', 'pixel'].includes(device.category) && (
+              <SellingPoint text="Trade-in: We accept devices in ANY condition — up to $1,100 credit" />
+            )}
+          </div>
+        </div>
+
+        {summary.featureTranslations.length > 0 && (
+          <div className="rounded-2xl border border-t-light-gray bg-warning-surface p-4">
+            <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-2">
+              Translate The Tech
+            </p>
+            <div className="space-y-2">
+              {summary.featureTranslations.map((translation) => (
+                <div key={translation.feature} className="rounded-xl border border-warning-border bg-surface-elevated p-3">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-warning-foreground">{translation.feature}</p>
+                  <p className="text-[10px] font-medium leading-snug text-t-dark-gray mt-1">{translation.benefit}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-        {(device.category === 'watch' || device.category === 'tablet') && (
-          <SellingPoint text={`Connected line: $${device.category === 'watch' ? CONNECTED_DEVICE_INFO.plans.wearableLine.price : CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo`} />
-        )}
-        {['iphone', 'samsung', 'pixel'].includes(device.category) && (
-          <SellingPoint text="Trade-in: We accept devices in ANY condition — up to $1,100 credit" />
-        )}
+      </div>
+
+      {summary.demoAngles.length > 0 && (
+        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2 flex items-center gap-1.5">
+            <Users className="w-3 h-3 text-t-magenta" /> Why Certain Demographics Respond
+          </p>
+          <div className="grid gap-3 md:grid-cols-2">
+            {summary.demoAngles.map(angle => (
+              <div key={angle.demographic} className="rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta">{angle.label}</p>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/50">{angle.demographic}</span>
+                </div>
+                <p className="text-[10px] font-medium leading-snug text-t-dark-gray mt-2">{angle.whyThisDemoResponds}</p>
+                {angle.trustLanguage.length > 0 && (
+                  <p className="mt-2 text-[9px] font-bold text-success-foreground">
+                    Lead with: <span className="font-medium text-t-dark-gray">{angle.trustLanguage.slice(0, 2).join(' • ')}</span>
+                  </p>
+                )}
+                {angle.avoidLanguage.length > 0 && (
+                  <p className="mt-1 text-[9px] font-bold text-error-foreground">
+                    Avoid: <span className="font-medium text-t-dark-gray">{angle.avoidLanguage.slice(0, 2).join(' • ')}</span>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-success-border bg-success-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Lead With This When</p>
+          <p className="text-[10px] font-medium leading-relaxed text-success-foreground">{summary.whenToLead}</p>
+        </div>
+        <div className="rounded-2xl border border-error-border bg-error-surface p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-error-foreground mb-2 flex items-center gap-1.5">
+            <AlertTriangle className="w-3 h-3" /> Do Not Lead With This When
+          </p>
+          <p className="text-[10px] font-medium leading-relaxed text-error-foreground">{summary.whenNotToLead}</p>
+        </div>
       </div>
     </motion.div>
   );

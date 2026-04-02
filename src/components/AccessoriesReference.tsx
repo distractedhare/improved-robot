@@ -1,9 +1,30 @@
-import { ShoppingBag, ChevronDown } from 'lucide-react';
+import { ShoppingBag, ChevronDown, Shield, BatteryCharging, Headphones, CarFront, Sparkles, Gamepad2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useCallback } from 'react';
-import { ESSENTIALS_TABLE, BIG_ADDS } from '../data/essentialAccessories';
+import { useState, useCallback, useMemo } from 'react';
+import { BIG_ADDS, ESSENTIALS_TABLE } from '../data/essentialAccessories';
+import { EcosystemMatrix } from '../types/ecosystem';
+import {
+  getAccessoryOutcomeLabel,
+  getAppealTypeLabel,
+  getReferenceAccessoryPositioningSummary,
+  PositioningSummary,
+} from '../services/positioningService';
 
-export default function AccessoriesReference() {
+interface AccessoriesReferenceProps {
+  ecosystemMatrix?: EcosystemMatrix | null;
+}
+
+const OUTCOME_ICONS: Record<string, React.ReactNode> = {
+  'Protect it': <Shield className="w-3.5 h-3.5" />,
+  'Power it': <BatteryCharging className="w-3.5 h-3.5" />,
+  'Hear better': <Headphones className="w-3.5 h-3.5" />,
+  'Travel easier': <CarFront className="w-3.5 h-3.5" />,
+  'Show personality': <Sparkles className="w-3.5 h-3.5" />,
+  'Just have fun': <Gamepad2 className="w-3.5 h-3.5" />,
+  'Everyday add-on': <ShoppingBag className="w-3.5 h-3.5" />,
+};
+
+export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesReferenceProps) {
   // Learn mode: all categories start expanded for studying
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(ESSENTIALS_TABLE.map(c => c.id))
@@ -19,6 +40,36 @@ export default function AccessoriesReference() {
   }, []);
 
   const allOpen = expanded.size === ESSENTIALS_TABLE.length;
+  const essentialSections = useMemo(() => {
+    return ESSENTIALS_TABLE.map(category => ({
+      ...category,
+      items: category.items.map(item => ({
+        item,
+        outcomeLabel: getAccessoryOutcomeLabel(item.name, category.category),
+        summary: getReferenceAccessoryPositioningSummary(item, category.category, ecosystemMatrix),
+      })),
+    }));
+  }, [ecosystemMatrix]);
+
+  const bigAddSummaries = useMemo(() => {
+    return BIG_ADDS.map(item => ({
+      item,
+      outcomeLabel: getAccessoryOutcomeLabel(item.name, item.note),
+      summary: getReferenceAccessoryPositioningSummary(item, item.note, ecosystemMatrix),
+    }));
+  }, [ecosystemMatrix]);
+
+  const outcomeGuides = useMemo(() => {
+    const grouped = new Map<string, string[]>();
+    [...essentialSections.flatMap(section => section.items), ...bigAddSummaries].forEach(({ item, outcomeLabel }) => {
+      const existing = grouped.get(outcomeLabel) ?? [];
+      if (existing.length < 2) {
+        grouped.set(outcomeLabel, [...existing, item.name]);
+      }
+    });
+
+    return Array.from(grouped.entries()).slice(0, 6);
+  }, [essentialSections, bigAddSummaries]);
 
   return (
     <motion.div
@@ -34,6 +85,23 @@ export default function AccessoriesReference() {
         <p className="text-[11px] font-medium opacity-90">
           Know the lineup. 3+ essentials = <strong>25% off the bundle.</strong> Lock that in, then pitch a big add.
         </p>
+      </div>
+
+      <div className="grid gap-2 md:grid-cols-3">
+        {outcomeGuides.map(([outcomeLabel, items]) => (
+          <div key={outcomeLabel} className="rounded-2xl border border-t-light-gray bg-t-light-gray/10 p-3">
+            <div className="flex items-center gap-2 text-t-magenta">
+              {OUTCOME_ICONS[outcomeLabel] || <ShoppingBag className="w-3.5 h-3.5" />}
+              <p className="text-[9px] font-black uppercase tracking-widest">{outcomeLabel}</p>
+            </div>
+            <p className="mt-2 text-[10px] font-medium text-t-dark-gray">
+              Use this lane when the caller needs a clear outcome, not a random add-on.
+            </p>
+            <p className="mt-2 text-[9px] font-bold uppercase tracking-wider text-t-dark-gray/60">
+              Examples: <span className="font-medium normal-case tracking-normal text-t-dark-gray">{items.join(', ')}</span>
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* Bundle plays */}
@@ -70,7 +138,7 @@ export default function AccessoriesReference() {
           </button>
         </div>
         <div className="divide-y divide-t-light-gray/50">
-          {ESSENTIALS_TABLE.map((cat) => {
+          {essentialSections.map((cat) => {
             const isOpen = expanded.has(cat.id);
             return (
               <div key={cat.id}>
@@ -97,8 +165,12 @@ export default function AccessoriesReference() {
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-3 space-y-1.5">
-                        {cat.items.map((item, i) => (
-                          <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5">
+                        {cat.items.map(({ item, summary, outcomeLabel }) => (
+                          <AccessoryLearningCard
+                            key={item.name}
+                            summary={summary}
+                            outcomeLabel={outcomeLabel}
+                          >
                             <div className="flex items-center justify-between text-[10px]">
                               <span className="font-bold text-t-dark-gray">{item.name}</span>
                               <div className="flex items-center gap-3 shrink-0">
@@ -127,9 +199,7 @@ export default function AccessoriesReference() {
                                 ))}
                               </div>
                             )}
-                            <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
-                            <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
-                          </div>
+                          </AccessoryLearningCard>
                         ))}
                       </div>
                     </motion.div>
@@ -145,8 +215,8 @@ export default function AccessoriesReference() {
       <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Premium add-ons (no bundle discount)</p>
         <div className="space-y-2">
-          {BIG_ADDS.map((item, i) => (
-            <div key={i} className="rounded-xl border border-t-light-gray/50 p-3 text-[10px]">
+          {bigAddSummaries.map(({ item, summary, outcomeLabel }) => (
+            <AccessoryLearningCard key={item.name} summary={summary} outcomeLabel={outcomeLabel}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-black text-t-dark-gray">{item.name}</span>
@@ -154,9 +224,7 @@ export default function AccessoriesReference() {
                 </div>
                 <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
               </div>
-              <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
-              <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
-            </div>
+            </AccessoryLearningCard>
           ))}
         </div>
       </div>
@@ -180,5 +248,57 @@ export default function AccessoriesReference() {
         </ol>
       </div>
     </motion.div>
+  );
+}
+
+function AccessoryLearningCard({
+  summary,
+  outcomeLabel,
+  children,
+}: {
+  summary: PositioningSummary;
+  outcomeLabel: string;
+  children: React.ReactNode;
+}) {
+  const topDemo = summary.demoAngles[0];
+
+  return (
+    <div className="rounded-xl border border-t-light-gray/50 p-3 text-[10px]">
+      {children}
+
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+          {getAppealTypeLabel(summary.appealType)}
+        </span>
+        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray/70">
+          {outcomeLabel}
+        </span>
+        {summary.bestFit.slice(0, 2).map(fit => (
+          <span key={fit} className="rounded-full border border-t-light-gray px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray/65">
+            {fit}
+          </span>
+        ))}
+      </div>
+
+      <p className="mt-2 text-[10px] font-medium leading-snug text-t-dark-gray">{summary.whyItLands}</p>
+
+      {summary.proofPoints[0] && (
+        <p className="mt-2 text-[9px] font-bold text-info-foreground">
+          Proof: <span className="font-medium text-t-dark-gray">{summary.proofPoints[0]}</span>
+        </p>
+      )}
+
+      <p className="mt-2 text-[9px] font-bold text-success-foreground">
+        Call cue: <span className="font-medium text-t-dark-gray">{summary.whenToLead}</span>
+      </p>
+
+      {topDemo && (
+        <p className="mt-2 text-[9px] font-bold text-t-magenta">
+          Why {topDemo.label} responds: <span className="font-medium text-t-dark-gray">{topDemo.whyThisDemoResponds}</span>
+        </p>
+      )}
+
+      <p className="text-[10px] text-t-magenta font-bold italic mt-2">{summary.sayThis}</p>
+    </div>
   );
 }

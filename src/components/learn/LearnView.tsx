@@ -4,6 +4,7 @@ import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
 import { DemoScenario } from '../../constants/demoScenarios';
+import { EcosystemMatrix } from '../../types/ecosystem';
 import DailyBriefing from '../DailyBriefing';
 import DeviceLookup, {
   DeviceComparison,
@@ -25,6 +26,7 @@ type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
 interface LearnViewProps {
   weeklyData: WeeklyUpdate | null;
   weeklySource: WeeklyUpdateSource;
+  ecosystemMatrix?: EcosystemMatrix | null;
   onDataUpdate: () => void;
   onSelectScenario: (scenario: DemoScenario) => void;
 }
@@ -52,7 +54,30 @@ const PHONE_FILTERS = [
   { id: 'other', label: 'Other' },
 ];
 
-export default function LearnView({ weeklyData, weeklySource, onDataUpdate, onSelectScenario }: LearnViewProps) {
+const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
+  briefing: {
+    moment: 'Best for pre-shift and quick resets',
+    tip: 'Use this first when you need the shortest path to today’s promos, issues, and talking points.',
+  },
+  devices: {
+    moment: 'Best for between-call coaching',
+    tip: 'Lead with the phone line, then the proof points. Let the specs back up the story instead of driving it.',
+  },
+  playbook: {
+    moment: 'Best for a fast phrasing reset',
+    tip: 'Come here when you know the offer, but want cleaner discovery, pivots, or closes before the next caller.',
+  },
+  edge: {
+    moment: 'Best for sharpening the T-Mobile story',
+    tip: 'Use this when you need a simple reason why T-Mobile wins without sounding rehearsed or overly technical.',
+  },
+  practice: {
+    moment: 'Best for low-volume windows',
+    tip: 'Run a quick scenario when the phones are quiet so the live-call flow feels automatic later.',
+  },
+};
+
+export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate, onSelectScenario }: LearnViewProps) {
   const [tab, setTab] = useState<LearnTab>('briefing');
   const [deviceCategory, setDeviceCategory] = useState<DeviceCategory>('phones');
   const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
@@ -121,6 +146,15 @@ export default function LearnView({ weeklyData, weeklySource, onDataUpdate, onSe
         ))}
       </div>
 
+      <div className="rounded-2xl border border-t-light-gray bg-t-light-gray/15 px-4 py-3">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
+          {TAB_MOMENT_GUIDANCE[tab].moment}
+        </p>
+        <p className="text-[11px] font-medium text-t-dark-gray leading-relaxed">
+          {TAB_MOMENT_GUIDANCE[tab].tip}
+        </p>
+      </div>
+
       {/* Content */}
       {tab === 'briefing' && (
         <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
@@ -156,7 +190,7 @@ export default function LearnView({ weeklyData, weeklySource, onDataUpdate, onSe
           {/* Accessories — standalone reference */}
           {deviceCategory === 'accessories' ? (
             <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
-              <AccessoriesReference />
+              <AccessoriesReference ecosystemMatrix={ecosystemMatrix} />
             </div>
           ) : (
             /* Device lookup + comparison for phones/tablets/wearables */
@@ -164,7 +198,6 @@ export default function LearnView({ weeklyData, weeklySource, onDataUpdate, onSe
               <div className="lg:col-span-5">
                 <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
                   <DeviceLookup
-                    weeklyData={weeklyData}
                     selectedDevices={selectedDevices}
                     onToggleDevice={toggleDevice}
                     onClearDevices={clearDevices}
@@ -178,8 +211,8 @@ export default function LearnView({ weeklyData, weeklySource, onDataUpdate, onSe
               <div className="lg:col-span-7 space-y-6">
                 {selectedDevices.length > 0 ? (
                   <>
-                    <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} />
-                    <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} />
+                    <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />
+                    <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed">

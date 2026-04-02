@@ -29,6 +29,18 @@ export default function PlaybookSection() {
         </p>
       </div>
 
+      <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
+          Phone-Sales Logic
+        </p>
+        <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
+          <p><span className="font-black">1.</span> Start with what they will feel or save, not the spec sheet.</p>
+          <p><span className="font-black">2.</span> Tie the offer to a real fit driver like value, convenience, safety, productivity, or cool-factor.</p>
+          <p><span className="font-black">3.</span> Use one proof point to back it up, then stop talking.</p>
+          <p><span className="font-black">4.</span> Match the language to the caller instead of pitching the same way to everyone.</p>
+        </div>
+      </div>
+
       {/* Discovery Questions */}
       <CollapsibleCard
         id="discovery"

@@ -1,4 +1,4 @@
-import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard, ChevronDown, Star } from 'lucide-react';
+import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Wifi } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
@@ -10,11 +10,6 @@ interface InstantPlaysProps {
   age?: string;
   ecosystemMatrix?: EcosystemMatrix | null;
 }
-
-// Always-on reminder — HINT check on every call
-const ALWAYS_ON_REMINDERS = [
-  { icon: Home, text: 'Check the address for Home Internet — every call', color: 'text-info-accent' },
-];
 
 // Intent-specific play content
 const INTENT_PLAYS: Record<Intent, { subtitle: string; mindset: string; plays: string[]; pivots: string[]; watchouts?: string[] }> = {
@@ -139,15 +134,26 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
       exit={{ opacity: 0, y: -20 }}
       className="space-y-5"
     >
-      {/* Always-on reminders — compact strip */}
-      <div className="flex flex-wrap gap-2">
-        {ALWAYS_ON_REMINDERS.map((r, i) => (
-          <div key={i} className="flex items-center gap-1.5 bg-t-light-gray/30 rounded-lg px-2.5 py-1.5 border border-t-light-gray/50">
-            <r.icon className={`w-3 h-3 shrink-0 ${r.color}`} />
-            <p className="text-[9px] text-t-dark-gray font-bold leading-tight">{r.text.split('.')[0]}</p>
+      {/* Home Internet — BIG reminder banner on every call */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-5 shadow-lg shadow-t-magenta/20"
+      >
+        <div className="absolute top-0 right-0 opacity-10">
+          <Wifi className="w-28 h-28 -mt-4 -mr-4 text-white" />
+        </div>
+        <div className="relative flex items-center gap-4">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 shrink-0">
+            <Home className="w-7 h-7 text-white" />
           </div>
-        ))}
-      </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-0.5">Every Call Reminder</p>
+            <p className="text-base font-black text-white leading-tight">Check the address for Home Internet</p>
+            <p className="text-[11px] font-semibold text-white/80 mt-1">Up to $300 rebate + "Month On Us" promo. Huge push right now — don't skip this.</p>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Intent header */}
       <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm">

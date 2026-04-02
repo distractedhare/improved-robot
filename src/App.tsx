@@ -223,7 +223,13 @@ export default function App() {
         {mode === 'level-up' ? (
           <LevelUpView />
         ) : mode === 'learn' ? (
-          <LearnView weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={refreshWeeklyData} onSelectScenario={handlePracticeScenario} />
+          <LearnView
+            weeklyData={weeklyData}
+            weeklySource={weeklySource}
+            ecosystemMatrix={ecosystemMatrix}
+            onDataUpdate={refreshWeeklyData}
+            onSelectScenario={handlePracticeScenario}
+          />
         ) : (<>
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-4">
