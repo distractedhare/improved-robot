@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
@@ -263,6 +263,19 @@ export default function App() {
             onSelectScenario={handlePracticeScenario}
           />
         ) : (<>
+        {/* On-the-clock disclaimer */}
+        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
+              On-the-clock only
+            </p>
+            <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
+              This tool is for use during scheduled work hours only. Do not use outside of your shift.
+            </p>
+          </div>
+        </div>
+
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-4">
           <div className="space-y-0.5">
@@ -275,7 +288,7 @@ export default function App() {
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] space-y-4 glass-card">
+            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] space-y-4 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
@@ -378,7 +391,7 @@ export default function App() {
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
             <section
-              className="rounded-3xl overflow-hidden glass-card"
+              className="rounded-3xl overflow-hidden glass-card glass-specular"
               style={{
                 borderStyle: contextExpanded ? 'solid' : 'dashed',
               }}
@@ -476,7 +489,7 @@ export default function App() {
               {/* Objections empty state */}
               {activeTab === 'objections' && !objectionResult && !analyzing && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine"
                   style={{ borderStyle: 'dashed' }}
                 >
                   <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -552,7 +565,7 @@ export default function App() {
             <span>Valid until: {weeklyData.metadata.validUntil}</span>
           </div>
         )}
-        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card" style={{ borderTop: '2px solid rgba(226, 0, 116, 0.3)' }}>
+        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card glass-specular" style={{ borderTop: '2px solid rgba(226, 0, 116, 0.3)' }}>
           <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
             <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
           </p>

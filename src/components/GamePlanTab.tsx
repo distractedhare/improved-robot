@@ -37,7 +37,7 @@ export default function GamePlanTab({
           type="button"
           onClick={onGenerate}
           disabled={loading}
-          className="focus-ring w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-berry transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-xl shadow-t-magenta/20"
+          className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform"
         >
           {loading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -113,7 +113,7 @@ export function GamePlanResults({
       </div>
 
       {/* Welcome Messages */}
-      <div className="rounded-3xl glass-card p-6 shadow-sm">
+      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
         </h3>
@@ -145,7 +145,7 @@ export function GamePlanResults({
       </div>
 
       {/* Discovery Questions */}
-      <div className="rounded-3xl glass-card p-6 shadow-sm">
+      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
@@ -177,7 +177,7 @@ export function GamePlanResults({
       </div>
 
       {/* Value Props */}
-      <div className="rounded-3xl glass-card p-6 shadow-sm">
+      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
@@ -343,7 +343,7 @@ export function GamePlanResults({
         <button
           type="button"
           onClick={onSwitchToObjections}
-          className="focus-ring w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-magenta/90 transition-all shadow-xl shadow-t-magenta/20"
+          className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
         >
           <MessageSquare className="w-5 h-5" /> Getting Pushback? Let's Flip It
         </button>

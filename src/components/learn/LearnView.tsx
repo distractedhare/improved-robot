@@ -149,25 +149,29 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         </p>
       </div>
 
-      {/* Sub-tab toggle */}
-      <div className="flex rounded-full p-0.5 max-w-2xl mx-auto glass-tab">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            aria-pressed={tab === t.id}
-            className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[8px] sm:text-[10px] font-black uppercase tracking-wider px-1.5 sm:px-3 py-2 rounded-full transition-all ${
-              tab === t.id
-                ? 'bg-t-magenta text-white shadow-sm'
-                : 'text-t-dark-gray/60 hover:text-t-dark-gray'
-            }`}
-          >
-            <t.icon className="w-3 h-3" />
-            <span className="hidden sm:inline">{t.label}</span>
-            <span className="sm:hidden">{t.label.slice(0, 4)}</span>
-          </button>
-        ))}
+      {/* Sub-tab toggle — scrollable on mobile, active tab expands */}
+      <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
+        <div className="flex rounded-full p-0.5 gap-0.5 min-w-max mx-auto glass-tab" style={{ width: 'fit-content', margin: '0 auto' }}>
+          {TABS.map((t) => {
+            const isActive = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                aria-pressed={isActive}
+                className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
+                  isActive
+                    ? 'bg-t-magenta text-white shadow-sm px-4'
+                    : 'text-t-dark-gray/60 hover:text-t-dark-gray px-2'
+                }`}
+              >
+                <t.icon className="w-3 h-3 shrink-0" />
+                {isActive ? t.label : <span className="sm:inline hidden">{t.label}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="rounded-2xl px-4 py-3 glass-card">

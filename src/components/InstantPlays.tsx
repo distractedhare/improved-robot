@@ -184,7 +184,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-xl bg-gradient-to-r from-t-magenta to-t-berry px-4 py-3 flex items-center gap-3"
+        className="rounded-xl bg-gradient-to-r from-t-magenta to-t-berry px-4 py-3 flex items-center gap-3 glass-shine magenta-glow"
       >
         <Home className="w-5 h-5 text-white shrink-0" />
         <p className="text-xs font-bold text-white">Check the address for Home Internet — up to $300 back + Month On Us</p>
@@ -219,13 +219,13 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       })}
 
       {/* Intent header */}
-      <div className="rounded-2xl glass-card p-5 shadow-sm">
+      <div className="rounded-2xl glass-card glass-shine p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs text-t-dark-gray/70 font-medium italic">{plays.subtitle}</p>
       </div>
 
       {/* Plays */}
-      <div className="rounded-2xl glass-card p-4 shadow-sm space-y-1.5">
+      <div className="rounded-2xl glass-card glass-shine glass-card-hover p-4 shadow-sm space-y-1.5">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Quick plays</p>
         {plays.plays.map((play, i) => (
           <div key={i} className="flex items-start gap-2 py-1">
