@@ -75,39 +75,28 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
     color: 'from-t-magenta to-t-berry',
     tips: {
       'exploring': [
-        'Check the address FIRST — everything else depends on availability.',
-        'Ask who their current ISP is and what they pay. Most people overpay and don\'t realize it.',
-        'Lead with "no contract, no data caps, no equipment fees." That\'s what hooks them.',
-        'If they stream a lot: "All-In is $55 with your phone line and includes Hulu and Paramount+."',
+        'Check address first — everything depends on availability.',
+        'Ask what they pay now. Most cable customers overpay.',
       ],
       'ready to buy': [
-        'Confirm address availability, then push All-In — the streaming perks sell themselves.',
-        'Mention the 15-day test drive to remove any last-minute hesitation.',
-        'Up to $300 virtual prepaid card rebate + "Month On Us" — stack the value.',
-        'Self-install takes 15 minutes. No appointment, no technician, no waiting around.',
+        'Push All-In ($55/mo w/ phone line) — streaming perks sell themselves.',
+        'Stack the value: up to $300 rebate + Month On Us + 15-day test drive.',
       ],
       'upgrade / add a line': [
-        'They\'re already a customer — HINT with a voice line is $30-50/mo. Run the savings.',
-        'If they\'re on a premium phone plan, they already trust T-Mobile. Easy transition.',
-        'All-In bundle discount ($55/mo) + streaming perks = over $480/year in value.',
+        'HINT with a voice line is $30-50/mo — run the savings vs their ISP.',
+        'All-In bundle ($55/mo) + streaming perks = over $480/year in value.',
       ],
       'order support': [
-        'They placed a HINT order — check status, give a clear ETA, and confirm gateway shipping.',
-        'If the gateway hasn\'t arrived: reassure them, check tracking, offer to expedite if possible.',
-        'If they\'re waiting: "While we wait, your setup will take about 15 minutes once it arrives — just plug it in."',
-        'After resolving: "By the way, have you thought about the All-In tier? It includes Hulu and Paramount+."',
+        'Check order status, give a clear ETA, confirm gateway shipping.',
+        'After resolving: mention All-In tier if they are on a lower plan.',
       ],
       'tech support': [
-        'Gateway issues? Start with: unplug for 30 seconds, plug back in. Fixes most problems.',
-        'Check signal strength — gateway placement matters. Near a window, elevated, away from walls.',
-        'If speeds are slow: "Let me check your area. Sometimes a gateway swap or firmware update helps."',
-        'After resolving: check if they have the mesh extender (All-In includes one free).',
+        'Gateway fix: unplug 30 seconds, replug. Check placement near a window.',
+        'After resolving: check if they have the mesh extender (free on All-In).',
       ],
       'account support': [
-        'Review their HINT tier — are they on Rely when Amplified or All-In would be better?',
-        'If they\'re asking about charges: walk through the HINT line item clearly.',
-        'Mention the 5-Year Price Guarantee — their rate is locked. Most ISPs raise prices yearly.',
-        'If they\'re considering canceling: "What\'s the main issue? Let me see if we can fix it before you cancel."',
+        'Review their HINT tier — Rely customers often benefit from All-In.',
+        'Mention the 5-Year Price Guarantee — their rate is locked.',
       ],
     },
   },
@@ -116,32 +105,28 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
     color: 'from-blue-600 to-indigo-600',
     tips: {
       'exploring': [
-        'What device are they interested in? Tablet, watch, or both?',
-        'Tablet line is $20/mo. Watch line is $10-15/mo. Both are easy add-ons.',
-        'If they have an iPhone: Apple Watch is the natural add. Android: Galaxy Watch or Pixel Watch.',
-        'Galaxy Ring ($399.99) is a great conversation starter — no monthly line needed, just Bluetooth.',
+        'Tablet line is $20/mo, watch line is $10-15/mo — easy add-ons.',
+        'Match ecosystem: Apple Watch for iPhone, Galaxy Watch for Android.',
       ],
       'ready to buy': [
-        'Confirm the device, add the line, pitch P360 on the new device.',
-        'If adding a watch: they need a compatible phone on the same account.',
-        'SyncUP KIDS Watch 2 ($174) for parents — GPS tracking, no social media, $10/mo line.',
+        'Confirm device, add the line, pitch P360 on the new device.',
+        'SyncUP KIDS Watch 2 ($174, $10/mo) for parents wanting GPS tracking.',
       ],
       'upgrade / add a line': [
-        'Check what devices they already have — are any due for upgrade?',
-        'Adding a tablet line for a kid? Your plan benefits extend to connected devices.',
-        'Watch trade-in values can be decent — check before they dismiss it.',
+        'Check which devices are due for upgrade on their account.',
+        'Watch trade-in values can be decent — always check first.',
       ],
       'order support': [
-        'Check if the device and line are both active. Sometimes the line activates before the device ships.',
-        'For watches: eSIM activation can be tricky. Walk them through the carrier app setup.',
+        'Verify both device and line are active — line sometimes activates first.',
+        'For watches: walk them through eSIM activation via the carrier app.',
       ],
       'tech support': [
-        'Watch connectivity issues? Check: is the phone nearby? Is Bluetooth on? Is the watch plan active?',
-        'Tablet won\'t connect to cellular? Check the SIM/eSIM, APN settings, and line status.',
+        'Watch issues: check phone proximity, Bluetooth, and watch plan status.',
+        'Tablet cellular issues: check SIM/eSIM, APN settings, line status.',
       ],
       'account support': [
-        'Review their connected device lines — are they paying for lines they\'re not using?',
-        'If removing a line: check for any device payment remaining.',
+        'Review connected device lines — are they paying for unused lines?',
+        'If removing a line: check for remaining device payments first.',
       ],
     },
   },
@@ -150,25 +135,24 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
     color: 'from-emerald-600 to-teal-600',
     tips: {
       'exploring': [
-        'SyncUP Tracker ($5/mo) — pets, luggage, kids\' backpacks. Dead simple.',
-        'SyncUP DRIVE ($108 + $20/mo) — turns any car into a connected car. Wi-Fi hotspot, diagnostics, GPS.',
-        'Franklin T10 hotspot for customers who need dedicated mobile internet.',
+        'SyncUP Tracker ($5/mo) — pets, luggage, backpacks. Dead simple.',
+        'SyncUP DRIVE ($108 + $20/mo) — connected car with Wi-Fi and GPS.',
       ],
       'ready to buy': [
-        'SyncUP Tracker is the easiest add — $5/mo, no device payment needed for most.',
-        'SyncUP DRIVE: confirm their vehicle is OBD-II compatible (2008+ vehicles usually are).',
+        'SyncUP Tracker is the easiest add — $5/mo, minimal setup.',
+        'SyncUP DRIVE: confirm vehicle is OBD-II compatible (2008+ usually).',
       ],
       'order support': [
-        'Tracker or DRIVE orders — confirm activation status and shipping.',
-        'Franklin T10 orders: make sure the data plan is attached correctly.',
+        'Confirm activation status and shipping for tracker or DRIVE orders.',
+        'Franklin T10: make sure the data plan is attached correctly.',
       ],
       'tech support': [
-        'SyncUP Tracker not updating? Check the app, battery, and cellular coverage.',
-        'SyncUP DRIVE not connecting? Confirm it\'s seated properly in the OBD-II port and the vehicle is running.',
+        'Tracker not updating? Check the app, battery, and cellular coverage.',
+        'DRIVE not connecting? Confirm it is seated in the OBD-II port, vehicle running.',
       ],
       'account support': [
-        'Review IoT lines — $5/mo tracker lines are easy to forget about if they stopped using the device.',
-        'DRIVE data plan review: $20/mo for Magenta Drive plan.',
+        'Review IoT lines — $5/mo tracker lines are easy to forget about.',
+        'DRIVE data plan: $20/mo for Magenta Drive plan.',
       ],
     },
   },
@@ -195,25 +179,14 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       exit={{ opacity: 0, y: -20 }}
       className="space-y-5"
     >
-      {/* Home Internet — BIG reminder banner on every call */}
+      {/* Home Internet — compact reminder banner */}
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-5 shadow-lg shadow-t-magenta/20"
+        className="rounded-xl bg-gradient-to-r from-t-magenta to-t-berry px-4 py-3 flex items-center gap-3"
       >
-        <div className="absolute top-0 right-0 opacity-10">
-          <Wifi className="w-28 h-28 -mt-4 -mr-4 text-white" />
-        </div>
-        <div className="relative flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 shrink-0">
-            <Home className="w-7 h-7 text-white" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-0.5">Every Call Reminder</p>
-            <p className="text-base font-black text-white leading-tight">Check the address for Home Internet</p>
-            <p className="text-[11px] font-semibold text-white/80 mt-1">Up to $300 rebate + "Month On Us" promo. Huge push right now — don't skip this.</p>
-          </div>
-        </div>
+        <Home className="w-5 h-5 text-white shrink-0" />
+        <p className="text-xs font-bold text-white">Check the address for Home Internet — up to $300 back + Month On Us</p>
       </motion.div>
 
       {/* Product-specific context cards */}
@@ -248,20 +221,15 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       <div className="rounded-2xl glass-card p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs text-t-dark-gray/70 font-medium italic">{plays.subtitle}</p>
-        <div className="mt-3 bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
-          <p className="text-[10px] text-t-magenta font-bold">
-            <span className="font-black">Mindset:</span> {plays.mindset}
-          </p>
-        </div>
       </div>
 
       {/* Plays */}
-      <div className="rounded-2xl glass-card p-5 shadow-sm space-y-2.5">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Plays</p>
+      <div className="rounded-2xl glass-card p-4 shadow-sm space-y-1.5">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Quick plays</p>
         {plays.plays.map((play, i) => (
-          <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-t-light-gray/20 border border-t-light-gray/50">
-            <ChevronRight className="w-3.5 h-3.5 text-t-magenta mt-0.5 shrink-0" />
-            <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{play}</p>
+          <div key={i} className="flex items-start gap-2 py-1">
+            <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+            <p className="text-xs text-t-dark-gray font-semibold leading-snug">{play}</p>
           </div>
         ))}
       </div>
