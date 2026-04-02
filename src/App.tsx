@@ -246,8 +246,7 @@ export default function App() {
       <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
 
       {isDataExpired && (
-        <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border"
-          style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+        <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"
         >
           Weekly update expired — data may be stale. Upload a fresh update.
         </div>
