@@ -1,5 +1,5 @@
 {
-  "name": "CustomerConnect AI",
-  "description": "AI-powered customer purchase guide for T-Mobile products, helping customers navigate their buying journey with personalized discovery and value propositions.",
+  "name": "T-Mobile Sales Assistant",
+  "description": "AI-powered T-Mobile Sales Assistant that helps customers navigate their buying journey with personalized discovery and value propositions.",
   "requestFramePermissions": []
 }
