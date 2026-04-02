@@ -225,35 +225,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
       </div>
       )}
 
-      {/* What's Trending */}
-      {weeklyData?.trending && weeklyData.trending.length > 0 && (
-        <BriefingCard
-          icon={<Flame className="w-4 h-4" />}
-          title="What's Trending"
-          id="trending"
-          expanded={expandedSection === 'trending'}
-          onToggle={() => toggle('trending')}
-          accent
-        >
-          <p className="text-[10px] text-t-dark-gray/60 font-medium mb-3">What's buzzing with customers right now</p>
-          <div className="space-y-2">
-            {weeklyData.trending.map((item, i) => (
-              <div key={i} className="p-3 bg-surface rounded-xl border border-t-magenta/10 shadow-sm">
-                <div className="flex items-start gap-2">
-                  <Flame className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs font-black text-t-dark-gray">{item.buzz}</p>
-                    <p className="text-[9px] text-t-dark-gray/50 font-bold uppercase mt-1">via {item.source}</p>
-                    <p className="text-[11px] text-t-magenta font-bold mt-1.5 italic">Rep tip: {item.repTip}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </BriefingCard>
-      )}
-
-      {/* Weekly Focus */}
+      {/* This Week's Focus — always first, always visible */}
       {weeklyData && weeklyData.weeklyFocus.headline !== 'No weekly update loaded' && (
         <BriefingCard
           icon={<Target className="w-4 h-4" />}
@@ -267,20 +239,59 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
         </BriefingCard>
       )}
 
-      {/* Current Promos */}
+      {/* What's Trending — top 4 */}
+      {weeklyData?.trending && weeklyData.trending.length > 0 && (
+        <BriefingCard
+          icon={<Flame className="w-4 h-4" />}
+          title="What's Trending"
+          id="trending"
+          expanded={expandedSection === 'trending'}
+          onToggle={() => toggle('trending')}
+          accent
+        >
+          <div className="space-y-2">
+            {weeklyData.trending.slice(0, 4).map((item, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <Flame className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-black text-t-dark-gray">{item.buzz}</p>
+                  <p className="text-[11px] text-t-magenta font-bold italic">{item.repTip}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </BriefingCard>
+      )}
+
+      {/* Top Promos — 4 most important, not all 16 */}
       {weeklyData && weeklyData.currentPromos.length > 0 && (
         <BriefingCard
           icon={<Zap className="w-4 h-4" />}
-          title={`Active Promos (${weeklyData.currentPromos.length})`}
+          title="Top Promos"
           id="promos"
           expanded={expandedSection === 'promos'}
           onToggle={() => toggle('promos')}
         >
-          <PromoAccordionList promos={weeklyData.currentPromos} />
+          <div className="space-y-2">
+            {weeklyData.currentPromos.slice(0, 4).map((promo, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span className="shrink-0 w-5 h-5 rounded-full bg-t-magenta/15 flex items-center justify-center text-[8px] font-black text-t-magenta mt-0.5">{i + 1}</span>
+                <div>
+                  <p className="text-xs font-black text-t-dark-gray uppercase">{promo.name}</p>
+                  <p className="text-[11px] text-t-dark-gray/70 font-medium mt-0.5 leading-snug">{promo.details.split('.').slice(0, 2).join('.') + '.'}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {weeklyData.currentPromos.length > 4 && (
+            <p className="text-[10px] text-t-dark-gray/40 font-bold mt-3 text-center">
+              + {weeklyData.currentPromos.length - 4} more promos — see Learn → Plans for full list
+            </p>
+          )}
         </BriefingCard>
       )}
 
-      {/* Competitive Intel */}
+      {/* Competitor Intel — top 4 */}
       {weeklyData && weeklyData.competitiveIntel.length > 0 && (
         <BriefingCard
           icon={<TrendingUp className="w-4 h-4" />}
@@ -290,22 +301,19 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
           onToggle={() => toggle('intel')}
         >
           <div className="space-y-2">
-            {weeklyData.competitiveIntel.map((intel, i) => (
-              <div key={i} className="p-3 bg-t-light-gray/20 rounded-xl border border-t-light-gray">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[9px] font-black uppercase bg-error-surface text-error-foreground px-2 py-0.5 rounded-full">
-                    {intel.carrier}
-                  </span>
-                </div>
-                <p className="text-xs text-t-dark-gray font-medium">{intel.intel}</p>
-                <p className="text-xs text-t-magenta font-bold mt-1 italic">"{intel.talkingPoint}"</p>
+            {weeklyData.competitiveIntel.slice(0, 4).map((intel, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span className="shrink-0 text-[9px] font-black uppercase bg-error-surface text-error-foreground px-2 py-0.5 rounded-full mt-0.5">
+                  {intel.carrier}
+                </span>
+                <p className="text-xs text-t-magenta font-bold italic">"{intel.talkingPoint}"</p>
               </div>
             ))}
           </div>
         </BriefingCard>
       )}
 
-      {/* Network Stats */}
+      {/* Network Stats — already compact (4 stat cards) */}
       <BriefingCard
         icon={<Wifi className="w-4 h-4" />}
         title="Network Highlights"
@@ -319,52 +327,23 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
           <StatCard label="JD Power" value="#1" subtext="5 of 6 regions" />
           <StatCard label="T-Satellite" value="650+" subtext="Starlink satellites" />
         </div>
-        {networkDiff && (
-          <p className="text-[10px] text-t-dark-gray/70 font-medium mt-3 italic">
-            {networkDiff.details[0]}
-          </p>
-        )}
       </BriefingCard>
 
-      {/* Known Issues */}
+      {/* Known Issues — top 4 */}
       {weeklyData && weeklyData.knownIssues.length > 0 && (
         <BriefingCard
           icon={<AlertCircle className="w-4 h-4" />}
-          title={`Known Issues (${weeklyData.knownIssues.length})`}
+          title={`Heads Up (${Math.min(weeklyData.knownIssues.length, 4)})`}
           id="issues"
           expanded={expandedSection === 'issues'}
           onToggle={() => toggle('issues')}
           warning
         >
           <div className="space-y-2">
-            {weeklyData.knownIssues.map((issue, i) => (
-              <div key={i} className="p-3 bg-warning-surface rounded-xl border border-warning-border">
+            {weeklyData.knownIssues.slice(0, 4).map((issue, i) => (
+              <div key={i}>
                 <p className="text-xs font-bold text-warning-foreground">{issue.issue}</p>
-                <p className="text-xs text-warning-foreground font-medium mt-1">Workaround: {issue.workaround}</p>
-              </div>
-            ))}
-          </div>
-        </BriefingCard>
-      )}
-
-      {/* Plan Updates */}
-      {weeklyData && weeklyData.planUpdates.length > 0 && (
-        <BriefingCard
-          icon={<Shield className="w-4 h-4" />}
-          title="Plan Updates"
-          id="plans"
-          expanded={expandedSection === 'plans'}
-          onToggle={() => toggle('plans')}
-        >
-          <div className="space-y-2">
-            {weeklyData.planUpdates.map((update, i) => (
-              <div key={i} className="p-3 bg-t-light-gray/20 rounded-xl border border-t-light-gray">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-black uppercase text-t-magenta">{update.planName}</span>
-                  <span className="text-[8px] font-bold text-t-dark-gray/50">{update.effectiveDate}</span>
-                </div>
-                <p className="text-xs text-t-dark-gray font-medium">{update.change}</p>
-                <p className="text-xs text-t-magenta font-bold mt-1 italic">"{update.talkingPoint}"</p>
+                <p className="text-[11px] text-warning-foreground/70 font-medium">→ {issue.workaround}</p>
               </div>
             ))}
           </div>
