@@ -5,7 +5,7 @@ export interface SalesContext {
   zipCode?: string;
   product: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[];
   purchaseIntent: 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
-  currentCarrier?: 'AT&T' | 'Verizon' | 'Spectrum' | 'Xfinity' | 'Prepaid (Mint, Boost, etc.)' | 'Other' | 'Not Specified';
+  currentCarrier?: 'AT&T' | 'Verizon' | 'Spectrum' | 'Xfinity' | 'US Cellular' | 'Prepaid (Mint, Boost, etc.)' | 'Other' | 'Not Specified';
 }
 
 export interface StoreInfo {
@@ -55,6 +55,10 @@ export interface SalesScript {
 export interface ObjectionAnalysis {
   talkingPoints: string[];
   counterArguments: string[];
+  pivotPlays?: {
+    strategy: string;
+    script: string;
+  }[];
   carrierSpecificArguments?: string[];
   coachsCorner: string;
   complianceNotes: string;

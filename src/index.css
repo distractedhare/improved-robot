@@ -5,8 +5,92 @@
   --color-t-berry: #861B54;
   --color-t-light-gray: #E8E8E8;
   --color-t-dark-gray: #6A6A6A;
-  
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-foreground: #1A1A1A;
+  --color-focus-ring: #E20074;
+
+  --color-info-surface: #edf5ff;
+  --color-info-border: #c6dcff;
+  --color-info-foreground: #2856a3;
+  --color-info-accent: #5c88d6;
+
+  --color-success-surface: #ebf8f1;
+  --color-success-border: #c6e7d2;
+  --color-success-foreground: #256e46;
+  --color-success-accent: #2fa161;
+
+  --color-warning-surface: #fff3e6;
+  --color-warning-border: #f3d6ac;
+  --color-warning-foreground: #8a5b18;
+  --color-warning-accent: #d28a2d;
+
+  --color-error-surface: #fdeef1;
+  --color-error-border: #efc8cf;
+  --color-error-foreground: #a34155;
+  --color-error-accent: #d4576d;
+
+  --color-support-surface: #eef1f7;
+  --color-support-border: #d5dbe8;
+  --color-support-foreground: #4d5d7b;
+
+  --color-pivot-start: #111827;
+  --color-pivot-end: #1f2937;
+
+  --color-map-base: #dadada;
+  --color-map-region-selected: #E20074;
+  --color-map-state-available: #f3c2dd;
+  --color-map-state-selected: #861B54;
+  --color-map-stroke: #ffffff;
+  --color-tooltip-surface: #121212;
+  --color-tooltip-foreground: #ffffff;
+
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Dark mode overrides */
+.dark {
+  --color-t-light-gray: #2A2A2A;
+  --color-t-dark-gray: #B0B0B0;
+  --color-surface: #1E1E1E;
+  --color-surface-elevated: #252525;
+  --color-foreground: #E0E0E0;
+  --color-focus-ring: #ff4aa4;
+
+  --color-info-surface: #1d2a3e;
+  --color-info-border: #36527f;
+  --color-info-foreground: #b9d0ff;
+  --color-info-accent: #8cb6ff;
+
+  --color-success-surface: #1d3027;
+  --color-success-border: #315642;
+  --color-success-foreground: #b9e2c8;
+  --color-success-accent: #69cf96;
+
+  --color-warning-surface: #34271d;
+  --color-warning-border: #66472b;
+  --color-warning-foreground: #f4d6aa;
+  --color-warning-accent: #e9b25d;
+
+  --color-error-surface: #391f26;
+  --color-error-border: #74404d;
+  --color-error-foreground: #f6cad4;
+  --color-error-accent: #f28da3;
+
+  --color-support-surface: #232933;
+  --color-support-border: #3b4657;
+  --color-support-foreground: #c6d0e1;
+
+  --color-pivot-start: #0b111a;
+  --color-pivot-end: #17202d;
+
+  --color-map-base: #3b3b3b;
+  --color-map-region-selected: #ff4aa4;
+  --color-map-state-available: #6f3b58;
+  --color-map-state-selected: #ff8ac7;
+  --color-map-stroke: #1E1E1E;
+  --color-tooltip-surface: #0f141d;
+  --color-tooltip-foreground: #f4f4f4;
 }
 
 @utility neon-glow {
@@ -15,4 +99,16 @@
 
 @utility neon-border {
   box-shadow: 0 0 15px rgba(226, 0, 116, 0.4);
+}
+
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@utility subtle-panel {
+  background-color: color-mix(in srgb, var(--color-t-light-gray) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-t-light-gray) 72%, transparent);
 }

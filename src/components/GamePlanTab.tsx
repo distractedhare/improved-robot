@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { SalesContext, SalesScript, AccessoryRecommendation } from '../types';
 import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
 import { EcosystemMatrix } from '../types/ecosystem';
-import { getDemoProductRecs, getCrossDemoPitches, getDemoSection, DemoProductRec } from '../services/ecosystemService';
+import { getDemoProductRecs, getCrossDemoPitches, getDemoSection, getDemoAccessoryRecs, DemoProductRec, DemoAccessoryRec } from '../services/ecosystemService';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -15,7 +15,7 @@ interface GamePlanTabProps {
   script: SalesScript | null;
   loading: boolean;
   selectedGamePlanItems: string[];
-  onGenerate: (e: React.FormEvent) => void;
+  onGenerate: () => void;
   onToggleItem: (item: string) => void;
   onReset: () => void;
   onSwitchToObjections: () => void;
@@ -34,9 +34,10 @@ export default function GamePlanTab({
         exit={{ opacity: 0, y: -10 }}
       >
         <button
+          type="button"
           onClick={onGenerate}
           disabled={loading}
-          className="w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-berry transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-xl shadow-t-magenta/20"
+          className="focus-ring w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-berry transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-xl shadow-t-magenta/20"
         >
           {loading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -84,6 +85,11 @@ export function GamePlanResults({
     return getDemoSection(ecosystemMatrix, context.age);
   }, [ecosystemMatrix, context.age]);
 
+  const demoAccessoryRecs = useMemo(() => {
+    if (!ecosystemMatrix || context.age === 'Not Specified') return [];
+    return getDemoAccessoryRecs(ecosystemMatrix, context.age);
+  }, [ecosystemMatrix, context.age]);
+
   if (!script) return null;
 
   return (
@@ -95,8 +101,9 @@ export function GamePlanResults({
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-black uppercase tracking-tight">Your Game Plan</h2>
         <button
+          type="button"
           onClick={onReset}
-          className="text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest"
+          className="focus-ring text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest rounded"
         >
           <RefreshCw className="w-3 h-3" /> Reset
         </button>
@@ -109,7 +116,7 @@ export function GamePlanResults({
       </div>
 
       {/* Welcome Messages */}
-      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
         </h3>
@@ -119,11 +126,13 @@ export function GamePlanResults({
             return (
               <button
                 key={i}
+                type="button"
                 onClick={() => onToggleItem(msg)}
-                className={`w-full text-left group flex items-start gap-3 p-3 rounded-xl transition-colors border ${
+                aria-pressed={isSelected}
+                className={`focus-ring w-full text-left group flex items-start gap-3 p-3 rounded-xl transition-colors border ${
                   isSelected
                     ? 'bg-t-magenta/10 border-t-magenta shadow-sm'
-                    : 'bg-white border-transparent hover:border-t-light-gray hover:bg-t-light-gray/30'
+                    : 'bg-surface border-transparent hover:border-t-light-gray hover:bg-t-light-gray/30'
                 }`}
               >
                 <div className={`mt-1 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition-colors ${
@@ -146,7 +155,7 @@ export function GamePlanResults({
         <div className="space-y-3">
           {script.smallTalk.length > 0 ? (
             script.smallTalk.map((talk, i) => (
-              <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-white border border-t-magenta/10 shadow-sm hover:shadow-md transition-shadow">
+              <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-surface-elevated border border-t-magenta/10 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
                     {talk.category}
@@ -165,7 +174,7 @@ export function GamePlanResults({
       </div>
 
       {/* Discovery Questions */}
-      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
@@ -175,8 +184,10 @@ export function GamePlanResults({
             return (
               <button
                 key={i}
+                type="button"
                 onClick={() => onToggleItem(q)}
-                className={`text-left p-4 rounded-2xl border text-sm font-bold flex items-start gap-2 transition-all ${
+                aria-pressed={isSelected}
+                className={`focus-ring text-left p-4 rounded-2xl border text-sm font-bold flex items-start gap-2 transition-all ${
                   isSelected
                     ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
                     : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
@@ -195,7 +206,7 @@ export function GamePlanResults({
       </div>
 
       {/* Value Props */}
-      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
@@ -205,8 +216,10 @@ export function GamePlanResults({
             return (
               <button
                 key={i}
+                type="button"
                 onClick={() => onToggleItem(prop)}
-                className={`w-full text-left text-xs p-3 rounded-xl border font-bold transition-all flex items-start gap-2 ${
+                aria-pressed={isSelected}
+                className={`focus-ring w-full text-left text-xs p-3 rounded-xl border font-bold transition-all flex items-start gap-2 ${
                   isSelected
                     ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
                     : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
@@ -222,7 +235,7 @@ export function GamePlanResults({
 
       {/* Demographic Product Recommendations */}
       {demoRecs.length > 0 && demoSection && (
-        <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
@@ -245,8 +258,8 @@ export function GamePlanResults({
                 </div>
               )}
               {crossDemo.tLife && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 border border-blue-100">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-info-surface border border-info-border">
+                  <Sparkles className="w-3.5 h-3.5 text-info-accent mt-0.5 shrink-0" />
                   <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{crossDemo.tLife}</p>
                 </div>
               )}
@@ -255,9 +268,22 @@ export function GamePlanResults({
         </div>
       )}
 
+      {demoAccessoryRecs.length > 0 && demoSection && (
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label}
+          </h3>
+          <div className="space-y-3">
+            {demoAccessoryRecs.map((rec) => (
+              <DemoAccessoryCard key={rec.category} rec={rec} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
-        <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-4">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
             <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch
           </h3>
@@ -281,13 +307,13 @@ export function GamePlanResults({
       )}
 
       {/* Next Steps */}
-      <div className="bg-black rounded-3xl p-6 text-white shadow-xl shadow-black/10">
+      <div className="bg-t-dark-gray rounded-3xl p-6 text-white shadow-xl shadow-black/10 dark:bg-surface-elevated dark:border-2 dark:border-t-light-gray">
         <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-t-magenta" /> Close It Out
         </h3>
         <div className="space-y-3">
           {script.purchaseSteps.map((step, i) => (
-            <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+            <div key={i} className="flex items-center gap-3 bg-surface-elevated/10 p-3 rounded-xl border border-t-light-gray/20">
               <div className="w-1.5 h-1.5 rounded-full bg-t-magenta shrink-0" />
               <p className="text-sm font-black uppercase tracking-tight">{step}</p>
             </div>
@@ -310,8 +336,9 @@ export function GamePlanResults({
 
       <div className="pt-4">
         <button
+          type="button"
           onClick={onSwitchToObjections}
-          className="w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-magenta/90 transition-all shadow-xl shadow-t-magenta/20"
+          className="focus-ring w-full bg-t-magenta text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-magenta/90 transition-all shadow-xl shadow-t-magenta/20"
         >
           <MessageSquare className="w-5 h-5" /> Getting Pushback? Let's Flip It
         </button>
@@ -356,7 +383,7 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
                 {vp.salePrice ? (
                   <>
                     <span className="line-through text-t-dark-gray/40">{vp.fullPrice}</span>
-                    <span className="font-black text-green-600">{vp.salePrice}</span>
+                    <span className="font-black text-success-accent">{vp.salePrice}</span>
                   </>
                 ) : (
                   <span className="font-black text-t-magenta">{vp.fullPrice}</span>
@@ -398,6 +425,27 @@ function DemoRecCard({ rec }: { rec: DemoProductRec }) {
       </div>
       <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug ml-0.5">
         {rec.pitch}
+      </p>
+    </div>
+  );
+}
+
+function DemoAccessoryCard({ rec }: { rec: DemoAccessoryRec }) {
+  return (
+    <div className="bg-t-light-gray/10 border border-t-light-gray rounded-xl p-3 space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+          {rec.category}
+        </span>
+        <span className="text-[10px] text-t-dark-gray/60 font-bold uppercase tracking-wide">
+          {rec.items.join(' • ')}
+        </span>
+      </div>
+      <p className="text-[11px] text-t-dark-gray font-bold leading-snug break-words">
+        {rec.pitch}
+      </p>
+      <p className="text-[10px] text-t-dark-gray/70 font-medium leading-relaxed break-words">
+        {rec.why}
       </p>
     </div>
   );

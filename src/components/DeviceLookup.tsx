@@ -1,8 +1,15 @@
 import { useState, useMemo } from 'react';
-import { Search, Smartphone, Tag, ChevronRight, Star, Zap, Crown, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Search, Tag, Crown, X, Wrench, Zap, Layers } from 'lucide-react';
+import { motion } from 'motion/react';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } from '../data/devices';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
+
+export interface DevicePreset {
+  label: string;
+  deviceNames: string[];
+  icon?: React.ReactNode;
+  primary?: boolean;
+}
 
 interface DeviceLookupProps {
   weeklyData: WeeklyUpdate | null;
@@ -10,27 +17,83 @@ interface DeviceLookupProps {
   onToggleDevice: (device: Device) => void;
   onClearDevices: () => void;
   onFlagshipShowdown: () => void;
+  /** Optional custom device pool — defaults to ALL_DEVICES */
+  devicePool?: Device[];
+  /** Optional custom presets — defaults to phone presets */
+  presets?: DevicePreset[];
+  /** Optional custom filters */
+  filters?: { id: string; label: string }[];
 }
-
-type DeviceFilter = 'all' | 'iphone' | 'samsung' | 'pixel' | 'tablet' | 'watch' | 'other';
 
 const ALL_DEVICES: Device[] = [...PHONES, ...TABLETS, ...WATCHES, ...HOTSPOTS];
 
-// Flagship presets
+// --- Phone presets ---
 export const FLAGSHIP_PHONES: string[] = ['iPhone 17 Pro Max', 'Galaxy S26 Ultra', 'Pixel 10 Pro XL'];
 export const BUDGET_PHONES: string[] = ['iPhone 17e', 'Galaxy A17 5G', 'Pixel 10a'];
 export const FOLDABLES: string[] = ['Galaxy Z Fold7', 'Galaxy Z Flip7', 'Pixel 10 Pro Fold'];
+export const QUIRKY_COUSINS: string[] = ['Samsung Galaxy XCover7 Pro', 'T-Mobile REVVL 8 Pro', 'Motorola moto g 2026'];
+
+// --- Tablet presets ---
+export const FLAGSHIP_TABLETS: string[] = ['iPad Pro 11" (M5)', 'Samsung Galaxy Tab S10+ 5G'];
+export const BUDGET_TABLETS: string[] = ['iPad (A16)', 'Samsung Galaxy Tab A11+ 5G'];
+export const IPAD_LINEUP: string[] = ['iPad (A16)', 'iPad mini (A17 Pro)', 'iPad Air 11" (M4)', 'iPad Pro 11" (M5)'];
+export const GALAXY_TABS: string[] = ['Samsung Galaxy Tab S10+ 5G', 'Samsung Galaxy Tab S10 FE 5G', 'Samsung Galaxy Tab A11+ 5G'];
+
+// --- Watch presets ---
+export const FLAGSHIP_WATCHES: string[] = ['Apple Watch Series 11', 'Samsung Galaxy Watch8 Ultra', 'Pixel Watch 4'];
+export const BUDGET_WATCHES: string[] = ['Apple Watch SE 3', 'Samsung Galaxy Watch8', 'T-Mobile SyncUP KIDS Watch 2'];
+export const ADVENTURE_READY: string[] = ['Apple Watch Ultra 3', 'Samsung Galaxy Watch8 Ultra', 'Samsung Galaxy Ring'];
+
+// Default phone presets
+export const PHONE_PRESETS: DevicePreset[] = [
+  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_PHONES, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
+  { label: 'Budget Battle', deviceNames: BUDGET_PHONES, icon: <Zap className="w-2.5 h-2.5" /> },
+  { label: 'Foldable Face-Off', deviceNames: FOLDABLES, icon: <Layers className="w-2.5 h-2.5" /> },
+  { label: 'Quirky Cousins', deviceNames: QUIRKY_COUSINS, icon: <Wrench className="w-2.5 h-2.5" /> },
+];
+
+export const TABLET_PRESETS: DevicePreset[] = [
+  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_TABLETS, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
+  { label: 'Budget Battle', deviceNames: BUDGET_TABLETS, icon: <Zap className="w-2.5 h-2.5" /> },
+  { label: 'iPad Lineup', deviceNames: IPAD_LINEUP, icon: <Layers className="w-2.5 h-2.5" /> },
+  { label: 'Galaxy Tabs', deviceNames: GALAXY_TABS, icon: <Layers className="w-2.5 h-2.5" /> },
+];
+
+export const WATCH_PRESETS: DevicePreset[] = [
+  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_WATCHES, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
+  { label: 'Budget Battle', deviceNames: BUDGET_WATCHES, icon: <Zap className="w-2.5 h-2.5" /> },
+  { label: 'Adventure Ready', deviceNames: ADVENTURE_READY, icon: <Wrench className="w-2.5 h-2.5" /> },
+];
 
 export function getDevicesByNames(names: string[]): Device[] {
   return names.map(name => ALL_DEVICES.find(d => d.name === name)).filter(Boolean) as Device[];
 }
 
-export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevice, onClearDevices, onFlagshipShowdown }: DeviceLookupProps) {
+const DEFAULT_FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'iphone', label: 'iPhone' },
+  { id: 'samsung', label: 'Samsung' },
+  { id: 'pixel', label: 'Pixel' },
+  { id: 'other', label: 'Other' },
+];
+
+export default function DeviceLookup({
+  selectedDevices,
+  onToggleDevice,
+  onClearDevices,
+  onFlagshipShowdown,
+  devicePool,
+  presets,
+  filters: customFilters,
+}: DeviceLookupProps) {
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<DeviceFilter>('all');
+  const [filter, setFilter] = useState<string>('all');
+  const pool = devicePool || ALL_DEVICES;
+  const activePresets = presets || PHONE_PRESETS;
+  const filters = customFilters || DEFAULT_FILTERS;
 
   const filteredDevices = useMemo(() => {
-    let devices = ALL_DEVICES;
+    let devices = pool;
 
     if (filter !== 'all') {
       devices = devices.filter(d => {
@@ -48,49 +111,38 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
     }
 
     return devices;
-  }, [search, filter]);
-
-  const filters: { id: DeviceFilter; label: string }[] = [
-    { id: 'all', label: 'All' },
-    { id: 'iphone', label: 'iPhone' },
-    { id: 'samsung', label: 'Samsung' },
-    { id: 'pixel', label: 'Pixel' },
-    { id: 'tablet', label: 'Tablets' },
-    { id: 'watch', label: 'Watches' },
-    { id: 'other', label: 'Other' },
-  ];
+  }, [search, filter, pool]);
 
   const isSelected = (device: Device) => selectedDevices.some(d => d.name === device.name);
+
+  const handlePresetClick = (preset: DevicePreset) => {
+    onClearDevices();
+    if (preset.deviceNames === FLAGSHIP_PHONES) {
+      onFlagshipShowdown();
+    } else {
+      getDevicesByNames(preset.deviceNames).forEach(d => onToggleDevice(d));
+    }
+  };
 
   return (
     <div className="space-y-4">
       {/* Quick comparison presets */}
       <div className="flex flex-wrap gap-1.5">
-        <button
-          onClick={onFlagshipShowdown}
-          className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full bg-black text-white hover:bg-t-dark-gray transition-all"
-        >
-          <Crown className="w-2.5 h-2.5 text-amber-400" />
-          Flagship Showdown
-        </button>
-        <button
-          onClick={() => {
-            onClearDevices();
-            getDevicesByNames(BUDGET_PHONES).forEach(d => onToggleDevice(d));
-          }}
-          className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray transition-all"
-        >
-          Budget Battle
-        </button>
-        <button
-          onClick={() => {
-            onClearDevices();
-            getDevicesByNames(FOLDABLES).forEach(d => onToggleDevice(d));
-          }}
-          className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray transition-all"
-        >
-          Foldable Face-Off
-        </button>
+        {activePresets.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            onClick={() => handlePresetClick(preset)}
+            className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${
+              preset.primary
+                ? 'bg-t-dark-gray text-white hover:bg-t-dark-gray/80 dark:bg-surface-elevated dark:text-foreground dark:border dark:border-t-light-gray'
+                : 'bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray'
+            }`}
+          >
+            {preset.icon}
+            {preset.label}
+          </button>
+        ))}
       </div>
 
       {/* Selected devices chips */}
@@ -99,9 +151,11 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
           <span className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/40">Comparing:</span>
           {selectedDevices.map(d => (
             <button
+              type="button"
               key={d.name}
               onClick={() => onToggleDevice(d)}
-              className="flex items-center gap-1 text-[9px] font-black bg-t-magenta/10 text-t-magenta px-2 py-1 rounded-full"
+              aria-pressed={true}
+              className="focus-ring flex items-center gap-1 text-[9px] font-black bg-t-magenta/10 text-t-magenta px-2 py-1 rounded-full"
             >
               {d.name.split(' ').slice(0, 2).join(' ')}
               <X className="w-2.5 h-2.5" />
@@ -109,8 +163,9 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
           ))}
           {selectedDevices.length > 1 && (
             <button
+              type="button"
               onClick={onClearDevices}
-              className="text-[8px] font-black uppercase text-t-dark-gray/40 hover:text-t-magenta transition-colors"
+              className="focus-ring rounded text-[8px] font-black uppercase text-t-dark-gray/40 hover:text-t-magenta transition-colors"
             >
               Clear all
             </button>
@@ -123,29 +178,34 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-dark-gray/40" />
         <input
           type="text"
+          aria-label="Search devices"
           placeholder="Search devices..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white border-2 border-t-light-gray rounded-xl py-3 pl-10 pr-4 text-xs font-bold focus:border-t-magenta/50 focus:outline-none transition-all placeholder:text-t-dark-gray/30"
+          className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-xl py-3 pl-10 pr-4 text-xs font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
         />
       </div>
 
       {/* Filter chips */}
-      <div className="flex flex-wrap gap-1.5">
-        {filters.map(f => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={`text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${
-              filter === f.id
-                ? 'bg-t-magenta text-white shadow-sm'
-                : 'bg-t-light-gray/30 text-t-dark-gray hover:bg-t-light-gray/60'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      {filters.length > 1 && (
+        <div className="flex flex-wrap gap-1.5">
+          {filters.map(f => (
+            <button
+              type="button"
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              aria-pressed={filter === f.id}
+              className={`text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${
+                filter === f.id
+                  ? 'focus-ring bg-t-magenta text-white shadow-sm'
+                  : 'focus-ring bg-t-light-gray/30 text-t-dark-gray hover:bg-t-light-gray/60'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Device list */}
       <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
@@ -154,12 +214,14 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
 
           return (
             <button
+              type="button"
               key={i}
               onClick={() => onToggleDevice(device)}
-              className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+              aria-pressed={selected}
+              className={`focus-ring w-full text-left p-3 rounded-xl border-2 transition-all ${
                 selected
                   ? 'border-t-magenta bg-t-magenta/5 shadow-md'
-                  : 'border-t-light-gray bg-white hover:border-t-magenta/30'
+                  : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -172,7 +234,7 @@ export default function DeviceLookup({ weeklyData, selectedDevices, onToggleDevi
                     </div>
                     <span className="text-xs font-black text-t-dark-gray truncate">{device.name}</span>
                   </div>
-                  <p className="text-[10px] text-t-dark-gray/60 font-medium mt-1 ml-6 line-clamp-1">
+                  <p className="text-[10px] text-t-dark-gray/60 font-medium mt-1 ml-6 line-clamp-2">
                     {device.keySpecs}
                   </p>
                   <div className="flex items-center gap-2 mt-1.5 ml-6">
@@ -204,15 +266,15 @@ export function DeviceComparison({ devices, weeklyData }: { devices: Device[]; w
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="bg-black rounded-2xl p-4 text-white">
+      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">Side-by-Side Comparison</p>
         <p className="text-sm font-black">{devices.map(d => d.name).join(' vs ')}</p>
       </div>
 
       {/* Comparison table */}
-      <div className="bg-white rounded-2xl border-2 border-t-light-gray overflow-hidden">
+      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="min-w-[560px] w-full text-xs">
             <thead>
               <tr className="border-b border-t-light-gray">
                 <th className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 w-24">Feature</th>
@@ -263,7 +325,7 @@ export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyDat
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border-2 border-t-light-gray p-4 space-y-3"
+      className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 space-y-3"
     >
       <div className="flex items-start justify-between">
         <div>
@@ -278,12 +340,12 @@ export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyDat
 
       {/* Weekly promos only — no stale static promos */}
       {weeklyPromos.length > 0 && (
-        <div className="bg-green-50 rounded-xl border border-green-200 p-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-green-700 mb-2 flex items-center gap-1">
+        <div className="bg-success-surface rounded-xl border border-success-border p-3">
+          <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2 flex items-center gap-1">
             <Tag className="w-2.5 h-2.5" /> This Week's Deals
           </p>
           {weeklyPromos.map((promo, i) => (
-            <p key={i} className="text-xs text-green-800 font-bold">{promo.name}: {promo.details}</p>
+            <p key={i} className="text-xs text-success-foreground font-bold">{promo.name}: {promo.details}</p>
           ))}
         </div>
       )}
@@ -293,8 +355,14 @@ export function DeviceDetail({ device, weeklyData }: { device: Device; weeklyDat
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">Selling Points</p>
         <SellingPoint text={`Released ${device.released}`} />
         <SellingPoint text={device.keySpecs} />
+        {device.sellingNotes && (
+          <div className="bg-t-magenta/5 rounded-lg border border-t-magenta/15 p-2.5 mt-1">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta/70 mb-1">💡 Selling Notes</p>
+            <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">{device.sellingNotes}</p>
+          </div>
+        )}
         {(device.category === 'watch' || device.category === 'tablet') && (
-          <SellingPoint text={`Connected line: $${CONNECTED_DEVICE_INFO.pricePerMonth}/mo on Experience Beyond`} />
+          <SellingPoint text={`Connected line: $${device.category === 'watch' ? CONNECTED_DEVICE_INFO.plans.wearableLine.price : CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo`} />
         )}
         {['iphone', 'samsung', 'pixel'].includes(device.category) && (
           <SellingPoint text="Trade-in: We accept devices in ANY condition — up to $1,100 credit" />

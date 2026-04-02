@@ -1,4 +1,12 @@
-import { EcosystemMatrix, DemographicKey, DemographicSection, SupportAccessoryItem } from '../types/ecosystem';
+import {
+  EcosystemMatrix,
+  DemographicKey,
+  DemographicSection,
+  SupportAccessoryItem,
+  AccessoryCategoryEntry,
+  DeviceEntry,
+  IoTEntry,
+} from '../types/ecosystem';
 import { selectVariation } from './rotationService';
 
 let cached: EcosystemMatrix | null = null;
@@ -97,27 +105,22 @@ export function productToCategories(products: string[]): ProductCategory[] {
     switch (p) {
       case 'Phone':
         categories.add('smartphones');
-        categories.add('accessories');
         break;
       case 'Home Internet':
         categories.add('iotProducts');
-        categories.add('accessories');
         break;
       case 'BTS':
         categories.add('tablets');
         categories.add('wearables');
-        categories.add('accessories');
         break;
       case 'IOT':
         categories.add('iotProducts');
-        categories.add('accessories');
         break;
       case 'No Specific Product':
         categories.add('smartphones');
         categories.add('tablets');
         categories.add('wearables');
         categories.add('iotProducts');
-        categories.add('accessories');
         break;
     }
   }
@@ -128,6 +131,21 @@ export interface DemoProductRec {
   name: string;
   pitch: string;
   category: ProductCategory;
+}
+
+export interface DemoAccessoryRec {
+  category: string;
+  items: string[];
+  why: string;
+  pitch: string;
+}
+
+type ProductEntry = DeviceEntry | IoTEntry | AccessoryCategoryEntry;
+
+function getEntryName(item: ProductEntry): string {
+  if ('device' in item) return item.device;
+  if ('product' in item) return item.product;
+  return item.category;
 }
 
 /**
@@ -149,7 +167,7 @@ export function getDemoProductRecs(
     if (!items) continue;
 
     for (const item of items) {
-      const name = 'device' in item ? (item as any).device : ('product' in item ? (item as any).product : (item as any).category);
+      const name = getEntryName(item);
       const pitchKey = `${age}-${name}`;
       const pitch = selectVariation(pitchKey, [...item.pitchVariations]);
       recs.push({ name, pitch, category: cat });
@@ -157,6 +175,24 @@ export function getDemoProductRecs(
   }
 
   return recs;
+}
+
+/**
+ * Get demographic-filtered accessory category recommendations with rotated pitches.
+ */
+export function getDemoAccessoryRecs(
+  matrix: EcosystemMatrix,
+  age: string
+): DemoAccessoryRec[] {
+  const section = getDemoSection(matrix, age);
+  if (!section) return [];
+
+  return section.accessories.map((item) => ({
+    category: item.category,
+    items: item.items,
+    why: item.why,
+    pitch: selectVariation(`${age}-accessory-${item.category}`, [...item.pitchVariations]),
+  }));
 }
 
 /**

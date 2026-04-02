@@ -224,7 +224,7 @@ export function buildPromptContext(context: SalesContext): string {
   const isSupport = ['order support', 'tech support', 'account support'].includes(context.purchaseIntent);
   if (context.product.includes('BTS') || context.product.includes('IOT') || isSupport) {
     sections.push(`\n=== CONNECTED DEVICES & IOT (ADD-ON OPPORTUNITIES) ===`);
-    sections.push(`Connected device lines: $${CONNECTED_DEVICE_INFO.pricePerMonth}/mo on Experience Beyond. ${CONNECTED_DEVICE_INFO.installmentTerms}. $${CONNECTED_DEVICE_INFO.deviceConnectionCharge} connection charge.`);
+    sections.push(`Connected device lines: Wearable $${CONNECTED_DEVICE_INFO.plans.wearableLine.price}/mo, Tablet $${CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo, Tracker $${CONNECTED_DEVICE_INFO.plans.syncUpTracker.price}/mo. ${CONNECTED_DEVICE_INFO.installmentTerms}. $${CONNECTED_DEVICE_INFO.deviceConnectionCharge} connection charge.`);
     sections.push(`WATCHES: Galaxy Watch8 FREE with wearable line. Apple Watch SE 3 $200 off. Apple Watch Series 11 BOGO $300 off.`);
     sections.push(`TABLETS: iPad (A16) up to $400 off. Galaxy Tab A11+ FREE with S26 + tablet line. Galaxy Tab S10 FE $275-300 off.`);
     sections.push(`TRACKERS: SyncUP Tracker = real GPS on cellular (not Bluetooth). SyncUP DRIVE = car GPS + diagnostics + speed alerts.`);

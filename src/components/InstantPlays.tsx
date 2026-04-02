@@ -1,10 +1,9 @@
-import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Home, Zap, Tag, AlertTriangle, ChevronRight, Headphones, CreditCard, ChevronDown, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
-import { useMemo } from 'react';
-
-type Intent = 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { ESSENTIALS_TABLE, BIG_ADDS, getRecommendedCategories, Intent } from '../data/essentialAccessories';
 
 interface InstantPlaysProps {
   intent: Intent;
@@ -14,54 +13,7 @@ interface InstantPlaysProps {
 
 // Always-on reminder — HINT check on every call
 const ALWAYS_ON_REMINDERS = [
-  { icon: Home, text: 'Check the address for Home Internet — every call', color: 'text-blue-600' },
-];
-
-// Essential accessories pricing table for sales intents
-const ESSENTIALS_TABLE = [
-  { category: 'Cases', items: [
-    { name: 'Tech21 EvoLite w/ MagSafe', price: '$39.99', bundle: '~$30.00' },
-    { name: 'Tech21 EvoClear w/ MagSafe', price: '$49.99', bundle: '~$37.50' },
-    { name: 'ZAGG Crystal Palace Snap w/ Kickstand', price: '$54.99', bundle: '~$41.25' },
-    { name: 'ZAGG Rainier Snap w/ Kickstand', price: '$69.99', bundle: '~$52.50' },
-    { name: 'GoTo Flex Case (Galaxy A16)', price: '$9.97', originalPrice: '$19.99', bundle: null },
-  ]},
-  { category: 'Screen Protectors', items: [
-    { name: 'ZAGG Glass Elite (standard)', price: '$44.99', bundle: '~$33.75' },
-    { name: 'ZAGG Glass Elite Privacy 360 (iPhone)', price: '$59.99', bundle: '~$45.00' },
-  ]},
-  { category: 'Chargers + Cables', items: [
-    { name: 'Samsung 25W Power Adapter', price: '$19.99', bundle: '~$15.00' },
-    { name: 'Samsung 45W Power Adapter', price: '$39.99', bundle: '~$30.00' },
-    { name: 'Samsung USB-C Cable (1m)', price: '$19.99', bundle: '~$15.00' },
-    { name: 'Samsung USB-C Cable (1.8m)', price: '$24.99', bundle: '~$18.75' },
-    { name: 'Samsung Ultimate Charging Bundle', price: '$69.99', bundle: '~$52.50' },
-  ]},
-  { category: 'Wireless Chargers', items: [
-    { name: 'mophie 15W Wireless Charging Pad', price: '$39.99', bundle: '~$30.00' },
-    { name: 'Apple MagSafe Charger (2m)', price: '$49.99', bundle: '~$37.50' },
-  ]},
-  { category: 'Camera Protectors', items: [
-    { name: 'ZAGG Camera Protector (S26 Ultra)', price: '$24.99', bundle: '~$18.75' },
-    { name: 'ZAGG Camera Protector (S26+)', price: '$24.99', bundle: '~$18.75' },
-  ]},
-  { category: 'Car Mounts', items: [
-    { name: 'iOttie Qi2 Mini Wireless Charging Car Mount', price: '$54.95', bundle: '~$41.21' },
-  ]},
-  { category: 'Grips', items: [
-    { name: 'PopSockets PopGrip for MagSafe', price: '$29.99', bundle: '~$22.50' },
-  ]},
-  { category: 'Battery Packs', items: [
-    { name: 'Samsung Magnetic Battery', price: '$64.99', bundle: '~$48.75' },
-  ]},
-];
-
-const BIG_ADDS = [
-  { name: 'AirPods 4', price: '$129.99', note: 'No bundle discount' },
-  { name: 'Galaxy Buds4', price: '$179.99', note: 'No bundle discount' },
-  { name: 'AirPods Pro 3', price: '$249.99', note: 'No bundle discount' },
-  { name: 'Backbone One Controller', price: '$99.99', note: 'Gen Z / gamers' },
-  { name: 'Ray-Ban Meta Wayfarer (Transitions)', price: '$379.99', note: 'Tech-forward / social media' },
+  { icon: Home, text: 'Check the address for Home Internet — every call', color: 'text-info-accent' },
 ];
 
 // Intent-specific play content
@@ -198,7 +150,7 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
       </div>
 
       {/* Intent header */}
-      <div className="bg-white rounded-2xl border-2 border-t-light-gray p-5 shadow-sm">
+      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs text-t-dark-gray/70 font-medium italic">{plays.subtitle}</p>
         <div className="mt-3 bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
@@ -209,7 +161,7 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
       </div>
 
       {/* Plays */}
-      <div className="bg-white rounded-2xl border-2 border-t-light-gray p-5 shadow-sm space-y-2.5">
+      <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-5 shadow-sm space-y-2.5">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Plays</p>
         {plays.plays.map((play, i) => (
           <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-t-light-gray/20 border border-t-light-gray/50">
@@ -221,12 +173,12 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
 
       {/* Pivots */}
       {plays.pivots.length > 0 && (
-        <div className="bg-blue-50 rounded-2xl border-2 border-blue-100 p-5 space-y-2.5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-blue-600">Pivot opportunities</p>
+        <div className="bg-info-surface rounded-2xl border-2 border-info-border p-5 space-y-2.5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Pivot opportunities</p>
           {plays.pivots.map((pivot, i) => (
             <div key={i} className="flex items-start gap-2.5">
-              <Zap className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-blue-800 font-medium leading-snug">{pivot}</p>
+              <Zap className="w-3.5 h-3.5 text-info-accent mt-0.5 shrink-0" />
+              <p className="break-words text-[11px] text-info-foreground font-medium leading-snug">{pivot}</p>
             </div>
           ))}
         </div>
@@ -234,12 +186,12 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
 
       {/* Watch outs */}
       {plays.watchouts && plays.watchouts.length > 0 && (
-        <div className="bg-amber-50 rounded-2xl border-2 border-amber-100 p-5 space-y-2.5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-amber-700">Watch out</p>
+        <div className="bg-warning-surface rounded-2xl border-2 border-warning-border p-5 space-y-2.5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground">Watch out</p>
           {plays.watchouts.map((w, i) => (
             <div key={i} className="flex items-start gap-2.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-amber-800 font-medium leading-snug">{w}</p>
+              <AlertTriangle className="w-3.5 h-3.5 text-warning-accent mt-0.5 shrink-0" />
+              <p className="break-words text-[11px] text-warning-foreground font-medium leading-snug">{w}</p>
             </div>
           ))}
         </div>
@@ -254,22 +206,27 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
               <p className="text-xs font-black uppercase tracking-wider">The Accessories Play</p>
             </div>
             <p className="text-[11px] font-medium opacity-90">
-              Any 3+ items from the Essential Accessories collection = <strong>25% off the bundle.</strong> Lock that in, then swing for a bigger item.
+              {intent === 'exploring'
+                ? 'They\'re still deciding on a device — but you can plant the seed now. Mention the bundle discount early so accessories feel like part of the deal, not an afterthought.'
+                : intent === 'ready to buy'
+                ? 'They\'re already committed. This is your best window to layer on accessories — they\'re in buying mode. Bundle 3+ essentials for 25% off and pitch it as part of the setup.'
+                : 'New device or new line = fresh start. They\'ll need a case, a charger, protection. Position the bundle as "everything you need to walk out ready." 3+ essentials = 25% off.'
+              }
             </p>
           </div>
 
           {/* Bundle plays */}
-          <div className="bg-green-50 rounded-2xl border-2 border-green-100 p-4 space-y-3">
-            <p className="text-[9px] font-black uppercase tracking-widest text-green-700">Quick bundle plays</p>
+          <div className="bg-success-surface rounded-2xl border-2 border-success-border p-4 space-y-3">
+            <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Quick bundle plays</p>
             <div className="space-y-2">
-              <div className="bg-white rounded-xl p-3 border border-green-200">
-                <p className="text-[9px] font-black text-green-700 uppercase tracking-wider mb-1">Cheapest bundle (under $50)</p>
+              <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
+                <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Cheapest bundle (under $50)</p>
                 <p className="text-[10px] text-t-dark-gray font-medium">
                   Samsung 25W charger ($19.99) + USB-C cable ($19.99) + ZAGG Camera Protector ($24.99) = <strong>$64.97 → ~$48.73 with 25% off.</strong>
                 </p>
               </div>
-              <div className="bg-white rounded-xl p-3 border border-green-200">
-                <p className="text-[9px] font-black text-green-700 uppercase tracking-wider mb-1">Balanced bundle (solid ticket)</p>
+              <div className="bg-surface-elevated rounded-xl p-3 border border-success-border">
+                <p className="text-[9px] font-black text-success-foreground uppercase tracking-wider mb-1">Balanced bundle (solid ticket)</p>
                 <p className="text-[10px] text-t-dark-gray font-medium">
                   Tech21 EvoLite case ($39.99) + ZAGG Glass Elite ($44.99) + Samsung 25W charger ($19.99) = <strong>$104.97 → ~$78.73 with 25% off.</strong>
                 </p>
@@ -277,55 +234,11 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
             </div>
           </div>
 
-          {/* Essentials pricing table */}
-          <div className="bg-white rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Essentials — Bundle-eligible (25% off w/ 3+)</p>
-            </div>
-            <div className="space-y-4">
-              {ESSENTIALS_TABLE.map((cat) => (
-                <div key={cat.category}>
-                  <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1.5">{cat.category}</p>
-                  <div className="space-y-1">
-                    {cat.items.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-t-light-gray/20 text-[10px]">
-                        <span className="font-medium text-t-dark-gray">{item.name}</span>
-                        <div className="flex items-center gap-3 shrink-0">
-                          {'originalPrice' in item && item.originalPrice ? (
-                            <>
-                              <span className="line-through text-t-dark-gray/40">{item.originalPrice}</span>
-                              <span className="font-bold text-green-600">{item.price}</span>
-                            </>
-                          ) : (
-                            <span className="font-bold text-t-dark-gray">{item.price}</span>
-                          )}
-                          {item.bundle && (
-                            <span className="font-bold text-t-magenta">{item.bundle}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Essentials — collapsible categories */}
+          <EssentialsAccordion intent={intent} age={age} />
 
           {/* Big adds */}
-          <div className="bg-white rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Then swing for the big add</p>
-            <div className="space-y-1">
-              {BIG_ADDS.map((item, i) => (
-                <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-t-light-gray/20 text-[10px]">
-                  <div>
-                    <span className="font-bold text-t-dark-gray">{item.name}</span>
-                    <span className="text-t-dark-gray/50 ml-2">{item.note}</span>
-                  </div>
-                  <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <BigAddsSection age={age} />
 
           <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
             <p className="text-[10px] text-t-magenta font-bold">
@@ -337,12 +250,12 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
 
       {/* Support intent: premium accessory awareness card */}
       {isSupportCall && supportAccessory && (
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 p-4 space-y-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+        <div className="bg-support-surface rounded-2xl border-2 border-support-border p-4 space-y-3">
+          <p className="text-[9px] font-black uppercase tracking-widest text-support-foreground flex items-center gap-1.5">
             <Headphones className="w-3 h-3" />
             After you've helped them:
           </p>
-          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <div className="bg-surface-elevated rounded-xl p-4 border border-support-border shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1.5 flex-1">
                 <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
@@ -350,15 +263,15 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
               </div>
               <div className="text-right shrink-0">
                 <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
-                <p className="text-[9px] font-bold text-green-600">{supportAccessory.item.commission}</p>
+                <p className="text-[9px] font-bold text-success-accent">{supportAccessory.item.commission}</p>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5">
+            <div className="mt-3 pt-2.5 border-t border-support-border flex items-center gap-1.5">
               <CreditCard className="w-3 h-3 text-t-magenta shrink-0" />
               <p className="text-[9px] text-t-dark-gray/60 font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
             </div>
           </div>
-          <p className="text-[9px] text-slate-400 font-medium italic">{supportAccessory.item.naturalTransition}</p>
+          <p className="text-[9px] text-support-foreground font-medium italic">{supportAccessory.item.naturalTransition}</p>
         </div>
       )}
 
@@ -376,5 +289,146 @@ export default function InstantPlays({ intent, age, ecosystemMatrix }: InstantPl
         Prices verified as of March 2026. Always confirm current pricing in PromoHub before quoting.
       </p>
     </motion.div>
+  );
+}
+
+// --- Collapsible Essentials Accordion ---
+
+function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) {
+  const recommended = useMemo(() => getRecommendedCategories(intent, age), [intent, age]);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(recommended));
+
+  // Re-open recommended categories when intent/age changes
+  useEffect(() => {
+    setExpanded(new Set(recommended));
+  }, [recommended]);
+
+  const toggle = useCallback((id: string) => {
+    setExpanded(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  return (
+    <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray shadow-sm overflow-hidden">
+      <div className="px-4 pt-4 pb-2">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
+          Essentials — Bundle-eligible (25% off w/ 3+)
+        </p>
+      </div>
+      <div className="divide-y divide-t-light-gray/50">
+        {ESSENTIALS_TABLE.map((cat) => {
+          const isOpen = expanded.has(cat.id);
+          const isRec = recommended.includes(cat.id);
+          return (
+            <div key={cat.id}>
+              <button
+                type="button"
+                onClick={() => toggle(cat.id)}
+                aria-expanded={isOpen}
+                className="focus-ring w-full flex items-center justify-between px-4 py-2.5 hover:bg-t-light-gray/20 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <p className={`text-[9px] font-black uppercase tracking-wider ${isRec ? 'text-t-magenta' : 'text-t-dark-gray/70'}`}>
+                    {cat.category}
+                  </p>
+                  {isRec && (
+                    <span className="text-[7px] font-black uppercase tracking-wider bg-t-magenta/10 text-t-magenta px-1.5 py-0.5 rounded-full">
+                      Recommended
+                    </span>
+                  )}
+                  <span className="text-[8px] text-t-dark-gray/40 font-medium">{cat.items.length} items</span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-3 space-y-1.5">
+                      {cat.items.map((item, i) => (
+                        <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="font-bold text-t-dark-gray">{item.name}</span>
+                            <div className="flex items-center gap-3 shrink-0">
+                              {'originalPrice' in item && item.originalPrice ? (
+                                <>
+                                  <span className="line-through text-t-dark-gray/40">{item.originalPrice}</span>
+                                  <span className="font-bold text-success-accent">{item.price}</span>
+                                </>
+                              ) : item.bundle ? (
+                                <span className="text-t-dark-gray/40 line-through">{item.price}</span>
+                              ) : (
+                                <span className="font-bold text-t-dark-gray">{item.price}</span>
+                              )}
+                              {item.bundle && (
+                                <>
+                                  <span className="font-bold text-success-accent">{item.bundle}</span>
+                                  <span className="text-[10px] font-semibold text-success-foreground">w/ bundle</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {item.worksWith && (
+                            <div className="flex gap-1 mt-1">
+                              {item.worksWith.map((eco) => (
+                                <span key={eco} className="text-[7px] font-black uppercase tracking-wider bg-t-light-gray/30 text-t-dark-gray/60 px-1 py-0.5 rounded">{eco}</span>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
+                          <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// --- Big Adds with age-based highlighting ---
+
+function BigAddsSection({ age }: { age?: string }) {
+  const ageKey = age && age !== 'Not Specified' ? age : null;
+
+  return (
+    <div className="bg-surface-elevated rounded-2xl border-2 border-t-light-gray p-4 shadow-sm">
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Then swing for the big add</p>
+      <div className="space-y-2">
+        {BIG_ADDS.map((item, i) => {
+          const highlighted = ageKey && item.bestFor?.includes(ageKey);
+          return (
+            <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-t-dark-gray">{item.name}</span>
+                  <span className="text-t-dark-gray/50">{item.note}</span>
+                  {highlighted && (
+                    <Star className="w-2.5 h-2.5 text-t-magenta fill-t-magenta" />
+                  )}
+                </div>
+                <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
+              </div>
+              <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
+              <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

@@ -1,18 +1,24 @@
-import { PhoneCall, UserPlus, Sparkles, Zap, BookOpen } from 'lucide-react';
+import { PhoneCall, UserPlus, Zap, BookOpen, Trophy, Moon, Sun } from 'lucide-react';
 
-export type AppMode = 'live' | 'learn';
+export type AppMode = 'live' | 'learn' | 'level-up';
 
 interface HeaderProps {
   onReset: () => void;
-  onDemoClick: () => void;
   mode: AppMode;
+  darkMode: boolean;
+  onToggleDarkMode: () => void;
   onModeChange: (mode: AppMode) => void;
 }
 
-export default function Header({ onReset, onDemoClick, mode, onModeChange }: HeaderProps) {
+export default function Header({ onReset, mode, darkMode, onToggleDarkMode, onModeChange }: HeaderProps) {
+  const handleNewCall = () => {
+    onReset();
+    if (mode !== 'live') onModeChange('live');
+  };
+
   return (
     <header
-      className="bg-white border-b border-t-light-gray px-4 md:px-6 pb-3 sticky top-0 z-10"
+      className="border-b border-t-light-gray px-4 md:px-6 pb-3 sticky top-0 z-10 bg-surface"
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
@@ -30,11 +36,24 @@ export default function Header({ onReset, onDemoClick, mode, onModeChange }: Hea
 
         {/* Mode toggle + Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Live / Learn toggle */}
-          <div className="flex bg-t-light-gray/30 rounded-full p-0.5 border border-t-light-gray">
+          {/* Dark mode toggle */}
+          <button
+            type="button"
+            onClick={onToggleDarkMode}
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="focus-ring p-1.5 rounded-full transition-all text-t-dark-gray/50 hover:bg-t-light-gray/50"
+            title={darkMode ? 'Light mode' : 'Dark mode'}
+          >
+            {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Live / Learn / Level Up toggle */}
+          <div className="flex rounded-full p-0.5 border bg-t-light-gray/30 border-t-light-gray">
             <button
+              type="button"
               onClick={() => onModeChange('live')}
-              className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full transition-all ${
+              aria-pressed={mode === 'live'}
+              className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full transition-all ${
                 mode === 'live'
                   ? 'bg-t-magenta text-white shadow-sm'
                   : 'text-t-dark-gray/60 hover:text-t-dark-gray'
@@ -44,35 +63,42 @@ export default function Header({ onReset, onDemoClick, mode, onModeChange }: Hea
               Live
             </button>
             <button
+              type="button"
               onClick={() => onModeChange('learn')}
-              className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full transition-all ${
+              aria-pressed={mode === 'learn'}
+              className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full transition-all ${
                 mode === 'learn'
-                  ? 'bg-black text-white shadow-sm'
+                  ? 'bg-t-dark-gray text-white shadow-sm dark:bg-surface-elevated dark:text-foreground dark:border dark:border-t-light-gray'
                   : 'text-t-dark-gray/60 hover:text-t-dark-gray'
               }`}
             >
               <BookOpen className="w-2.5 h-2.5" />
               Learn
             </button>
+            <button
+              type="button"
+              onClick={() => onModeChange('level-up')}
+              aria-pressed={mode === 'level-up'}
+              className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full transition-all ${
+                mode === 'level-up'
+                  ? 'bg-t-berry text-white shadow-sm'
+                  : 'text-t-dark-gray/60 hover:text-t-dark-gray'
+              }`}
+            >
+              <Trophy className="w-2.5 h-2.5" />
+              Level Up
+            </button>
           </div>
 
-          {mode === 'learn' ? (
-            <button
-              onClick={onDemoClick}
-              className="flex items-center gap-1.5 text-[10px] font-black text-white bg-black px-3 md:px-4 py-2 rounded-full hover:bg-t-dark-gray transition-all uppercase tracking-widest shadow-sm"
-            >
-              <Sparkles className="w-3 h-3" />
-              <span className="hidden sm:inline">Demo</span>
-            </button>
-          ) : (
-            <button
-              onClick={onReset}
-              className="flex items-center gap-1.5 text-[10px] font-black text-t-dark-gray bg-white px-3 md:px-4 py-2 rounded-full border-2 border-t-light-gray hover:border-t-magenta/50 hover:text-t-magenta transition-all uppercase tracking-widest shadow-sm"
-            >
-              <UserPlus className="w-3 h-3" />
-              <span className="hidden sm:inline">New Call</span>
-            </button>
-          )}
+          {/* New Call — always visible, clears state and switches to Live */}
+          <button
+            type="button"
+            onClick={handleNewCall}
+            className="focus-ring flex items-center gap-1.5 text-[10px] font-black px-3 md:px-4 py-2 rounded-full border-2 transition-all uppercase tracking-widest shadow-sm text-t-dark-gray bg-surface-elevated border-t-light-gray hover:border-t-magenta/50 hover:text-t-magenta"
+          >
+            <UserPlus className="w-3 h-3" />
+            <span className="hidden sm:inline">New Call</span>
+          </button>
         </div>
       </div>
     </header>

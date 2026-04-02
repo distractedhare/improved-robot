@@ -26,15 +26,20 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-3xl border-2 border-t-light-gray shadow-2xl max-w-lg w-full p-6 z-10"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-modal-title"
+            className="relative bg-surface-elevated rounded-3xl border-2 border-t-light-gray shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 z-10"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-black uppercase tracking-tight">
+              <h2 id="demo-modal-title" className="text-xl font-black uppercase tracking-tight">
                 Run a <span className="text-t-magenta">Practice</span> Scenario
               </h2>
               <button
+                type="button"
                 onClick={onClose}
-                className="text-t-dark-gray hover:text-t-magenta transition-colors"
+                aria-label="Close demo scenarios"
+                className="focus-ring text-t-dark-gray hover:text-t-magenta transition-colors rounded"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -44,11 +49,12 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
               {DEMO_SCENARIOS.map((scenario) => (
                 <button
                   key={scenario.name}
+                  type="button"
                   onClick={() => {
                     onSelectScenario(scenario);
                     onClose();
                   }}
-                  className="w-full text-left p-4 rounded-2xl border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group"
+                  className="focus-ring w-full text-left p-4 rounded-2xl border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">{scenario.emoji}</span>

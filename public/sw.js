@@ -1,4 +1,4 @@
-const CACHE_NAME = 'customerconnect-v5';
+const CACHE_NAME = 'customerconnect-v6';
 
 // On install, cache static shell assets (not index.html — that uses network-first)
 self.addEventListener('install', (event) => {
@@ -7,6 +7,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll([
         '/manifest.json',
         '/weekly-update.json',
+        '/device-ecosystem-matrix.json',
         '/states-10m.json',
         '/icon-192.svg',
         '/icon-512.svg',
@@ -75,8 +76,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // weekly-update.json — network first so updates propagate
-  if (url.pathname === '/weekly-update.json') {
+  // Time-sensitive JSON — network first so updates propagate
+  if (url.pathname === '/weekly-update.json' || url.pathname === '/device-ecosystem-matrix.json') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {

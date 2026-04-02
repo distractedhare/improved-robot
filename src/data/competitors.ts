@@ -83,6 +83,25 @@ export const COMPETITORS: Record<string, Competitor> = {
     salesPositioning: 'T-Mobile wins: No ISP bundling requirement, available nationwide, priority data on own network, better perks (Netflix, Apple TV+), nationwide retail stores, better international roaming, better 5G.',
   },
 
+  'US Cellular': {
+    name: 'US Cellular',
+    plans: [
+      { name: 'Everyday', singleLine: '~$50', fourLinePer: '~$30-35', priorityData: 'Varies', hotspot: 'Limited', streamingPerks: 'None' },
+      { name: 'Even Better', singleLine: '~$70', fourLinePer: '~$45', priorityData: 'Higher-tier priority', hotspot: '15GB+', streamingPerks: 'None' },
+    ],
+    vulnerabilities: [
+      'Migration pressure is the biggest opening right now — customers being moved over are in a rare window where they can still grab aggressive new-customer style deals instead of waiting to be repriced later',
+      'No meaningful streaming bundle value compared with T-Mobile\'s included Netflix, Hulu, and Apple TV+ savings',
+      'Smaller device lineup and ecosystem depth than T-Mobile, especially for watches, tablets, and connected add-ons',
+      'Network scale and nationwide 5G story do not match T-Mobile\'s footprint, especially once customers travel outside legacy US Cellular markets',
+    ],
+    counterPoints: [
+      'Long-time local-store relationships still matter to some rural customers',
+      'Some customers associate the brand with dependable regional coverage in legacy markets',
+    ],
+    salesPositioning: 'T-Mobile wins: migration deals, broader 5G footprint, richer streaming perks, stronger device promos, and deeper ecosystem add-ons. Position the move as upgrading the whole experience, not just changing the logo on the bill.',
+  },
+
   'Spectrum': {
     name: 'Spectrum Mobile',
     plans: [

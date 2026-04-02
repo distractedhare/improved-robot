@@ -1,4 +1,4 @@
-import { ShoppingBag, MessageSquare, DollarSign, ChevronRight } from 'lucide-react';
+import { ShoppingBag, MessageSquare, DollarSign } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
@@ -8,8 +8,8 @@ interface AccessoryPitchBuilderProps {
 }
 
 const MARGIN_COLORS = {
-  high: { bg: 'bg-green-100', text: 'text-green-700', label: '$$$ Earner' },
-  medium: { bg: 'bg-amber-100', text: 'text-amber-700', label: '$$ Solid' },
+  high: { bg: 'bg-success-surface', text: 'text-success-foreground', label: '$$$ Earner' },
+  medium: { bg: 'bg-warning-surface', text: 'text-warning-foreground', label: '$$ Solid' },
   low: { bg: 'bg-t-light-gray/50', text: 'text-t-dark-gray/60', label: '$ Low' },
 };
 
@@ -50,7 +50,7 @@ export default function AccessoryPitchBuilder({ device }: AccessoryPitchBuilderP
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="bg-black rounded-2xl p-4 text-white">
+      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">Accessory Pitch Builder</p>
         <p className="text-sm font-black">{device.name}</p>
         <p className="text-[10px] text-white/60 font-medium mt-1">
@@ -95,7 +95,7 @@ function AccessoryCard({ accessory }: { accessory: AccessoryPitch }) {
   const margin = MARGIN_COLORS[accessory.margin];
 
   return (
-    <div className="bg-white rounded-xl border-2 border-t-light-gray p-4 hover:border-t-magenta/30 transition-all">
+    <div className="bg-surface-elevated rounded-xl border-2 border-t-light-gray p-4 hover:border-t-magenta/30 transition-all">
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>
@@ -107,8 +107,8 @@ function AccessoryCard({ accessory }: { accessory: AccessoryPitch }) {
           </div>
         </div>
         <DollarSign className={`w-4 h-4 shrink-0 ${
-          accessory.margin === 'high' ? 'text-green-500' :
-          accessory.margin === 'medium' ? 'text-amber-500' :
+          accessory.margin === 'high' ? 'text-success-accent' :
+          accessory.margin === 'medium' ? 'text-warning-accent' :
           'text-t-dark-gray/30'
         }`} />
       </div>

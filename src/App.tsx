@@ -4,16 +4,16 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, Smartphone, Newspaper, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
-import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal } from './services/localGenerationService';
+import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
+import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGenerated } from './services/sessionTracker';
 import { DemoScenario } from './constants/demoScenarios';
-import { Device } from './data/devices';
 import { AppMode } from './components/Header';
 
 import Header from './components/Header';
@@ -21,10 +21,9 @@ import CustomerContextForm from './components/CustomerContextForm';
 import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
-import DemoModal from './components/DemoModal';
-import DailyBriefing from './components/DailyBriefing';
-import DeviceLookup, { DeviceComparison, getDevicesByNames, FLAGSHIP_PHONES } from './components/DeviceLookup';
-import AccessoryPitchBuilder from './components/AccessoryPitchBuilder';
+import SessionStats from './components/SessionStats';
+import LevelUpView from './components/levelup/LevelUpView';
+import LearnView from './components/learn/LearnView';
 
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
@@ -44,36 +43,47 @@ export default function App() {
   const [analyzing, setAnalyzing] = useState(false);
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
-  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'devices' | 'briefing'>('gameplan');
-  const [showDemoModal, setShowDemoModal] = useState(false);
-  const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
+  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
   const [mode, setMode] = useState<AppMode>('live');
   const [contextExpanded, setContextExpanded] = useState(false);
+  const [sessionStats, setSessionStats] = useState(() => getSessionStats());
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
 
-  const toggleDevice = useCallback((device: Device) => {
-    setSelectedDevices(prev => {
-      const exists = prev.some(d => d.name === device.name);
-      if (exists) return prev.filter(d => d.name !== device.name);
-      return [...prev, device];
-    });
-  }, []);
+  // Dark mode — persist in localStorage
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('cc-dark-mode') === 'true';
+    }
+    return false;
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('cc-dark-mode', String(darkMode));
+  }, [darkMode]);
 
-  const handleFlagshipShowdown = useCallback(() => {
-    setSelectedDevices(getDevicesByNames(FLAGSHIP_PHONES));
+  // Scroll-to-top visibility
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Weekly update state
   const [weeklyData, setWeeklyData] = useState<WeeklyUpdate | null>(null);
+  const [weeklySource, setWeeklySource] = useState<WeeklyUpdateSource>('placeholder');
   const [weeklyLoaded, setWeeklyLoaded] = useState(false);
-  useEffect(() => {
-    loadWeeklyUpdate().then(data => {
-      setWeeklyData(data);
-      setWeeklyLoaded(true);
-    });
+  const refreshWeeklyData = useCallback(async () => {
+    const { data, source } = await loadWeeklyUpdate();
+    setWeeklyData(data);
+    setWeeklySource(source);
+    setWeeklyLoaded(true);
   }, []);
+  useEffect(() => {
+    void refreshWeeklyData();
+  }, [refreshWeeklyData]);
 
   // Ecosystem matrix state
   const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
@@ -86,15 +96,23 @@ export default function App() {
   // Debounce ref
   const lastGenerateTime = useRef(0);
 
+  const refreshSessionStats = useCallback(() => {
+    setSessionStats(getSessionStats());
+  }, []);
+
   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
     setContext(prev => ({ ...prev, purchaseIntent: intent }));
     setIntentTapped(true);
-    // When switching intent, clear full game plan so instant plays show
     setScript(null);
-  }, []);
+    setObjectionResult(null);
+    setSelectedObjections([]);
+    setSelectedGamePlanItems([]);
+    setError(null);
+    trackIntentUsed(intent);
+    refreshSessionStats();
+  }, [refreshSessionStats]);
 
-  const handleGenerate = useCallback((e?: React.FormEvent, overrideContext?: SalesContext) => {
-    if (e) e.preventDefault();
+  const handleGenerate = useCallback((overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
@@ -106,16 +124,22 @@ export default function App() {
     try {
       const result = generateScript(ctx, weeklyData);
       setScript(result);
+      setObjectionResult(null);
+      setSelectedObjections([]);
+      setSelectedGamePlanItems([]);
+      if (!overrideContext) {
+        trackPlanGenerated();
+        refreshSessionStats();
+      }
     } catch (err) {
       setError('Couldn\'t build your game plan — the weekly update file may be missing or out of date.');
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [context, weeklyData]);
+  }, [context, weeklyData, refreshSessionStats]);
 
-  const handleAnalyzeObjection = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAnalyzeObjection = useCallback(() => {
     if (selectedObjections.length === 0) return;
     setAnalyzing(true);
     setError(null);
@@ -128,13 +152,15 @@ export default function App() {
         weeklyData,
       );
       setObjectionResult(result);
+      trackObjectionAnalyzed(selectedObjections);
+      refreshSessionStats();
     } catch (err) {
       setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
       console.error(err);
     } finally {
       setAnalyzing(false);
     }
-  }, [selectedObjections, context, script, selectedGamePlanItems, weeklyData]);
+  }, [selectedObjections, context, script, selectedGamePlanItems, weeklyData, refreshSessionStats]);
 
   const toggleGamePlanItem = useCallback((item: string) => {
     setSelectedGamePlanItems(prev =>
@@ -167,11 +193,18 @@ export default function App() {
     setContext(scenario.context);
     setActiveTab('gameplan');
     setIntentTapped(true);
+    setError(null);
     setTimeout(() => {
       const result = generateScript(scenario.context, weeklyData);
       setScript(result);
     }, 50);
   }, [weeklyData]);
+
+  /** From Level Up practice — loads scenario AND switches to Live */
+  const handlePracticeScenario = useCallback((scenario: DemoScenario) => {
+    handleDemoScenario(scenario);
+    setMode('live');
+  }, [handleDemoScenario]);
 
   const INTENTS = [
     { id: 'exploring' as const, label: 'Exploring' },
@@ -183,62 +216,29 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-[#1A1A1A] font-sans selection:bg-t-magenta/20">
-      <Header onReset={reset} onDemoClick={() => setShowDemoModal(true)} mode={mode} onModeChange={(m) => {
-        setMode(m);
-        if (m === 'live' && (activeTab === 'devices' || activeTab === 'briefing')) {
-          setActiveTab('gameplan');
-        }
-      }} />
-      <DemoModal
-        isOpen={showDemoModal}
-        onClose={() => setShowDemoModal(false)}
-        onSelectScenario={handleDemoScenario}
-      />
+    <div className="min-h-screen font-sans selection:bg-t-magenta/20 bg-surface text-foreground">
+      <Header onReset={reset} mode={mode} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} onModeChange={setMode} />
 
-      <main className="max-w-5xl mx-auto p-6 md:p-10">
-        {/* Hero — compact in Live mode, full in Learn mode */}
-        <div className={`text-center max-w-3xl mx-auto ${mode === 'live' ? 'mb-4' : 'mb-10'}`}>
-          {mode === 'learn' ? (
-            <>
-              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
-                Your <span className="text-t-magenta">Edge</span>
-              </h2>
-              <p className="text-sm text-t-dark-gray font-medium leading-relaxed max-w-lg mx-auto">
-                This tool gives you talking points, pivot plays, and objection comebacks based on who's calling and why.
-              </p>
-              <div className="mt-3 text-left max-w-md mx-auto space-y-1">
-                <p className="text-xs text-t-dark-gray font-medium"><strong className="text-t-magenta">Quick start:</strong> Tap an intent on the left — you'll get instant plays for that call type.</p>
-                <p className="text-xs text-t-dark-gray font-medium"><strong className="text-t-magenta">Go deeper:</strong> Fill in the customer details and hit Generate for a full personalized game plan.</p>
-                <p className="text-xs text-t-dark-gray font-medium"><strong className="text-t-magenta">Flip objections:</strong> Switch to Objections after you've built your plan — it gets sharper with context.</p>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-0.5">
-              <p className="text-sm font-bold text-t-dark-gray">Pick why they're calling. Get instant plays.</p>
-              <p className="text-xs text-t-dark-gray/70 font-medium">Want the full game plan? Fill in the details below and hit Generate.</p>
-            </div>
-          )}
-
-          {/* Weekly Update Status */}
-          {weeklyLoaded && weeklyData && (
-            <div className="mt-3 inline-flex items-center gap-4 bg-t-light-gray/30 rounded-full px-4 py-2 border border-t-light-gray">
-              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
-                <Calendar className="w-3 h-3 text-t-magenta" />
-                <span>Updated: {weeklyData.metadata.updatedDate}</span>
-                <span className="text-t-dark-gray/40">|</span>
-                <span>Valid until: {weeklyData.metadata.validUntil}</span>
-              </div>
-            </div>
-          )}
+      <main className="max-w-5xl mx-auto px-4 py-6 md:p-10">
+        {mode === 'level-up' ? (
+          <LevelUpView />
+        ) : mode === 'learn' ? (
+          <LearnView weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={refreshWeeklyData} onSelectScenario={handlePracticeScenario} />
+        ) : (<>
+        {/* Hero */}
+        <div className="text-center max-w-3xl mx-auto mb-4">
+          <div className="space-y-0.5">
+            <p className="text-sm font-bold text-t-dark-gray">Pick why they're calling. Get instant plays.</p>
+            <p className="text-xs font-medium text-t-dark-gray/70">Want the full game plan? Fill in the details below and hit Generate.</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
-            {/* INTENT SELECTOR — TOP OF LEFT PANEL (Primary action) */}
-            <section className="bg-white rounded-3xl border-2 border-t-light-gray p-5 shadow-sm">
-              <label className="text-xs font-bold text-t-dark-gray mb-3 block">
+            {/* INTENT SELECTOR — STICKY on desktop */}
+            <section className="rounded-3xl border-2 border-t-light-gray p-5 shadow-sm lg:sticky lg:top-[60px] lg:z-[5] bg-surface-elevated">
+              <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                 Why are they calling?
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -247,10 +247,11 @@ export default function App() {
                     key={intent.id}
                     type="button"
                     onClick={() => handleIntentSelect(intent.id)}
-                    className={`py-2.5 px-3 text-left text-[10px] font-black rounded-xl border-2 uppercase transition-all ${
+                    aria-pressed={context.purchaseIntent === intent.id}
+                    className={`focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-black rounded-xl border-2 uppercase transition-all ${
                       context.purchaseIntent === intent.id
                         ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
-                        : 'bg-white text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
+                        : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
                     }`}
                   >
                     <span className="leading-tight">{intent.label}</span>
@@ -260,10 +261,13 @@ export default function App() {
             </section>
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
-            <section className="bg-white rounded-3xl border-2 border-t-light-gray shadow-sm overflow-hidden">
+            <section className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray shadow-sm overflow-hidden">
               <button
+                type="button"
                 onClick={() => setContextExpanded(!contextExpanded)}
-                className="w-full flex items-center justify-between p-5"
+                aria-expanded={contextExpanded}
+                aria-controls="customer-context-panel"
+                className="focus-ring w-full flex items-center justify-between p-5"
               >
                 <span className="text-xs font-bold text-t-dark-gray">Customer details <span className="text-t-dark-gray/50 font-medium">(optional — makes your game plan sharper)</span></span>
                 {contextExpanded ? <ChevronUp className="w-4 h-4 text-t-dark-gray/50" /> : <ChevronDown className="w-4 h-4 text-t-dark-gray/50" />}
@@ -276,6 +280,7 @@ export default function App() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
+                    id="customer-context-panel"
                   >
                     <div className="px-5 pb-5">
                       <CustomerContextForm context={context} setContext={setContext} inline />
@@ -291,20 +296,18 @@ export default function App() {
               onGenerate={handleGenerate}
             />
 
-            {/* Tabs — Plan + Objections always. Devices + Briefing in Learn mode */}
-            <div className="flex bg-t-light-gray/30 p-1.5 rounded-2xl border-2 border-t-light-gray">
+            {/* Tabs — Plan + Objections */}
+            <div className="grid grid-cols-2 md:flex bg-t-light-gray/30 p-1.5 rounded-2xl border-2 border-t-light-gray gap-1.5 md:gap-0">
               {([
                 { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
                 { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
-                ...(mode === 'learn' ? [
-                  { id: 'devices' as const, icon: Smartphone, label: 'Devices' },
-                  { id: 'briefing' as const, icon: Newspaper, label: 'Briefing' },
-                ] : []),
               ]).map(tab => (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 py-3 text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 ${activeTab === tab.id ? 'bg-white text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta'}`}
+                  aria-pressed={activeTab === tab.id}
+                  className={`focus-ring flex-1 min-h-[48px] px-2 py-3 text-[10px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
                 >
                   <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
                 </button>
@@ -326,24 +329,9 @@ export default function App() {
                   onClearResult={() => setObjectionResult(null)}
                 />
               )}
-              {activeTab === 'devices' && (
-                <motion.div key="devices" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <DeviceLookup
-                    weeklyData={weeklyData}
-                    selectedDevices={selectedDevices}
-                    onToggleDevice={toggleDevice}
-                    onClearDevices={() => setSelectedDevices([])}
-                    onFlagshipShowdown={handleFlagshipShowdown}
-                  />
-                </motion.div>
-              )}
-              {activeTab === 'briefing' && (
-                <motion.div key="briefing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <DailyBriefing weeklyData={weeklyData} />
-                </motion.div>
-              )}
             </AnimatePresence>
 
+            <SessionStats stats={sessionStats} />
             <p className="text-[9px] text-center text-t-dark-gray/60 font-medium px-4 flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
               <span>CPNI compliant. No PII. Fully offline.</span>
@@ -358,52 +346,13 @@ export default function App() {
                 <InstantPlays intent={context.purchaseIntent} age={context.age} ecosystemMatrix={ecosystemMatrix} />
               )}
 
-              {/* Devices tab: comparison + accessories */}
-              {activeTab === 'devices' && (
-                <motion.div key="devices-detail" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-                  {selectedDevices.length > 0 ? (
-                    <>
-                      <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} />
-                      <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} />
-                    </>
-                  ) : (
-                    <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm">
-                        <Smartphone className="w-8 h-8 text-t-magenta" />
-                      </div>
-                      <h3 className="text-xl font-black uppercase tracking-tight mb-2">The Lineup</h3>
-                      <p className="text-t-dark-gray max-w-xs mx-auto text-sm font-medium">
-                        Pick devices to compare specs, selling points, and accessory plays.
-                      </p>
-                      <p className="text-[10px] text-t-magenta font-bold mt-3">
-                        Hit "Flagship Showdown" to stack the big three head-to-head
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Briefing tab: right side empty state */}
-              {activeTab === 'briefing' && (
-                <motion.div key="briefing-detail" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed"
-                >
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm">
-                    <Newspaper className="w-8 h-8 text-t-magenta" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight mb-2">Your Pre-Shift Rundown</h3>
-                  <p className="text-t-dark-gray max-w-xs mx-auto text-sm font-medium">
-                    Promos, competitor moves, network stats — everything you need before you clock in.
-                  </p>
-                </motion.div>
-              )}
 
               {/* Objections empty state */}
               {activeTab === 'objections' && !objectionResult && !analyzing && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                   className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 bg-t-light-gray/20 rounded-3xl border-2 border-t-light-gray border-dashed"
                 >
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm">
+                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                     <AlertCircle className="w-8 h-8 text-t-magenta" />
                   </div>
                   <h3 className="text-xl font-black uppercase tracking-tight mb-6">Flip the Script</h3>
@@ -416,7 +365,7 @@ export default function App() {
                       <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
                       <p className="text-sm text-t-dark-gray font-medium">Hit <span className="font-bold text-t-magenta">Analyze</span> and get your comeback.</p>
                     </div>
-                    <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-t-light-gray shadow-sm mt-2">
+                    <div className="flex items-start gap-3 bg-surface-elevated p-3 rounded-xl border border-t-light-gray shadow-sm mt-2">
                       <div className="w-6 h-6 rounded-full bg-t-magenta/10 text-t-magenta flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">★</div>
                       <p className="text-xs text-t-dark-gray font-medium"><span className="font-bold text-t-magenta">Pro tip:</span> Build your Game Plan first — it makes the analyzer way sharper.</p>
                     </div>
@@ -427,7 +376,7 @@ export default function App() {
               {/* Loading state */}
               {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 bg-white rounded-3xl border-2 border-t-magenta/20 shadow-2xl shadow-t-magenta/10"
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 bg-surface-elevated rounded-3xl border-2 border-t-magenta/20 shadow-2xl shadow-t-magenta/10"
                 >
                   <Loader2 className="w-10 h-10 text-t-magenta animate-spin mb-4" />
                   <p className="text-t-magenta font-black uppercase tracking-widest animate-pulse">
@@ -456,28 +405,54 @@ export default function App() {
             </AnimatePresence>
 
             {error && (
-              <div className="mt-6 p-4 bg-rose-50 border-2 border-rose-100 rounded-2xl text-rose-600 text-sm font-black uppercase flex items-center gap-3">
-                <XCircle className="w-5 h-5 shrink-0" />
+              <div className="mt-6 p-4 bg-error-surface border-2 border-error-border rounded-2xl text-error-foreground text-sm font-black uppercase flex items-center gap-3">
+                <XCircle className="w-5 h-5 shrink-0 text-error-accent" />
                 {error}
               </div>
             )}
           </div>
         </div>
+        </>)}
       </main>
 
+
       <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center border-t-2 border-t-light-gray mt-10 space-y-4">
-        <div className="bg-t-magenta/5 p-4 rounded-2xl border-2 border-t-magenta/10 inline-block max-w-2xl mx-auto">
+        {weeklyLoaded && weeklyData && (
+          <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
+            <Calendar className="w-3 h-3 text-t-magenta/50" />
+            <span>Data updated: {weeklyData.metadata.updatedDate}</span>
+            <span className="opacity-40">|</span>
+            <span>Valid until: {weeklyData.metadata.validUntil}</span>
+          </div>
+        )}
+        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto bg-t-magenta/5 border-2 border-t-magenta/10">
           <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
             <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
           </p>
-          <p className="text-[11px] text-t-dark-gray font-bold leading-relaxed">
+          <p className="text-[11px] font-bold leading-relaxed text-t-dark-gray">
             No real customer info. Everything here runs on generic context — CPNI compliant, always.
           </p>
         </div>
-        <p className="text-[10px] text-t-dark-gray font-black uppercase tracking-widest pt-4">
+        <p className="text-[10px] font-black uppercase tracking-widest pt-4 text-t-dark-gray/60">
           &copy; 2026 CustomerConnect AI. Runs fully offline.
         </p>
       </footer>
+
+      {/* Scroll to top */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
+            className="focus-ring fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-colors bg-surface-elevated text-t-dark-gray border-2 border-t-light-gray hover:border-t-magenta hover:text-t-magenta"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -6,6 +6,15 @@ import { geoPath, geoAlbersUsa } from "d3-geo";
 
 // Bundled locally for offline support — no CDN dependency
 const geoUrl = "/states-10m.json";
+const MAP_COLORS = {
+  base: 'var(--color-map-base)',
+  regionSelected: 'var(--color-map-region-selected)',
+  stateAvailable: 'var(--color-map-state-available)',
+  stateSelected: 'var(--color-map-state-selected)',
+  stroke: 'var(--color-map-stroke)',
+  tooltipSurface: 'var(--color-tooltip-surface)',
+  tooltipForeground: 'var(--color-tooltip-foreground)',
+};
 
 const regions = {
   "New England": ["Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Vermont"],
@@ -33,11 +42,27 @@ interface USMapProps {
   onSelectState?: (state: string) => void;
 }
 
+interface GeoFeatureProperties {
+  name: string;
+  isRegion?: boolean;
+  isState?: boolean;
+  regionName?: string;
+}
+
+interface GeoFeature {
+  type: string;
+  properties: GeoFeatureProperties;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  geometry: any;
+  rsmKey?: string;
+}
+
 const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }: USMapProps) => {
-  const [regionFeatures, setRegionFeatures] = useState<any[]>([]);
-  const [stateFeatures, setStateFeatures] = useState<any[]>([]);
+  const [regionFeatures, setRegionFeatures] = useState<GeoFeature[]>([]);
+  const [stateFeatures, setStateFeatures] = useState<GeoFeature[]>([]);
   const [tooltipContent, setTooltipContent] = useState("");
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [loadFailed, setLoadFailed] = useState(false);
   const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
   const [transform, setTransform] = useState({ k: 1, x: 0, y: 0 });
 
@@ -45,15 +70,19 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
     fetch(geoUrl)
       .then(res => res.json())
       .then(topology => {
-        const states = topology.objects.states.geometries;
-        
-        // Build state features
-        const sFeatures = (topojson.feature(topology, topology.objects.states) as any).features;
+        setLoadFailed(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const states = topology.objects.states.geometries as any[];
+
+        // Build state features — topojson.feature returns a FeatureCollection
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sFeatures = (topojson.feature(topology, topology.objects.states) as any).features as GeoFeature[];
         setStateFeatures(sFeatures);
 
         const rFeatures = Object.entries(regions).map(([regionName, stateNames]) => {
           const regionGeometries = states.filter((d: any) => stateNames.includes(d.properties.name));
-          const merged = merge(topology, regionGeometries);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const merged = merge(topology as any, regionGeometries as any);
           return {
             type: "Feature",
             properties: { name: regionName, isRegion: true },
@@ -63,18 +92,21 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
         });
         
         setRegionFeatures(rFeatures);
+      })
+      .catch(() => {
+        setLoadFailed(true);
       });
   }, []);
 
   // Compute what to display based on selectedRegion
-  const displayFeatures = [];
+  const displayFeatures: GeoFeature[] = [];
   if (regionFeatures.length > 0 && stateFeatures.length > 0) {
     for (const rFeature of regionFeatures) {
       const regionName = rFeature.properties.name;
       if (regionName === selectedRegion) {
         // Add individual states for this region
         const stateNames = regions[regionName as keyof typeof regions];
-        const statesInRegion = stateFeatures.filter(f => stateNames.includes(f.properties.name));
+        const statesInRegion = stateFeatures.filter((f) => stateNames.includes(f.properties.name));
         displayFeatures.push(...statesInRegion.map(f => ({
           ...f, 
           properties: { ...f.properties, isState: true, regionName }
@@ -93,7 +125,8 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
       if (feature) {
         const projection = geoAlbersUsa().scale(1070).translate([400, 300]);
         const path = geoPath().projection(projection);
-        const bounds = path.bounds(feature);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const bounds = path.bounds(feature as any);
         
         if (bounds && bounds[0] && bounds[1] && isFinite(bounds[0][0])) {
           const dx = bounds[1][0] - bounds[0][0];
@@ -115,7 +148,7 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
   }, [selectedRegion, regionFeatures]);
 
   return (
-    <div className="w-full h-48 bg-t-light-gray/10 rounded-xl overflow-hidden border-2 border-t-light-gray relative">
+    <div className="w-full h-48 bg-surface rounded-xl overflow-hidden border-2 border-t-light-gray relative">
       <ComposableMap projection="geoAlbersUsa" className="w-full h-full">
         <g
           style={{
@@ -136,7 +169,12 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
                     key={`fallback-${geo.rsmKey || index}`}
                     geography={geo}
                     style={{
-                      default: { fill: "#E5E7EB", stroke: "#FFFFFF", strokeWidth: 0.5 / transform.k, outline: "none" }
+                      default: {
+                        fill: MAP_COLORS.base,
+                        stroke: MAP_COLORS.stroke,
+                        strokeWidth: 0.5 / transform.k,
+                        outline: "none"
+                      }
                     }}
                   />
                 );
@@ -176,23 +214,25 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
                   }}
                   style={{
                     default: {
-                      fill: isSelectedState ? "#B1005A" : (isState ? "#FBCFE8" : (isSelectedRegion ? "#E20074" : "#E5E7EB")),
-                      stroke: "#FFFFFF",
+                      fill: isSelectedState
+                        ? MAP_COLORS.stateSelected
+                        : (isState ? MAP_COLORS.stateAvailable : (isSelectedRegion ? MAP_COLORS.regionSelected : MAP_COLORS.base)),
+                      stroke: MAP_COLORS.stroke,
                       strokeWidth: isState ? 0.5 / transform.k : 1.5 / transform.k,
                       outline: "none",
                       transition: "all 250ms"
                     },
                     hover: {
-                      fill: isState ? "#E20074" : "#FBCFE8",
-                      stroke: "#FFFFFF",
+                      fill: isState ? MAP_COLORS.regionSelected : MAP_COLORS.stateAvailable,
+                      stroke: MAP_COLORS.stroke,
                       strokeWidth: isState ? 0.5 / transform.k : 1.5 / transform.k,
                       outline: "none",
                       cursor: "pointer",
                       transition: "all 250ms"
                     },
                     pressed: {
-                      fill: "#E20074",
-                      stroke: "#FFFFFF",
+                      fill: MAP_COLORS.regionSelected,
+                      stroke: MAP_COLORS.stroke,
                       strokeWidth: isState ? 0.5 / transform.k : 1.5 / transform.k,
                       outline: "none"
                     }
@@ -205,43 +245,53 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
         </g>
       </ComposableMap>
       {selectedRegion !== 'Not Specified' && (
-        <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 rounded text-[10px] font-black uppercase text-t-magenta shadow-sm">
+        <div className="absolute bottom-2 left-2 bg-surface-elevated/90 px-2 py-1 rounded border border-t-light-gray text-[10px] font-black uppercase text-t-magenta shadow-sm">
           {selectedRegion} {selectedState ? `> ${selectedState}` : ''}
         </div>
       )}
-      <div className="absolute bottom-2 right-2 bg-white/90 p-2 rounded text-[8px] font-bold uppercase tracking-wider text-t-dark-gray shadow-sm flex flex-col gap-1.5 pointer-events-none">
+      <div className="absolute bottom-2 right-2 bg-surface-elevated/90 border border-t-light-gray p-2 rounded text-[8px] font-bold uppercase tracking-wider text-t-dark-gray shadow-sm flex flex-col gap-1.5 pointer-events-none">
         {selectedRegion === 'Not Specified' ? (
           <>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#E5E7EB] border border-gray-200"></div>
+              <div className="w-2.5 h-2.5 rounded-sm border border-t-light-gray" style={{ backgroundColor: MAP_COLORS.base }}></div>
               <span>Region</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#E20074]"></div>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: MAP_COLORS.regionSelected }}></div>
               <span>Selected Region</span>
             </div>
           </>
         ) : (
           <>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#E20074]"></div>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: MAP_COLORS.regionSelected }}></div>
               <span>Selected Region</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#FBCFE8]"></div>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: MAP_COLORS.stateAvailable }}></div>
               <span>Selectable State</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#B1005A]"></div>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: MAP_COLORS.stateSelected }}></div>
               <span>Selected State</span>
             </div>
           </>
         )}
       </div>
+      {loadFailed && (
+        <div className="absolute inset-3 rounded-lg border border-error-border bg-error-surface/90 px-3 py-2 text-[10px] font-bold text-error-foreground shadow-sm">
+          The region map couldn&apos;t load. Region selection still works from the buttons above.
+        </div>
+      )}
       {tooltipContent && !isTouchDevice && (
         <div
-          className="fixed z-50 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded pointer-events-none transform -translate-x-1/2 -translate-y-full mt-[-8px] shadow-lg"
-          style={{ left: tooltipPos.x, top: tooltipPos.y }}
+          className="fixed z-50 text-[10px] font-bold px-2 py-1 rounded pointer-events-none transform -translate-x-1/2 -translate-y-full mt-[-8px] shadow-lg"
+          style={{
+            left: tooltipPos.x,
+            top: tooltipPos.y,
+            backgroundColor: MAP_COLORS.tooltipSurface,
+            color: MAP_COLORS.tooltipForeground,
+          }}
         >
           {tooltipContent}
         </div>

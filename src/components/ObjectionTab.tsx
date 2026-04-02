@@ -14,7 +14,7 @@ interface ObjectionTabProps {
   selectedGamePlanItems: string[];
   objectionResult: ObjectionAnalysis | null;
   analyzing: boolean;
-  onAnalyze: (e: React.FormEvent) => void;
+  onAnalyze: () => void;
   onClearResult: () => void;
 }
 
@@ -40,7 +40,7 @@ export default function ObjectionTab({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-5"
+      className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm space-y-5"
     >
       <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
         <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
@@ -66,15 +66,16 @@ export default function ObjectionTab({
                       : [...prev, objection.id]
                   );
                 }}
-                className={`w-full py-2.5 px-4 text-left text-xs font-bold rounded-xl border-2 transition-all flex items-center justify-between ${
+                aria-pressed={isSelected}
+                className={`focus-ring w-full py-2.5 px-4 text-left text-xs font-bold rounded-xl border-2 transition-all flex items-center justify-between ${
                   isSelected
                     ? 'bg-t-magenta text-white border-t-magenta shadow-md shadow-t-magenta/10'
-                    : 'bg-white text-t-dark-gray border-t-light-gray hover:border-t-magenta/30'
+                    : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/30'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
-                    isSelected ? 'bg-white border-white' : 'bg-white border-t-light-gray'
+                    isSelected ? 'bg-surface border-white' : 'bg-surface border-t-light-gray'
                   }`}>
                     {isSelected && <CheckCircle2 className="w-3 h-3 text-t-magenta" />}
                   </div>
@@ -101,9 +102,10 @@ export default function ObjectionTab({
       )}
 
       <button
+        type="button"
         onClick={onAnalyze}
         disabled={analyzing || selectedObjections.length === 0}
-        className="w-full bg-black text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10"
+        className="focus-ring w-full bg-t-dark-gray text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
       >
         {analyzing ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -130,14 +132,15 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
           <Zap className="w-6 h-6 text-t-magenta" /> Objection Strategy
         </h2>
         <button
+          type="button"
           onClick={onClear}
-          className="text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest"
+          className="focus-ring text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest rounded"
         >
           <RefreshCw className="w-3 h-3" /> Clear
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <MessageSquare className="w-3 h-3 text-t-magenta" /> Key Talking Points
         </h3>
@@ -145,33 +148,52 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
           {result.talkingPoints.map((point, i) => (
             <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-t-light-gray/20 border border-t-light-gray">
               <div className="mt-1 w-1.5 h-1.5 rounded-full bg-t-magenta shrink-0" />
-              <p className="text-sm text-t-dark-gray font-medium">{point}</p>
+              <p className="text-sm text-t-dark-gray font-medium break-words">{point}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+      <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> How to Respond
         </h3>
         <div className="space-y-3">
           {result.counterArguments.map((arg, i) => (
-            <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold">
+            <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold break-words">
               "{arg}"
             </div>
           ))}
         </div>
       </div>
 
+      {result.pivotPlays && result.pivotPlays.length > 0 && (
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Sparkles className="w-3 h-3 text-t-magenta" /> Pivot Plays
+          </h3>
+          <div className="space-y-3">
+            {result.pivotPlays.map((pivot, i) => (
+              <div
+                key={`${pivot.strategy}-${i}`}
+                className="rounded-2xl border border-white/10 bg-gradient-to-r from-pivot-start to-pivot-end p-4 text-white shadow-lg shadow-black/10"
+              >
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-2">{pivot.strategy}</p>
+                <p className="text-sm font-bold italic break-words">"{pivot.script}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {result.carrierSpecificArguments && result.carrierSpecificArguments.length > 0 && (
-        <div className="bg-white rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
+        <div className="bg-surface-elevated rounded-3xl border-2 border-t-light-gray p-6 shadow-sm">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
             <Briefcase className="w-3 h-3 text-t-magenta" /> Carrier Weak Spots
           </h3>
           <div className="space-y-3">
             {result.carrierSpecificArguments.map((arg, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold">
+              <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold break-words">
                 "{arg}"
               </div>
             ))}
