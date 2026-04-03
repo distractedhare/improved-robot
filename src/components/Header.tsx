@@ -1,7 +1,7 @@
-import { BookOpen, Monitor, Moon, Sparkles, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
+import { BookOpen, Home, Monitor, Moon, Sparkles, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export type AppMode = 'live' | 'learn' | 'level-up';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
 export type ThemePreference = 'auto' | 'light' | 'dark';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ interface HeaderProps {
 }
 
 const MODES = [
+  { id: 'home' as const, icon: Home, label: 'Home', helper: 'Dashboard' },
   { id: 'live' as const, icon: Zap, label: 'Live', helper: 'Call flow' },
   { id: 'learn' as const, icon: BookOpen, label: 'Learn', helper: 'On-shift coach' },
   { id: 'level-up' as const, icon: Trophy, label: 'Level Up', helper: 'Wins + reps' },
@@ -48,7 +49,7 @@ export default function Header({
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+          <button type="button" onClick={() => onModeChange('home')} className="flex min-w-0 flex-1 items-center gap-3 focus-ring rounded-2xl" aria-label="Go to home screen">
             <motion.div
               layout
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/95 shadow-[0_12px_28px_rgba(226,0,116,0.2)] sm:h-14 sm:w-14"
@@ -73,7 +74,7 @@ export default function Header({
                 Fast offline coaching for virtual retail reps
               </p>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-2 self-start sm:self-center">
             <div className="flex rounded-full border border-white/10 bg-white/8 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
@@ -118,7 +119,7 @@ export default function Header({
           aria-label="App mode"
           className="rounded-[1.6rem] border border-white/10 bg-white/7 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-4 gap-1.5">
             {MODES.map((item) => {
               const isActive = mode === item.id;
               return (

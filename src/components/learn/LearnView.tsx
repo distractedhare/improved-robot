@@ -151,7 +151,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
       {/* Sub-tab toggle — scrollable on mobile, active tab expands */}
       <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
-        <div className="flex rounded-full p-0.5 gap-0.5 min-w-max mx-auto glass-tab" style={{ width: 'fit-content', margin: '0 auto' }}>
+        <div className="flex rounded-full p-0.5 gap-0.5 min-w-max w-fit mx-auto glass-tab">
           {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
@@ -254,7 +254,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular" style={{ borderStyle: 'dashed' }}>
+                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular border-dashed">
                     <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                       {deviceCategory === 'phones' && <Smartphone className="w-8 h-8 text-t-magenta" />}
                       {deviceCategory === 'tablets' && <Tablet className="w-8 h-8 text-t-magenta" />}

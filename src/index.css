@@ -502,6 +502,71 @@ html[data-theme="dark"] body {
 }
 
 /* ============================================
+   BINGO CELL CATEGORY STYLES
+   ============================================ */
+@utility bingo-sales {
+  background: rgba(226, 0, 116, 0.05);
+  border: 2px solid rgba(226, 0, 116, 0.2);
+}
+@utility bingo-sales-done {
+  background: linear-gradient(135deg, #E20074, #C70066);
+  border: 2px solid #E20074;
+  color: white;
+  box-shadow: 0 0 20px rgba(226, 0, 116, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+@utility bingo-skill {
+  background: rgba(134, 27, 84, 0.05);
+  border: 2px solid rgba(134, 27, 84, 0.2);
+}
+@utility bingo-skill-done {
+  background: linear-gradient(135deg, #861B54, #6A1443);
+  border: 2px solid #861B54;
+  color: white;
+  box-shadow: 0 0 20px rgba(134, 27, 84, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+@utility bingo-vibe {
+  background: rgba(47, 161, 97, 0.05);
+  border: 2px solid rgba(47, 161, 97, 0.2);
+}
+@utility bingo-vibe-done {
+  background: linear-gradient(135deg, #2fa161, #228B4C);
+  border: 2px solid #2fa161;
+  color: white;
+  box-shadow: 0 0 20px rgba(47, 161, 97, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+@utility bingo-winning {
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.35), 0 0 30px rgba(255, 215, 0, 0.12);
+}
+
+.bingo-winning-ring {
+  border: 2px solid rgba(255, 215, 0, 0.5);
+}
+html[data-theme="dark"] .bingo-winning-ring {
+  border-color: rgba(255, 215, 0, 0.35);
+}
+
+@utility glow-magenta-dot {
+  box-shadow: 0 0 6px rgba(226, 0, 116, 0.4);
+}
+@utility glow-berry-dot {
+  box-shadow: 0 0 6px rgba(134, 27, 84, 0.4);
+}
+@utility glow-success-dot {
+  box-shadow: 0 0 6px rgba(47, 161, 97, 0.4);
+}
+
+@utility progress-magenta {
+  background: linear-gradient(90deg, #E20074, #FF4DA6, #861B54);
+}
+
+@utility glass-celebration {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
    GLASS SHINE — PSEUDO-ELEMENT FOR CARDS
    ============================================ */
 .glass-shine {

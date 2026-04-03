@@ -7,7 +7,8 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
-import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
+import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
+import { generateSalesScript, analyzeObjection } from './services/aiService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
@@ -25,6 +26,7 @@ import InstantPlays from './components/InstantPlays';
 import SessionStats from './components/SessionStats';
 import LevelUpView from './components/levelup/LevelUpView';
 import LearnView from './components/learn/LearnView';
+import HomeScreen from './components/HomeScreen';
 
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
@@ -45,7 +47,7 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('live');
+  const [mode, setMode] = useState<AppMode>('home');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
@@ -156,7 +158,7 @@ export default function App() {
     setError(null);
 
     try {
-      const result = generateScript(ctx, weeklyData);
+      const result = generateSalesScript(ctx, weeklyData);
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
@@ -182,7 +184,7 @@ export default function App() {
     setAnalyzing(true);
     setError(null);
     try {
-      const result = analyzeObjectionLocal(
+      const result = analyzeObjection(
         selectedObjections.join(', '),
         context,
         script,
@@ -238,7 +240,7 @@ export default function App() {
     setError(null);
     setTimeout(() => {
       try {
-        const result = generateScript(scenario.context, weeklyData);
+        const result = generateSalesScript(scenario.context, weeklyData);
         setScript(result);
       } catch (err) {
         setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
@@ -324,7 +326,17 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
         <AnimatePresence mode="wait">
-          {mode === 'level-up' ? (
+          {mode === 'home' ? (
+            <motion.section
+              key="mode-home"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <HomeScreen weeklyData={weeklyData} onModeChange={setMode} />
+            </motion.section>
+          ) : mode === 'level-up' ? (
             <motion.section
               key="mode-level-up"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
@@ -375,7 +387,7 @@ export default function App() {
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-4">
           <div className="space-y-0.5">
-            <p className="text-sm font-bold text-t-dark-gray">Pick the vibe. Get instant plays. 🔥</p>
+            <p className="text-sm font-bold text-t-dark-gray">Pick the vibe. Get instant plays.</p>
             <p className="text-xs font-medium text-t-dark-gray/70">Go deeper — fill in the details and build your full game plan.</p>
           </div>
         </div>

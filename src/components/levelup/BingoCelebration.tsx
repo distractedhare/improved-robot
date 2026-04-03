@@ -122,11 +122,7 @@ export default function BingoCelebration({ visible, bingoCode, winCount, onClose
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0"
-            style={{
-              background: 'radial-gradient(ellipse at center, rgba(226, 0, 116, 0.2) 0%, rgba(0,0,0,0.85) 70%)',
-              backdropFilter: 'blur(12px) saturate(150%)',
-            }}
+            className="absolute inset-0 bg-black/85 backdrop-blur-md"
             onClick={onClose}
           />
 
@@ -174,11 +170,8 @@ export default function BingoCelebration({ visible, bingoCode, winCount, onClose
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.7, y: 50 }}
             transition={{ type: 'spring', stiffness: 200, damping: 18, delay: 0.2 }}
-            className="relative z-10 w-full max-w-sm rounded-3xl overflow-hidden"
+            className="relative z-10 w-full max-w-sm rounded-3xl overflow-hidden glass-celebration glass-specular"
             style={{
-              background: 'var(--glass-bg-strong)',
-              backdropFilter: 'blur(40px) saturate(200%)',
-              border: '2px solid rgba(255,255,255,0.3)',
               boxShadow: `0 32px 80px rgba(0,0,0,0.4), 0 0 120px ${tier.bgGlow}, 0 0 200px ${tier.bgGlow}, inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1)`,
             }}
           >

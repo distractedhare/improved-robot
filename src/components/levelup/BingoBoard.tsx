@@ -72,13 +72,9 @@ export default function BingoBoard() {
             </button>
           )}
         </div>
-        <div className="w-full h-2 rounded-full overflow-hidden glass-card" style={{ padding: 0, border: 'none' }}>
+        <div className="w-full h-2 rounded-full overflow-hidden glass">
           <motion.div
-            className="h-full rounded-full"
-            style={{
-              background: 'linear-gradient(90deg, #E20074, #FF4DA6, #861B54)',
-              boxShadow: progressPct > 0 ? '0 0 12px rgba(226, 0, 116, 0.5)' : 'none',
-            }}
+            className={`h-full rounded-full progress-magenta ${progressPct > 0 ? 'magenta-glow' : ''}`}
             initial={{ width: 0 }}
             animate={{ width: `${progressPct}%` }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -87,7 +83,7 @@ export default function BingoBoard() {
       </div>
 
       {/* Bingo grid */}
-      <div className="grid gap-1.5 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         {board.map((cell, i) => (
           <BingoCell
             key={cell.id}
