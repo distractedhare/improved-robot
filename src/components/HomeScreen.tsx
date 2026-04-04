@@ -1,8 +1,9 @@
-import { motion } from 'motion/react';
-import { Zap, BookOpen, Trophy, PhoneCall, Sparkles, TrendingUp, Target, Clock, Cpu, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Zap, BookOpen, Trophy, PhoneCall, Sparkles, Target, Clock, Cpu, Download, CheckCircle2, AlertCircle, Loader2, RefreshCw, Heart } from 'lucide-react';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
-import { getSessionStats } from '../services/sessionTracker';
 import { AppMode } from './Header';
+import { getRandomAffirmation } from '../data/affirmations';
 import { AIServiceStatus } from '../services/aiService';
 import { initializeGemma, getGemmaLoadingState, isWebGPUSupported } from '../services/gemmaService';
 
@@ -202,9 +203,9 @@ function GemmaEngineCard({ aiStatus }: { aiStatus: AIServiceStatus }) {
 }
 
 export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeScreenProps) {
-  const stats = getSessionStats();
   const greeting = getGreeting();
   const weeklyFocus = weeklyData?.weeklyFocus;
+  const [affirmation, setAffirmation] = useState(() => getRandomAffirmation());
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -307,34 +308,38 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
         ))}
       </div>
 
-      {/* Session Stats */}
-      {(stats.plansGenerated > 0 || stats.objectionsAnalyzed > 0) && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="rounded-2xl p-4 glass-card glass-specular"
+      {/* Daily Affirmation */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.45 }}
+        className="rounded-3xl p-5 glass-card glass-specular text-center"
+      >
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta/50 mb-3 flex items-center justify-center gap-1.5">
+          <Heart className="w-3 h-3" />
+          Positive Vibes
+        </p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={affirmation}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="text-base font-bold text-foreground leading-relaxed"
+          >
+            {affirmation}
+          </motion.p>
+        </AnimatePresence>
+        <button
+          type="button"
+          onClick={() => setAffirmation(getRandomAffirmation(affirmation))}
+          className="focus-ring mt-3 inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-magenta/60 hover:text-t-magenta transition-colors"
         >
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3 flex items-center gap-1.5">
-            <TrendingUp className="w-3 h-3 text-t-magenta/50" />
-            Today's Session
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center">
-              <p className="text-xl font-black text-t-magenta">{stats.plansGenerated}</p>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-t-dark-gray/50">Plans</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-black text-t-berry">{stats.objectionsAnalyzed}</p>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-t-dark-gray/50">Objections</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-black text-foreground">{Object.keys(stats.intentsUsed).length}</p>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-t-dark-gray/50">Intents</p>
-            </div>
-          </div>
-        </motion.div>
-      )}
+          <RefreshCw className="w-3 h-3" />
+          Another
+        </button>
+      </motion.div>
 
       {/* Quick start */}
       <motion.div
