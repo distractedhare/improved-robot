@@ -8,8 +8,9 @@ import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, Chevron
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
-import { generateSalesScript, analyzeObjection } from './services/aiService';
+import { generateSalesScript, analyzeObjection, getAIStatus } from './services/aiService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
+import { initializeGemma, onGemmaStatusChange } from './services/gemmaService';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
@@ -121,8 +122,19 @@ export default function App() {
     });
   }, []);
 
+  // Gemma 4 initialization — non-blocking, templates work while model loads
+  const [aiStatus, setAiStatus] = useState(() => getAIStatus());
+  useEffect(() => {
+    void initializeGemma();
+    const unsubscribe = onGemmaStatusChange(() => {
+      setAiStatus(getAIStatus());
+    });
+    return unsubscribe;
+  }, []);
+
   // Debounce ref
   const lastGenerateTime = useRef(0);
+  const resultsPanelRef = useRef<HTMLDivElement>(null);
 
   const refreshSessionStats = useCallback(() => {
     try {
@@ -148,7 +160,7 @@ export default function App() {
     }
   }, [refreshSessionStats]);
 
-  const handleGenerate = useCallback((overrideContext?: SalesContext) => {
+  const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
@@ -158,11 +170,15 @@ export default function App() {
     setError(null);
 
     try {
-      const result = generateSalesScript(ctx, weeklyData);
+      const result = await generateSalesScript(ctx, weeklyData);
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
       setSelectedGamePlanItems([]);
+      // Auto-scroll to results panel
+      requestAnimationFrame(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       if (!overrideContext) {
         try {
           trackPlanGenerated();
@@ -179,12 +195,12 @@ export default function App() {
     }
   }, [context, weeklyData, refreshSessionStats]);
 
-  const handleAnalyzeObjection = useCallback(() => {
+  const handleAnalyzeObjection = useCallback(async () => {
     if (selectedObjections.length === 0) return;
     setAnalyzing(true);
     setError(null);
     try {
-      const result = analyzeObjection(
+      const result = await analyzeObjection(
         selectedObjections.join(', '),
         context,
         script,
@@ -192,6 +208,10 @@ export default function App() {
         weeklyData,
       );
       setObjectionResult(result);
+      // Auto-scroll to results
+      requestAnimationFrame(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       try {
         trackObjectionAnalyzed(selectedObjections);
         refreshSessionStats();
@@ -229,7 +249,7 @@ export default function App() {
     resetRotation();
   }, []);
 
-  const handleDemoScenario = useCallback((scenario: DemoScenario) => {
+  const handleDemoScenario = useCallback(async (scenario: DemoScenario) => {
     setScript(null);
     setObjectionResult(null);
     setSelectedObjections([]);
@@ -238,15 +258,20 @@ export default function App() {
     setActiveTab('gameplan');
     setIntentTapped(true);
     setError(null);
-    setTimeout(() => {
-      try {
-        const result = generateSalesScript(scenario.context, weeklyData);
-        setScript(result);
-      } catch (err) {
-        setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
-        console.error(err);
-      }
-    }, 50);
+    setLoading(true);
+    try {
+      const result = await generateSalesScript(scenario.context, weeklyData);
+      setScript(result);
+      // Delay scroll — mode may be switching to 'live', need DOM to render
+      setTimeout(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 350);
+    } catch (err) {
+      setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [weeklyData]);
 
   /** From Level Up practice — loads scenario AND switches to Live */
@@ -334,7 +359,7 @@ export default function App() {
               exit={{ opacity: 0, y: -14, scale: 0.99 }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
-              <HomeScreen weeklyData={weeklyData} onModeChange={setMode} />
+              <HomeScreen weeklyData={weeklyData} onModeChange={setMode} aiStatus={aiStatus} />
             </motion.section>
           ) : mode === 'level-up' ? (
             <motion.section
@@ -588,7 +613,7 @@ export default function App() {
           </div>
 
           {/* RIGHT PANEL — Results */}
-          <div className="lg:col-span-7">
+          <div ref={resultsPanelRef} className="lg:col-span-7 scroll-mt-4">
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (

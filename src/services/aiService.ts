@@ -1,11 +1,8 @@
 /**
  * AI Service — Abstraction layer over content generation.
  *
- * Today: delegates to localGenerationService (template-based, fully offline).
- * Future: routes to Gemma 4 when available for richer, personalized generation.
- *
- * This layer exists so the app can transparently upgrade from templates to LLM
- * without changing any component code.
+ * Routes to Gemma 4 (local WebGPU inference) when available,
+ * falls back to template-based generation (fully offline).
  */
 
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
@@ -14,7 +11,14 @@ import {
   generateScript as localGenerateScript,
   analyzeObjectionLocal,
 } from './localGenerationService';
-import { isGemmaAvailable, getGemmaStatusLabel } from './gemmaService';
+import {
+  isGemmaAvailable,
+  getGemmaStatusLabel,
+  getGemmaLoadingState,
+  gemmaGenerateScript,
+  gemmaAnalyzeObjection,
+} from './gemmaService';
+import type { GemmaLoadingState } from './gemmaService';
 
 export type AIProvider = 'local' | 'gemma';
 
@@ -22,6 +26,7 @@ export interface AIServiceStatus {
   provider: AIProvider;
   label: string;
   isAvailable: boolean;
+  gemmaState: GemmaLoadingState;
 }
 
 /**
@@ -29,35 +34,48 @@ export interface AIServiceStatus {
  * Used by UI to show "AI: Local Engine" or "AI: Gemma 4" badge.
  */
 export function getAIStatus(): AIServiceStatus {
+  const { state } = getGemmaLoadingState();
   if (isGemmaAvailable()) {
-    return { provider: 'gemma', label: getGemmaStatusLabel(), isAvailable: true };
+    return { provider: 'gemma', label: getGemmaStatusLabel(), isAvailable: true, gemmaState: state };
   }
-  return { provider: 'local', label: 'Local Engine', isAvailable: true };
+  return { provider: 'local', label: 'Local Engine', isAvailable: true, gemmaState: state };
 }
 
 /**
  * Generate a sales script for the given context.
- * Routes to the best available provider.
+ * Tries Gemma first, falls back to templates.
  */
-export function generateSalesScript(
+export async function generateSalesScript(
   context: SalesContext,
   weeklyData: WeeklyUpdate | null,
-): SalesScript {
-  // Future: if (isGemmaAvailable()) return gemmaGenerateScript(context, weeklyData);
+): Promise<SalesScript> {
+  if (isGemmaAvailable()) {
+    try {
+      return await gemmaGenerateScript(context, weeklyData);
+    } catch (err) {
+      console.warn('Gemma generation failed, falling back to templates:', err);
+    }
+  }
   return localGenerateScript(context, weeklyData);
 }
 
 /**
  * Analyze customer objections and generate rebuttals.
- * Routes to the best available provider.
+ * Tries Gemma first, falls back to templates.
  */
-export function analyzeObjection(
+export async function analyzeObjection(
   objection: string,
   context: SalesContext,
   script: SalesScript | null,
   selectedItems: string[],
   weeklyData: WeeklyUpdate | null,
-): ObjectionAnalysis {
-  // Future: if (isGemmaAvailable()) return gemmaAnalyzeObjection(...)
+): Promise<ObjectionAnalysis> {
+  if (isGemmaAvailable()) {
+    try {
+      return await gemmaAnalyzeObjection(objection, context, script, selectedItems, weeklyData);
+    } catch (err) {
+      console.warn('Gemma objection analysis failed, falling back to templates:', err);
+    }
+  }
   return analyzeObjectionLocal(objection, context, script, selectedItems, weeklyData);
 }

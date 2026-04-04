@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
@@ -93,12 +93,24 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const [tab, setTab] = useState<LearnTab>('briefing');
   const [deviceCategory, setDeviceCategory] = useState<DeviceCategory>('phones');
   const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
+  const comparisonRef = useRef<HTMLDivElement>(null);
+
+  const scrollToComparison = useCallback(() => {
+    requestAnimationFrame(() => {
+      comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   const toggleDevice = useCallback((device: Device) => {
     setSelectedDevices(prev => {
       const exists = prev.some(d => d.name === device.name);
       if (exists) return prev.filter(d => d.name !== device.name);
-      return [...prev, device];
+      const next = [...prev, device];
+      // Scroll to comparison when adding a device
+      requestAnimationFrame(() => {
+        comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return next;
     });
   }, []);
 
@@ -106,7 +118,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
   const handleFlagshipShowdown = useCallback(() => {
     setSelectedDevices(getDevicesByNames(FLAGSHIP_PHONES));
-  }, []);
+    scrollToComparison();
+  }, [scrollToComparison]);
 
   // Switch device pool/presets/filters based on sub-category
   const NO_FILTERS: { id: string; label: string }[] = [];
@@ -247,7 +260,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   />
                 </div>
               </div>
-              <div className="lg:col-span-7 space-y-6">
+              <div ref={comparisonRef} className="lg:col-span-7 space-y-6 scroll-mt-4">
                 {selectedDevices.length > 0 ? (
                   <>
                     <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />
