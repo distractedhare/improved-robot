@@ -7,8 +7,10 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
-import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
+import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
+import { generateSalesScript, analyzeObjection, getAIStatus } from './services/aiService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
+import { initializeGemma, onGemmaStatusChange } from './services/gemmaService';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
@@ -25,6 +27,7 @@ import InstantPlays from './components/InstantPlays';
 import SessionStats from './components/SessionStats';
 import LevelUpView from './components/levelup/LevelUpView';
 import LearnView from './components/learn/LearnView';
+import HomeScreen from './components/HomeScreen';
 
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
@@ -45,7 +48,7 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('live');
+  const [mode, setMode] = useState<AppMode>('home');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
 
@@ -109,6 +112,16 @@ export default function App() {
     });
   }, []);
 
+  // Gemma 4 initialization — non-blocking, templates work while model loads
+  const [aiStatus, setAiStatus] = useState(() => getAIStatus());
+  useEffect(() => {
+    void initializeGemma();
+    const unsubscribe = onGemmaStatusChange(() => {
+      setAiStatus(getAIStatus());
+    });
+    return unsubscribe;
+  }, []);
+
   // Debounce ref
   const lastGenerateTime = useRef(0);
 
@@ -128,7 +141,7 @@ export default function App() {
     refreshSessionStats();
   }, [refreshSessionStats]);
 
-  const handleGenerate = useCallback((overrideContext?: SalesContext) => {
+  const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
@@ -138,7 +151,7 @@ export default function App() {
     setError(null);
 
     try {
-      const result = generateScript(ctx, weeklyData);
+      const result = await generateSalesScript(ctx, weeklyData);
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
@@ -155,12 +168,12 @@ export default function App() {
     }
   }, [context, weeklyData, refreshSessionStats]);
 
-  const handleAnalyzeObjection = useCallback(() => {
+  const handleAnalyzeObjection = useCallback(async () => {
     if (selectedObjections.length === 0) return;
     setAnalyzing(true);
     setError(null);
     try {
-      const result = analyzeObjectionLocal(
+      const result = await analyzeObjection(
         selectedObjections.join(', '),
         context,
         script,
@@ -201,7 +214,7 @@ export default function App() {
     resetRotation();
   }, []);
 
-  const handleDemoScenario = useCallback((scenario: DemoScenario) => {
+  const handleDemoScenario = useCallback(async (scenario: DemoScenario) => {
     setScript(null);
     setObjectionResult(null);
     setSelectedObjections([]);
@@ -210,10 +223,16 @@ export default function App() {
     setActiveTab('gameplan');
     setIntentTapped(true);
     setError(null);
-    setTimeout(() => {
-      const result = generateScript(scenario.context, weeklyData);
+    setLoading(true);
+    try {
+      const result = await generateSalesScript(scenario.context, weeklyData);
       setScript(result);
-    }, 50);
+    } catch (err) {
+      setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [weeklyData]);
 
   /** From Level Up practice — loads scenario AND switches to Live */
@@ -253,17 +272,52 @@ export default function App() {
       )}
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
-        {mode === 'level-up' ? (
-          <LevelUpView />
-        ) : mode === 'learn' ? (
-          <LearnView
-            weeklyData={weeklyData}
-            weeklySource={weeklySource}
-            ecosystemMatrix={ecosystemMatrix}
-            onDataUpdate={refreshWeeklyData}
-            onSelectScenario={handlePracticeScenario}
-          />
-        ) : (<>
+        <AnimatePresence mode="wait">
+          {mode === 'home' ? (
+            <motion.section
+              key="mode-home"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <HomeScreen weeklyData={weeklyData} onModeChange={setMode} aiStatus={aiStatus} />
+            </motion.section>
+          ) : mode === 'level-up' ? (
+            <motion.section
+              key="mode-level-up"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <LevelUpView />
+            </motion.section>
+          ) : mode === 'learn' ? (
+            <motion.section
+              key="mode-learn"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <LearnView
+                weeklyData={weeklyData}
+                weeklySource={weeklySource}
+                ecosystemMatrix={ecosystemMatrix}
+                onDataUpdate={refreshWeeklyData}
+                onSelectScenario={handlePracticeScenario}
+              />
+            </motion.section>
+          ) : (
+            <motion.section
+              key="mode-live"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+        <>
         {/* On-the-clock disclaimer */}
         <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
@@ -553,7 +607,10 @@ export default function App() {
             )}
           </div>
         </div>
-        </>)}
+        </>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </main>
 
 

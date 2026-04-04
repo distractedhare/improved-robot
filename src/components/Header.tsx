@@ -1,6 +1,6 @@
-import { PhoneCall, UserPlus, Zap, BookOpen, Trophy, Moon, Sun, Monitor } from 'lucide-react';
+import { Home, PhoneCall, UserPlus, Zap, BookOpen, Trophy, Moon, Sun, Monitor } from 'lucide-react';
 
-export type AppMode = 'live' | 'learn' | 'level-up';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
 export type ThemePreference = 'auto' | 'light' | 'dark';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
 }
 
 const MODES = [
+  { id: 'home' as const, icon: Home, label: 'Home' },
   { id: 'live' as const, icon: Zap, label: 'Live' },
   { id: 'learn' as const, icon: BookOpen, label: 'Learn' },
   { id: 'level-up' as const, icon: Trophy, label: 'Level Up' },
