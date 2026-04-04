@@ -32,6 +32,16 @@
     </script>
   </head>
   <body>
+    <!-- SVG displacement filter for Apple Liquid Glass lensing effect -->
+    <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+      <defs>
+        <filter id="liquid-glass-lens" x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="softEdge"/>
+          <feDisplacementMap in="SourceGraphic" in2="softEdge" scale="6" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+          <feGaussianBlur in="displaced" stdDeviation="0.5" result="smoothed"/>
+        </filter>
+      </defs>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
