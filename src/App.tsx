@@ -124,6 +124,7 @@ export default function App() {
 
   // Debounce ref
   const lastGenerateTime = useRef(0);
+  const resultsPanelRef = useRef<HTMLDivElement>(null);
 
   const refreshSessionStats = useCallback(() => {
     setSessionStats(getSessionStats());
@@ -156,6 +157,10 @@ export default function App() {
       setObjectionResult(null);
       setSelectedObjections([]);
       setSelectedGamePlanItems([]);
+      // Auto-scroll to results panel
+      requestAnimationFrame(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       if (!overrideContext) {
         trackPlanGenerated();
         refreshSessionStats();
@@ -181,6 +186,10 @@ export default function App() {
         weeklyData,
       );
       setObjectionResult(result);
+      // Auto-scroll to results
+      requestAnimationFrame(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       trackObjectionAnalyzed(selectedObjections);
       refreshSessionStats();
     } catch (err) {
@@ -227,6 +236,10 @@ export default function App() {
     try {
       const result = await generateSalesScript(scenario.context, weeklyData);
       setScript(result);
+      // Delay scroll — mode may be switching to 'live', need DOM to render
+      setTimeout(() => {
+        resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 350);
     } catch (err) {
       setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
       console.error(err);
@@ -533,7 +546,7 @@ export default function App() {
           </div>
 
           {/* RIGHT PANEL — Results */}
-          <div className="lg:col-span-7">
+          <div ref={resultsPanelRef} className="lg:col-span-7 scroll-mt-4">
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
