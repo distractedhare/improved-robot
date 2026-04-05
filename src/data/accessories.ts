@@ -52,7 +52,8 @@ export const ESSENTIAL_BUNDLE_DEAL = {
   pitch: 'If they\'re grabbing even one accessory, ask what else they need. Most customers don\'t realize how much they save by adding a second or third item.',
 };
 
-import { SalesContext, AccessoryRecommendation } from '../types';
+import { SalesContext, CustomerNeed, AccessoryRecommendation } from '../types';
+import { inferCustomerNeeds } from '../services/needInference';
 
 /** Build personalized accessory recommendations based on customer context */
 export function buildAccessoryRecommendations(context: SalesContext): AccessoryRecommendation[] {
@@ -375,5 +376,44 @@ export function buildAccessoryRecommendations(context: SalesContext): AccessoryR
     });
   }
 
-  return recs;
+  // --- NEED-BASED REORDERING ---
+  // Inferred customer needs push the most relevant accessories to the top
+  // without removing or replacing anything — just reordering.
+  const needs = inferCustomerNeeds(context);
+  return reorderByNeeds(recs, needs);
+}
+
+/** Map customer needs to accessory name keywords for priority boosting */
+const NEED_ACCESSORY_BOOST: Record<CustomerNeed, string[]> = {
+  durability: ['Protective Case', 'Screen Protector', 'Protection 360', 'Camera Lens'],
+  battery: ['Fast Charger', 'Portable Battery', 'MagSafe', 'Wireless Charger'],
+  camera: ['Camera Lens Protector'],
+  travel: ['SyncUP Tracker', 'Portable Battery', 'Car Mount'],
+  performance: ['Backbone', 'Wireless Earbuds', 'Premium Wireless Audio', 'Fast Charger'],
+  family: ['SyncUP Tracker', 'SyncUP DRIVE', 'Protection 360', 'Tablet'],
+  simplicity: ['Protective Case', 'Wireless Charger', 'Screen Protector'],
+  budget: ['Protective Case', 'Screen Protector', 'Fast Charger'],
+  streaming: ['Wireless Earbuds', 'Premium Wireless Audio'],
+  privacy: ['Screen Protector'], // Privacy screen protectors
+  productivity: ['Tablet Keyboard', 'Wireless Earbuds', 'Car Mount'],
+  compact: ['PopSocket', 'Protective Case'],
+};
+
+function reorderByNeeds(recs: AccessoryRecommendation[], needs: CustomerNeed[]): AccessoryRecommendation[] {
+  if (needs.length === 0) return recs;
+
+  const boosted = new Set<string>();
+  for (const need of needs) {
+    const keywords = NEED_ACCESSORY_BOOST[need] || [];
+    for (const kw of keywords) {
+      boosted.add(kw.toLowerCase());
+    }
+  }
+
+  // Score each rec: +10 if its name partially matches a boosted keyword
+  return [...recs].sort((a, b) => {
+    const aBoost = [...boosted].some(kw => a.name.toLowerCase().includes(kw.toLowerCase())) ? 10 : 0;
+    const bBoost = [...boosted].some(kw => b.name.toLowerCase().includes(kw.toLowerCase())) ? 10 : 0;
+    return bBoost - aBoost; // Higher boost first
+  });
 }

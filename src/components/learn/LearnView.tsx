@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle } from 'lucide-react';
+import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle, Crosshair } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
@@ -21,8 +21,9 @@ import EdgeSection from './EdgeSection';
 import PracticeScenarios from '../levelup/PracticeScenarios';
 import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
+import DeviceExplorer from './DeviceExplorer';
 
-type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
+type LearnTab = 'briefing' | 'devices' | 'match' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
 
 interface LearnViewProps {
@@ -35,6 +36,7 @@ interface LearnViewProps {
 
 const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
   { id: 'briefing', icon: Newspaper, label: 'Briefing' },
+  { id: 'match', icon: Crosshair, label: 'Match' },
   { id: 'devices', icon: Smartphone, label: 'Devices' },
   { id: 'plans', icon: Crown, label: 'Plans' },
   { id: 'homeinternet', icon: Wifi, label: 'HINT' },
@@ -59,6 +61,10 @@ const PHONE_FILTERS = [
 ];
 
 const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
+  match: {
+    moment: 'Best for pre-call prep or between-call coaching',
+    tip: 'Tag a customer type — outdoorsy parent, budget gamer, business traveler — and everything auto-fills: device, accessories, plan, objections. Use it to prep before a known callback or explore combos between calls.',
+  },
   plans: {
     moment: 'Best for live plan positioning while you are on shift',
     tip: 'Use this during working hours when you need the cleanest customer-facing reason to move into Go 5G Next or Plus without sounding scripted.',
@@ -196,6 +202,12 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       {tab === 'briefing' && (
         <div className="rounded-3xl p-5 glass-card glass-specular">
           <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
+        </div>
+      )}
+
+      {tab === 'match' && (
+        <div className="rounded-3xl p-5 glass-card glass-specular">
+          <DeviceExplorer />
         </div>
       )}
 

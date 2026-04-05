@@ -1,4 +1,5 @@
-import { SalesContext, SalesScript } from '../types';
+import { SalesContext, CustomerNeed, SalesScript } from '../types';
+import { inferCustomerNeeds } from '../services/needInference';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS } from './plans';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, CONNECTED_DEVICE_INFO } from './devices';
 import { HOME_INTERNET_PLANS, HOME_INTERNET_BUNDLE_DISCOUNT, OTHER_HOME_PRODUCTS } from './homeInternet';
@@ -147,7 +148,43 @@ function buildValueProps(context: SalesContext): string[] {
     props.push('T-Satellite with Starlink: coverage in areas with zero cell towers — 500,000+ sq miles of coverage.');
   }
 
-  return isSupport ? props.slice(0, 8) : props.slice(0, 6); // Support calls get more options
+  // Reorder by inferred customer needs so the most relevant props appear first
+  const needs = inferCustomerNeeds(context);
+  const reordered = reorderValuePropsByNeeds(props, needs);
+
+  return isSupport ? reordered.slice(0, 8) : reordered.slice(0, 6); // Support calls get more options
+}
+
+/** Keywords that match customer needs to value prop content */
+const NEED_VALUE_KEYWORDS: Record<CustomerNeed, string[]> = {
+  travel: ['international', 'roaming', '215+ countries'],
+  streaming: ['Netflix', 'Hulu', 'Apple TV', 'streaming', 'Paramount'],
+  budget: ['Better Value', 'savings', 'cheaper', 'save', '$140'],
+  family: ['family', 'kids', 'multi-line', 'lines for', 'Watch for Kids'],
+  battery: [], // no specific value prop keywords
+  camera: [],
+  durability: [],
+  simplicity: ['easy', 'simple'],
+  performance: ['5G', 'fastest', '309 Mbps'],
+  privacy: ['Scam Shield', 'security'],
+  productivity: ['hotspot', 'tablet', 'laptop'],
+  compact: [],
+};
+
+function reorderValuePropsByNeeds(props: string[], needs: CustomerNeed[]): string[] {
+  if (needs.length === 0) return props;
+
+  const keywords: string[] = [];
+  for (const need of needs) {
+    keywords.push(...(NEED_VALUE_KEYWORDS[need] || []));
+  }
+  if (keywords.length === 0) return props;
+
+  return [...props].sort((a, b) => {
+    const aMatch = keywords.some(kw => a.toLowerCase().includes(kw.toLowerCase())) ? 1 : 0;
+    const bMatch = keywords.some(kw => b.toLowerCase().includes(kw.toLowerCase())) ? 1 : 0;
+    return bMatch - aMatch;
+  });
 }
 
 function buildObjectionHandling(): { concern: string; reassurance: string }[] {

@@ -6,6 +6,8 @@ export interface Device {
   keySpecs: string;
   /** Deeper selling points — ecosystem hooks, comparison data, use cases */
   sellingNotes?: string;
+  /** One sentence the rep can say out loud to a customer — quick and natural */
+  quickPitch?: string;
   // Note: promos are NOT stored here — they come exclusively from weekly-update.json
   // to prevent stale promo data. Only specs, price, and release info stay here.
 }
@@ -18,7 +20,8 @@ export const PHONES: Device[] = [
     startingPrice: 1199,
     released: 'Sept 2025',
     keySpecs: '6.9" OLED 120Hz (2868x1320, 460ppi), A19 Pro, 12GB RAM, triple 48MP (W+UW+4x Tele) / 18MP front, 256GB–2TB, 4,823–5,088 mAh, 40W wired + 25W MagSafe, vapour chamber cooling, Ceramic Shield 2',
-    sellingNotes: 'Best battery in any iPhone ever (39hr video). 2TB storage option is new. Vapour chamber keeps it cool during heavy AI tasks. A19 Pro runs local AI agents on-device for privacy. "Liquid Glass" back feels premium. Ceramic Shield 2 is 3x more scratch-resistant. Visual Intelligence reads what\'s on screen. Ecosystem anchor — pairs instantly with AirPods, Apple Watch, iPad.',
+    sellingNotes: 'Best battery in any iPhone ever — 39 hours of video playback. 2TB storage is new this year. Vapour chamber keeps it cool during heavy use. Ceramic Shield 2 is 3x harder to scratch. If they\'re in the Apple ecosystem, this is the anchor — pairs instantly with AirPods, Watch, iPad.',
+    quickPitch: "Best battery Apple has ever made. 48MP triple camera. If they want the best iPhone — this is the one.",
   },
   {
     name: 'iPhone 17 Pro',
@@ -50,7 +53,8 @@ export const PHONES: Device[] = [
     startingPrice: 599.99,
     released: 'March 2026',
     keySpecs: '6.3" OLED 120Hz (460ppi), A19, 8GB RAM, dual 48MP / 18MP front, 256GB/512GB, 30–40W wired + 25W MagSafe, MagSafe/Qi2',
-    sellingNotes: 'The value play — brings A19 AI power, MagSafe, and 256GB storage to $599. Same local AI features as the Pro models. Great for "Value Explorer" customers who want 2026 tech at an accessible price.',
+    sellingNotes: 'This is the value play — A19 chip, MagSafe, 256GB at $599. Same AI features as the Pro models for hundreds less. Free with qualifying trade-in.',
+    quickPitch: "Free with a trade-in. Same AI features as the Pro at half the price. Easiest recommendation in the lineup.",
   },
   { name: 'iPhone 16', category: 'iphone', startingPrice: 799, released: 'Sept 2024', keySpecs: 'Still sold; 128GB base' },
   // Samsung Galaxy lineup
@@ -60,7 +64,8 @@ export const PHONES: Device[] = [
     startingPrice: 1299.99,
     released: 'March 2026',
     keySpecs: '6.9" QHD+ AMOLED (3120x1440, 500ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12/16GB RAM, 200MP Wide + 50MP UW + 50MP 5x Tele + 10MP 3x Tele / 12MP front, 256GB/512GB/1TB, 5,000 mAh, 60W wired + 25W wireless, S Pen, Flex Magic Privacy Display, 7.9mm thin',
-    sellingNotes: 'Flex Magic Privacy Display narrows viewing angle so screen looks black to people next to you — huge for commuters/business users on trains or planes. Thinnest Ultra ever at 7.9mm with rounded corners (finally). 200MP camera with 100x Space Zoom. 60W charging (vs Apple\'s 40W). On-device AI via "Now Nudge" predicts your needs proactively. One UI 8.5 on Android 16 with 7 years of updates. $1,299.99–$1,799.99.',
+    sellingNotes: 'Privacy Display makes the screen look black to anyone sitting next to you — huge for commuters and business travelers. 200MP camera with 100x Space Zoom. S Pen built in. Charges at 60W — noticeably faster than iPhone. 7 years of updates.',
+    quickPitch: "200MP camera, S Pen, and a privacy screen nobody else has. If they want the most capable Android phone — this is it.",
   },
   {
     name: 'Galaxy S26+',

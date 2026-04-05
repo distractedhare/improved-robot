@@ -1,7 +1,9 @@
-import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star } from 'lucide-react';
+import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
+import { SalesContext } from '../types';
 import { getSupportAccessory } from '../services/ecosystemService';
+import { buildDeviceRecommendations, DeviceRecommendation } from '../data/deviceRecommendations';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ESSENTIALS_TABLE, BIG_ADDS, getRecommendedCategories, Intent } from '../data/essentialAccessories';
 
@@ -12,6 +14,8 @@ interface InstantPlaysProps {
   age?: string;
   product?: ProductType[];
   ecosystemMatrix?: EcosystemMatrix | null;
+  /** Full sales context for device recommendations — optional for backwards compat */
+  salesContext?: SalesContext;
 }
 
 // Intent-specific play content
@@ -158,14 +162,21 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
   },
 };
 
-export default function InstantPlays({ intent, age, product, ecosystemMatrix }: InstantPlaysProps) {
+export default function InstantPlays({ intent, age, product, ecosystemMatrix, salesContext }: InstantPlaysProps) {
   const plays = INTENT_PLAYS[intent];
   const showAccessories = isSalesIntent(intent);
   const isSupportCall = !showAccessories;
   const [accOpen, setAccOpen] = useState(false);
+  const [deviceRecsOpen, setDeviceRecsOpen] = useState(true);
 
   // Get product-specific tips
   const activeProducts = product?.filter(p => p !== 'No Specific Product' && p !== 'Phone') ?? [];
+
+  // Auto-ranked device recommendations based on inferred customer needs
+  const deviceRecs = useMemo(() => {
+    if (!salesContext) return [];
+    return buildDeviceRecommendations(salesContext);
+  }, [salesContext]);
 
   // Get a premium accessory recommendation for support intents
   const supportAccessory = useMemo(() => {
@@ -235,6 +246,37 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         ))}
       </div>
 
+
+      {/* Device recommendations — auto-ranked by inferred customer needs */}
+      {deviceRecs.length > 0 && (
+        <div>
+          <button
+            type="button"
+            onClick={() => setDeviceRecsOpen(!deviceRecsOpen)}
+            className="focus-ring w-full flex items-center justify-between p-3 rounded-xl glass-card text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60"
+          >
+            <span className="flex items-center gap-2"><Smartphone className="w-3 h-3 text-t-magenta" /> Recommended devices</span>
+            <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${deviceRecsOpen ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {deviceRecsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-2 pt-3">
+                  {deviceRecs.map((rec, i) => (
+                    <DeviceRecCard key={rec.device.name} rec={rec} rank={i + 1} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Accessories section for sales intents — collapsible */}
       {showAccessories && (
@@ -456,6 +498,81 @@ function BigAddsSection({ age }: { age?: string }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// --- Device Recommendation Card ---
+
+const NEED_LABELS: Record<string, string> = {
+  camera: 'Great camera',
+  battery: 'All-day battery',
+  durability: 'Built tough',
+  budget: 'Budget-friendly',
+  simplicity: 'Easy to use',
+  performance: 'High performance',
+  travel: 'Travel-ready',
+  family: 'Family pick',
+  streaming: 'Streaming machine',
+  privacy: 'Privacy features',
+  productivity: 'Work powerhouse',
+  compact: 'Compact size',
+};
+
+function DeviceRecCard({ rec, rank }: { rec: DeviceRecommendation; rank: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const price = typeof rec.device.startingPrice === 'number'
+    ? `$${rec.device.startingPrice}`
+    : rec.device.startingPrice;
+
+  return (
+    <div className="rounded-xl glass-card border border-t-light-gray/50 hover:border-t-magenta/30 transition-colors overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="focus-ring w-full text-left p-3"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black text-t-magenta/60">#{rank}</span>
+              <span className="text-[11px] font-black text-t-dark-gray truncate">{rec.device.name}</span>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {rec.matchedNeeds.slice(0, 3).map((need) => (
+                <span key={need} className="text-[7px] font-bold uppercase tracking-wider bg-t-magenta/10 text-t-magenta px-1.5 py-0.5 rounded-full">
+                  {NEED_LABELS[need] || need}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <span className="text-[11px] font-black text-t-dark-gray">{price}</span>
+            <ChevronDown className={`w-3 h-3 text-t-dark-gray/40 transition-transform ml-auto mt-1 ${expanded ? 'rotate-180' : ''}`} />
+          </div>
+        </div>
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-3 space-y-2">
+              <p className="text-[10px] text-t-dark-gray/80 font-medium leading-snug">{rec.quickPitch}</p>
+              {rec.vsCompetitor && (
+                <div className="bg-t-magenta/5 rounded-lg px-2.5 py-1.5 border border-t-magenta/10">
+                  <p className="text-[9px] text-t-magenta font-bold leading-snug">{rec.vsCompetitor}</p>
+                </div>
+              )}
+              <p className="text-[8px] text-t-dark-gray/50 font-medium">{rec.device.keySpecs}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -324,3 +324,65 @@ export async function gemmaAnalyzeObjection(
   const response = await llmInstance.generateResponse(prompt);
   return parseObjectionResponse(response);
 }
+
+// ---------------------------------------------------------------------------
+// Wording refresh — Gemma rephrases templates without changing logic
+// ---------------------------------------------------------------------------
+
+interface WordingRefreshInput {
+  id: string;
+  defaultWording: string;
+  variables: Record<string, string>;
+}
+
+interface WordingRefreshOutput {
+  id: string;
+  refreshedWording: string;
+}
+
+/**
+ * Ask Gemma to rephrase sales talking points while preserving all facts.
+ * This only changes HOW things are said, not WHAT is recommended.
+ * Falls back to original wording if Gemma is unavailable or parsing fails.
+ */
+export async function gemmaRefreshWording(
+  templates: WordingRefreshInput[],
+  customerAge?: string,
+): Promise<WordingRefreshOutput[]> {
+  if (!llmInstance) {
+    return templates.map(t => ({ id: t.id, refreshedWording: t.defaultWording }));
+  }
+
+  const prompt = `You are a T-Mobile sales coach. Rephrase these talking points so they sound natural and conversational — like what a rep would actually say out loud to a customer${customerAge ? ` in the ${customerAge} age group` : ''}.
+
+RULES:
+- Keep ALL factual claims exactly the same (prices, specs, percentages, brand names).
+- Only change the phrasing style — make it sound human, not scripted.
+- Keep each rephrased version roughly the same length.
+- Do NOT add new facts or remove existing ones.
+
+INPUT (JSON array):
+${JSON.stringify(templates.map(t => ({ id: t.id, text: t.defaultWording })))}
+
+Respond with ONLY a JSON array matching this structure (no markdown, no extra text):
+[{"id": "string", "text": "rephrased string"}, ...]`;
+
+  try {
+    const response = await llmInstance.generateResponse(prompt);
+    const parsed = extractJSON(response) as { id: string; text: string }[];
+
+    if (!Array.isArray(parsed)) {
+      return templates.map(t => ({ id: t.id, refreshedWording: t.defaultWording }));
+    }
+
+    const resultMap = new Map(parsed.map(p => [p.id, p.text]));
+
+    return templates.map(t => ({
+      id: t.id,
+      refreshedWording: resultMap.get(t.id) || t.defaultWording,
+    }));
+  } catch {
+    // Fallback to original wording
+    return templates.map(t => ({ id: t.id, refreshedWording: t.defaultWording }));
+  }
+}

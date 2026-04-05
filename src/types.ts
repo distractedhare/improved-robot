@@ -1,3 +1,17 @@
+export type CustomerNeed =
+  | 'camera'        // photography / video quality
+  | 'battery'       // long battery life
+  | 'durability'    // rugged, drop-resistant
+  | 'budget'        // price-sensitive
+  | 'simplicity'    // ease of use
+  | 'performance'   // gaming, power users
+  | 'travel'        // international roaming, portability
+  | 'family'        // multi-line, kids, shared plans
+  | 'streaming'     // Netflix, music, content consumption
+  | 'privacy'       // screen privacy, security features
+  | 'productivity'  // work, S Pen, multitasking
+  | 'compact';      // smaller phone preference
+
 export interface SalesContext {
   age: '18-24' | '25-34' | '35-54' | '55+' | 'Not Specified';
   region: 'New England' | 'Mid-Atlantic' | 'South Atlantic' | 'Southeast' | 'Deep South' | 'Mid-South' | 'Great Lakes' | 'Upper Midwest' | 'Great Plains' | 'Texas & Oklahoma' | 'Desert Southwest' | 'Rocky Mountains' | 'Pacific Northwest' | 'California' | 'Alaska' | 'Hawaii' | 'Not Specified';
