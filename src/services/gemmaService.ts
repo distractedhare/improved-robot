@@ -15,7 +15,10 @@ import { WeeklyUpdate } from './weeklyUpdateSchema';
 // ---------------------------------------------------------------------------
 
 const MODEL_URL =
-  'https://huggingface.co/litert-community/gemma-3-1b-it-litert-lm/resolve/main/gemma-3-1b-it-gpu-int4-web.task';
+  'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task';
+
+const MODEL_VERSION_KEY = 'gemma-model-version';
+const CURRENT_MODEL_VERSION = 'gemma-4-e2b';
 
 const WASM_URL =
   'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm';
@@ -98,7 +101,7 @@ export async function initializeGemma(): Promise<void> {
 
     llmInstance = await LlmInference.createFromOptions(genai, {
       baseOptions: { modelAssetPath: MODEL_URL },
-      maxTokens: 2048,
+      maxTokens: 4096,
       topK: 40,
       temperature: 0.7,
       randomSeed: 42,
@@ -106,6 +109,13 @@ export async function initializeGemma(): Promise<void> {
 
     loadingState = 'ready';
     loadError = null;
+
+    // Track model version and clean up old caches
+    const prevVersion = localStorage.getItem(MODEL_VERSION_KEY);
+    if (prevVersion && prevVersion !== CURRENT_MODEL_VERSION) {
+      cleanupOldModelCaches().catch(() => {});
+    }
+    localStorage.setItem(MODEL_VERSION_KEY, CURRENT_MODEL_VERSION);
   } catch (err) {
     loadingState = 'error';
     loadError = err instanceof Error ? err.message : 'Failed to load Gemma model';
@@ -113,6 +123,25 @@ export async function initializeGemma(): Promise<void> {
   }
 
   notifyListeners();
+}
+
+// ---------------------------------------------------------------------------
+// Old model cache cleanup
+// ---------------------------------------------------------------------------
+
+async function cleanupOldModelCaches(): Promise<void> {
+  if (!('indexedDB' in globalThis) || !indexedDB.databases) return;
+  try {
+    const dbs = await indexedDB.databases();
+    for (const db of dbs) {
+      // MediaPipe caches models in IDB databases with predictable names
+      if (db.name && /gemma.?3/i.test(db.name)) {
+        indexedDB.deleteDatabase(db.name);
+      }
+    }
+  } catch {
+    // Non-critical — old cache will just take up space
+  }
 }
 
 // ---------------------------------------------------------------------------

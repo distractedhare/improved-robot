@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "check": "npm run lint && npm run build"
+    "check": "npm run lint && npm run build",
+    "vocab:generate": "tsx scripts/generate-vocabulary.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-genai": "^0.10.27",

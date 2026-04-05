@@ -11,6 +11,7 @@ import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGeneration
 import { generateSalesScript, analyzeObjection, getAIStatus } from './services/aiService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
 import { initializeGemma, onGemmaStatusChange } from './services/gemmaService';
+import { loadVocabulary } from './services/vocabularyService';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
@@ -138,9 +139,10 @@ export default function App() {
     });
   }, []);
 
-  // Gemma 4 initialization — non-blocking, templates work while model loads
+  // Vocabulary + Gemma 4 initialization — non-blocking, templates work while loading
   const [aiStatus, setAiStatus] = useState(() => getAIStatus());
   useEffect(() => {
+    void loadVocabulary();
     void initializeGemma();
     const unsubscribe = onGemmaStatusChange(() => {
       setAiStatus(getAIStatus());

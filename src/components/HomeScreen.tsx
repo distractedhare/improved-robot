@@ -128,10 +128,10 @@ function GemmaEngineCard({ aiStatus }: { aiStatus: AIServiceStatus }) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-0.5">
-              AI Engine: Templates
+              Built-in Playbook
             </p>
             <p className="text-[11px] text-t-dark-gray font-medium">
-              WebGPU not available. Using fast local templates.
+              All features work. AI personalization available on newer devices.
             </p>
           </div>
         </div>

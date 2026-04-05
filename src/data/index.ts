@@ -16,6 +16,7 @@ import {
   SERVICE_TO_SALES,
   BTS_IOT_VALUE_PROPS,
 } from './salesMethodology';
+import { getVocabulary } from '../services/vocabularyService';
 
 // Re-export everything for convenience
 export * from './plans';
@@ -32,21 +33,23 @@ export * from './salesMethodology';
  */
 export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
   const isSupport = ['order support', 'tech support', 'account support'].includes(context.purchaseIntent);
-  const welcomeMessages = WELCOME_MESSAGES[context.purchaseIntent] || WELCOME_MESSAGES['exploring'];
+  const welcomeMessages = getVocabulary('welcome', context.purchaseIntent)
+    || WELCOME_MESSAGES[context.purchaseIntent]
+    || WELCOME_MESSAGES['exploring'];
 
   // Collect discovery questions for all selected products
   const discoveryQuestions: string[] = [];
 
   // For support calls, ALSO inject BTS/IOT discovery questions — those are the pivots
   if (isSupport) {
-    const btsQs = DISCOVERY_QUESTIONS['BTS'];
-    const iotQs = DISCOVERY_QUESTIONS['IOT'];
+    const btsQs = getVocabulary('discovery', 'BTS') || DISCOVERY_QUESTIONS['BTS'];
+    const iotQs = getVocabulary('discovery', 'IOT') || DISCOVERY_QUESTIONS['IOT'];
     if (btsQs) discoveryQuestions.push(...btsQs.slice(0, 3));
     if (iotQs) discoveryQuestions.push(...iotQs.slice(0, 2));
   }
 
   for (const product of context.product) {
-    const qs = DISCOVERY_QUESTIONS[product];
+    const qs = getVocabulary('discovery', product) || DISCOVERY_QUESTIONS[product];
     if (qs) discoveryQuestions.push(...qs);
   }
   const uniqueDiscovery = [...new Set(discoveryQuestions)].slice(0, 8);

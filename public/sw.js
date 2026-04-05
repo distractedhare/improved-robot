@@ -1,4 +1,4 @@
-const CACHE_NAME = 'customerconnect-v7';
+const CACHE_NAME = 'customerconnect-v8';
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
@@ -13,6 +13,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll([
         '/manifest.json',
         '/weekly-update.json',
+        '/vocabulary-bundle.json',
         '/device-ecosystem-matrix.json',
         '/states-10m.json',
         '/tmo-logo-v4.svg',
@@ -84,7 +85,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Time-sensitive JSON — network first so updates propagate
-  if (url.pathname === '/weekly-update.json' || url.pathname === '/device-ecosystem-matrix.json') {
+  if (url.pathname === '/weekly-update.json' || url.pathname === '/device-ecosystem-matrix.json' || url.pathname === '/vocabulary-bundle.json') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
