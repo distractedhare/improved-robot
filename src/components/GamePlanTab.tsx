@@ -39,7 +39,7 @@ export default function GamePlanTab({
     >
       <button
         type="button"
-        onClick={onGenerate}
+        onClick={() => onGenerate()}
         disabled={loading}
         className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform"
       >
