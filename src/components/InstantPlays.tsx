@@ -339,15 +339,23 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
     });
   }, []);
 
+  // Pre-generate: show only top 2 recommended categories to keep focus narrow
+  const visibleCategories = useMemo(() => {
+    const recSet = new Set(recommended);
+    const recCats = ESSENTIALS_TABLE.filter(c => recSet.has(c.id));
+    const rest = ESSENTIALS_TABLE.filter(c => !recSet.has(c.id));
+    return [...recCats, ...rest].slice(0, 2);
+  }, [recommended]);
+
   return (
     <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
       <div className="px-4 pt-4 pb-2">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
-          Essentials — Bundle-eligible (25% off w/ 3+)
+          Top Essentials — Bundle-eligible (25% off w/ 3+)
         </p>
       </div>
       <div className="divide-y divide-t-light-gray/50">
-        {ESSENTIALS_TABLE.map((cat) => {
+        {visibleCategories.map((cat) => {
           const isOpen = expanded.has(cat.id);
           const isRec = recommended.includes(cat.id);
           return (
@@ -381,7 +389,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                     className="overflow-hidden"
                   >
                     <div className="px-4 pb-3 space-y-1.5">
-                      {cat.items.map((item, i) => (
+                      {cat.items.slice(0, 2).map((item, i) => (
                         <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
                           <div className="flex items-center justify-between text-[10px]">
                             <span className="font-bold text-t-dark-gray">{item.name}</span>
@@ -432,11 +440,21 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
 function BigAddsSection({ age }: { age?: string }) {
   const ageKey = age && age !== 'Not Specified' ? age : null;
 
+  // Pre-generate: show only top 2, prioritizing age-matched items
+  const visibleAdds = useMemo(() => {
+    const sorted = [...BIG_ADDS].sort((a, b) => {
+      const aMatch = ageKey && a.bestFor?.includes(ageKey) ? 1 : 0;
+      const bMatch = ageKey && b.bestFor?.includes(ageKey) ? 1 : 0;
+      return bMatch - aMatch;
+    });
+    return sorted.slice(0, 2);
+  }, [ageKey]);
+
   return (
     <div className="rounded-2xl glass-card p-4 shadow-sm">
-      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Then swing for the big add</p>
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Top big swings</p>
       <div className="space-y-2">
-        {BIG_ADDS.map((item, i) => {
+        {visibleAdds.map((item, i) => {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
           return (
             <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
