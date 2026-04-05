@@ -2,6 +2,8 @@ import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpdateValidationError } from './weeklyUpdateSchema';
 import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
 import { REGIONAL_DATA, getStateTalkingPoints, RegionKey } from '../data/regionalData';
+import { findScenario } from '../data/objectionPlaybook';
+import { getDeepDiveScripts } from '../data/recommendationRules';
 
 // --- Weekly Update Loading ---
 
@@ -282,6 +284,20 @@ export function analyzeObjectionLocal(
   const carrierSpecificArguments: string[] = [];
 
   for (const key of objectionKeys) {
+    // Try new scenario ID format first (from redesigned ObjectionTab)
+    const scenario = findScenario(key);
+    if (scenario) {
+      talkingPoints.push(scenario.quickResponse);
+      if (scenario.deepDiveKeys) {
+        const scripts = getDeepDiveScripts(scenario.deepDiveKeys);
+        for (const script of scripts) {
+          counterArguments.push(script.repSays);
+          talkingPoints.push(script.managerCoaching);
+        }
+      }
+      continue;
+    }
+    // Fallback: old human-readable key format (backwards compatibility)
     const template = OBJECTION_TEMPLATES[key];
     if (template) {
       talkingPoints.push(...template.talkingPoints.slice(0, 3));
@@ -339,8 +355,15 @@ export function analyzeObjectionLocal(
     ? `You've already hit them with ${describeTriedCategories(triedCategories)}. Good. Don't recycle the same lane — pivot to something they haven't heard yet.`
     : null;
 
+  // Include scenario coaching tips in coach's corner
+  const scenarioTips = objectionKeys
+    .map(key => findScenario(key))
+    .filter(Boolean)
+    .map(s => s!.tip);
+
   const coachsCorner = [
     triedAcknowledgement,
+    ...scenarioTips,
     'Acknowledge the concern first, then redirect. Never argue — show empathy and offer a different angle.',
   ].filter(Boolean).join(' ');
 

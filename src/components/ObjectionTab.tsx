@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import {
   AlertCircle, CheckCircle2, Sparkles, Zap, Loader2,
-  MessageSquare, Target, Briefcase, Lightbulb, ShieldCheck, RefreshCw
+  MessageSquare, Target, Briefcase, Lightbulb, ShieldCheck, RefreshCw,
+  ChevronDown, KeyRound, Smartphone, ArrowRightLeft, WifiOff,
+  CircleDollarSign, Wrench, MessageSquareWarning,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
+import { OBJECTION_PLAYBOOK, ObjectionCategory, ObjectionScenario } from '../data/objectionPlaybook';
 import GroundingSources from './GroundingSources';
 
 interface ObjectionTabProps {
@@ -18,22 +22,53 @@ interface ObjectionTabProps {
   onClearResult: () => void;
 }
 
-const OBJECTIONS = [
-  { id: "Price is too high", desc: "Customer feels the monthly cost or upfront device cost exceeds their budget." },
-  { id: "Happy with current provider", desc: "Customer sees no reason to switch because their current service works fine." },
-  { id: "Don't need a new phone/plan", desc: "Customer is satisfied with their current device and plan features." },
-  { id: "Worried about coverage", desc: "Customer has heard negative things about T-Mobile's network in their area." },
-  { id: "Too much hassle to switch", desc: "Customer dreads the process of porting numbers, transferring data, and setting up new accounts." },
-  { id: "Contract/ETF concerns", desc: "Customer is locked into a contract or owes money on their current devices." },
-  { id: "Waiting for the next phone launch", desc: "Customer wants to delay purchase until a newer or better device is released." },
-  { id: "I need to talk to my spouse", desc: "Customer is not the sole decision maker or wants to discuss finances first." },
-  { id: "Bad past experience with T-Mobile", desc: "Customer or someone they know had a negative experience with T-Mobile previously." },
-];
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  KeyRound,
+  Smartphone,
+  ArrowRightLeft,
+  WifiOff,
+  CircleDollarSign,
+  Wrench,
+  MessageSquareWarning,
+};
 
 export default function ObjectionTab({
+  script,
   selectedObjections, setSelectedObjections, selectedGamePlanItems,
   objectionResult, analyzing, onAnalyze, onClearResult,
 }: ObjectionTabProps) {
+  void script; // Future: Gemma rephrasing of quickResponse
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedScenarios, setExpandedScenarios] = useState<Set<string>>(new Set());
+
+  const toggleCategory = (catId: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(catId)) next.delete(catId);
+      else next.add(catId);
+      return next;
+    });
+  };
+
+  const toggleScenario = (scenarioId: string) => {
+    setExpandedScenarios(prev => {
+      const next = new Set(prev);
+      if (next.has(scenarioId)) next.delete(scenarioId);
+      else next.add(scenarioId);
+      return next;
+    });
+  };
+
+  const toggleSelection = (scenarioId: string) => {
+    setSelectedObjections(prev =>
+      prev.includes(scenarioId)
+        ? prev.filter(o => o !== scenarioId)
+        : [...prev, scenarioId]
+    );
+  };
+
+  const selectedCount = selectedObjections.length;
+
   return (
     <motion.section
       key="objections"
@@ -48,43 +83,121 @@ export default function ObjectionTab({
 
       <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray mb-4">
         <p className="text-xs text-t-dark-gray font-medium">
-          Pick the pushback you're hearing, then hit <strong className="text-t-magenta">Analyze</strong> — we'll build your comeback.
+          Tap a category to explore objections. Expand any scenario for an <strong className="text-t-magenta">instant response</strong> and coaching tip. Select scenarios for a full <strong className="text-t-magenta">deep dive</strong>.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 mb-4">
-        {OBJECTIONS.map((objection) => {
-          const isSelected = selectedObjections.includes(objection.id);
+      {/* Category Accordions */}
+      <div className="space-y-2">
+        {OBJECTION_PLAYBOOK.map((category: ObjectionCategory) => {
+          const IconComponent = ICON_MAP[category.icon];
+          const isCatExpanded = expandedCategories.has(category.id);
+          const selectedInCategory = category.scenarios.filter(s => selectedObjections.includes(s.id)).length;
+
           return (
-            <div key={objection.id} className="relative">
+            <div key={category.id} className="rounded-2xl border border-t-light-gray overflow-hidden">
+              {/* Category Header */}
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedObjections(prev =>
-                    isSelected
-                      ? prev.filter(o => o !== objection.id)
-                      : [...prev, objection.id]
-                  );
-                }}
-                aria-pressed={isSelected}
-                className={`focus-ring w-full py-2.5 px-4 text-left text-xs font-bold rounded-xl border-2 transition-all flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-t-magenta text-white border-t-magenta shadow-md shadow-t-magenta/10'
-                    : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/30'
-                }`}
+                onClick={() => toggleCategory(category.id)}
+                className="focus-ring w-full flex items-center justify-between p-4 bg-surface hover:bg-t-light-gray/10 transition-colors rounded"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
-                    isSelected ? 'bg-surface border-white' : 'bg-surface border-t-light-gray'
-                  }`}>
-                    {isSelected && <CheckCircle2 className="w-3 h-3 text-t-magenta" />}
-                  </div>
-                  <div>
-                    <span>{objection.id}</span>
-                    <p className={`text-[10px] font-medium mt-0.5 ${isSelected ? 'text-white/70' : 'text-t-dark-gray/50'}`}>{objection.desc}</p>
-                  </div>
+                  {IconComponent && <IconComponent className="w-4 h-4 text-t-magenta" />}
+                  <span className="text-sm font-bold text-t-dark-gray">{category.label}</span>
+                  {selectedInCategory > 0 && (
+                    <span className="text-[10px] font-black bg-t-magenta text-white px-2 py-0.5 rounded-full">
+                      {selectedInCategory}
+                    </span>
+                  )}
                 </div>
+                <ChevronDown className={`w-4 h-4 text-t-dark-gray/50 transition-transform ${isCatExpanded ? 'rotate-180' : ''}`} />
               </button>
+
+              {/* Scenarios */}
+              <AnimatePresence>
+                {isCatExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 space-y-2">
+                      {category.scenarios.map((scenario: ObjectionScenario) => {
+                        const isSelected = selectedObjections.includes(scenario.id);
+                        const isExpanded = expandedScenarios.has(scenario.id);
+
+                        return (
+                          <div key={scenario.id} className={`rounded-xl border-2 transition-all ${isSelected ? 'border-t-magenta/40 bg-t-magenta/5' : 'border-t-light-gray bg-surface'}`}>
+                            {/* Scenario Header */}
+                            <div className="flex items-center gap-2 p-3">
+                              <button
+                                type="button"
+                                onClick={() => toggleSelection(scenario.id)}
+                                className={`focus-ring w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-t-magenta border-t-magenta' : 'bg-surface border-t-light-gray hover:border-t-magenta/40'}`}
+                              >
+                                {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => toggleScenario(scenario.id)}
+                                className="focus-ring flex-1 text-left text-xs font-bold text-t-dark-gray flex items-center justify-between rounded"
+                              >
+                                <span>{scenario.title}</span>
+                                <ChevronDown className={`w-3 h-3 text-t-dark-gray/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                              </button>
+                            </div>
+
+                            {/* Expanded: Quick Response + Tip */}
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.15 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="px-3 pb-3 space-y-2">
+                                    <div className="bg-t-light-gray/20 rounded-lg p-3">
+                                      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Quick Response</p>
+                                      <p className="text-xs text-t-dark-gray leading-relaxed">{scenario.quickResponse}</p>
+                                    </div>
+                                    <div className="bg-t-magenta/5 rounded-lg p-3 border border-t-magenta/10">
+                                      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1 flex items-center gap-1">
+                                        <Lightbulb className="w-3 h-3" /> Coaching Tip
+                                      </p>
+                                      <p className="text-xs text-t-dark-gray italic leading-relaxed">{scenario.tip}</p>
+                                    </div>
+                                    {scenario.steps && scenario.steps.length > 0 && (
+                                      <div className="bg-surface rounded-lg p-3 border border-t-light-gray">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Steps</p>
+                                        <div className="space-y-1.5">
+                                          {scenario.steps.map((step, i) => (
+                                            <div key={i} className="flex items-start gap-2">
+                                              <span className="text-[10px] font-black text-t-magenta mt-0.5">{i + 1}.</span>
+                                              <div>
+                                                <p className="text-[10px] font-bold text-t-dark-gray">{step.label}</p>
+                                                <p className="text-[10px] text-t-dark-gray/70">{step.script}</p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
@@ -101,20 +214,25 @@ export default function ObjectionTab({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onAnalyze}
-        disabled={analyzing || selectedObjections.length === 0}
-        className="focus-ring w-full bg-t-dark-gray text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
-      >
-        {analyzing ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
-        ) : (
-          <>
-            <Zap className="w-4 h-4 text-t-magenta" /> Analyze {selectedObjections.length > 0 ? `${selectedObjections.length} ` : ""}Selected
-          </>
-        )}
-      </button>
+      {/* Sticky Flip the Script Button */}
+      {selectedCount > 0 && (
+        <div className="sticky bottom-4 z-10">
+          <button
+            type="button"
+            onClick={onAnalyze}
+            disabled={analyzing}
+            className="focus-ring w-full bg-t-dark-gray text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
+          >
+            {analyzing ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Zap className="w-4 h-4 text-t-magenta" /> Flip the Script ({selectedCount})
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </motion.section>
   );
 }
