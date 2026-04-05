@@ -75,13 +75,13 @@ export default function ObjectionTab({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="rounded-3xl glass-card p-6 shadow-sm space-y-5"
+      className="rounded-3xl glass-card p-6 shadow-sm space-y-4"
     >
-      <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
+      <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
         <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
       </h2>
 
-      <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray mb-4">
+      <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray">
         <p className="text-xs text-t-dark-gray font-medium">
           Tap a category to explore objections. Expand any scenario for an <strong className="text-t-magenta">instant response</strong> and coaching tip. Select scenarios for a full <strong className="text-t-magenta">deep dive</strong>.
         </p>
@@ -100,7 +100,7 @@ export default function ObjectionTab({
               <button
                 type="button"
                 onClick={() => toggleCategory(category.id)}
-                className="focus-ring w-full flex items-center justify-between p-4 bg-surface hover:bg-t-light-gray/10 transition-colors rounded"
+                className="focus-ring w-full flex items-center justify-between p-4 bg-surface hover:bg-t-light-gray/10 transition-colors rounded-2xl"
               >
                 <div className="flex items-center gap-3">
                   {IconComponent && <IconComponent className="w-4 h-4 text-t-magenta" />}
@@ -204,19 +204,19 @@ export default function ObjectionTab({
       </div>
 
       {selectedGamePlanItems.length > 0 && (
-        <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-4 mb-4">
+        <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-4">
           <h3 className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
             <Sparkles className="w-3 h-3" /> Context Added
           </h3>
-          <p className="text-[11px] text-t-dark-gray font-medium mb-2">
+          <p className="text-[11px] text-t-dark-gray font-medium">
             You've marked <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> move{selectedGamePlanItems.length === 1 ? '' : 's'} you already made — we'll skip those and bring fresh angles.
           </p>
         </div>
       )}
 
-      {/* Sticky Flip the Script Button */}
+      {/* Flip the Script Button */}
       {selectedCount > 0 && (
-        <div className="sticky bottom-4 z-10">
+        <div className="sticky bottom-0 z-10 -mx-6 -mb-6 px-6 pb-6 pt-3 bg-gradient-to-t from-[var(--bg-page)] via-[var(--bg-page)]/80 to-transparent">
           <button
             type="button"
             onClick={onAnalyze}

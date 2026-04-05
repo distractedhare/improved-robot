@@ -689,15 +689,15 @@ export default function App() {
                   <div className="text-left space-y-4 max-w-sm w-full">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
-                      <p className="text-sm text-t-dark-gray font-medium">Pick the pushback you're hearing.</p>
+                      <p className="text-sm text-t-dark-gray font-medium">Tap a category and pick the pushback you're hearing.</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
-                      <p className="text-sm text-t-dark-gray font-medium">Hit <span className="font-bold text-t-magenta">Analyze</span> and get your comeback.</p>
+                      <p className="text-sm text-t-dark-gray font-medium">Get an <span className="font-bold text-t-magenta">instant response</span>, then hit <span className="font-bold text-t-magenta">Flip the Script</span> for the full deep dive.</p>
                     </div>
                     <div className="flex items-start gap-3 bg-surface-elevated p-3 rounded-xl border border-t-light-gray shadow-sm mt-2">
                       <div className="w-6 h-6 rounded-full bg-t-magenta/10 text-t-magenta flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">★</div>
-                      <p className="text-xs text-t-dark-gray font-medium"><span className="font-bold text-t-magenta">Pro tip:</span> Build your Game Plan first — it makes the analyzer way sharper.</p>
+                      <p className="text-xs text-t-dark-gray font-medium"><span className="font-bold text-t-magenta">Pro tip:</span> Build your Game Plan first — it makes the deep dive way sharper.</p>
                     </div>
                   </div>
                 </motion.div>
