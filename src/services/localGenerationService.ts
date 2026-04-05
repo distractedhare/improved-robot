@@ -1,6 +1,27 @@
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpdateValidationError } from './weeklyUpdateSchema';
 import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
+import { findScenario } from '../data/objectionPlaybook';
+import { getDeepDiveScripts, OBJECTION_SCRIPTS } from '../data/recommendationRules';
+
+const DEEP_DIVE_SCRIPT_MAP: Record<string, string[]> = {
+  account_access: ['OBJ_TOO_COMPLICATED'],
+  tlife_app_guidance: ['OBJ_TOO_COMPLICATED'],
+  screen_share: ['OBJ_TOO_COMPLICATED'],
+  simplification_rebuttal: ['OBJ_TOO_COMPLICATED'],
+  switching_ease: ['OBJ_TOO_COMPLICATED'],
+  price_objections: ['OBJ_RATE_HIKES'],
+  value_comparison: ['OBJ_RATE_HIKES'],
+  guarantee_logic: ['OBJ_RATE_HIKES'],
+  price_lock: ['OBJ_RATE_HIKES'],
+  reliability_objections: ['OBJ_5G_RELIABILITY'],
+  proof_and_risk_reversal: ['OBJ_5G_RELIABILITY'],
+  coverage_proof: ['OBJ_5G_RELIABILITY'],
+  contract_fear_objections: ['OBJ_CONTRACT_TRAP'],
+  freedom_focus: ['OBJ_CONTRACT_TRAP'],
+  promo_credit_explanation: ['OBJ_PROMO_CREDITS'],
+  rdc_simplification: ['OBJ_PROMO_CREDITS'],
+};
 
 // --- Weekly Update Loading ---
 
@@ -213,7 +234,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
 
 // --- Objection Analysis (fully offline) ---
 
-/** Analyze objections using embedded data + weekly update (replaces Gemini) */
+/** Analyze objections using embedded data + weekly update (local fallback path) */
 export function analyzeObjectionLocal(
   objection: string,
   context: SalesContext,
@@ -222,15 +243,61 @@ export function analyzeObjectionLocal(
   weeklyData?: WeeklyUpdate | null,
 ): ObjectionAnalysis {
   const weekly = weeklyData || cachedWeeklyUpdate;
-  const objectionKeys = objection.split(', ').map(o => o.trim());
+  const objectionInputs = objection
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(rawKey => {
+      const scenarioMatch = findScenario(rawKey);
+      const scenario = scenarioMatch?.scenario;
+      const deepDiveScripts = scenario?.deepDiveKeys?.length
+        ? getDeepDiveScripts(scenario.deepDiveKeys)
+        : [];
+
+      const mappedScripts = deepDiveScripts.length === 0 && scenario?.deepDiveKeys?.length
+        ? OBJECTION_SCRIPTS.filter((script) =>
+            scenario.deepDiveKeys!.some((key) => DEEP_DIVE_SCRIPT_MAP[key]?.includes(script.id))
+          )
+        : [];
+
+      const matchedDeepDiveScripts = [...new Map(
+        [...deepDiveScripts, ...mappedScripts].map(script => [script.id, script])
+      ).values()];
+
+      return {
+        rawKey,
+        displayKey: scenario?.label ?? rawKey,
+        searchTerms: scenario
+          ? [rawKey, scenario.label, scenario.description, scenario.quickResponse]
+          : [rawKey],
+        scenario,
+        matchedDeepDiveScripts,
+      };
+    });
+  const objectionKeys = objectionInputs.map(item => item.displayKey);
   const triedCategories = getTriedCategories(selectedGamePlanItems, currentScript);
 
   const talkingPoints: string[] = [];
   const counterArguments: string[] = [];
   const carrierSpecificArguments: string[] = [];
+  const coachingNotes: string[] = [];
 
-  for (const key of objectionKeys) {
-    const template = OBJECTION_TEMPLATES[key];
+  for (const input of objectionInputs) {
+    if (input.scenario) {
+      talkingPoints.push(input.scenario.quickResponse);
+      counterArguments.push(input.scenario.quickResponse);
+      coachingNotes.push(input.scenario.tip);
+
+      for (const script of input.matchedDeepDiveScripts) {
+        talkingPoints.push(...script.bestFitResponses);
+        counterArguments.push(...script.bestFitResponses);
+        coachingNotes.push(script.managerCoaching);
+      }
+
+      continue;
+    }
+
+    const template = OBJECTION_TEMPLATES[input.rawKey] ?? OBJECTION_TEMPLATES[input.displayKey];
     if (template) {
       talkingPoints.push(...template.talkingPoints.slice(0, 3));
       counterArguments.push(template.rebuttal);
@@ -241,8 +308,14 @@ export function analyzeObjectionLocal(
   if (weekly) {
     for (const promo of weekly.currentPromos) {
       for (const promoObj of promo.commonObjections) {
-        if (objectionKeys.some(k => promoObj.objection.toLowerCase().includes(k.toLowerCase()) ||
-            k.toLowerCase().includes(promoObj.objection.toLowerCase().slice(0, 20)))) {
+        if (objectionInputs.some(({ searchTerms }) =>
+          searchTerms.some((term) => {
+            const normalizedTerm = term.toLowerCase();
+            const normalizedObjection = promoObj.objection.toLowerCase();
+            return normalizedObjection.includes(normalizedTerm) ||
+              normalizedTerm.includes(normalizedObjection.slice(0, 20));
+          })
+        )) {
           talkingPoints.push(`${promo.name}: ${promoObj.response}`);
         }
       }
@@ -289,6 +362,7 @@ export function analyzeObjectionLocal(
 
   const coachsCorner = [
     triedAcknowledgement,
+    ...[...new Set(coachingNotes)].slice(0, 3),
     'Acknowledge the concern first, then redirect. Never argue — show empathy and offer a different angle.',
   ].filter(Boolean).join(' ');
 

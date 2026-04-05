@@ -1,11 +1,37 @@
+import React, { useState } from 'react';
 import {
   AlertCircle, CheckCircle2, Sparkles, Zap, Loader2,
-  MessageSquare, Target, Briefcase, Lightbulb, ShieldCheck, RefreshCw
+  MessageSquare, Target, Briefcase, Lightbulb, ShieldCheck, RefreshCw,
+  ChevronDown, ChevronRight, KeyRound, Smartphone, ArrowRightLeft,
+  WifiOff, CircleDollarSign, Wrench, MessageSquareWarning, ArrowRight,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
+import {
+  OBJECTION_PLAYBOOK,
+  ObjectionCategory,
+  ObjectionScenario,
+  ObjectionStep,
+  getSuggestedCategories,
+} from '../data/objectionPlaybook';
 import GroundingSources from './GroundingSources';
 
+// ---------------------------------------------------------------------------
+// Icon map — maps string icon names from playbook to lucide components
+// ---------------------------------------------------------------------------
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  KeyRound,
+  Smartphone,
+  ArrowRightLeft,
+  WifiOff,
+  CircleDollarSign,
+  Wrench,
+  MessageSquareWarning,
+};
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
 interface ObjectionTabProps {
   context: SalesContext;
   script: SalesScript | null;
@@ -18,108 +44,347 @@ interface ObjectionTabProps {
   onClearResult: () => void;
 }
 
-const OBJECTIONS = [
-  { id: "Price is too high", desc: "Customer feels the monthly cost or upfront device cost exceeds their budget." },
-  { id: "Happy with current provider", desc: "Customer sees no reason to switch because their current service works fine." },
-  { id: "Don't need a new phone/plan", desc: "Customer is satisfied with their current device and plan features." },
-  { id: "Worried about coverage", desc: "Customer has heard negative things about T-Mobile's network in their area." },
-  { id: "Too much hassle to switch", desc: "Customer dreads the process of porting numbers, transferring data, and setting up new accounts." },
-  { id: "Contract/ETF concerns", desc: "Customer is locked into a contract or owes money on their current devices." },
-  { id: "Waiting for the next phone launch", desc: "Customer wants to delay purchase until a newer or better device is released." },
-  { id: "I need to talk to my spouse", desc: "Customer is not the sole decision maker or wants to discuss finances first." },
-  { id: "Bad past experience with T-Mobile", desc: "Customer or someone they know had a negative experience with T-Mobile previously." },
-];
+// ---------------------------------------------------------------------------
+// Step-by-step guide component (for flows like pin reset)
+// ---------------------------------------------------------------------------
+function StepGuide({ steps }: { steps: ObjectionStep[] }) {
+  const [currentStep, setCurrentStep] = useState(0);
+  return (
+    <div className="mt-3 space-y-2">
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">
+        Step-by-Step Guide
+      </p>
+      {steps.map((step, i) => {
+        const isActive = i === currentStep;
+        const isDone = i < currentStep;
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setCurrentStep(i)}
+            className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+              isActive
+                ? 'border-t-magenta bg-t-magenta/5'
+                : isDone
+                  ? 'border-green-300 bg-green-50 dark:bg-green-900/10 dark:border-green-700'
+                  : 'border-t-light-gray bg-surface opacity-60'
+            }`}
+          >
+            <div className="flex items-start gap-2">
+              <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black ${
+                isActive ? 'bg-t-magenta text-white' : isDone ? 'bg-green-500 text-white' : 'bg-t-light-gray text-t-dark-gray/50'
+              }`}>
+                {isDone ? '✓' : i + 1}
+              </div>
+              <div>
+                <p className={`text-[10px] font-black uppercase tracking-wider ${
+                  isActive ? 'text-t-magenta' : isDone ? 'text-green-600 dark:text-green-400' : 'text-t-dark-gray/50'
+                }`}>
+                  {step.gate}
+                </p>
+                {isActive && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="text-xs text-t-dark-gray font-bold italic mt-1.5"
+                  >
+                    "{step.script}"
+                  </motion.p>
+                )}
+              </div>
+            </div>
+          </button>
+        );
+      })}
+      {currentStep < steps.length - 1 && (
+        <button
+          type="button"
+          onClick={() => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))}
+          className="w-full py-2 text-[10px] font-black uppercase tracking-widest text-t-magenta flex items-center justify-center gap-1 hover:text-t-magenta/70 transition-colors"
+        >
+          Next Step <ArrowRight className="w-3 h-3" />
+        </button>
+      )}
+    </div>
+  );
+}
 
+// ---------------------------------------------------------------------------
+// Scenario card — expands on tap to show quick response
+// ---------------------------------------------------------------------------
+function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: {
+  scenario: ObjectionScenario;
+  isExpanded: boolean;
+  onToggle: () => void;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <div className={`rounded-2xl border-2 transition-all ${
+      isSelected
+        ? 'border-t-magenta shadow-md shadow-t-magenta/10'
+        : 'border-t-light-gray'
+    }`}>
+      {/* Header — tap to expand */}
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-label={`${scenario.label} — tap to ${isExpanded ? 'collapse' : 'expand'}`}
+        className="focus-ring w-full p-3.5 text-left flex items-start gap-3 rounded-2xl"
+      >
+        <ChevronRight className={`w-4 h-4 mt-0.5 shrink-0 text-t-dark-gray/40 transition-transform ${
+          isExpanded ? 'rotate-90' : ''
+        }`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-t-dark-gray">{scenario.label}</p>
+          <p className="text-[10px] text-t-dark-gray/50 font-medium mt-0.5">{scenario.description}</p>
+        </div>
+        {isSelected && (
+          <CheckCircle2 className="w-4 h-4 text-t-magenta shrink-0 mt-0.5" />
+        )}
+      </button>
+
+      {/* Expanded: quick response + tip + steps */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3.5 pb-3.5 space-y-3">
+              {/* Quick Response */}
+              <div className="p-3 rounded-xl bg-t-magenta/5 border border-t-magenta/15">
+                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1.5 flex items-center gap-1">
+                  <MessageSquare className="w-2.5 h-2.5" /> Say This
+                </p>
+                <p className="text-xs text-t-dark-gray font-bold italic leading-relaxed">
+                  "{scenario.quickResponse}"
+                </p>
+              </div>
+
+              {/* Coaching Tip */}
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700/30">
+                <p className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-1.5 flex items-center gap-1">
+                  <Lightbulb className="w-2.5 h-2.5" /> Coach's Tip
+                </p>
+                <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">
+                  {scenario.tip}
+                </p>
+              </div>
+
+              {/* Step-by-step guide if present */}
+              {scenario.steps && scenario.steps.length > 0 && (
+                <StepGuide steps={scenario.steps} />
+              )}
+
+              {/* Select for deep dive button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect();
+                }}
+                className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+                  isSelected
+                    ? 'bg-t-magenta text-white'
+                    : 'bg-t-light-gray/30 text-t-dark-gray/60 hover:bg-t-magenta/10 hover:text-t-magenta'
+                }`}
+              >
+                {isSelected ? (
+                  <><CheckCircle2 className="w-3 h-3" /> Selected for Deep Dive</>
+                ) : (
+                  <><Zap className="w-3 h-3" /> Add to Flip the Script</>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Category accordion
+// ---------------------------------------------------------------------------
+function CategorySection({ category, expandedScenario, setExpandedScenario, selectedObjections, toggleObjection, isSuggested }: {
+  category: ObjectionCategory;
+  expandedScenario: string | null;
+  setExpandedScenario: (id: string | null) => void;
+  selectedObjections: string[];
+  toggleObjection: (id: string) => void;
+  isSuggested: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const Icon = ICON_MAP[category.icon] || AlertCircle;
+  const selectedCount = category.scenarios.filter(s => selectedObjections.includes(s.id)).length;
+
+  return (
+    <div className={`rounded-2xl border-2 transition-all ${
+      isOpen ? 'border-t-magenta/30 shadow-sm' : isSuggested ? 'border-t-magenta/20' : 'border-t-light-gray'
+    }`}>
+      {/* Category header */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-label={`${category.label} — ${category.scenarios.length} scenarios`}
+        className="focus-ring w-full p-4 text-left flex items-center gap-3 rounded-2xl"
+      >
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+          isOpen ? 'bg-t-magenta text-white' : isSuggested ? 'bg-t-magenta/10 text-t-magenta' : 'bg-t-light-gray/30 text-t-dark-gray/50'
+        }`}>
+          <Icon className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-black text-t-dark-gray">{category.label}</p>
+            {selectedCount > 0 && (
+              <span className="bg-t-magenta text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                {selectedCount}
+              </span>
+            )}
+            {isSuggested && !isOpen && selectedCount === 0 && (
+              <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+                Suggested
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] text-t-dark-gray/50 font-medium mt-0.5">{category.description}</p>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-t-dark-gray/30 transition-transform shrink-0 ${
+          isOpen ? 'rotate-180' : ''
+        }`} />
+      </button>
+
+      {/* Scenarios */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-3 space-y-2">
+              {category.scenarios.map(scenario => (
+                <ScenarioCard
+                  key={scenario.id}
+                  scenario={scenario}
+                  isExpanded={expandedScenario === scenario.id}
+                  onToggle={() => setExpandedScenario(
+                    expandedScenario === scenario.id ? null : scenario.id
+                  )}
+                  isSelected={selectedObjections.includes(scenario.id)}
+                  onSelect={() => toggleObjection(scenario.id)}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main ObjectionTab component
+// ---------------------------------------------------------------------------
 export default function ObjectionTab({
+  context, script,
   selectedObjections, setSelectedObjections, selectedGamePlanItems,
   objectionResult, analyzing, onAnalyze, onClearResult,
 }: ObjectionTabProps) {
+  // script is available for future use when Gemma integration adjusts responses
+  void script;
+  const [expandedScenario, setExpandedScenario] = useState<string | null>(null);
+  const suggestedCategories = getSuggestedCategories(context.purchaseIntent);
+
+  const toggleObjection = (id: string) => {
+    setSelectedObjections(prev =>
+      prev.includes(id) ? prev.filter(o => o !== id) : [...prev, id]
+    );
+  };
+
   return (
     <motion.section
       key="objections"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="rounded-3xl glass-card p-6 shadow-sm space-y-5"
+      className="space-y-4"
     >
-      <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
-        <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
-      </h2>
-
-      <div className="bg-t-light-gray/20 p-4 rounded-xl border border-t-light-gray mb-4">
-        <p className="text-xs text-t-dark-gray font-medium">
-          Pick the pushback you're hearing, then hit <strong className="text-t-magenta">Analyze</strong> — we'll build your comeback.
+      {/* Header */}
+      <div className="rounded-3xl glass-card p-5 shadow-sm">
+        <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
+          <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
+        </h2>
+        <p className="text-xs text-t-dark-gray/60 font-medium">
+          Tap a category to see what you're dealing with. Tap a scenario for an <strong className="text-t-magenta">instant comeback</strong>. Select scenarios and hit <strong className="text-t-magenta">Flip the Script</strong> for the full deep-dive strategy.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 mb-4">
-        {OBJECTIONS.map((objection) => {
-          const isSelected = selectedObjections.includes(objection.id);
-          return (
-            <div key={objection.id} className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedObjections(prev =>
-                    isSelected
-                      ? prev.filter(o => o !== objection.id)
-                      : [...prev, objection.id]
-                  );
-                }}
-                aria-pressed={isSelected}
-                className={`focus-ring w-full py-2.5 px-4 text-left text-xs font-bold rounded-xl border-2 transition-all flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-t-magenta text-white border-t-magenta shadow-md shadow-t-magenta/10'
-                    : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/30'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
-                    isSelected ? 'bg-surface border-white' : 'bg-surface border-t-light-gray'
-                  }`}>
-                    {isSelected && <CheckCircle2 className="w-3 h-3 text-t-magenta" />}
-                  </div>
-                  <div>
-                    <span>{objection.id}</span>
-                    <p className={`text-[10px] font-medium mt-0.5 ${isSelected ? 'text-white/70' : 'text-t-dark-gray/50'}`}>{objection.desc}</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
+      {/* Context badge */}
       {selectedGamePlanItems.length > 0 && (
-        <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-4 mb-4">
-          <h3 className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3" /> Context Added
-          </h3>
-          <p className="text-[11px] text-t-dark-gray font-medium mb-2">
-            You've marked <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> move{selectedGamePlanItems.length === 1 ? '' : 's'} you already made — we'll skip those and bring fresh angles.
+        <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-3 flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-t-magenta shrink-0" />
+          <p className="text-[11px] text-t-dark-gray font-medium">
+            <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> game plan move{selectedGamePlanItems.length === 1 ? '' : 's'} marked — deep dive will account for these.
           </p>
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onAnalyze}
-        disabled={analyzing || selectedObjections.length === 0}
-        className="focus-ring w-full bg-t-dark-gray text-white rounded-xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/10 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
-      >
-        {analyzing ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
-        ) : (
-          <>
-            <Zap className="w-4 h-4 text-t-magenta" /> Analyze {selectedObjections.length > 0 ? `${selectedObjections.length} ` : ""}Selected
-          </>
-        )}
-      </button>
+      {/* Category accordions */}
+      <div className="space-y-2">
+        {OBJECTION_PLAYBOOK.map(category => (
+          <CategorySection
+            key={category.id}
+            category={category}
+            expandedScenario={expandedScenario}
+            setExpandedScenario={setExpandedScenario}
+            selectedObjections={selectedObjections}
+            toggleObjection={toggleObjection}
+            isSuggested={suggestedCategories.includes(category.id)}
+          />
+        ))}
+      </div>
+
+      {/* Sticky Flip the Script button */}
+      {selectedObjections.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="sticky bottom-4 z-10"
+        >
+          <button
+            type="button"
+            onClick={onAnalyze}
+            disabled={analyzing}
+            aria-busy={analyzing}
+            aria-label={`Flip the Script — analyze ${selectedObjections.length} selected scenarios`}
+            className="focus-ring w-full bg-t-dark-gray text-white rounded-2xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/20 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
+          >
+            {analyzing ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Zap className="w-4 h-4 text-t-magenta" />
+                Flip the Script — {selectedObjections.length} Selected
+              </>
+            )}
+          </button>
+        </motion.div>
+      )}
     </motion.section>
   );
 }
 
-/** Results display for objection analysis */
+// ---------------------------------------------------------------------------
+// Results display (preserved from original with minor cleanup)
+// ---------------------------------------------------------------------------
 export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysis; onClear: () => void }) {
   return (
     <motion.div

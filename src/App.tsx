@@ -3,11 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { startTransition, useState, useCallback, useRef, useEffect } from 'react';
 import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
+import {
+  generateObjectionEnhancement,
+  generateScriptEnhancement,
+  mergeObjectionEnhancement,
+  mergeScriptEnhancement,
+  warmAIEnhancement,
+} from './services/aiEnhancementService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
@@ -18,6 +25,7 @@ import { AppMode, ThemePreference } from './components/Header';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
+import HomeScreen from './components/HomeScreen';
 import CustomerContextForm from './components/CustomerContextForm';
 import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
@@ -45,11 +53,13 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('live');
+  const [mode, setMode] = useState<AppMode>('home');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
   const [refreshingApp, setRefreshingApp] = useState(false);
+  const [enhancingPlan, setEnhancingPlan] = useState(false);
+  const [enhancingObjection, setEnhancingObjection] = useState(false);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
@@ -110,6 +120,9 @@ export default function App() {
   useEffect(() => {
     void refreshWeeklyData();
   }, [refreshWeeklyData]);
+  useEffect(() => {
+    void warmAIEnhancement();
+  }, []);
 
   // Ecosystem matrix state
   const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
@@ -121,6 +134,8 @@ export default function App() {
 
   // Debounce ref
   const lastGenerateTime = useRef(0);
+  const planRequestIdRef = useRef(0);
+  const objectionRequestIdRef = useRef(0);
 
   const refreshSessionStats = useCallback(() => {
     try {
@@ -130,7 +145,23 @@ export default function App() {
     }
   }, []);
 
+  const ensureWeeklyDataLoaded = useCallback(async () => {
+    if (weeklyLoaded && weeklyData) return weeklyData;
+
+    const { data, source } = await loadWeeklyUpdate();
+    setWeeklyData(data);
+    setWeeklySource(source);
+    setWeeklyLoaded(true);
+    return data;
+  }, [weeklyData, weeklyLoaded]);
+
   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
+    planRequestIdRef.current += 1;
+    objectionRequestIdRef.current += 1;
+    setLoading(false);
+    setAnalyzing(false);
+    setEnhancingPlan(false);
+    setEnhancingObjection(false);
     setContext(prev => ({ ...prev, purchaseIntent: intent }));
     setIntentTapped(true);
     setScript(null);
@@ -146,17 +177,41 @@ export default function App() {
     }
   }, [refreshSessionStats]);
 
-  const handleGenerate = useCallback((overrideContext?: SalesContext) => {
+  const handleContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
+    planRequestIdRef.current += 1;
+    objectionRequestIdRef.current += 1;
+    setLoading(false);
+    setAnalyzing(false);
+    setEnhancingPlan(false);
+    setEnhancingObjection(false);
+    setContext(value);
+    setScript(null);
+    setObjectionResult(null);
+    setSelectedObjections([]);
+    setSelectedGamePlanItems([]);
+    setActiveTab('gameplan');
+    setIntentTapped(true);
+    setError(null);
+  }, []);
+
+  const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
 
     const ctx = overrideContext || context;
+    const requestId = ++planRequestIdRef.current;
+    objectionRequestIdRef.current += 1;
     setLoading(true);
+    setEnhancingPlan(false);
+    setEnhancingObjection(false);
     setError(null);
 
     try {
-      const result = generateScript(ctx, weeklyData);
+      const resolvedWeeklyData = await ensureWeeklyDataLoaded();
+      if (planRequestIdRef.current !== requestId) return;
+
+      const result = generateScript(ctx, resolvedWeeklyData);
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
@@ -169,25 +224,54 @@ export default function App() {
           console.warn('Plan tracking failed, but the game plan was built.', trackingError);
         }
       }
+
+      setEnhancingPlan(true);
+      void (async () => {
+        try {
+          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData);
+          if (!enhancement || planRequestIdRef.current !== requestId) return;
+
+          startTransition(() => {
+            setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
+          });
+        } catch (enhancementError) {
+          if (import.meta.env.DEV) {
+            console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
+          }
+        } finally {
+          if (planRequestIdRef.current === requestId) {
+            setEnhancingPlan(false);
+          }
+        }
+      })();
     } catch (err) {
+      if (planRequestIdRef.current !== requestId) return;
       setError('Couldn\'t build your game plan. Try again, and if it keeps happening refresh the app.');
       console.error(err);
+      setEnhancingPlan(false);
     } finally {
-      setLoading(false);
+      if (planRequestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
-  }, [context, weeklyData, refreshSessionStats]);
+  }, [context, ensureWeeklyDataLoaded, refreshSessionStats]);
 
-  const handleAnalyzeObjection = useCallback(() => {
+  const handleAnalyzeObjection = useCallback(async () => {
     if (selectedObjections.length === 0) return;
+    const requestId = ++objectionRequestIdRef.current;
     setAnalyzing(true);
+    setEnhancingObjection(false);
     setError(null);
     try {
+      const resolvedWeeklyData = await ensureWeeklyDataLoaded();
+      if (objectionRequestIdRef.current !== requestId) return;
+
       const result = analyzeObjectionLocal(
         selectedObjections.join(', '),
         context,
         script,
         selectedGamePlanItems,
-        weeklyData,
+        resolvedWeeklyData,
       );
       setObjectionResult(result);
       try {
@@ -196,13 +280,43 @@ export default function App() {
       } catch (trackingError) {
         console.warn('Objection tracking failed, but the analysis was built.', trackingError);
       }
+
+      setEnhancingObjection(true);
+      void (async () => {
+        try {
+          const enhancement = await generateObjectionEnhancement(
+            selectedObjections.join(', '),
+            context,
+            result,
+            resolvedWeeklyData,
+          );
+
+          if (!enhancement || objectionRequestIdRef.current !== requestId) return;
+
+          startTransition(() => {
+            setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
+          });
+        } catch (enhancementError) {
+          if (import.meta.env.DEV) {
+            console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
+          }
+        } finally {
+          if (objectionRequestIdRef.current === requestId) {
+            setEnhancingObjection(false);
+          }
+        }
+      })();
     } catch (err) {
+      if (objectionRequestIdRef.current !== requestId) return;
       setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
       console.error(err);
+      setEnhancingObjection(false);
     } finally {
-      setAnalyzing(false);
+      if (objectionRequestIdRef.current === requestId) {
+        setAnalyzing(false);
+      }
     }
-  }, [selectedObjections, context, script, selectedGamePlanItems, weeklyData, refreshSessionStats]);
+  }, [selectedObjections, context, script, selectedGamePlanItems, ensureWeeklyDataLoaded, refreshSessionStats]);
 
   const toggleGamePlanItem = useCallback((item: string) => {
     setSelectedGamePlanItems(prev =>
@@ -211,6 +325,12 @@ export default function App() {
   }, []);
 
   const reset = useCallback(() => {
+    planRequestIdRef.current += 1;
+    objectionRequestIdRef.current += 1;
+    setLoading(false);
+    setAnalyzing(false);
+    setEnhancingPlan(false);
+    setEnhancingObjection(false);
     setScript(null);
     setObjectionResult(null);
     setSelectedObjections([]);
@@ -228,6 +348,12 @@ export default function App() {
   }, []);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
+    planRequestIdRef.current += 1;
+    objectionRequestIdRef.current += 1;
+    setLoading(false);
+    setAnalyzing(false);
+    setEnhancingPlan(false);
+    setEnhancingObjection(false);
     setScript(null);
     setObjectionResult(null);
     setSelectedObjections([]);
@@ -236,21 +362,13 @@ export default function App() {
     setActiveTab('gameplan');
     setIntentTapped(true);
     setError(null);
-    setTimeout(() => {
-      try {
-        const result = generateScript(scenario.context, weeklyData);
-        setScript(result);
-      } catch (err) {
-        setError('Couldn\'t load that practice scenario. Refresh the app and try again.');
-        console.error(err);
-      }
-    }, 50);
-  }, [weeklyData]);
+    setMode('live');
+    void handleGenerate(scenario.context);
+  }, [handleGenerate]);
 
   /** From Level Up practice — loads scenario AND switches to Live */
   const handlePracticeScenario = useCallback((scenario: DemoScenario) => {
     handleDemoScenario(scenario);
-    setMode('live');
   }, [handleDemoScenario]);
 
   const handleRunDemoScenario = useCallback(() => {
@@ -324,7 +442,17 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
         <AnimatePresence mode="wait">
-          {mode === 'level-up' ? (
+          {mode === 'home' ? (
+            <motion.section
+              key="mode-home"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <HomeScreen weeklyData={weeklyData} onNavigate={setMode} />
+            </motion.section>
+          ) : mode === 'level-up' ? (
             <motion.section
               key="mode-level-up"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
@@ -485,6 +613,38 @@ export default function App() {
               </div>
             </section>
 
+            {/* LOCATION MAP — first-class in live flow */}
+            <section className="rounded-3xl p-5 glass-card glass-shine glass-specular space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-t-dark-gray">
+                    Where are they calling from?
+                  </p>
+                  <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray/65">
+                    Keep the market map in view so reps can line up the pitch, check the local angle, and capture the ZIP when it matters.
+                  </p>
+                </div>
+                {(context.region !== 'Not Specified' || context.zipCode) && (
+                  <div className="rounded-full bg-t-magenta/10 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
+                    {context.region !== 'Not Specified'
+                      ? `${context.region}${context.state ? ` · ${context.state}` : ''}`
+                      : `ZIP ${context.zipCode}`}
+                  </div>
+                )}
+              </div>
+              <CustomerContextForm
+                context={context}
+                setContext={handleContextUpdate}
+                inline
+                showAge={false}
+                showCarrier={false}
+                defaultLocationOpen
+                locationLabel="Region + ZIP"
+                locationHint="Tap a region, zoom into the state, then add the ZIP if the caller gives it to you."
+                locationPanelId="sales-flow-location-panel"
+              />
+            </section>
+
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
             <section
               className="rounded-3xl overflow-hidden glass-card glass-specular"
@@ -500,9 +660,9 @@ export default function App() {
                 className="focus-ring w-full flex items-center justify-between p-5"
               >
                 <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {contextExpanded ? 'Customer details' : 'Got more context?'}
+                  {contextExpanded ? 'Customer details' : 'Want a sharper read?'}
                   {' '}<span style={{ color: 'var(--text-tertiary)' }} className="font-medium">
-                    {contextExpanded ? '(optional)' : '— fill in for a sharper plan'}
+                    {contextExpanded ? '(age + carrier)' : '— age + carrier sharpen the plan'}
                   </span>
                 </span>
                 {contextExpanded ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />}
@@ -518,7 +678,12 @@ export default function App() {
                     id="customer-context-panel"
                   >
                     <div className="px-5 pb-5">
-                      <CustomerContextForm context={context} setContext={setContext} inline />
+                      <CustomerContextForm
+                        context={context}
+                        setContext={handleContextUpdate}
+                        inline
+                        showLocation={false}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -689,7 +854,7 @@ export default function App() {
           </p>
         </div>
         <p className="text-[10px] font-black uppercase tracking-widest pt-4 text-t-dark-gray/60">
-          &copy; 2026 T-Sales Assistant (Unoff.). Runs fully offline.
+          &copy; 2026 T-Sales Assistant (Unoff.). Built for fast, stable call support.
         </p>
       </footer>
 

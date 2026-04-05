@@ -6,7 +6,7 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
-    // Gemini API key removed — app runs fully offline
+    // Offline-first app; optional AI assist is configured separately when needed.
     assetsInclude: ['**/*.md'],
     resolve: {
       alias: {

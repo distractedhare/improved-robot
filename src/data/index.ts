@@ -25,6 +25,8 @@ export * from './competitors';
 export * from './differentiators';
 export * from './accessories';
 export * from './salesMethodology';
+export * from './objectionPlaybook';
+export * from './recommendationRules';
 
 /**
  * Assemble a complete script instantly from templates — no API call needed.

@@ -1,7 +1,7 @@
 import { BookOpen, Monitor, Moon, Sparkles, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export type AppMode = 'live' | 'learn' | 'level-up';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
 export type ThemePreference = 'auto' | 'light' | 'dark';
 
 interface HeaderProps {
@@ -49,16 +49,19 @@ export default function Header({
       <div className="mx-auto flex max-w-5xl flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <motion.div
+            <motion.button
               layout
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/95 shadow-[0_12px_28px_rgba(226,0,116,0.2)] sm:h-14 sm:w-14"
+              type="button"
+              onClick={() => onModeChange('home')}
+              aria-label="Go to home screen"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/95 shadow-[0_12px_28px_rgba(226,0,116,0.2)] sm:h-14 sm:w-14 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
             >
               <img
                 src="/tmo-logo-v4.svg"
                 alt="T-Mobile logo"
                 className="h-8 w-8 sm:h-9 sm:w-9"
               />
-            </motion.div>
+            </motion.button>
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
@@ -114,6 +117,7 @@ export default function Header({
           </div>
         </div>
 
+        {mode !== 'home' && (
         <nav
           aria-label="App mode"
           className="rounded-[1.6rem] border border-white/10 bg-white/7 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -160,6 +164,7 @@ export default function Header({
             })}
           </div>
         </nav>
+        )}
       </div>
     </header>
   );
