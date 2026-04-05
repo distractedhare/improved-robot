@@ -1,6 +1,7 @@
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpdateValidationError } from './weeklyUpdateSchema';
 import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
+import { REGIONAL_DATA, getStateTalkingPoints, RegionKey } from '../data/regionalData';
 
 // --- Weekly Update Loading ---
 
@@ -134,7 +135,27 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
   // Start with template-driven base from embedded data
   const template = getTemplateScript(context) as SalesScript;
 
-  if (!weekly) return template;
+  if (!weekly) {
+    // Even without weekly data, enrich with regional intel
+    if (context.region !== 'Not Specified') {
+      const regionData = REGIONAL_DATA[context.region as RegionKey];
+      if (regionData) {
+        const carrierThreat = context.currentCarrier && context.currentCarrier !== 'Not Specified' && context.currentCarrier !== 'Other'
+          ? regionData.competitorThreats.find(t => context.currentCarrier!.toLowerCase().includes(t.carrier.toLowerCase()))
+          : null;
+        const regionalVPs: string[] = [
+          `${context.region}: ${regionData.networkEdge}`,
+          ...(carrierThreat ? [`vs ${carrierThreat.carrier}: ${carrierThreat.counter}`] : []),
+          regionData.localAngles[0],
+        ];
+        template.valuePropositions = [...regionalVPs, ...template.valuePropositions].slice(0, 8);
+        template.coachsCorner += ` 📍 ${regionData.quickStat}`;
+        const stateTip = context.state ? getStateTalkingPoints(context.region as RegionKey, context.state) : null;
+        if (stateTip) template.coachsCorner += ` ${stateTip}`;
+      }
+    }
+    return template;
+  }
 
   // Get the intent-specific playbook
   const playbook = weekly.intentPlaybooks[intent];
@@ -158,7 +179,28 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     .filter(c => !c.appliesToIntents || c.appliesToIntents.includes(intent))
     .map(c => c.talkingPoint);
 
+  // Regional competitive intel
+  const regionalProps: string[] = [];
+  if (context.region !== 'Not Specified') {
+    const regionData = REGIONAL_DATA[context.region as RegionKey];
+    if (regionData) {
+      regionalProps.push(`${context.region}: ${regionData.networkEdge}`);
+      // Add carrier-specific counter if we know their carrier
+      const carrierThreat = context.currentCarrier && context.currentCarrier !== 'Not Specified' && context.currentCarrier !== 'Other'
+        ? regionData.competitorThreats.find(t => context.currentCarrier!.toLowerCase().includes(t.carrier.toLowerCase()))
+        : null;
+      if (carrierThreat) {
+        regionalProps.push(`vs ${carrierThreat.carrier}: ${carrierThreat.counter}`);
+      }
+      // Add local angle
+      if (regionData.localAngles[0]) {
+        regionalProps.push(regionData.localAngles[0]);
+      }
+    }
+  }
+
   const valuePropositions = [
+    ...regionalProps.slice(0, 2),
     ...matchingPromos.slice(0, 3),
     ...matchingIntel.slice(0, 2),
     ...template.valuePropositions.slice(0, 3),
@@ -178,12 +220,22 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     ? playbook.keyMoves
     : template.purchaseSteps;
 
-  // Coach's corner: keep it short and actionable
+  // Coach's corner: keep it short and actionable + regional context
   const closingTip = playbook?.closingTips?.[0] || '';
   const avoidNote = playbook?.avoidMoves?.[0] || '';
-  const coachsCorner = closingTip
+  let coachsCorner = closingTip
     ? `${closingTip}${avoidNote ? ` Watch out: ${avoidNote}` : ''}`
     : template.coachsCorner;
+
+  // Append regional quick stat and state tip
+  if (context.region !== 'Not Specified') {
+    const regionData = REGIONAL_DATA[context.region as RegionKey];
+    if (regionData) {
+      coachsCorner += ` 📍 ${regionData.quickStat}`;
+      const stateTip = context.state ? getStateTalkingPoints(context.region as RegionKey, context.state) : null;
+      if (stateTip) coachsCorner += ` ${stateTip}`;
+    }
+  }
 
   // Known issues relevant to this intent
   const matchingIssues = weekly.knownIssues

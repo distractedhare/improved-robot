@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw, MapPin } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
@@ -25,6 +25,8 @@ import CustomerContextForm from './components/CustomerContextForm';
 import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
+import RegionalInsights from './components/RegionalInsights';
+import USMap from './components/USMap';
 import SessionStats from './components/SessionStats';
 import LevelUpView from './components/levelup/LevelUpView';
 import LearnView from './components/learn/LearnView';
@@ -529,6 +531,41 @@ export default function App() {
               </div>
             </section>
 
+            {/* REGION MAP — always visible for quick tapping */}
+            <section className="rounded-3xl glass-card glass-shine p-4 shadow-sm space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-t-magenta text-white">
+                    <MapPin className="h-3 w-3" />
+                  </div>
+                  <span className="text-xs font-bold text-t-dark-gray">Their region</span>
+                  {context.region !== 'Not Specified' && (
+                    <span className="text-[9px] font-bold text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
+                      {context.region}{context.state ? ` > ${context.state}` : ''}
+                    </span>
+                  )}
+                </div>
+                {context.region !== 'Not Specified' && (
+                  <button
+                    type="button"
+                    onClick={() => { setContext(prev => ({ ...prev, region: 'Not Specified', state: undefined })); }}
+                    className="focus-ring text-[9px] font-black uppercase text-t-dark-gray hover:text-t-magenta transition-colors rounded"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <USMap
+                selectedRegion={context.region}
+                onSelectRegion={(r) => setContext(prev => ({ ...prev, region: r as SalesContext['region'], state: undefined }))}
+                selectedState={context.state}
+                onSelectState={(s) => setContext(prev => ({ ...prev, state: s }))}
+              />
+              <p className="text-[9px] text-t-dark-gray/50 font-medium text-center">
+                Tap a region, then a state — recommendations update instantly.
+              </p>
+            </section>
+
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
             <section
               className="rounded-3xl overflow-hidden glass-card glass-specular"
@@ -619,9 +656,25 @@ export default function App() {
           {/* RIGHT PANEL — Results */}
           <div ref={resultsPanelRef} className="lg:col-span-7 scroll-mt-4">
             <AnimatePresence mode="wait">
-              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
+              {/* INSTANT PLAYS + REGIONAL INSIGHTS — show when no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+                <motion.div
+                  key="instant-plays-region"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-5"
+                >
+                  {/* Regional insights — update in real-time on region/state tap */}
+                  {context.region !== 'Not Specified' && (
+                    <RegionalInsights
+                      region={context.region}
+                      state={context.state}
+                      currentCarrier={context.currentCarrier}
+                    />
+                  )}
+                  <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+                </motion.div>
               )}
 
 
