@@ -429,8 +429,8 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
-            {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] space-y-4 glass-card glass-shine glass-specular">
+            {/* INTENT + PRODUCT + MAP — STICKY on desktop, scrollable within */}
+            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] lg:max-h-[calc(100vh-80px)] lg:overflow-y-auto space-y-4 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
@@ -529,41 +529,39 @@ export default function App() {
                   })}
                 </div>
               </div>
-            </section>
 
-            {/* REGION MAP — always visible for quick tapping */}
-            <section className="rounded-3xl glass-card glass-shine p-4 shadow-sm space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-t-magenta text-white">
-                    <MapPin className="h-3 w-3" />
+              {/* REGION MAP — always visible, inside sticky */}
+              <div className="space-y-2 pt-2 border-t border-t-light-gray/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-3 w-3 text-t-magenta" />
+                    <span className="text-xs font-bold text-t-dark-gray">Their region</span>
+                    {context.region !== 'Not Specified' && (
+                      <span className="text-[9px] font-bold text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
+                        {context.region}{context.state ? ` > ${context.state}` : ''}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-t-dark-gray">Their region</span>
                   {context.region !== 'Not Specified' && (
-                    <span className="text-[9px] font-bold text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full">
-                      {context.region}{context.state ? ` > ${context.state}` : ''}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setContext(prev => ({ ...prev, region: 'Not Specified', state: undefined })); }}
+                      className="focus-ring text-[9px] font-black uppercase text-t-dark-gray hover:text-t-magenta transition-colors rounded"
+                    >
+                      Clear
+                    </button>
                   )}
                 </div>
-                {context.region !== 'Not Specified' && (
-                  <button
-                    type="button"
-                    onClick={() => { setContext(prev => ({ ...prev, region: 'Not Specified', state: undefined })); }}
-                    className="focus-ring text-[9px] font-black uppercase text-t-dark-gray hover:text-t-magenta transition-colors rounded"
-                  >
-                    Clear
-                  </button>
-                )}
+                <USMap
+                  selectedRegion={context.region}
+                  onSelectRegion={(r) => setContext(prev => ({ ...prev, region: r as SalesContext['region'], state: undefined }))}
+                  selectedState={context.state}
+                  onSelectState={(s) => setContext(prev => ({ ...prev, state: s }))}
+                />
+                <p className="text-[9px] text-t-dark-gray/50 font-medium text-center">
+                  Tap a region, then a state — recommendations update instantly.
+                </p>
               </div>
-              <USMap
-                selectedRegion={context.region}
-                onSelectRegion={(r) => setContext(prev => ({ ...prev, region: r as SalesContext['region'], state: undefined }))}
-                selectedState={context.state}
-                onSelectState={(s) => setContext(prev => ({ ...prev, state: s }))}
-              />
-              <p className="text-[9px] text-t-dark-gray/50 font-medium text-center">
-                Tap a region, then a state — recommendations update instantly.
-              </p>
             </section>
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
