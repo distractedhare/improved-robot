@@ -105,14 +105,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
     setSelectedDevices(prev => {
       const exists = prev.some(d => d.name === device.name);
       if (exists) return prev.filter(d => d.name !== device.name);
-      const next = [...prev, device];
-      // Scroll to comparison when adding a device
-      requestAnimationFrame(() => {
-        comparisonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-      return next;
+      return [...prev, device];
     });
-  }, []);
+    scrollToComparison();
+  }, [scrollToComparison]);
 
   const clearDevices = useCallback(() => setSelectedDevices([]), []);
 

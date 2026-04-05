@@ -29,6 +29,22 @@ import LevelUpView from './components/levelup/LevelUpView';
 import LearnView from './components/learn/LearnView';
 import HomeScreen from './components/HomeScreen';
 
+const INTENTS = [
+  { id: 'exploring' as const, label: 'Exploring', icon: Search },
+  { id: 'ready to buy' as const, label: 'Ready to Buy', icon: ShoppingBag },
+  { id: 'upgrade / add a line' as const, label: 'Upgrade / Add a Line', icon: ArrowUpCircle },
+  { id: 'order support' as const, label: 'Order Support', icon: Package },
+  { id: 'tech support' as const, label: 'Tech Support', icon: Wrench },
+  { id: 'account support' as const, label: 'Account Support', icon: UserCircle },
+] as const;
+
+const PRODUCTS = ['Phone', 'Home Internet', 'BTS', 'IOT', 'No Specific Product'] as const;
+
+const TABS = [
+  { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
+  { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
+] as const;
+
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
     age: 'Not Specified',
@@ -136,6 +152,14 @@ export default function App() {
   const lastGenerateTime = useRef(0);
   const resultsPanelRef = useRef<HTMLDivElement>(null);
 
+  /** Clear all generated results — shared across reset, intent change, demo scenario */
+  const clearResults = useCallback(() => {
+    setScript(null);
+    setObjectionResult(null);
+    setSelectedObjections([]);
+    setSelectedGamePlanItems([]);
+  }, []);
+
   const refreshSessionStats = useCallback(() => {
     try {
       setSessionStats(getSessionStats());
@@ -147,10 +171,7 @@ export default function App() {
   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
     setContext(prev => ({ ...prev, purchaseIntent: intent }));
     setIntentTapped(true);
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
+    clearResults();
     setError(null);
     try {
       trackIntentUsed(intent);
@@ -158,7 +179,7 @@ export default function App() {
     } catch (err) {
       console.warn('Intent tracking failed, but the app will keep going.', err);
     }
-  }, [refreshSessionStats]);
+  }, [clearResults, refreshSessionStats]);
 
   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
@@ -174,7 +195,6 @@ export default function App() {
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
-      setSelectedGamePlanItems([]);
       // Auto-scroll to results panel
       requestAnimationFrame(() => {
         resultsPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -233,10 +253,7 @@ export default function App() {
   }, []);
 
   const reset = useCallback(() => {
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
+    clearResults();
     setContext({
       age: 'Not Specified',
       region: 'Not Specified',
@@ -247,13 +264,10 @@ export default function App() {
     });
     setIntentTapped(true);
     resetRotation();
-  }, []);
+  }, [clearResults]);
 
   const handleDemoScenario = useCallback(async (scenario: DemoScenario) => {
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
+    clearResults();
     setContext(scenario.context);
     setActiveTab('gameplan');
     setIntentTapped(true);
@@ -318,15 +332,6 @@ export default function App() {
 
     window.location.reload();
   }, [refreshingApp]);
-
-  const INTENTS = [
-    { id: 'exploring' as const, label: 'Exploring', icon: Search },
-    { id: 'ready to buy' as const, label: 'Ready to Buy', icon: ShoppingBag },
-    { id: 'upgrade / add a line' as const, label: 'Upgrade / Add a Line', icon: ArrowUpCircle },
-    { id: 'order support' as const, label: 'Order Support', icon: Package },
-    { id: 'tech support' as const, label: 'Tech Support', icon: Wrench },
-    { id: 'account support' as const, label: 'Account Support', icon: UserCircle },
-  ];
 
   const isDataExpired = weeklyLoaded && weeklyData?.metadata.validUntil
     ? new Date(weeklyData.metadata.validUntil) < new Date()
@@ -472,7 +477,7 @@ export default function App() {
                   What product?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['Phone', 'Home Internet', 'BTS', 'IOT', 'No Specific Product'] as const).map((p) => {
+                  {PRODUCTS.map((p) => {
                     const isSelected = context.product.includes(p);
                     return (
                       <button
@@ -572,10 +577,7 @@ export default function App() {
 
             {/* Tabs — Plan + Objections */}
             <div className="grid grid-cols-2 md:flex p-1.5 rounded-2xl gap-1.5 md:gap-0 glass-tab" style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}>
-              {([
-                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
-                { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
-              ]).map(tab => (
+              {TABS.map(tab => (
                 <button
                   key={tab.id}
                   type="button"

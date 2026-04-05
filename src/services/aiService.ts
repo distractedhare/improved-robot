@@ -27,6 +27,7 @@ export interface AIServiceStatus {
   label: string;
   isAvailable: boolean;
   gemmaState: GemmaLoadingState;
+  gemmaError: string | null;
 }
 
 /**
@@ -34,11 +35,11 @@ export interface AIServiceStatus {
  * Used by UI to show "AI: Local Engine" or "AI: Gemma 4" badge.
  */
 export function getAIStatus(): AIServiceStatus {
-  const { state } = getGemmaLoadingState();
+  const { state, error } = getGemmaLoadingState();
   if (isGemmaAvailable()) {
-    return { provider: 'gemma', label: getGemmaStatusLabel(), isAvailable: true, gemmaState: state };
+    return { provider: 'gemma', label: getGemmaStatusLabel(), isAvailable: true, gemmaState: state, gemmaError: null };
   }
-  return { provider: 'local', label: 'Local Engine', isAvailable: true, gemmaState: state };
+  return { provider: 'local', label: 'Local Engine', isAvailable: true, gemmaState: state, gemmaError: error };
 }
 
 /**

@@ -164,7 +164,7 @@ Respond with ONLY valid JSON matching this exact structure (no markdown, no extr
 function buildObjectionPrompt(
   objection: string,
   context: SalesContext,
-  script: SalesScript | null,
+  _script: SalesScript | null,
   selectedItems: string[],
   weeklyData: WeeklyUpdate | null,
 ): string {

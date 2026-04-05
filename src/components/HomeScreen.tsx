@@ -5,7 +5,7 @@ import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { getRandomAffirmation } from '../data/affirmations';
 import { AIServiceStatus } from '../services/aiService';
-import { initializeGemma, getGemmaLoadingState, isWebGPUSupported } from '../services/gemmaService';
+import { initializeGemma, isWebGPUSupported } from '../services/gemmaService';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -51,7 +51,8 @@ const MODE_CARDS = [
 ];
 
 function GemmaEngineCard({ aiStatus }: { aiStatus: AIServiceStatus }) {
-  const { state, error } = getGemmaLoadingState();
+  const state = aiStatus.gemmaState;
+  const error = aiStatus.gemmaError;
   const webGPU = isWebGPUSupported();
 
   if (state === 'ready') {
