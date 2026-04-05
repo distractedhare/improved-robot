@@ -271,7 +271,7 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
         </motion.div>
       </motion.div>
 
-      {/* Affirmation — prominent, inspirational */}
+      {/* Affirmation — daily positive vibes */}
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
