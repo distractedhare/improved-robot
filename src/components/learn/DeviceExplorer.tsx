@@ -2,8 +2,7 @@ import { useState, useMemo } from 'react';
 import { ChevronRight, Zap, ShoppingBag, MessageSquare, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CustomerNeed } from '../../types';
-import { buildDeviceRecommendations, DeviceRecommendation, DEVICE_PROFILES, QUICK_PITCHES } from '../../data/deviceRecommendations';
-import { POSTPAID_PLANS } from '../../data/plans';
+import { buildDeviceRecommendations, DeviceRecommendation } from '../../data/deviceRecommendations';
 import { OBJECTION_TEMPLATES } from '../../data/salesMethodology';
 
 // ---------------------------------------------------------------------------
