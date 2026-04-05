@@ -5,7 +5,7 @@ import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { getRandomAffirmation } from '../data/affirmations';
 import { AIServiceStatus } from '../services/aiService';
-import { initializeGemma, isWebGPUSupported } from '../services/gemmaService';
+import { initializeGemma, isWebGPUSupported, isFirstGemmaLoad } from '../services/gemmaService';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -82,6 +82,7 @@ function GemmaEngineCard({ aiStatus }: { aiStatus: AIServiceStatus }) {
   }
 
   if (state === 'loading') {
+    const firstLoad = isFirstGemmaLoad();
     return (
       <motion.div
         initial={{ opacity: 0, y: 15 }}
@@ -98,14 +99,16 @@ function GemmaEngineCard({ aiStatus }: { aiStatus: AIServiceStatus }) {
               Loading Gemma 4 Engine
             </p>
             <p className="text-[11px] text-t-dark-gray font-medium">
-              Downloading AI model… Templates active while loading.
+              {firstLoad
+                ? 'First-time setup — downloading ~2 GB AI model to your device. This may take a few minutes, but only happens once. Everything works while it loads.'
+                : 'Loading cached AI model… Templates active while loading.'}
             </p>
             <div className="mt-2 h-1.5 rounded-full bg-amber-500/10 overflow-hidden">
               <motion.div
                 className="h-full bg-amber-500 rounded-full"
                 initial={{ width: '5%' }}
-                animate={{ width: '85%' }}
-                transition={{ duration: 30, ease: 'linear' }}
+                animate={{ width: firstLoad ? '70%' : '85%' }}
+                transition={{ duration: firstLoad ? 60 : 20, ease: 'linear' }}
               />
             </div>
           </div>

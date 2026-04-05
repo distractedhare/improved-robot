@@ -63,6 +63,12 @@ export function isWebGPUSupported(): boolean {
   return typeof navigator !== 'undefined' && 'gpu' in navigator;
 }
 
+export function isFirstGemmaLoad(): boolean {
+  try {
+    return !localStorage.getItem(MODEL_VERSION_KEY);
+  } catch { return true; }
+}
+
 export function getGemmaStatusLabel(): string {
   switch (loadingState) {
     case 'ready': return 'Gemma 4';
