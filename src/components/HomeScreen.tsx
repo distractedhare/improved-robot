@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Zap, BookOpen, Trophy, PhoneCall, Sparkles, Target, Clock, Cpu, Download, CheckCircle2, AlertCircle, Loader2, RefreshCw, Heart } from 'lucide-react';
+import { Zap, BookOpen, Trophy, PhoneCall, Sparkles, Target, Clock, Cpu, Download, CheckCircle2, AlertCircle, Loader2, RefreshCw, Heart, ArrowRight } from 'lucide-react';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { getRandomAffirmation } from '../data/affirmations';
@@ -28,7 +28,7 @@ const MODE_CARDS = [
     subtitle: 'Sales call assistant',
     description: 'Real-time plays, objection handling, and game plans for every call.',
     gradient: 'from-t-magenta to-t-berry',
-    delay: 0.1,
+    delay: 0.15,
   },
   {
     mode: 'learn' as AppMode,
@@ -37,7 +37,7 @@ const MODE_CARDS = [
     subtitle: 'Knowledge base',
     description: 'Devices, plans, playbooks, and competitive intel at your fingertips.',
     gradient: 'from-t-magenta/80 to-t-berry/80',
-    delay: 0.2,
+    delay: 0.25,
   },
   {
     mode: 'level-up' as AppMode,
@@ -46,7 +46,7 @@ const MODE_CARDS = [
     subtitle: 'Track your wins',
     description: 'Bingo board, feedback, and your roadmap to becoming elite.',
     gradient: 'from-t-berry to-t-magenta/80',
-    delay: 0.3,
+    delay: 0.35,
   },
 ];
 
@@ -210,38 +210,56 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      {/* Hero */}
+      {/* Hero — the big moment */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center pt-4"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="text-center pt-6 pb-2"
       >
-        {/* Logo mark */}
+        {/* Logo mark — larger, glowing */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-          className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-t-magenta to-t-berry flex items-center justify-center shadow-lg shadow-t-magenta/20"
+          transition={{ type: 'spring', stiffness: 180, damping: 14, delay: 0.1 }}
+          className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-t-magenta via-t-berry to-t-magenta flex items-center justify-center shadow-xl shadow-t-magenta/30 relative"
         >
-          <PhoneCall className="w-8 h-8 text-white" />
+          <PhoneCall className="w-10 h-10 text-white drop-shadow-sm" />
+          {/* Subtle glow ring */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-t-magenta to-t-berry opacity-40 blur-xl -z-10" />
         </motion.div>
 
-        <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
+        <motion.h1
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-4xl md:text-5xl font-black uppercase tracking-tight"
+          style={{ background: 'linear-gradient(135deg, #E20074, #861B54, #E20074)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+        >
           {greeting}
-        </h1>
-        <p className="text-t-dark-gray font-medium mt-2 text-sm max-w-md mx-auto">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35 }}
+          className="text-t-dark-gray font-semibold mt-3 text-base max-w-md mx-auto"
+        >
           Your AI-powered sales co-pilot. Pick a mode and get to work.
-        </p>
+        </motion.p>
 
         {/* AI badge */}
-        <div className={`mt-3 inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-          aiStatus.provider === 'gemma'
-            ? 'text-emerald-600 bg-emerald-500/10 border border-emerald-500/20'
-            : aiStatus.gemmaState === 'loading'
-            ? 'text-amber-600 bg-amber-500/10 border border-amber-500/20'
-            : 'text-t-magenta/60 bg-t-magenta/5 border border-t-magenta/10'
-        }`}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.45 }}
+          className={`mt-4 inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${
+            aiStatus.provider === 'gemma'
+              ? 'text-emerald-600 bg-emerald-500/10 border border-emerald-500/20'
+              : aiStatus.gemmaState === 'loading'
+              ? 'text-amber-600 bg-amber-500/10 border border-amber-500/20'
+              : 'text-t-magenta/60 bg-t-magenta/5 border border-t-magenta/10'
+          }`}
+        >
           {aiStatus.gemmaState === 'loading' ? (
             <Loader2 className="w-3 h-3 animate-spin" />
           ) : aiStatus.provider === 'gemma' ? (
@@ -250,7 +268,42 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
             <Sparkles className="w-3 h-3" />
           )}
           AI: {aiStatus.label}
-        </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Affirmation — prominent, inspirational */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="rounded-3xl p-6 md:p-8 glass-card glass-specular text-center relative overflow-hidden"
+      >
+        {/* Background accent glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-t-magenta/8 rounded-full blur-3xl -z-10" />
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta/50 mb-4 flex items-center justify-center gap-1.5">
+          <Heart className="w-3 h-3" />
+          Positive Vibes
+        </p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={affirmation}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
+            className="text-lg md:text-xl font-bold text-foreground leading-relaxed max-w-lg mx-auto"
+          >
+            &ldquo;{affirmation}&rdquo;
+          </motion.p>
+        </AnimatePresence>
+        <button
+          type="button"
+          onClick={() => setAffirmation(getRandomAffirmation(affirmation))}
+          className="focus-ring mt-4 inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-magenta/60 hover:text-t-magenta transition-colors"
+        >
+          <RefreshCw className="w-3 h-3" />
+          Another
+        </button>
       </motion.div>
 
       {/* Weekly Focus */}
@@ -258,7 +311,7 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+          transition={{ delay: 0.2 }}
           className="rounded-3xl p-5 glass-card glass-specular"
         >
           <div className="flex items-start gap-3">
@@ -267,7 +320,7 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
             </div>
             <div>
               <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
-                This Week's Focus
+                This Week&rsquo;s Focus
               </p>
               <p className="text-sm font-black uppercase tracking-tight">{weeklyFocus.headline}</p>
               <p className="text-[11px] text-t-dark-gray font-medium mt-1 leading-relaxed">{weeklyFocus.context}</p>
@@ -279,23 +332,23 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
       {/* Gemma 4 Engine Card */}
       <GemmaEngineCard aiStatus={aiStatus} />
 
-      {/* Mode Cards */}
+      {/* Mode Cards — bolder, more interactive */}
       <div className="space-y-3">
         {MODE_CARDS.map((card) => (
           <motion.button
             key={card.mode}
             type="button"
             onClick={() => onModeChange(card.mode)}
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: card.delay, type: 'spring', stiffness: 200, damping: 20 }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+            transition={{ delay: card.delay, type: 'spring', stiffness: 180, damping: 18 }}
+            whileHover={{ scale: 1.015, x: 4 }}
+            whileTap={{ scale: 0.975 }}
             className="focus-ring w-full text-left rounded-3xl p-5 glass-card glass-card-hover glass-specular group"
           >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0 shadow-lg shadow-t-magenta/15 group-hover:shadow-t-magenta/25 transition-shadow`}>
-                <card.icon className="w-6 h-6 text-white" />
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0 shadow-lg shadow-t-magenta/20 group-hover:shadow-t-magenta/35 transition-shadow`}>
+                <card.icon className="w-7 h-7 text-white" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -304,59 +357,29 @@ export default function HomeScreen({ weeklyData, onModeChange, aiStatus }: HomeS
                 </div>
                 <p className="text-[11px] text-t-dark-gray font-medium mt-0.5 leading-relaxed">{card.description}</p>
               </div>
+              <ArrowRight className="w-5 h-5 text-t-magenta/0 group-hover:text-t-magenta/50 transition-colors shrink-0" />
             </div>
           </motion.button>
         ))}
       </div>
 
-      {/* Daily Affirmation */}
+      {/* Quick start CTA — prominent */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.45 }}
-        className="rounded-3xl p-5 glass-card glass-specular text-center"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55 }}
+        className="text-center pt-2"
       >
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta/50 mb-3 flex items-center justify-center gap-1.5">
-          <Heart className="w-3 h-3" />
-          Positive Vibes
-        </p>
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={affirmation}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="text-base font-bold text-foreground leading-relaxed"
-          >
-            {affirmation}
-          </motion.p>
-        </AnimatePresence>
-        <button
-          type="button"
-          onClick={() => setAffirmation(getRandomAffirmation(affirmation))}
-          className="focus-ring mt-3 inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-magenta/60 hover:text-t-magenta transition-colors"
-        >
-          <RefreshCw className="w-3 h-3" />
-          Another
-        </button>
-      </motion.div>
-
-      {/* Quick start */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="text-center"
-      >
-        <button
+        <motion.button
           type="button"
           onClick={() => onModeChange('live')}
-          className="focus-ring inline-flex items-center gap-2 btn-magenta-shimmer px-8 py-3.5 rounded-2xl text-sm"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="focus-ring inline-flex items-center gap-2.5 btn-magenta-shimmer px-10 py-4 rounded-2xl text-sm font-black uppercase tracking-wide shadow-lg shadow-t-magenta/25"
         >
-          <Zap className="w-4 h-4" />
+          <Zap className="w-5 h-5" />
           Start a Call
-        </button>
+        </motion.button>
         <p className="text-[9px] text-t-dark-gray/40 font-medium mt-3 flex items-center justify-center gap-1">
           <Clock className="w-3 h-3" />
           On-the-clock use only

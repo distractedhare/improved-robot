@@ -1,3 +1,15 @@
+## UI / Styling Conventions
+
+- When applying visual effects (glass, shine, specular, gradients), start with the most subtle version possible and increase only if asked. Never go flashy on the first pass — executive/professional aesthetic is the default.
+- The HomeScreen is the exception — it's the hero moment and should feel energetic and premium.
+- Follow Apple's Liquid Glass principles: natural saturation (no saturate()), transparent glass (0.28-0.38 light, 0.10-0.14 dark), blur(20-28px).
+
+## Git & Deployment
+
+- Before starting work, always pull and rebase from main to minimize merge conflicts.
+- Before pushing changes, confirm the target branch (main vs feature branch).
+- When deploying, verify the build succeeds before considering the task complete.
+
 <!-- VERCEL BEST PRACTICES START -->
 ## Best practices for developing on Vercel
 
