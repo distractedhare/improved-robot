@@ -1,4 +1,5 @@
 import { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
+import { isAbortError, withTimeoutSignal } from './networkUtils';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
 
 export type GemmaLoadingState = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
@@ -18,6 +19,8 @@ let cooldownUntil = 0;
 const HEALTH_CHECK_INTERVAL_MS = 60_000;
 const AUTH_COOLDOWN_MS = 5 * 60 * 1000;
 const TRANSIENT_COOLDOWN_MS = 30_000;
+const HEALTH_CHECK_TIMEOUT_MS = 8_000;
+const REQUEST_TIMEOUT_MS = 20_000;
 
 function notifyListeners() {
   listeners.forEach((listener) => {
@@ -82,10 +85,13 @@ export async function initializeGemma(force = false): Promise<void> {
   lastHealthCheckAt = now;
   setState('loading');
 
+  const { signal, cleanup } = withTimeoutSignal({ timeoutMs: HEALTH_CHECK_TIMEOUT_MS });
+
   try {
     const response = await fetch('/api/ai', {
       method: 'GET',
       cache: 'no-store',
+      signal,
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -99,6 +105,8 @@ export async function initializeGemma(force = false): Promise<void> {
     setUnavailable(response.status);
   } catch {
     setUnavailable();
+  } finally {
+    cleanup();
   }
 }
 
@@ -225,35 +233,57 @@ async function requestGemma(messages: ChatMessage[]): Promise<string> {
     throw new Error('AI is not ready.');
   }
 
-  const response = await fetch('/api/ai', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    cache: 'no-store',
-    body: JSON.stringify({
-      messages,
-      temperature: 0.35,
-    }),
-  });
+  const { signal, cleanup } = withTimeoutSignal({ timeoutMs: REQUEST_TIMEOUT_MS });
 
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}));
-    setUnavailable(response.status);
-    throw new Error(typeof payload?.error === 'string' ? payload.error : `Gemma request failed with ${response.status}`);
+  try {
+    const response = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      signal,
+      body: JSON.stringify({
+        messages,
+        temperature: 0.35,
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setUnavailable(response.status);
+      throw new Error(typeof payload?.error === 'string' ? payload.error : `Gemma request failed with ${response.status}`);
+    }
+
+    const payload = await response.json();
+    if (typeof payload?.content !== 'string' || !payload.content.trim()) {
+      setUnavailable();
+      throw new Error('Gemma response was empty.');
+    }
+
+    cooldownUntil = 0;
+    setState('ready');
+    return payload.content;
+  } catch (error) {
+    if (isAbortError(error)) {
+      setUnavailable();
+      throw new Error('Gemma request timed out.');
+    }
+
+    throw error;
+  } finally {
+    cleanup();
   }
+}
 
-  const payload = await response.json();
-  if (typeof payload?.content !== 'string' || !payload.content.trim()) {
-    setUnavailable();
-    throw new Error('Gemma response was empty.');
+function parseModelJson(raw: string, fallbackLabel: string): Record<string, unknown> {
+  try {
+    return JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  } catch {
+    throw new Error(`${fallbackLabel} response could not be read.`);
   }
-
-  cooldownUntil = 0;
-  setState('ready');
-  return payload.content;
 }
 
 function parseScriptResponse(raw: string): SalesScript {
-  const data = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  const data = parseModelJson(raw, 'Gemma game plan');
 
   return {
     welcomeMessages: ensureStringArray(data.welcomeMessages, ['Welcome to T-Mobile! How can I help you today?']),
@@ -296,7 +326,7 @@ function parseScriptResponse(raw: string): SalesScript {
 }
 
 function parseObjectionResponse(raw: string): ObjectionAnalysis {
-  const data = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  const data = parseModelJson(raw, 'Gemma objection');
 
   return {
     talkingPoints: ensureStringArray(data.talkingPoints, ['Start by acknowledging the concern clearly.']),

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -7,29 +7,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="T-Sales" />
-    <meta name="description" content="T-Sales Assistant (Unoff.) — fast offline sales coaching for T-Mobile Virtual Retail reps." />
+    <meta name="description" content="CustomerConnect AI — fast offline-ready sales coaching for T-Mobile Virtual Retail reps." />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/tmo-logo-v4.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="icon" type="image/svg+xml" href="/tmo-logo-v4.svg" />
-    <title>T-Sales Assistant (Unoff.)</title>
+    <title>CustomerConnect AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
-    <script>
-      // Apply stored theme before first paint to prevent FOUC
-      (function() {
-        var pref = 'auto';
-        try {
-          pref = localStorage.getItem('cc-theme') || 'auto';
-        } catch (_) {}
-        var resolved = pref === 'auto'
-          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-          : pref;
-        document.documentElement.setAttribute('data-theme', resolved);
-        // Legacy compat: also set .dark class
-        if (resolved === 'dark') document.documentElement.classList.add('dark');
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

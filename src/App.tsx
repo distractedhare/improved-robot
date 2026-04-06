@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { startTransition, useState, useCallback, useRef, useEffect } from 'react';
+import React, { Suspense, lazy, startTransition, useState, useCallback, useRef, useEffect } from 'react';
 import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
@@ -21,7 +21,8 @@ import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
 import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGenerated } from './services/sessionTracker';
 import { DEMO_SCENARIOS, DemoScenario } from './constants/demoScenarios';
-import { AppMode, ThemePreference } from './components/Header';
+import { isAbortError } from './services/networkUtils';
+import { AppMode } from './components/Header';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
@@ -31,8 +32,65 @@ import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
 import SessionStats from './components/SessionStats';
-import LevelUpView from './components/levelup/LevelUpView';
-import LearnView from './components/learn/LearnView';
+
+const LearnView = lazy(() => import('./components/learn/LearnView'));
+const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
+
+function LazySectionFallback({ label }: { label: string }) {
+  return (
+    <div className="rounded-xl border border-t-light-gray bg-white p-5 shadow-md">
+      <div className="animate-pulse space-y-3">
+        <div className="h-3 w-28 rounded-full bg-t-light-gray" />
+        <div className="h-8 w-48 rounded-lg bg-t-light-gray/80" />
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="h-28 rounded-xl bg-t-light-gray/70" />
+          <div className="h-28 rounded-xl bg-t-light-gray/70" />
+        </div>
+      </div>
+      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-t-dark-gray/70">
+        Loading {label}
+      </p>
+    </div>
+  );
+}
+
+function TabErrorFallback({
+  title,
+  message,
+  onRetry,
+}: {
+  title: string;
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="rounded-xl border border-t-magenta/20 bg-white p-5 shadow-md">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-t-magenta/10">
+          <XCircle className="h-5 w-5 text-t-magenta" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
+          <p className="mt-1 text-sm font-medium leading-relaxed text-t-dark-gray">{message}</p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="focus-ring mt-4 inline-flex min-h-[44px] items-center rounded-xl bg-t-magenta px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
+            style={{ touchAction: 'manipulation' }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function logDevWarning(message: string, error?: unknown): void {
+  if (import.meta.env.DEV) {
+    console.warn(message, error);
+  }
+}
 
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
@@ -64,41 +122,6 @@ export default function App() {
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
 
-  // Theme — 3-state: auto / light / dark
-  const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        return (localStorage.getItem('cc-theme') as ThemePreference) || 'auto';
-      } catch {
-        return 'auto';
-      }
-    }
-    return 'auto';
-  });
-  useEffect(() => {
-    function applyTheme(pref: ThemePreference) {
-      const resolved = pref === 'auto'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : pref;
-      document.documentElement.setAttribute('data-theme', resolved);
-      document.documentElement.classList.toggle('dark', resolved === 'dark');
-    }
-    applyTheme(themePreference);
-    try {
-      localStorage.setItem('cc-theme', themePreference);
-    } catch {
-      console.warn('Theme preference could not be saved.');
-    }
-
-    // Listen for OS changes when on auto
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => {
-      if (themePreference === 'auto') applyTheme('auto');
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, [themePreference]);
-
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
   useEffect(() => {
@@ -111,51 +134,112 @@ export default function App() {
   const [weeklyData, setWeeklyData] = useState<WeeklyUpdate | null>(null);
   const [weeklySource, setWeeklySource] = useState<WeeklyUpdateSource>('placeholder');
   const [weeklyLoaded, setWeeklyLoaded] = useState(false);
-  const refreshWeeklyData = useCallback(async () => {
-    const { data, source } = await loadWeeklyUpdate();
-    setWeeklyData(data);
-    setWeeklySource(source);
-    setWeeklyLoaded(true);
-  }, []);
-  useEffect(() => {
-    void refreshWeeklyData();
-  }, [refreshWeeklyData]);
-  useEffect(() => {
-    void warmAIEnhancement();
-  }, []);
-
-  // Ecosystem matrix state
-  const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
-  useEffect(() => {
-    loadEcosystemMatrix().then(data => {
-      if (data) setEcosystemMatrix(data);
-    });
-  }, []);
 
   // Debounce ref
   const lastGenerateTime = useRef(0);
   const planRequestIdRef = useRef(0);
   const objectionRequestIdRef = useRef(0);
+  const planRequestAbortRef = useRef<AbortController | null>(null);
+  const objectionRequestAbortRef = useRef<AbortController | null>(null);
+
+  const cancelPlanRequest = useCallback(() => {
+    planRequestAbortRef.current?.abort();
+    planRequestAbortRef.current = null;
+  }, []);
+
+  const cancelObjectionRequest = useCallback(() => {
+    objectionRequestAbortRef.current?.abort();
+    objectionRequestAbortRef.current = null;
+  }, []);
+
+  const cancelInFlightRequests = useCallback(() => {
+    cancelPlanRequest();
+    cancelObjectionRequest();
+  }, [cancelObjectionRequest, cancelPlanRequest]);
 
   const refreshSessionStats = useCallback(() => {
     try {
       setSessionStats(getSessionStats());
     } catch (err) {
-      console.warn('Session stats could not be refreshed.', err);
+      logDevWarning('Session stats could not be refreshed.', err);
     }
   }, []);
 
-  const ensureWeeklyDataLoaded = useCallback(async () => {
+  const refreshWeeklyData = useCallback(async (signal?: AbortSignal) => {
+    const { data, source } = await loadWeeklyUpdate({ signal });
+    if (signal?.aborted) return null;
+    setWeeklyData(data);
+    setWeeklySource(source);
+    setWeeklyLoaded(true);
+    return { data, source };
+  }, []);
+
+  const handleWeeklyDataRefresh = useCallback(async () => {
+    await refreshWeeklyData();
+  }, [refreshWeeklyData]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void refreshWeeklyData(controller.signal).catch((error) => {
+      if (!isAbortError(error)) {
+        logDevWarning('Weekly update warm-up failed, falling back to local placeholder data.', error);
+      }
+    });
+
+    return () => controller.abort();
+  }, [refreshWeeklyData]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void warmAIEnhancement({ signal: controller.signal }).catch((error) => {
+      if (!isAbortError(error)) {
+        logDevWarning('AI enhancement warm-up failed, but the live experience is still available.', error);
+      }
+    });
+
+    return () => controller.abort();
+  }, []);
+
+  // Ecosystem matrix state
+  const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void loadEcosystemMatrix({ signal: controller.signal })
+      .then((data) => {
+        if (!controller.signal.aborted && data) {
+          setEcosystemMatrix(data);
+        }
+      })
+      .catch((error) => {
+        if (!isAbortError(error)) {
+          logDevWarning('Ecosystem matrix warm-up failed, but the app will keep using embedded content.', error);
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => () => cancelInFlightRequests(), [cancelInFlightRequests]);
+
+  const ensureWeeklyDataLoaded = useCallback(async (signal?: AbortSignal) => {
     if (weeklyLoaded && weeklyData) return weeklyData;
 
-    const { data, source } = await loadWeeklyUpdate();
+    const loaded = await refreshWeeklyData(signal);
+    if (!loaded) {
+      throw new Error('Weekly data could not be loaded.');
+    }
+    const { data, source } = loaded;
     setWeeklyData(data);
     setWeeklySource(source);
     setWeeklyLoaded(true);
     return data;
-  }, [weeklyData, weeklyLoaded]);
+  }, [refreshWeeklyData, weeklyData, weeklyLoaded]);
 
   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
+    cancelInFlightRequests();
     planRequestIdRef.current += 1;
     objectionRequestIdRef.current += 1;
     setLoading(false);
@@ -173,11 +257,12 @@ export default function App() {
       trackIntentUsed(intent);
       refreshSessionStats();
     } catch (err) {
-      console.warn('Intent tracking failed, but the app will keep going.', err);
+      logDevWarning('Intent tracking failed, but the app will keep going.', err);
     }
-  }, [refreshSessionStats]);
+  }, [cancelInFlightRequests, refreshSessionStats]);
 
   const handleContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
+    cancelInFlightRequests();
     planRequestIdRef.current += 1;
     objectionRequestIdRef.current += 1;
     setLoading(false);
@@ -192,15 +277,20 @@ export default function App() {
     setActiveTab('gameplan');
     setIntentTapped(true);
     setError(null);
-  }, []);
+  }, [cancelInFlightRequests]);
 
   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
 
+    cancelPlanRequest();
+    const controller = new AbortController();
+    planRequestAbortRef.current = controller;
+
     const ctx = overrideContext || context;
     const requestId = ++planRequestIdRef.current;
+    let localResult: SalesScript | null = null;
     objectionRequestIdRef.current += 1;
     setLoading(true);
     setEnhancingPlan(false);
@@ -208,10 +298,11 @@ export default function App() {
     setError(null);
 
     try {
-      const resolvedWeeklyData = await ensureWeeklyDataLoaded();
-      if (planRequestIdRef.current !== requestId) return;
+      const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
+      if (controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
       const result = generateScript(ctx, resolvedWeeklyData);
+      localResult = result;
       setScript(result);
       setObjectionResult(null);
       setSelectedObjections([]);
@@ -221,50 +312,66 @@ export default function App() {
           trackPlanGenerated();
           refreshSessionStats();
         } catch (trackingError) {
-          console.warn('Plan tracking failed, but the game plan was built.', trackingError);
+          logDevWarning('Plan tracking failed, but the game plan was built.', trackingError);
         }
       }
 
       setEnhancingPlan(true);
       void (async () => {
         try {
-          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData);
-          if (!enhancement || planRequestIdRef.current !== requestId) return;
+          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
+          if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
           startTransition(() => {
             setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
           });
         } catch (enhancementError) {
-          if (import.meta.env.DEV) {
+          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
             console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
           }
         } finally {
-          if (planRequestIdRef.current === requestId) {
+          if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
             setEnhancingPlan(false);
           }
         }
       })();
     } catch (err) {
+      if (isAbortError(err)) return;
       if (planRequestIdRef.current !== requestId) return;
-      setError('Couldn\'t build your game plan. Try again, and if it keeps happening refresh the app.');
-      console.error(err);
+      if (!localResult) {
+        setError('Couldn\'t build your game plan. Try again, and if it keeps happening refresh the app.');
+      } else {
+        logDevWarning('Game plan fallback hit a recoverable issue after local content was already ready.', err);
+      }
+      if (import.meta.env.DEV) {
+        console.error(err);
+      }
       setEnhancingPlan(false);
     } finally {
-      if (planRequestIdRef.current === requestId) {
+      if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
         setLoading(false);
       }
+      if (planRequestAbortRef.current === controller) {
+        planRequestAbortRef.current = null;
+      }
     }
-  }, [context, ensureWeeklyDataLoaded, refreshSessionStats]);
+  }, [cancelPlanRequest, context, ensureWeeklyDataLoaded, refreshSessionStats]);
 
   const handleAnalyzeObjection = useCallback(async () => {
     if (selectedObjections.length === 0) return;
+
+    cancelObjectionRequest();
+    const controller = new AbortController();
+    objectionRequestAbortRef.current = controller;
+
     const requestId = ++objectionRequestIdRef.current;
+    let localResult: ObjectionAnalysis | null = null;
     setAnalyzing(true);
     setEnhancingObjection(false);
     setError(null);
     try {
-      const resolvedWeeklyData = await ensureWeeklyDataLoaded();
-      if (objectionRequestIdRef.current !== requestId) return;
+      const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
+      if (controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
       const result = analyzeObjectionLocal(
         selectedObjections.join(', '),
@@ -273,12 +380,13 @@ export default function App() {
         selectedGamePlanItems,
         resolvedWeeklyData,
       );
+      localResult = result;
       setObjectionResult(result);
       try {
         trackObjectionAnalyzed(selectedObjections);
         refreshSessionStats();
       } catch (trackingError) {
-        console.warn('Objection tracking failed, but the analysis was built.', trackingError);
+        logDevWarning('Objection tracking failed, but the analysis was built.', trackingError);
       }
 
       setEnhancingObjection(true);
@@ -289,34 +397,45 @@ export default function App() {
             context,
             result,
             resolvedWeeklyData,
+            { signal: controller.signal },
           );
 
-          if (!enhancement || objectionRequestIdRef.current !== requestId) return;
+          if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
           startTransition(() => {
             setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
           });
         } catch (enhancementError) {
-          if (import.meta.env.DEV) {
+          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
             console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
           }
         } finally {
-          if (objectionRequestIdRef.current === requestId) {
+          if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
             setEnhancingObjection(false);
           }
         }
       })();
     } catch (err) {
+      if (isAbortError(err)) return;
       if (objectionRequestIdRef.current !== requestId) return;
-      setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
-      console.error(err);
+      if (!localResult) {
+        setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
+      } else {
+        logDevWarning('Objection fallback hit a recoverable issue after local analysis was already ready.', err);
+      }
+      if (import.meta.env.DEV) {
+        console.error(err);
+      }
       setEnhancingObjection(false);
     } finally {
-      if (objectionRequestIdRef.current === requestId) {
+      if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
         setAnalyzing(false);
       }
+      if (objectionRequestAbortRef.current === controller) {
+        objectionRequestAbortRef.current = null;
+      }
     }
-  }, [selectedObjections, context, script, selectedGamePlanItems, ensureWeeklyDataLoaded, refreshSessionStats]);
+  }, [cancelObjectionRequest, selectedObjections, context, script, selectedGamePlanItems, ensureWeeklyDataLoaded, refreshSessionStats]);
 
   const toggleGamePlanItem = useCallback((item: string) => {
     setSelectedGamePlanItems(prev =>
@@ -325,6 +444,7 @@ export default function App() {
   }, []);
 
   const reset = useCallback(() => {
+    cancelInFlightRequests();
     planRequestIdRef.current += 1;
     objectionRequestIdRef.current += 1;
     setLoading(false);
@@ -344,10 +464,12 @@ export default function App() {
       currentCarrier: 'Not Specified'
     });
     setIntentTapped(true);
+    setError(null);
     resetRotation();
-  }, []);
+  }, [cancelInFlightRequests]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
+    cancelInFlightRequests();
     planRequestIdRef.current += 1;
     objectionRequestIdRef.current += 1;
     setLoading(false);
@@ -364,7 +486,7 @@ export default function App() {
     setError(null);
     setMode('live');
     void handleGenerate(scenario.context);
-  }, [handleGenerate]);
+  }, [cancelInFlightRequests, handleGenerate]);
 
   /** From Level Up practice — loads scenario AND switches to Live */
   const handlePracticeScenario = useCallback((scenario: DemoScenario) => {
@@ -404,7 +526,7 @@ export default function App() {
         );
       }
     } catch (err) {
-      console.warn('App refresh encountered an issue, falling back to a normal reload.', err);
+      logDevWarning('App refresh encountered an issue, falling back to a normal reload.', err);
     }
 
     window.location.reload();
@@ -423,15 +545,26 @@ export default function App() {
     ? new Date(weeklyData.metadata.validUntil) < new Date()
     : false;
 
+  const handleModeChange = useCallback((nextMode: AppMode) => {
+    if (nextMode !== 'live') {
+      cancelInFlightRequests();
+      setLoading(false);
+      setAnalyzing(false);
+      setEnhancingPlan(false);
+      setEnhancingObjection(false);
+    }
+
+    setMode(nextMode);
+  }, [cancelInFlightRequests]);
+
   return (
     <ErrorBoundary>
-    <div className="min-h-screen font-sans selection:bg-t-magenta/20 text-foreground relative">
-      {/* Floating orbs — ambient magenta energy */}
+    <div className="relative min-h-screen font-sans text-foreground selection:bg-t-magenta/20">
       <div className="bg-orb bg-orb-1" aria-hidden="true" />
       <div className="bg-orb bg-orb-2" aria-hidden="true" />
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
 
-      <Header onReset={reset} mode={mode} themePreference={themePreference} onThemeChange={setThemePreference} onModeChange={setMode} />
+      <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
 
       {isDataExpired && (
         <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"
@@ -440,52 +573,87 @@ export default function App() {
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-6 md:p-10 relative z-[1]">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 py-6 md:p-10">
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
+              id="mode-panel-home"
               key="mode-home"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -14, scale: 0.99 }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
-              <HomeScreen weeklyData={weeklyData} onNavigate={setMode} />
+              <ErrorBoundary
+                compact
+                resetKey="mode-home"
+                title="Home view needs a refresh"
+                message="The dashboard tripped over something. Reload to get the demo back on track."
+              >
+                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} />
+              </ErrorBoundary>
             </motion.section>
           ) : mode === 'level-up' ? (
             <motion.section
+              id="mode-panel-level-up"
               key="mode-level-up"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -14, scale: 0.99 }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
-              <LevelUpView />
+              <ErrorBoundary
+                compact
+                resetKey="mode-level-up"
+                title="Level Up hit a snag"
+                message="The practice tab can be reloaded without affecting the rest of the app."
+              >
+                <Suspense fallback={<LazySectionFallback label="Level Up" />}>
+                  <LevelUpView />
+                </Suspense>
+              </ErrorBoundary>
             </motion.section>
           ) : mode === 'learn' ? (
             <motion.section
+              id="mode-panel-learn"
               key="mode-learn"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -14, scale: 0.99 }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
-              <LearnView
-                weeklyData={weeklyData}
-                weeklySource={weeklySource}
-                ecosystemMatrix={ecosystemMatrix}
-                onDataUpdate={refreshWeeklyData}
-                onSelectScenario={handlePracticeScenario}
-              />
+              <ErrorBoundary
+                compact
+                resetKey="mode-learn"
+                title="Learn tab needs a refresh"
+                message="The learning library can reload without interrupting the live call flow."
+              >
+                <Suspense fallback={<LazySectionFallback label="Learn" />}>
+                  <LearnView
+                    weeklyData={weeklyData}
+                    weeklySource={weeklySource}
+                    ecosystemMatrix={ecosystemMatrix}
+                    onDataUpdate={handleWeeklyDataRefresh}
+                    onSelectScenario={handlePracticeScenario}
+                  />
+                </Suspense>
+              </ErrorBoundary>
             </motion.section>
           ) : (
             <motion.section
+              id="mode-panel-live"
               key="mode-live"
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -14, scale: 0.99 }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
+        <ErrorBoundary
+          compact
+          resetKey={`mode-live-${activeTab}`}
+          title="Live Call needs a reset"
+          message="A live-call panel ran into trouble. Reloading this tab is safer than risking a white screen in the demo."
+        >
         <>
         {/* On-the-clock disclaimer */}
         <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
@@ -501,10 +669,10 @@ export default function App() {
         </div>
 
         {/* Hero */}
-        <div className="text-center max-w-3xl mx-auto mb-4">
+        <div className="mx-auto mb-4 max-w-3xl text-center">
           <div className="space-y-0.5">
-            <p className="text-sm font-bold text-t-dark-gray">Pick the vibe. Get instant plays. 🔥</p>
-            <p className="text-xs font-medium text-t-dark-gray/70">Go deeper — fill in the details and build your full game plan.</p>
+            <p className="text-sm font-bold text-t-dark-gray">Pick the call type. Get useful talk tracks fast.</p>
+            <p className="text-xs font-medium text-t-dark-gray/70">Instant local coaching shows up first. AI sharpening layers in after.</p>
           </div>
         </div>
 
@@ -570,7 +738,7 @@ export default function App() {
                         key={p}
                         type="button"
                         onClick={() => {
-                          setContext(prev => {
+                          handleContextUpdate((prev) => {
                             if (p === 'No Specific Product') {
                               return { ...prev, product: ['No Specific Product'] };
                             }
@@ -585,8 +753,6 @@ export default function App() {
                             }
                             return { ...prev, product: newProducts };
                           });
-                          setScript(null);
-                          setObjectionResult(null);
                         }}
                         aria-pressed={isSelected}
                         className={`focus-ring py-2 px-3 text-[10px] font-black rounded-xl border-2 uppercase transition-all flex items-center justify-between ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
@@ -699,39 +865,50 @@ export default function App() {
             />
 
             {/* Tabs — Plan + Objections */}
-            <div className="grid grid-cols-2 md:flex p-1.5 rounded-2xl gap-1.5 md:gap-0 glass-tab" style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}>
+            <div
+              role="tablist"
+              aria-label="Live call tools"
+              className="grid grid-cols-2 gap-1.5 rounded-2xl p-1.5 md:flex md:gap-0 glass-tab"
+              style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
+            >
               {([
                 { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
                 { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
               ]).map(tab => (
                 <button
                   key={tab.id}
+                  id={`live-tab-${tab.id}`}
                   type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  aria-pressed={activeTab === tab.id}
                   className={`focus-ring flex-1 min-h-[48px] px-2 py-3 text-[10px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
                 </button>
               ))}
             </div>
 
-            {/* Tab-specific content on left (objections form, devices list, briefing) */}
-            <AnimatePresence mode="wait">
-              {activeTab === 'objections' && (
-                <ObjectionTab
-                  context={context}
-                  script={script}
-                  selectedObjections={selectedObjections}
-                  setSelectedObjections={setSelectedObjections}
-                  selectedGamePlanItems={selectedGamePlanItems}
-                  objectionResult={objectionResult}
-                  analyzing={analyzing}
-                  onAnalyze={handleAnalyzeObjection}
-                  onClearResult={() => setObjectionResult(null)}
-                />
-              )}
-            </AnimatePresence>
+	            {/* Tab-specific content on left (objections form, devices list, briefing) */}
+	            <AnimatePresence mode="wait">
+	              {activeTab === 'objections' && (
+	                <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
+	                  <ObjectionTab
+	                    context={context}
+	                    script={script}
+	                    selectedObjections={selectedObjections}
+	                    setSelectedObjections={setSelectedObjections}
+	                    selectedGamePlanItems={selectedGamePlanItems}
+	                    objectionResult={objectionResult}
+	                    analyzing={analyzing}
+	                    onAnalyze={handleAnalyzeObjection}
+	                    onClearResult={() => setObjectionResult(null)}
+	                  />
+	                </div>
+	              )}
+	            </AnimatePresence>
 
             <SessionStats stats={sessionStats} />
             <p className="text-[9px] text-center text-t-dark-gray/60 font-medium px-4 flex items-center justify-center gap-1">
@@ -740,26 +917,33 @@ export default function App() {
             </p>
           </div>
 
-          {/* RIGHT PANEL — Results */}
-          <div className="lg:col-span-7">
-            <AnimatePresence mode="wait">
-              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
-              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+	          {/* RIGHT PANEL — Results */}
+	          <div className="lg:col-span-7">
+	            <ErrorBoundary
+	              compact
+	              resetKey={`live-results-${activeTab}`}
+	              title="Results panel needs a refresh"
+	              message="The local coaching engine is still safe. Reset this panel and keep the conversation moving."
+	            >
+	            <div id="live-panel-gameplan" role="tabpanel" aria-labelledby="live-tab-gameplan">
+	            <AnimatePresence mode="wait">
+	              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
+	              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
+	                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
               )}
 
 
               {/* Objections empty state */}
               {activeTab === 'objections' && !objectionResult && !analyzing && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine glass-specular"
-                  style={{ borderStyle: 'dashed' }}
-                >
-                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
-                    <AlertCircle className="w-8 h-8 text-t-magenta" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight mb-6" style={{ background: 'linear-gradient(135deg, #E20074, #FF4DA6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Flip the Script</h3>
-                  <div className="text-left space-y-4 max-w-sm w-full">
+	                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine glass-specular"
+	                  style={{ borderStyle: 'dashed' }}
+	                >
+	                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
+	                    <AlertCircle className="w-8 h-8 text-t-magenta" />
+	                  </div>
+	                  <h3 className="mb-6 text-xl font-black uppercase tracking-tight text-t-magenta">Flip the Script</h3>
+	                  <div className="text-left space-y-4 max-w-sm w-full">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
                       <p className="text-sm text-t-dark-gray font-medium">Pick the pushback you're hearing.</p>
@@ -776,17 +960,24 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Loading state */}
-              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-10 rounded-3xl glass-card glass-specular magenta-glow"
-                >
-                  <Loader2 className="w-10 h-10 text-t-magenta animate-spin mb-4" />
-                  <p className="text-t-magenta font-black uppercase tracking-widest animate-pulse">
-                    {activeTab === 'gameplan' ? "⚡ Cooking up your game plan..." : "⚡ Flipping the script..."}
-                  </p>
-                </motion.div>
-              )}
+	              {/* Loading state */}
+	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
+	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+	                  className="min-h-[400px] rounded-3xl glass-card p-6"
+	                >
+	                  <div className="animate-pulse space-y-4">
+	                    <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
+	                    <div className="h-12 rounded-2xl bg-t-light-gray/80" />
+	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+	                    <div className="h-16 rounded-2xl bg-t-light-gray/60" />
+	                  </div>
+	                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
+	                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+	                    {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
+	                  </div>
+	                </motion.div>
+	              )}
 
               {/* Objection results */}
               {activeTab === 'objections' && objectionResult && !analyzing && (
@@ -803,20 +994,33 @@ export default function App() {
                   onReset={reset}
                   onSwitchToObjections={() => setActiveTab('objections')}
                   ecosystemMatrix={ecosystemMatrix}
-                />
-              )}
-            </AnimatePresence>
+	                />
+	              )}
+	            </AnimatePresence>
+	            </div>
+	            </ErrorBoundary>
 
-            {error && (
-              <div className="mt-6 p-4 bg-error-surface border-2 border-error-border rounded-2xl text-error-foreground text-sm font-black uppercase flex items-center gap-3">
-                <XCircle className="w-5 h-5 shrink-0 text-error-accent" />
-                {error}
-              </div>
-            )}
-          </div>
-        </div>
-        </>
-            </motion.section>
+	            {error && !((activeTab === 'gameplan' && script) || (activeTab === 'objections' && objectionResult)) && (
+	              <div className="mt-6">
+	                <TabErrorFallback
+	                  title="Working offline"
+	                  message={error}
+	                  onRetry={() => {
+	                    if (activeTab === 'gameplan') {
+	                      void handleGenerate();
+	                      return;
+	                    }
+
+	                    void handleAnalyzeObjection();
+	                  }}
+	                />
+	              </div>
+	            )}
+	          </div>
+	        </div>
+	        </>
+	        </ErrorBoundary>
+	            </motion.section>
           )}
         </AnimatePresence>
       </main>
@@ -853,8 +1057,8 @@ export default function App() {
             Use this if the app looks stale or a tester thinks they are seeing an older version.
           </p>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-widest pt-4 text-t-dark-gray/60">
-          &copy; 2026 T-Sales Assistant (Unoff.). Built for fast, stable call support.
+        <p className="pt-4 text-[10px] font-black uppercase tracking-widest text-t-dark-gray/60">
+          &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
         </p>
       </footer>
 

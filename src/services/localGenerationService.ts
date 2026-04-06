@@ -3,6 +3,7 @@ import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpda
 import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
 import { findScenario } from '../data/objectionPlaybook';
 import { getDeepDiveScripts, OBJECTION_SCRIPTS } from '../data/recommendationRules';
+import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
 
 const DEEP_DIVE_SCRIPT_MAP: Record<string, string[]> = {
   account_access: ['OBJ_TOO_COMPLICATED'],
@@ -44,6 +45,12 @@ export interface WeeklyUpdateUploadResult {
   source?: WeeklyUpdateSource;
 }
 
+function warnDev(message: string): void {
+  if (import.meta.env.DEV) {
+    console.warn(message);
+  }
+}
+
 function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   if (typeof window === 'undefined') return null;
 
@@ -51,7 +58,7 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   try {
     stored = localStorage.getItem(UPLOADED_WEEKLY_UPDATE_KEY);
   } catch {
-    console.warn('Stored weekly update could not be accessed, falling back to bundled data');
+    warnDev('Stored weekly update could not be accessed, falling back to bundled data');
     return null;
   }
 
@@ -60,7 +67,7 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   try {
     const parsed = JSON.parse(stored);
     if (!validateWeeklyUpdate(parsed)) {
-      console.warn('Stored weekly update is invalid, falling back to bundled data');
+      warnDev('Stored weekly update is invalid, falling back to bundled data');
       return null;
     }
 
@@ -68,27 +75,46 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
     cachedWeeklySource = 'uploaded';
     return { data: parsed, source: 'uploaded' };
   } catch {
-    console.warn('Stored weekly update could not be parsed, falling back to bundled data');
+    warnDev('Stored weekly update could not be parsed, falling back to bundled data');
     return null;
   }
 }
 
 /** Load weekly update: uploaded local data → bundled file → placeholder */
-export async function loadWeeklyUpdate(): Promise<WeeklyUpdateLoadResult> {
+export async function loadWeeklyUpdate(options: RequestSignalOptions = {}): Promise<WeeklyUpdateLoadResult> {
+  if (cachedWeeklyUpdate) {
+    return { data: cachedWeeklyUpdate, source: cachedWeeklySource };
+  }
+
   const uploaded = readUploadedWeeklyUpdate();
   if (uploaded) return uploaded;
 
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 4000 });
+
   try {
-    const response = await fetch('/weekly-update.json');
+    const response = await fetch('/weekly-update.json', {
+      cache: 'no-store',
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Bundled weekly update request failed with ${response.status}.`);
+    }
+
     const data = await response.json();
     if (validateWeeklyUpdate(data)) {
       cachedWeeklyUpdate = data;
       cachedWeeklySource = 'bundled';
       return { data, source: 'bundled' };
     }
-    console.warn('Bundled weekly update failed validation, falling back to placeholder');
-  } catch {
-    console.warn('Failed to load bundled weekly-update.json');
+    warnDev('Bundled weekly update failed validation, falling back to placeholder');
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+    warnDev('Failed to load bundled weekly-update.json');
+  } finally {
+    cleanup();
   }
 
   cachedWeeklyUpdate = getPlaceholderUpdate();
@@ -138,7 +164,7 @@ export function clearUploadedUpdate(): void {
     try {
       localStorage.removeItem(UPLOADED_WEEKLY_UPDATE_KEY);
     } catch {
-      console.warn('Uploaded weekly update could not be cleared from local storage');
+      warnDev('Uploaded weekly update could not be cleared from local storage');
     }
   }
   cachedWeeklyUpdate = null;

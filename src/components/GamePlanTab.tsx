@@ -1,6 +1,6 @@
 import {
-  Sparkles, ArrowRight, Loader2, CheckCircle2, Coffee, Target,
-  ChevronRight, ChevronDown, Zap, Lightbulb, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users, Play
+  Sparkles, ArrowRight, Loader2, CheckCircle2, Target,
+  ChevronRight, ChevronDown, Zap, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users, Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -171,7 +171,7 @@ export function GamePlanResults({
                 }`}>
                   {isSelected ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
                 </div>
-                <p className={`text-sm leading-relaxed italic font-bold ${isSelected ? 'text-t-magenta' : 'text-t-dark-gray'}`}>"{msg}"</p>
+                <p className={`text-sm font-bold leading-relaxed ${isSelected ? 'text-t-magenta' : 'text-t-dark-gray'}`}>{msg}</p>
               </button>
             );
           })}
@@ -244,7 +244,7 @@ export function GamePlanResults({
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
-          <p className="text-[10px] text-t-dark-gray/60 font-medium italic mb-3">
+          <p className="mb-3 text-[10px] font-medium text-t-dark-gray/60">
             {demoSection.trustLanguage}
           </p>
           <div className="space-y-3">
@@ -422,7 +422,7 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
                 {vp.salePrice ? (
                   <>
                     <span className="line-through text-t-dark-gray/40">{vp.fullPrice}</span>
-                    <span className="font-black text-success-accent">{vp.salePrice}</span>
+                    <span className="font-black text-t-magenta">{vp.salePrice}</span>
                   </>
                 ) : (
                   <span className="font-black text-t-magenta">{vp.fullPrice}</span>

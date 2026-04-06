@@ -82,7 +82,7 @@ export default function PlaybookSection() {
               <p className="text-[10px] font-black uppercase tracking-wider text-error-accent mb-1">
                 &ldquo;{objection}&rdquo;
               </p>
-              <p className="text-xs font-bold text-t-dark-gray mb-2 italic">{data.rebuttal}</p>
+              <p className="text-xs font-bold text-t-dark-gray mb-2">{data.rebuttal}</p>
               <ul className="space-y-1">
                 {data.talkingPoints.map((tp, i) => (
                   <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium flex gap-2">
@@ -130,7 +130,7 @@ export default function PlaybookSection() {
                 </p>
                 <ul className="space-y-1">
                   {phrases.map((p, i) => (
-                    <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium italic">{p}</li>
+                    <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium">{p}</li>
                   ))}
                 </ul>
               </div>

@@ -102,7 +102,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
   },
   'BTS': {
     label: 'Behind the Screen (Tablets, Watches)',
-    color: 'from-blue-600 to-indigo-600',
+    color: 'from-black to-t-berry',
     tips: {
       'exploring': [
         'Tablet line is $20/mo, watch line is $10-15/mo — easy add-ons.',
@@ -132,7 +132,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
   },
   'IOT': {
     label: 'IoT (SyncUP, Trackers)',
-    color: 'from-emerald-600 to-teal-600',
+    color: 'from-t-berry to-t-magenta',
     tips: {
       'exploring': [
         'SyncUP Tracker ($5/mo) — pets, luggage, backpacks. Dead simple.',
@@ -187,7 +187,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         className="rounded-xl bg-gradient-to-r from-t-magenta to-t-berry px-4 py-3 flex items-center gap-3 glass-shine magenta-glow"
       >
         <Home className="w-5 h-5 text-white shrink-0" />
-        <p className="text-xs font-bold text-white">Check the address for Home Internet — up to $300 back + Month On Us</p>
+        <p className="text-xs font-bold text-white">Check the address for Home Internet first. Rebate and Month On Us value land best after availability is confirmed.</p>
       </motion.div>
 
       {/* Product-specific context cards */}
@@ -221,7 +221,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       {/* Intent header */}
       <div className="rounded-2xl glass-card glass-shine p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
-        <p className="text-xs text-t-dark-gray/70 font-medium italic">{plays.subtitle}</p>
+        <p className="text-xs font-medium text-t-dark-gray/70">{plays.subtitle}</p>
       </div>
 
       {/* Plays */}
@@ -257,12 +257,12 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                 className="overflow-hidden"
               >
                 <div className="space-y-4 pt-3">
-                  <div className="rounded-2xl border-2 border-success-border bg-success-surface p-4 space-y-2">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground">Fast accessory flow</p>
-                    <p className="text-[10px] font-medium leading-snug text-success-foreground">
+                  <div className="rounded-2xl border border-t-magenta/15 bg-t-magenta/5 p-4 space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Fast accessory flow</p>
+                    <p className="text-[10px] font-medium leading-snug text-t-dark-gray">
                       Protect the purchase first, solve one daily friction point second, then save the fun add-on for callers who want the upgrade to feel exciting.
                     </p>
-                    <div className="space-y-1.5 text-[10px] font-medium text-success-foreground">
+                    <div className="space-y-1.5 text-[10px] font-medium text-t-dark-gray">
                       <p><span className="font-black">1.</span> Case or screen: protect the device they just spent money on.</p>
                       <p><span className="font-black">2.</span> Charger, cable, or mount: remove an everyday annoyance.</p>
                       <p><span className="font-black">3.</span> Audio or premium extra: only when the caller wants more than the basics.</p>
@@ -300,17 +300,17 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                 <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
                 <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug">{supportAccessory.pitch}</p>
               </div>
-              <div className="text-right shrink-0">
-                <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
-                <p className="text-[9px] font-bold text-success-accent">{supportAccessory.item.commission}</p>
-              </div>
+	              <div className="text-right shrink-0">
+	                <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
+	                <p className="text-[9px] font-bold text-t-magenta">{supportAccessory.item.commission}</p>
+	              </div>
             </div>
             <div className="mt-3 pt-2.5 border-t border-support-border flex items-center gap-1.5">
               <CreditCard className="w-3 h-3 text-t-magenta shrink-0" />
               <p className="text-[9px] text-t-dark-gray/60 font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
             </div>
           </div>
-          <p className="text-[9px] text-support-foreground font-medium italic">{supportAccessory.item.naturalTransition}</p>
+	          <p className="text-[9px] font-medium text-support-foreground">{supportAccessory.item.naturalTransition}</p>
         </div>
       )}
 
@@ -389,7 +389,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                               {'originalPrice' in item && item.originalPrice ? (
                                 <>
                                   <span className="line-through text-t-dark-gray/40">{item.originalPrice}</span>
-                                  <span className="font-bold text-success-accent">{item.price}</span>
+                                  <span className="font-bold text-t-magenta">{item.price}</span>
                                 </>
                               ) : item.bundle ? (
                                 <span className="text-t-dark-gray/40 line-through">{item.price}</span>
@@ -398,8 +398,8 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                               )}
                               {item.bundle && (
                                 <>
-                                  <span className="font-bold text-success-accent">{item.bundle}</span>
-                                  <span className="text-[10px] font-semibold text-success-foreground">w/ bundle</span>
+                                  <span className="font-bold text-t-magenta">{item.bundle}</span>
+                                  <span className="text-[10px] font-semibold text-t-dark-gray/70">w/ bundle</span>
                                 </>
                               )}
                             </div>
@@ -412,7 +412,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                             </div>
                           )}
                           <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
-                          <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
+                          <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
                         </div>
                       ))}
                     </div>
@@ -451,7 +451,7 @@ function BigAddsSection({ age }: { age?: string }) {
                 <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
               </div>
               <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
-              <p className="text-[10px] text-t-magenta font-bold italic mt-1">{item.pitch}</p>
+              <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
             </div>
           );
         })}

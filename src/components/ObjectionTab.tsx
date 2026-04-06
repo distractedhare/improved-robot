@@ -66,19 +66,19 @@ function StepGuide({ steps }: { steps: ObjectionStep[] }) {
               isActive
                 ? 'border-t-magenta bg-t-magenta/5'
                 : isDone
-                  ? 'border-green-300 bg-green-50 dark:bg-green-900/10 dark:border-green-700'
+                  ? 'border-success-border bg-success-surface'
                   : 'border-t-light-gray bg-surface opacity-60'
             }`}
           >
             <div className="flex items-start gap-2">
               <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black ${
-                isActive ? 'bg-t-magenta text-white' : isDone ? 'bg-green-500 text-white' : 'bg-t-light-gray text-t-dark-gray/50'
+                isActive ? 'bg-t-magenta text-white' : isDone ? 'bg-success-accent text-white' : 'bg-t-light-gray text-t-dark-gray/50'
               }`}>
                 {isDone ? '✓' : i + 1}
               </div>
               <div>
                 <p className={`text-[10px] font-black uppercase tracking-wider ${
-                  isActive ? 'text-t-magenta' : isDone ? 'text-green-600 dark:text-green-400' : 'text-t-dark-gray/50'
+                  isActive ? 'text-t-magenta' : isDone ? 'text-success-foreground' : 'text-t-dark-gray/50'
                 }`}>
                   {step.gate}
                 </p>
@@ -86,9 +86,9 @@ function StepGuide({ steps }: { steps: ObjectionStep[] }) {
                   <motion.p
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="text-xs text-t-dark-gray font-bold italic mt-1.5"
+                    className="mt-1.5 text-xs font-bold text-t-dark-gray"
                   >
-                    "{step.script}"
+                    {step.script}
                   </motion.p>
                 )}
               </div>
@@ -156,22 +156,22 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
           >
             <div className="px-3.5 pb-3.5 space-y-3">
               {/* Quick Response */}
-              <div className="p-3 rounded-xl bg-t-magenta/5 border border-t-magenta/15">
-                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1.5 flex items-center gap-1">
-                  <MessageSquare className="w-2.5 h-2.5" /> Say This
-                </p>
-                <p className="text-xs text-t-dark-gray font-bold italic leading-relaxed">
-                  "{scenario.quickResponse}"
-                </p>
-              </div>
+	              <div className="p-3 rounded-xl bg-t-magenta/5 border border-t-magenta/15">
+	                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1.5 flex items-center gap-1">
+	                  <MessageSquare className="w-2.5 h-2.5" /> Say This
+	                </p>
+	                <p className="text-xs font-bold leading-relaxed text-t-dark-gray">
+	                  {scenario.quickResponse}
+	                </p>
+	              </div>
 
-              {/* Coaching Tip */}
-              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700/30">
-                <p className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-1.5 flex items-center gap-1">
-                  <Lightbulb className="w-2.5 h-2.5" /> Coach's Tip
-                </p>
-                <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">
-                  {scenario.tip}
+	              {/* Coaching Tip */}
+	              <div className="rounded-xl border border-t-light-gray bg-t-light-gray/25 p-3">
+	                <p className="mb-1.5 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-t-berry">
+	                  <Lightbulb className="w-2.5 h-2.5" /> Coach's Tip
+	                </p>
+	                <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">
+	                  {scenario.tip}
                 </p>
               </div>
 
@@ -359,14 +359,14 @@ export default function ObjectionTab({
           animate={{ opacity: 1, y: 0 }}
           className="sticky bottom-4 z-10"
         >
-          <button
-            type="button"
-            onClick={onAnalyze}
-            disabled={analyzing}
-            aria-busy={analyzing}
-            aria-label={`Flip the Script — analyze ${selectedObjections.length} selected scenarios`}
-            className="focus-ring w-full bg-t-dark-gray text-white rounded-2xl py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-t-dark-gray/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-black/20 dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray"
-          >
+	          <button
+	            type="button"
+	            onClick={onAnalyze}
+	            disabled={analyzing}
+	            aria-busy={analyzing}
+	            aria-label={`Flip the Script — analyze ${selectedObjections.length} selected scenarios`}
+	            className="focus-ring w-full rounded-2xl bg-t-magenta py-4 font-black uppercase tracking-widest text-white shadow-[0_14px_28px_rgba(226,0,116,0.22)] transition-all hover:bg-t-berry disabled:cursor-not-allowed disabled:opacity-50"
+	          >
             {analyzing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
@@ -424,11 +424,11 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
           <Target className="w-3 h-3 text-t-magenta" /> How to Respond
         </h3>
         <div className="space-y-3">
-          {result.counterArguments.map((arg, i) => (
-            <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold break-words">
-              "{arg}"
-            </div>
-          ))}
+	          {result.counterArguments.map((arg, i) => (
+	            <div key={i} className="rounded-2xl border border-t-magenta/10 bg-t-magenta/5 p-4 text-sm font-bold break-words text-t-magenta">
+	              {arg}
+	            </div>
+	          ))}
         </div>
       </div>
 
@@ -438,15 +438,15 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
             <Sparkles className="w-3 h-3 text-t-magenta" /> Pivot Plays
           </h3>
           <div className="space-y-3">
-            {result.pivotPlays.map((pivot, i) => (
-              <div
-                key={`${pivot.strategy}-${i}`}
-                className="rounded-2xl border border-white/10 bg-gradient-to-r from-pivot-start to-pivot-end p-4 text-white shadow-lg shadow-black/10"
-              >
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-2">{pivot.strategy}</p>
-                <p className="text-sm font-bold italic break-words">"{pivot.script}"</p>
-              </div>
-            ))}
+	            {result.pivotPlays.map((pivot, i) => (
+	              <div
+	                key={`${pivot.strategy}-${i}`}
+	                className="rounded-2xl border border-white/10 bg-gradient-to-r from-pivot-start to-pivot-end p-4 text-white shadow-lg shadow-black/10"
+	              >
+	                <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-2">{pivot.strategy}</p>
+	                <p className="text-sm font-bold break-words">{pivot.script}</p>
+	              </div>
+	            ))}
           </div>
         </div>
       )}
@@ -457,24 +457,24 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
             <Briefcase className="w-3 h-3 text-t-magenta" /> Carrier Weak Spots
           </h3>
           <div className="space-y-3">
-            {result.carrierSpecificArguments.map((arg, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10 text-sm italic text-t-magenta font-bold break-words">
-                "{arg}"
-              </div>
-            ))}
+	            {result.carrierSpecificArguments.map((arg, i) => (
+	              <div key={i} className="rounded-2xl border border-t-magenta/10 bg-t-magenta/5 p-4 text-sm font-bold break-words text-t-magenta">
+	                {arg}
+	              </div>
+	            ))}
           </div>
         </div>
       )}
 
       {result.coachsCorner && (
         <div className="bg-t-magenta/10 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
-          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-            <Lightbulb className="w-3 h-3 text-t-magenta" /> Coach's Corner
-          </h3>
-          <p className="text-sm text-t-dark-gray font-bold italic">
-            "{result.coachsCorner}"
-          </p>
-        </div>
+	          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+	            <Lightbulb className="w-3 h-3 text-t-magenta" /> Coach's Corner
+	          </h3>
+	          <p className="text-sm font-bold text-t-dark-gray">
+	            {result.coachsCorner}
+	          </p>
+	        </div>
       )}
 
       <GroundingSources sources={result.groundingSources} />

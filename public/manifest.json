@@ -1,23 +1,24 @@
 {
-  "name": "T-Sales Assistant (Unoff.)",
+  "name": "CustomerConnect AI",
   "short_name": "T-Sales",
-  "description": "Fast offline sales coaching for T-Mobile Virtual Retail reps.",
+  "description": "Fast offline-ready sales coaching for T-Mobile Virtual Retail reps.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#E20074",
   "orientation": "any",
   "icons": [
     {
-      "src": "/tmo-logo-v4.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/tmo-logo-v4.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

@@ -1,4 +1,15 @@
-const CACHE_NAME = 'customerconnect-v9';
+const CACHE_NAME = 'customerconnect-v10';
+const APP_SHELL_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/weekly-update.json',
+  '/device-ecosystem-matrix.json',
+  '/states-10m.json',
+  '/tmo-logo-v4.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+];
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
@@ -9,17 +20,16 @@ self.addEventListener('message', (event) => {
 // On install, cache static shell assets (not index.html — that uses network-first)
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        '/manifest.json',
-        '/weekly-update.json',
-        '/vocabulary-bundle.json',
-        '/device-ecosystem-matrix.json',
-        '/states-10m.json',
-        '/tmo-logo-v4.svg',
-        '/icon-192.svg',
-        '/icon-512.svg',
-      ]);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        APP_SHELL_ASSETS.map(async (asset) => {
+          try {
+            await cache.add(asset);
+          } catch (_) {
+            // Missing optional assets should never block the install.
+          }
+        })
+      );
     })
   );
   // Activate immediately — don't wait for old SW to finish
@@ -88,7 +98,6 @@ self.addEventListener('fetch', (event) => {
   if (
     url.pathname === '/weekly-update.json'
     || url.pathname === '/device-ecosystem-matrix.json'
-    || url.pathname === '/vocabulary-bundle.json'
   ) {
     event.respondWith(
       fetch(event.request)

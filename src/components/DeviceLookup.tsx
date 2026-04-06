@@ -137,7 +137,7 @@ export default function DeviceLookup({
             onClick={() => handlePresetClick(preset)}
             className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${
               preset.primary
-                ? 'bg-t-dark-gray text-white hover:bg-t-dark-gray/80 dark:bg-surface-elevated dark:text-foreground dark:border dark:border-t-light-gray'
+                ? 'bg-t-dark-gray text-white hover:bg-t-dark-gray/80'
                 : 'bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray'
             }`}
           >
@@ -281,7 +281,7 @@ export function DeviceComparison({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface-elevated dark:text-foreground dark:border-2 dark:border-t-light-gray">
+      <div className="bg-t-dark-gray rounded-2xl p-4 text-white">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">Side-by-Side Comparison</p>
         <p className="text-sm font-black">{devices.map(d => d.name).join(' vs ')}</p>
       </div>
@@ -370,12 +370,12 @@ export function DeviceDetail({
         </p>
       </div>
 
-      <div className="bg-t-dark-gray rounded-2xl p-4 text-white dark:bg-surface dark:text-foreground dark:border dark:border-t-light-gray">
+      <div className="bg-t-dark-gray rounded-2xl p-4 text-white">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
           <MessageSquareQuote className="w-3 h-3" /> Say It Like This
         </p>
         <p className="text-sm font-bold leading-relaxed">{summary.sayThis}</p>
-        <p className="mt-2 text-[10px] font-medium text-white/70 dark:text-t-dark-gray">
+        <p className="mt-2 text-[10px] font-medium text-white/70">
           Open with the line, give one proof, then stop and listen.
         </p>
       </div>

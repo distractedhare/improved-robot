@@ -8,20 +8,38 @@ import {
   IoTEntry,
 } from '../types/ecosystem';
 import { selectVariation } from './rotationService';
+import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
 
 let cached: EcosystemMatrix | null = null;
 
-export async function loadEcosystemMatrix(): Promise<EcosystemMatrix | null> {
+function warnDev(message: string): void {
+  if (import.meta.env.DEV) {
+    console.warn(message);
+  }
+}
+
+export async function loadEcosystemMatrix(options: RequestSignalOptions = {}): Promise<EcosystemMatrix | null> {
   if (cached) return cached;
+
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 4000 });
+
   try {
-    const res = await fetch('/device-ecosystem-matrix.json');
+    const res = await fetch('/device-ecosystem-matrix.json', {
+      cache: 'no-store',
+      signal,
+    });
     if (!res.ok) return null;
     const data: EcosystemMatrix = await res.json();
     cached = data;
     return data;
-  } catch {
-    console.warn('Failed to load device-ecosystem-matrix.json');
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+    warnDev('Failed to load device-ecosystem-matrix.json');
     return null;
+  } finally {
+    cleanup();
   }
 }
 

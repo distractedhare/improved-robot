@@ -2,6 +2,7 @@ import { buildPromptContext } from '../data';
 import { getCached, incrementCallCount, isOverBudget, setCache } from './cache';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
 import { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
+import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
 
 type ChatMessage = {
   role: 'system' | 'user';
@@ -19,6 +20,8 @@ interface ProviderPayload {
 interface ProviderResponse {
   content: string;
 }
+
+interface ModelRequestOptions extends RequestSignalOptions {}
 
 const PROXY_ENDPOINT = '/api/ai';
 const AUTH_COOLDOWN_MS = 5 * 60 * 1000;
@@ -58,7 +61,7 @@ function readTextContent(value: unknown): string | null {
   return null;
 }
 
-async function ensureProxyAvailable(force = false): Promise<boolean> {
+async function ensureProxyAvailable(force = false, options: RequestSignalOptions = {}): Promise<boolean> {
   if (isAuthCoolingDown()) return false;
 
   const now = Date.now();
@@ -68,10 +71,13 @@ async function ensureProxyAvailable(force = false): Promise<boolean> {
 
   lastProxyHealthCheckAt = now;
 
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 2500 });
+
   try {
     const response = await fetch(PROXY_ENDPOINT, {
       method: 'GET',
       cache: 'no-store',
+      signal,
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -87,9 +93,12 @@ async function ensureProxyAvailable(force = false): Promise<boolean> {
 
     proxyAvailable = false;
     return false;
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) throw error;
     proxyAvailable = false;
     return false;
+  } finally {
+    cleanup();
   }
 }
 
@@ -181,7 +190,12 @@ function normalizeSmallTalk(values: unknown): SalesScript['smallTalk'] | undefin
 }
 
 function parseScriptEnhancement(raw: string): ScriptEnhancement {
-  const parsed = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  } catch {
+    throw new Error('AI plan enhancement returned unreadable JSON.');
+  }
 
   return {
     welcomeMessages: normalizeStringList(parsed.welcomeMessages, 4) ?? [],
@@ -193,7 +207,12 @@ function parseScriptEnhancement(raw: string): ScriptEnhancement {
 }
 
 function parseObjectionEnhancement(raw: string): ObjectionEnhancement {
-  const parsed = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  } catch {
+    throw new Error('AI objection enhancement returned unreadable JSON.');
+  }
 
   return {
     talkingPoints: normalizeStringList(parsed.talkingPoints, 6) ?? [],
@@ -345,9 +364,11 @@ async function parseProviderResponse(response: Response): Promise<ProviderRespon
   return { content };
 }
 
-async function requestViaProxy(payload: ProviderPayload): Promise<ProviderResponse | null> {
+async function requestViaProxy(payload: ProviderPayload, options: RequestSignalOptions = {}): Promise<ProviderResponse | null> {
   if (isAuthCoolingDown()) return null;
-  if (!(await ensureProxyAvailable())) return null;
+  if (!(await ensureProxyAvailable(false, options))) return null;
+
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 7000 });
 
   try {
     const response = await fetch(PROXY_ENDPOINT, {
@@ -355,6 +376,7 @@ async function requestViaProxy(payload: ProviderPayload): Promise<ProviderRespon
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       cache: 'no-store',
+      signal,
     });
 
     if (!response.ok) {
@@ -370,13 +392,16 @@ async function requestViaProxy(payload: ProviderPayload): Promise<ProviderRespon
 
     proxyAvailable = true;
     return parseProviderResponse(response);
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) throw error;
     proxyAvailable = false;
     return null;
+  } finally {
+    cleanup();
   }
 }
 
-async function requestDirect(payload: ProviderPayload): Promise<ProviderResponse | null> {
+async function requestDirect(payload: ProviderPayload, options: RequestSignalOptions = {}): Promise<ProviderResponse | null> {
   if (!shouldAttemptDirectFallback() || isAuthCoolingDown()) return null;
 
   const config = getDirectConfig();
@@ -390,47 +415,64 @@ async function requestDirect(payload: ProviderPayload): Promise<ProviderResponse
     headers.Authorization = `Bearer ${config.apiKey}`;
   }
 
-  const response = await fetch(config.completionsUrl, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model: config.model,
-      messages: payload.messages,
-      temperature: payload.temperature ?? 0.35,
-    }),
-    cache: 'no-store',
-  });
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 7000 });
 
-  if (!response.ok) {
-    if ([401, 403].includes(response.status)) {
-      startAuthCooldown();
+  try {
+    const response = await fetch(config.completionsUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model: config.model,
+        messages: payload.messages,
+        temperature: payload.temperature ?? 0.35,
+      }),
+      cache: 'no-store',
+      signal,
+    });
+
+    if (!response.ok) {
+      if ([401, 403].includes(response.status)) {
+        startAuthCooldown();
+        return null;
+      }
       return null;
     }
-    return null;
-  }
 
-  return parseProviderResponse(response);
+    return parseProviderResponse(response);
+  } catch (error) {
+    if (isAbortError(error)) throw error;
+    return null;
+  } finally {
+    cleanup();
+  }
 }
 
-async function requestModel(payload: ProviderPayload): Promise<string | null> {
+async function requestModel(payload: ProviderPayload, options: ModelRequestOptions = {}): Promise<string | null> {
   if (isOverBudget()) return null;
   incrementCallCount();
 
-  const proxied = await requestViaProxy(payload);
+  const proxied = await requestViaProxy(payload, options);
   if (proxied?.content) return proxied.content;
 
-  const direct = await requestDirect(payload);
+  const direct = await requestDirect(payload, options);
   return direct?.content ?? null;
 }
 
-export async function warmAIEnhancement(): Promise<void> {
-  await ensureProxyAvailable();
+export async function warmAIEnhancement(options: RequestSignalOptions = {}): Promise<void> {
+  try {
+    await ensureProxyAvailable(false, options);
+  } catch (error) {
+    if (!isAbortError(error)) {
+      throw error;
+    }
+  }
 }
 
 export async function generateScriptEnhancement(
   context: SalesContext,
   script: SalesScript,
   weeklyData?: WeeklyUpdate | null,
+  options: ModelRequestOptions = {},
 ): Promise<ScriptEnhancement | null> {
   const cacheKey = ['script-enhancement', context, weeklyData?.metadata.version ?? 'none', script];
   const cached = getCached<ScriptEnhancement>(cacheKey);
@@ -439,7 +481,7 @@ export async function generateScriptEnhancement(
   const content = await requestModel({
     messages: buildScriptMessages(context, script, weeklyData),
     temperature: 0.35,
-  });
+  }, options);
 
   if (!content) return null;
 
@@ -453,6 +495,7 @@ export async function generateObjectionEnhancement(
   context: SalesContext,
   result: ObjectionAnalysis,
   weeklyData?: WeeklyUpdate | null,
+  options: ModelRequestOptions = {},
 ): Promise<ObjectionEnhancement | null> {
   const cacheKey = ['objection-enhancement', objection, context, weeklyData?.metadata.version ?? 'none', result];
   const cached = getCached<ObjectionEnhancement>(cacheKey);
@@ -461,7 +504,7 @@ export async function generateObjectionEnhancement(
   const content = await requestModel({
     messages: buildObjectionMessages(objection, context, result, weeklyData),
     temperature: 0.25,
-  });
+  }, options);
 
   if (!content) return null;
 

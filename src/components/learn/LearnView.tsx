@@ -61,7 +61,7 @@ const PHONE_FILTERS = [
 const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
   plans: {
     moment: 'Best for live plan positioning while you are on shift',
-    tip: 'Use this during working hours when you need the cleanest customer-facing reason to move into Go 5G Next or Plus without sounding scripted.',
+    tip: 'Use this during working hours when you need the cleanest customer-facing reason to move into Experience Beyond or Experience More without sounding scripted.',
   },
   briefing: {
     moment: 'Best for shift-start and mid-shift resets',

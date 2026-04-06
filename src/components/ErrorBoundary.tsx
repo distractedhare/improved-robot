@@ -1,15 +1,22 @@
 import React from 'react';
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  title?: string;
+  message?: string;
+  actionLabel?: string;
+  compact?: boolean;
+  resetKey?: string;
+  onRetry?: () => void;
+}
+
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
 }
 
-export default class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  ErrorBoundaryState
-> {
-  constructor(props: { children: React.ReactNode }) {
+export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -19,30 +26,60 @@ export default class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+    if (import.meta.env.DEV) {
+      console.error('ErrorBoundary caught:', error, errorInfo);
+    }
   }
+
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, error: null });
+    }
+  }
+
+  private handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+    if (this.props.onRetry) {
+      this.props.onRetry();
+      return;
+    }
+
+    window.location.reload();
+  };
 
   render() {
     if (this.state.hasError) {
+      const {
+        title = 'Something went wrong',
+        message = 'This section hit a snag. Reloading usually gets the demo back on track.',
+        actionLabel = 'Reload',
+        compact = false,
+      } = this.props;
+
       return (
-        <div className="min-h-screen flex items-center justify-center p-8" style={{ background: 'var(--bg-page)' }}>
-          <div className="text-center max-w-md space-y-6 rounded-3xl p-8 glass-card glass-specular">
-            <div className="w-16 h-16 mx-auto rounded-full bg-t-magenta/10 flex items-center justify-center">
-              <svg className="w-8 h-8 text-t-magenta" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div
+          className={`flex items-center justify-center p-4 sm:p-6 ${compact ? 'min-h-[280px]' : 'min-h-screen'}`}
+          style={{ background: compact ? 'transparent' : 'var(--bg-page)' }}
+        >
+          <div className="w-full max-w-md rounded-xl border border-t-magenta/20 bg-white p-6 text-center shadow-md sm:p-8">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-t-magenta/10">
+              <svg className="h-7 w-7 text-t-magenta" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">
-              Something went wrong
-            </h1>
-            <p className="text-sm text-t-dark-gray font-medium">
-              An unexpected error occurred. Reloading usually fixes it.
+            <h2 className="mt-5 text-xl font-extrabold tracking-tight text-black">
+              {title}
+            </h2>
+            <p className="mt-2 text-sm font-medium leading-relaxed text-t-dark-gray">
+              {message}
             </p>
             <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm uppercase tracking-wider transition-all hover:opacity-90 btn-magenta-shimmer"
+              type="button"
+              onClick={this.handleRetry}
+              className="focus-ring mt-6 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-t-magenta px-5 py-3 text-sm font-extrabold uppercase tracking-[0.16em] text-white shadow-md transition-transform hover:scale-[1.01] active:scale-95"
+              style={{ touchAction: 'manipulation' }}
             >
-              Reload
+              {actionLabel}
             </button>
           </div>
         </div>

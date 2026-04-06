@@ -88,22 +88,22 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
         <p className="text-xs font-bold uppercase tracking-widest text-t-dark-gray/50 mb-1">
           {formatDate()}
         </p>
-        <h1
-          className="text-2xl sm:text-3xl font-black tracking-tight mb-1"
-          style={{
-            background: 'linear-gradient(135deg, #E20074 0%, #FF4DA6 50%, #E20074 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          {getGreeting()} {role.icon}
-        </h1>
+	        <h1
+	          className="text-2xl sm:text-3xl font-black tracking-tight mb-1"
+	          style={{
+	            background: 'linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%)',
+	            WebkitBackgroundClip: 'text',
+	            WebkitTextFillColor: 'transparent',
+	          }}
+	        >
+	          {getGreeting()} {role.icon}
+	        </h1>
         <p className="text-sm font-bold text-t-dark-gray">
           {role.greeting}
         </p>
-        <p className="text-xs text-t-dark-gray/60 mt-1 italic max-w-md mx-auto">
-          "{coachingLine}"
-        </p>
+	        <p className="mt-1 max-w-md mx-auto text-xs text-t-dark-gray/60">
+	          {coachingLine}
+	        </p>
       </motion.div>
 
       {/* ── Role Selector (hidden when only 1 role) ──── */}

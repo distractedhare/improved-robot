@@ -215,7 +215,7 @@ export default function PlansSection() {
                 '"Let me show you the per-line math. With the 3rd-line-free promo right now, Experience More is actually only about $47/line for 3 lines."',
               ].map((script, i) => (
                 <div key={i} className="border-l-3 border-t-magenta pl-3 py-1" style={{ borderLeftWidth: '3px', borderLeftColor: 'var(--color-t-magenta)' }}>
-                  <p className="text-[11px] font-medium italic leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{script}</p>
+                  <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{script}</p>
                 </div>
               ))}
             </div>
@@ -275,7 +275,7 @@ export default function PlansSection() {
                 ))}
               </div>
               <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
-                <p className="text-[10px] text-t-magenta font-bold italic">{cp.tip}</p>
+                <p className="text-[10px] font-bold text-t-magenta">{cp.tip}</p>
               </div>
             </div>
           ))}

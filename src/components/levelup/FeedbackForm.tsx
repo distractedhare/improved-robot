@@ -151,7 +151,7 @@ export default function FeedbackForm() {
 
     // Build email body
     const lines = [
-      `ANONYMOUS FEEDBACK — T-Sales Assistant (Unoff.)`,
+      `ANONYMOUS FEEDBACK — CustomerConnect AI`,
       `Role: ${config.label}`,
       `Overall Rating: ${overallRating ? `${overallRating}/5` : 'Not rated'}`,
       ``,
@@ -168,7 +168,7 @@ export default function FeedbackForm() {
       `Sent: ${new Date().toLocaleString()}`,
     ];
 
-    const subject = encodeURIComponent(`[T-Sales Feedback] ${config.label} — ${overallRating ? overallRating + '/5' : 'Quick feedback'}`);
+    const subject = encodeURIComponent(`[CustomerConnect AI Feedback] ${config.label} — ${overallRating ? overallRating + '/5' : 'Quick feedback'}`);
     const body = encodeURIComponent(lines.join('\n'));
 
     // Open mailto link — anonymous since no sender info is included

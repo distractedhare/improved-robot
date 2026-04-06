@@ -1,129 +1,108 @@
 import { motion } from 'motion/react';
-import { Check, Star } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { BingoCell as BingoCellType } from '../../constants/bingoBoard';
 
 interface BingoCellProps {
   cell: BingoCellType;
   completed: boolean;
-  onSelect: () => void;
   isWinning: boolean;
+  onToggle: () => void;
 }
 
 const CATEGORY_STYLES = {
   sales: {
-    idle: {
-      border: 'rgba(226, 0, 116, 0.2)',
-      bg: 'rgba(226, 0, 116, 0.05)',
-    },
-    done: {
-      border: '#E20074',
-      bg: 'linear-gradient(135deg, #E20074, #C70066)',
-      glow: '0 0 20px rgba(226, 0, 116, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-    },
-    dot: 'bg-t-magenta',
+    accent: '#E20074',
+    idleBg: 'rgba(226, 0, 116, 0.04)',
   },
   skill: {
-    idle: {
-      border: 'rgba(134, 27, 84, 0.2)',
-      bg: 'rgba(134, 27, 84, 0.05)',
-    },
-    done: {
-      border: '#861B54',
-      bg: 'linear-gradient(135deg, #861B54, #6A1443)',
-      glow: '0 0 20px rgba(134, 27, 84, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-    },
-    dot: 'bg-t-berry',
+    accent: '#861B54',
+    idleBg: 'rgba(134, 27, 84, 0.04)',
   },
   vibe: {
-    idle: {
-      border: 'rgba(47, 161, 97, 0.2)',
-      bg: 'rgba(47, 161, 97, 0.05)',
-    },
-    done: {
-      border: '#2fa161',
-      bg: 'linear-gradient(135deg, #2fa161, #228B4C)',
-      glow: '0 0 20px rgba(47, 161, 97, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-    },
-    dot: 'bg-success-accent',
+    accent: '#000000',
+    idleBg: 'rgba(0, 0, 0, 0.03)',
   },
-};
+} as const;
 
-export default function BingoCell({ cell, completed, onSelect, isWinning }: BingoCellProps) {
-  const styles = CATEGORY_STYLES[cell.category];
+export default function BingoCell({ cell, completed, isWinning, onToggle }: BingoCellProps) {
   const isFree = cell.id === 'free-space';
+  const accent = CATEGORY_STYLES[cell.category].accent;
 
   return (
     <motion.button
       type="button"
-      onClick={onSelect}
-      disabled={isFree}
-      whileTap={isFree ? undefined : { scale: 0.88 }}
-      whileHover={isFree ? undefined : { scale: 1.05 }}
-      title={cell.description}
+      onClick={isFree ? undefined : onToggle}
       aria-pressed={completed}
       aria-label={`${cell.label}: ${cell.description}`}
-      className={`focus-ring relative aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 transition-all ${
-        isFree ? 'cursor-default' : 'cursor-pointer'
+      whileTap={isFree ? undefined : { scale: 0.96 }}
+      className={`focus-ring relative aspect-square overflow-hidden rounded-xl border p-1.5 text-center shadow-sm transition-transform ${
+        isFree ? 'cursor-default' : 'cursor-pointer active:scale-95'
       }`}
       style={{
-        background: completed ? styles.done.bg : styles.idle.bg,
-        border: `2px solid ${completed ? styles.done.border : styles.idle.border}`,
+        borderColor: completed ? '#E20074' : isWinning ? '#861B54' : '#E8E8E8',
+        background: completed ? '#E20074' : '#FFFFFF',
         boxShadow: completed
-          ? styles.done.glow
+          ? '0 10px 20px rgba(226, 0, 116, 0.18)'
           : isWinning
-          ? '0 0 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 215, 0, 0.15)'
-          : 'none',
-        color: completed ? '#fff' : undefined,
+          ? '0 0 0 2px rgba(134, 27, 84, 0.08)'
+          : '0 4px 10px rgba(0, 0, 0, 0.04)',
       }}
     >
-      {/* Winning line highlight ring */}
-      {isWinning && !completed && (
-        <motion.div
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ border: '2px solid rgba(255, 215, 0, 0.5)' }}
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
+      <motion.span
+        className="pointer-events-none absolute inset-0 z-0"
+        initial={false}
+        animate={{
+          scale: completed ? 1 : 0,
+          opacity: completed ? 1 : 0,
+        }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        style={{
+          background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 58%), #E20074',
+          transformOrigin: 'center',
+        }}
+      />
+
+      {!completed && (
+        <span
+          className="absolute left-1.5 top-1.5 z-[1] h-2 w-2 rounded-full"
+          style={{ backgroundColor: accent }}
+          aria-hidden="true"
         />
       )}
 
-      {/* Completed checkmark */}
-      {completed && !isFree && (
-        <motion.div
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-          className="absolute top-0.5 right-0.5"
+      {isWinning && !completed && (
+        <span className="absolute right-1.5 top-1.5 z-[1] text-[7px] font-black uppercase tracking-widest text-t-berry">
+          Row
+        </span>
+      )}
+
+      <div className="relative z-[2] flex h-full flex-col items-center justify-center gap-1">
+        {(completed || isFree) && (
+          <motion.span
+            initial={false}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/18 text-white"
+          >
+            <Check className="h-3.5 w-3.5" />
+          </motion.span>
+        )}
+
+        <span
+          className={`block text-[8px] font-black uppercase tracking-[0.08em] leading-tight sm:text-[10px] ${
+            completed ? 'text-white' : 'text-black'
+          }`}
         >
-          <Check className="w-2.5 h-2.5 text-white/80" />
-        </motion.div>
-      )}
+          {cell.label}
+        </span>
+      </div>
 
-      {/* Free space star */}
-      {isFree && (
-        <Star className="w-3 h-3 text-warning-accent mb-0.5" />
+      {!completed && !isFree && (
+        <span
+          className="pointer-events-none absolute inset-0 z-0"
+          aria-hidden="true"
+          style={{ background: CATEGORY_STYLES[cell.category].idleBg }}
+        />
       )}
-
-      <span className={`text-[7px] sm:text-[9px] font-black uppercase tracking-wide leading-tight ${
-        completed ? 'text-white' : 'text-foreground'
-      }`}>
-        {cell.label}
-      </span>
     </motion.button>
-  );
-}
-
-export function CategoryLegend() {
-  return (
-    <div className="flex items-center justify-center gap-4 text-[9px] font-bold text-t-dark-gray/60 uppercase tracking-wider">
-      <span className="flex items-center gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-t-magenta shadow-sm" style={{ boxShadow: '0 0 6px rgba(226,0,116,0.4)' }} /> Sales
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-t-berry shadow-sm" style={{ boxShadow: '0 0 6px rgba(134,27,84,0.4)' }} /> Skill
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-success-accent shadow-sm" style={{ boxShadow: '0 0 6px rgba(47,161,97,0.4)' }} /> Vibe
-      </span>
-    </div>
   );
 }

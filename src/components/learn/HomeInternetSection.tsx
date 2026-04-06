@@ -137,7 +137,7 @@ export default function HomeInternetSection() {
                       <p className="text-[11px] text-success-foreground font-bold">{perk}</p>
                     </div>
                   ))}
-                  <p className="text-[10px] text-success-foreground/70 mt-2 font-medium italic">Over $480/year in streaming & security value</p>
+                  <p className="mt-2 text-[10px] font-medium text-success-foreground/70">Over $480/year in streaming & security value</p>
                 </div>
               )}
 
@@ -158,7 +158,7 @@ export default function HomeInternetSection() {
                       </p>
                       <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
                         <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
-                        <p className="text-sm text-white font-bold italic leading-relaxed">
+                        <p className="text-sm font-bold leading-relaxed text-white">
                           "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
                         </p>
                       </div>
@@ -219,7 +219,7 @@ export default function HomeInternetSection() {
             <div className="space-y-3">
               {HINT_SELLING_FRAMEWORK.openingLines.map((line, i) => (
                 <div key={i} className="bg-t-dark-gray rounded-xl p-4 text-white">
-                  <p className="text-sm font-bold leading-relaxed italic">{line}</p>
+                  <p className="text-sm font-bold leading-relaxed">{line}</p>
                 </div>
               ))}
             </div>
@@ -242,7 +242,7 @@ export default function HomeInternetSection() {
                   </div>
                   <div>
                     <p className="text-xs font-black text-t-dark-gray">{step.title}</p>
-                    <p className="text-[11px] text-t-dark-gray/70 font-medium mt-0.5 italic">{step.desc}</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray/70">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -338,7 +338,7 @@ export default function HomeInternetSection() {
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
               <MessageSquareQuote className="w-3 h-3" /> What To Tell Customers
             </p>
-            <p className="text-sm font-bold leading-relaxed italic">{FIBER_INFO.whatToTellCustomers}</p>
+            <p className="text-sm font-bold leading-relaxed">{FIBER_INFO.whatToTellCustomers}</p>
           </div>
         </div>
       )}
