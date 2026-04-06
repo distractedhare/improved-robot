@@ -102,7 +102,7 @@ export default function BingoBoard() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta">Weekly Challenge</p>
-            <h3 className="mt-1 text-2xl font-black tracking-tight text-black">{activeBoard.name}</h3>
+            <h3 className="mt-1 text-2xl font-black tracking-tight text-foreground">{activeBoard.name}</h3>
             <p className="mt-1 text-sm font-medium text-t-dark-gray">{activeBoard.subtitle}</p>
           </div>
           <div className="rounded-full bg-t-magenta/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
@@ -124,7 +124,7 @@ export default function BingoBoard() {
                 className={`focus-ring rounded-xl border px-3 py-3 text-left transition-transform active:scale-95 ${
                   isActive
                     ? 'border-t-magenta bg-t-magenta text-white shadow-[0_12px_22px_rgba(226,0,116,0.2)]'
-                    : 'border-t-light-gray bg-white text-t-dark-gray hover:border-t-magenta/30'
+                    : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/30'
                 }`}
               >
                 <p className="text-[10px] font-black uppercase tracking-[0.18em]">{boardOption.name}</p>
@@ -148,7 +148,7 @@ export default function BingoBoard() {
         id={`bingo-board-panel-${activeBoardId}`}
         role="tabpanel"
         aria-label={`${activeBoard.name} board`}
-        className="rounded-[1.4rem] border border-t-light-gray bg-white p-4 shadow-md"
+        className="rounded-[1.4rem] border border-t-light-gray bg-surface p-4 shadow-md"
       >
         <div className="mb-3 grid grid-cols-5 gap-1.5 text-center">
           {['B', 'I', 'N', 'G', 'O'].map((letter) => (
@@ -176,10 +176,10 @@ export default function BingoBoard() {
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Board Stats</p>
             <p className="mt-1 text-sm font-medium text-t-dark-gray">
-              Time on this board: <span className="font-black text-black">{durationLabel}</span>
+              Time on this board: <span className="font-black text-foreground">{durationLabel}</span>
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray shadow-sm">
             <Trophy className="h-3.5 w-3.5 text-t-magenta" />
             {stats.rowCount > 0 ? `${stats.rowCount} row${stats.rowCount === 1 ? '' : 's'} complete` : 'First row still loading'}
           </div>
@@ -196,7 +196,7 @@ export default function BingoBoard() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 z-[80] w-[min(92vw,380px)] -translate-x-1/2 rounded-xl border border-t-magenta/20 bg-white p-4 shadow-[0_18px_34px_rgba(0,0,0,0.12)]"
+            className="fixed bottom-6 left-1/2 z-[80] w-[min(92vw,380px)] -translate-x-1/2 rounded-xl border border-t-magenta/20 bg-surface p-4 shadow-[0_18px_34px_rgba(0,0,0,0.12)]"
           >
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-t-magenta text-white">
@@ -230,9 +230,9 @@ export default function BingoBoard() {
 
 function StatCard({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-xl border border-t-light-gray bg-white p-3 shadow-sm">
+    <div className="rounded-xl border border-t-light-gray bg-surface p-3 shadow-sm">
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">{label}</p>
-      <p className="mt-1 text-lg font-black text-black">{value}</p>
+      <p className="mt-1 text-lg font-black text-foreground">{value}</p>
       <p className="mt-1 text-[10px] font-medium text-t-dark-gray/65">{helper}</p>
     </div>
   );

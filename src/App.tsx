@@ -38,7 +38,7 @@ const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-t-light-gray bg-white p-5 shadow-md">
+    <div className="rounded-xl border border-t-light-gray bg-surface p-5 shadow-md">
       <div className="animate-pulse space-y-3">
         <div className="h-3 w-28 rounded-full bg-t-light-gray" />
         <div className="h-8 w-48 rounded-lg bg-t-light-gray/80" />
@@ -64,7 +64,7 @@ function TabErrorFallback({
   onRetry: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-t-magenta/20 bg-white p-5 shadow-md">
+    <div className="rounded-xl border border-t-magenta/20 bg-surface p-5 shadow-md">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-t-magenta/10">
           <XCircle className="h-5 w-5 text-t-magenta" />

@@ -61,13 +61,13 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
           className={`flex items-center justify-center p-4 sm:p-6 ${compact ? 'min-h-[280px]' : 'min-h-screen'}`}
           style={{ background: compact ? 'transparent' : 'var(--bg-page)' }}
         >
-          <div className="w-full max-w-md rounded-xl border border-t-magenta/20 bg-white p-6 text-center shadow-md sm:p-8">
+          <div className="w-full max-w-md rounded-xl border border-t-magenta/20 bg-surface p-6 text-center shadow-md sm:p-8">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-t-magenta/10">
               <svg className="h-7 w-7 text-t-magenta" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="mt-5 text-xl font-extrabold tracking-tight text-black">
+            <h2 className="mt-5 text-xl font-extrabold tracking-tight text-foreground">
               {title}
             </h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-t-dark-gray">

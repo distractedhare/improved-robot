@@ -1,4 +1,5 @@
-import { BookOpen, Trophy, UserPlus, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BookOpen, Moon, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
@@ -16,6 +17,16 @@ const MODES = [
 ] as const;
 
 export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
+  const [isDark, setIsDark] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark');
+
+  const toggleTheme = () => {
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    localStorage.setItem('theme', next);
+    setIsDark(next === 'dark');
+  };
+
   const handleNewCall = () => {
     onReset();
     if (mode !== 'live') onModeChange('live');
@@ -23,7 +34,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b border-t-light-gray/80 bg-white/95 px-3 pb-3 shadow-[0_10px_30px_rgba(0,0,0,0.04)] backdrop-blur-md sm:px-4 sm:pb-4 md:px-6"
+      className="sticky top-0 z-20 border-b border-t-light-gray/80 bg-[var(--bg-page)]/95 px-3 pb-3 shadow-[0_10px_30px_rgba(0,0,0,0.04)] backdrop-blur-md sm:px-4 sm:pb-4 md:px-6"
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3">
@@ -34,7 +45,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               type="button"
               onClick={() => onModeChange('home')}
               aria-label="Go to home screen"
-              className="focus-ring flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-t-light-gray bg-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95 sm:h-14 sm:w-14"
+              className="focus-ring flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-t-light-gray bg-surface shadow-sm transition-transform hover:scale-[1.02] active:scale-95 sm:h-14 sm:w-14"
             >
               <img
                 src="/tmo-logo-v4.svg"
@@ -45,7 +56,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg font-extrabold tracking-tight text-black sm:text-xl md:text-2xl">
+                <h1 className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
                   CustomerConnect AI
                 </h1>
                 <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.22em] text-white">
@@ -57,6 +68,15 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               </p>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
 
           <button
             type="button"
@@ -77,7 +97,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
           <nav
             aria-label="App mode"
             role="tablist"
-            className="rounded-2xl border border-t-light-gray bg-white p-1.5 shadow-sm"
+            className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
           >
             <div className="grid grid-cols-3 gap-1.5">
               {MODES.map((item) => {

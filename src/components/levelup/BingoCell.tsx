@@ -89,7 +89,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
 
         <span
           className={`block text-[8px] font-black uppercase tracking-[0.08em] leading-tight sm:text-[10px] ${
-            completed ? 'text-white' : 'text-black'
+            completed ? 'text-white' : 'text-foreground'
           }`}
         >
           {cell.label}

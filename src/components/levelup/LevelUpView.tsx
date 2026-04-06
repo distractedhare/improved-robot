@@ -27,10 +27,10 @@ export default function LevelUpView() {
         </div>
       </div>
 
-      <div className="space-y-4 rounded-[1.75rem] border border-t-light-gray bg-white p-5 shadow-md">
+      <div className="space-y-4 rounded-[1.75rem] border border-t-light-gray bg-surface p-5 shadow-md">
         <div className="text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">Rep Momentum</p>
-          <h2 className="mt-2 text-3xl font-black uppercase tracking-tight text-black md:text-4xl">
+          <h2 className="mt-2 text-3xl font-black uppercase tracking-tight text-foreground md:text-4xl">
             Level <span className="text-t-magenta">Up</span>
           </h2>
           <p className="mt-2 text-sm font-medium text-t-dark-gray">
@@ -52,7 +52,7 @@ export default function LevelUpView() {
           <HighlightCard
             icon={<ShieldCheck className="h-4 w-4 text-t-magenta" />}
             title="Built for the shift"
-            description="Fast, touch-friendly practice with no extra setup before a manager demo."
+            description="Fast, touch-friendly practice you can squeeze in between calls."
           />
         </div>
 
@@ -75,7 +75,7 @@ export default function LevelUpView() {
                 className={`focus-ring rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_12px_20px_rgba(226,0,116,0.2)]'
-                    : 'bg-white text-t-dark-gray hover:border-t-magenta/30 hover:text-black'
+                    : 'bg-white text-t-dark-gray hover:border-t-magenta/30 hover:text-foreground'
                 }`}
               >
                 <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em]">
@@ -95,7 +95,7 @@ export default function LevelUpView() {
         id={`level-up-panel-${tab}`}
         role="tabpanel"
         aria-labelledby={`level-up-tab-${tab}`}
-        className="rounded-[1.75rem] border border-t-light-gray bg-white p-5 shadow-md"
+        className="rounded-[1.75rem] border border-t-light-gray bg-surface p-5 shadow-md"
       >
         {tab === 'bingo' ? (
           <BingoBoard />
@@ -119,12 +119,12 @@ function HighlightCard({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-t-light-gray bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-t-light-gray bg-surface p-4 shadow-sm">
       <div className="flex items-center gap-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-t-magenta/8">
           {icon}
         </div>
-        <p className="text-xs font-black uppercase tracking-tight text-black">{title}</p>
+        <p className="text-xs font-black uppercase tracking-tight text-foreground">{title}</p>
       </div>
       <p className="mt-2 text-[11px] font-medium leading-relaxed text-t-dark-gray">
         {description}
