@@ -34,7 +34,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b border-t-light-gray/80 bg-[var(--bg-page)]/95 px-3 pb-3 shadow-[0_10px_30px_rgba(0,0,0,0.04)] backdrop-blur-md sm:px-4 sm:pb-4 md:px-6"
+      className="glass-header sticky top-0 z-20 px-3 pb-3 sm:px-4 sm:pb-4 md:px-6"
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3">
