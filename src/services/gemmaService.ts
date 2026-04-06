@@ -1,54 +1,64 @@
-/**
- * Gemma 4 Local Inference Service
- *
- * Runs Gemma 4 E2B directly in the browser via MediaPipe LLM Inference API + WebGPU.
- * Model (~2GB) downloads once and caches in IndexedDB for offline use.
- * Falls back to template generation if WebGPU unavailable or model not loaded.
- */
-
-import { FilesetResolver, LlmInference } from '@mediapipe/tasks-genai';
-import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
+import { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
+import { isAbortError, withTimeoutSignal } from './networkUtils';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
-
-// ---------------------------------------------------------------------------
-// Model configuration
-// ---------------------------------------------------------------------------
-
-const MODEL_URL =
-  'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task';
-
-const MODEL_VERSION_KEY = 'gemma-model-version';
-const CURRENT_MODEL_VERSION = 'gemma-4-e2b';
-
-const WASM_URL =
-  'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm';
-
-// ---------------------------------------------------------------------------
-// State
-// ---------------------------------------------------------------------------
 
 export type GemmaLoadingState = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
 
-let llmInstance: LlmInference | null = null;
-let loadingState: GemmaLoadingState = 'idle';
-let loadError: string | null = null;
-
 type StatusListener = () => void;
+type ChatMessage = {
+  role: 'system' | 'user';
+  content: string;
+};
+
 const listeners = new Set<StatusListener>();
 
+let loadingState: GemmaLoadingState = 'idle';
+let loadError: string | null = null;
+let lastHealthCheckAt = 0;
+let cooldownUntil = 0;
+const HEALTH_CHECK_INTERVAL_MS = 60_000;
+const AUTH_COOLDOWN_MS = 5 * 60 * 1000;
+const TRANSIENT_COOLDOWN_MS = 30_000;
+const HEALTH_CHECK_TIMEOUT_MS = 8_000;
+const REQUEST_TIMEOUT_MS = 20_000;
+
 function notifyListeners() {
-  listeners.forEach((fn) => {
-    try { fn(); } catch { /* ignore */ }
+  listeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {
+      // ignore listener errors
+    }
   });
 }
 
-// ---------------------------------------------------------------------------
-// Public status API
-// ---------------------------------------------------------------------------
+function setState(state: GemmaLoadingState, error: string | null = null) {
+  loadingState = state;
+  loadError = error;
+  notifyListeners();
+}
+
+function isCoolingDown(): boolean {
+  return cooldownUntil > Date.now();
+}
+
+function startCooldown(ms: number): void {
+  cooldownUntil = Date.now() + ms;
+}
+
+function setUnavailable(status?: number): void {
+  if (status === 401 || status === 403) {
+    startCooldown(AUTH_COOLDOWN_MS);
+  } else if (status) {
+    startCooldown(TRANSIENT_COOLDOWN_MS);
+  }
+
+  setState('idle');
+}
 
 export function onGemmaStatusChange(fn: StatusListener): () => void {
   listeners.add(fn);
-  return () => { listeners.delete(fn); };
+  return () => listeners.delete(fn);
 }
 
 export function getGemmaLoadingState(): { state: GemmaLoadingState; error: string | null } {
@@ -56,306 +66,302 @@ export function getGemmaLoadingState(): { state: GemmaLoadingState; error: strin
 }
 
 export function isGemmaAvailable(): boolean {
-  return loadingState === 'ready' && llmInstance !== null;
+  return loadingState === 'ready';
 }
 
 export function isWebGPUSupported(): boolean {
-  return typeof navigator !== 'undefined' && 'gpu' in navigator;
-}
-
-export function isFirstGemmaLoad(): boolean {
-  try {
-    return !localStorage.getItem(MODEL_VERSION_KEY);
-  } catch { return true; }
+  return true;
 }
 
 export function getGemmaStatusLabel(): string {
-  switch (loadingState) {
-    case 'ready': return 'Gemma 4';
-    case 'loading': return 'Loading Gemma…';
-    case 'error': return 'Local Engine';
-    case 'unsupported': return 'Local Engine';
-    default: return 'Local Engine';
-  }
+  return loadingState === 'ready' ? 'Gemma 4' : 'AI Ready';
 }
 
-// ---------------------------------------------------------------------------
-// Initialization
-// ---------------------------------------------------------------------------
+export async function initializeGemma(force = false): Promise<void> {
+  const now = Date.now();
+  if (!force && isCoolingDown()) return;
+  if (!force && now - lastHealthCheckAt < HEALTH_CHECK_INTERVAL_MS && loadingState !== 'idle') return;
 
-export async function initializeGemma(): Promise<void> {
-  if (loadingState === 'ready' || loadingState === 'loading') return;
+  lastHealthCheckAt = now;
+  setState('loading');
 
-  if (!isWebGPUSupported()) {
-    loadingState = 'unsupported';
-    loadError = 'WebGPU is not supported in this browser.';
-    notifyListeners();
-    return;
-  }
-
-  loadingState = 'loading';
-  loadError = null;
-  notifyListeners();
+  const { signal, cleanup } = withTimeoutSignal({ timeoutMs: HEALTH_CHECK_TIMEOUT_MS });
 
   try {
-    // Request persistent storage so the browser doesn't evict the cached model
-    if (navigator.storage?.persist) {
-      await navigator.storage.persist().catch(() => {});
-    }
-
-    const genai = await FilesetResolver.forGenAiTasks(WASM_URL);
-
-    llmInstance = await LlmInference.createFromOptions(genai, {
-      baseOptions: { modelAssetPath: MODEL_URL },
-      maxTokens: 4096,
-      topK: 40,
-      temperature: 0.7,
-      randomSeed: 42,
+    const response = await fetch('/api/ai', {
+      method: 'GET',
+      cache: 'no-store',
+      signal,
     });
 
-    loadingState = 'ready';
-    loadError = null;
+    const payload = await response.json().catch(() => ({}));
 
-    // Track model version and clean up old caches
-    const prevVersion = localStorage.getItem(MODEL_VERSION_KEY);
-    if (prevVersion && prevVersion !== CURRENT_MODEL_VERSION) {
-      cleanupOldModelCaches().catch(() => {});
+    if (response.ok && payload?.ok === true) {
+      setState('ready');
+      return;
     }
-    localStorage.setItem(MODEL_VERSION_KEY, CURRENT_MODEL_VERSION);
-  } catch (err) {
-    loadingState = 'error';
-    loadError = err instanceof Error ? err.message : 'Failed to load Gemma model';
-    llmInstance = null;
-  }
 
-  notifyListeners();
-}
-
-// ---------------------------------------------------------------------------
-// Old model cache cleanup
-// ---------------------------------------------------------------------------
-
-async function cleanupOldModelCaches(): Promise<void> {
-  if (!('indexedDB' in globalThis) || !indexedDB.databases) return;
-  try {
-    const dbs = await indexedDB.databases();
-    for (const db of dbs) {
-      // MediaPipe caches models in IDB databases with predictable names
-      if (db.name && /gemma.?3/i.test(db.name)) {
-        indexedDB.deleteDatabase(db.name);
-      }
-    }
+    // Keep this quiet for reps. The app can still run on local intelligence.
+    setUnavailable(response.status);
   } catch {
-    // Non-critical — old cache will just take up space
+    setUnavailable();
+  } finally {
+    cleanup();
   }
 }
 
-// ---------------------------------------------------------------------------
-// Prompt engineering
-// ---------------------------------------------------------------------------
+function buildWeeklySummary(weeklyData: WeeklyUpdate | null): string {
+  if (!weeklyData) return 'No weekly update loaded.';
 
-function buildScriptPrompt(context: SalesContext, weeklyData: WeeklyUpdate | null): string {
+  const promos = weeklyData.currentPromos.slice(0, 4).map((promo) => `- ${promo.name}: ${promo.details}`).join('\n');
+  const intel = weeklyData.competitiveIntel.slice(0, 4).map((item) => `- ${item.carrier}: ${item.talkingPoint}`).join('\n');
+
+  return [
+    `Weekly focus: ${weeklyData.weeklyFocus.headline}`,
+    weeklyData.weeklyFocus.context,
+    promos ? `Promos:\n${promos}` : '',
+    intel ? `Intel:\n${intel}` : '',
+  ].filter(Boolean).join('\n\n');
+}
+
+function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | null): ChatMessage[] {
   const products = context.product.join(', ');
   const carrier = context.currentCarrier || 'Unknown';
 
-  let weeklyContext = '';
-  if (weeklyData?.weeklyFocus) {
-    weeklyContext = `\nCURRENT PROMOTIONS:\n- Focus: ${weeklyData.weeklyFocus.headline}\n- Details: ${weeklyData.weeklyFocus.context}`;
-  }
-  if (weeklyData?.currentPromos?.length) {
-    weeklyContext += '\n- Current Promos: ' + weeklyData.currentPromos.map(p => p.name).join('; ');
-  }
+  return [
+    {
+      role: 'system',
+      content: 'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+    },
+    {
+      role: 'user',
+      content: `Generate a personalized sales game plan.
 
-  return `You are a T-Mobile Virtual Retail sales coach AI. Generate a personalized sales game plan.
-
-CUSTOMER CONTEXT:
+Customer context:
 - Age group: ${context.age}
 - Region: ${context.region}${context.state ? ` (${context.state})` : ''}
-- Products interested in: ${products}
+- Products: ${products}
 - Purchase intent: ${context.purchaseIntent}
 - Current carrier: ${carrier}
-${weeklyContext}
 
-RULES:
-- Be enthusiastic but professional (T-Mobile brand voice)
-- Never reference specific account numbers, SSNs, or customer PII
-- Focus on value-driven selling, not pressure tactics
-- Tailor advice to the customer's age group and region
-- If switching from a competitor, highlight T-Mobile advantages
+Weekly context:
+${buildWeeklySummary(weeklyData)}
 
-Respond with ONLY valid JSON matching this exact structure (no markdown, no extra text):
+Return JSON matching exactly:
 {
-  "welcomeMessages": ["string - 2-3 warm welcome options"],
-  "smallTalk": [{"category": "string", "text": "string"}, ...2-3 items],
-  "discoveryQuestions": ["string - 4-5 questions to understand needs"],
-  "valuePropositions": ["string - 4-5 key selling points"],
-  "objectionHandling": [{"concern": "string", "reassurance": "string"}, ...3-4 items],
-  "accessoryRecommendations": [{"name": "string", "why": "string", "priceRange": "string", "brands": ["string"], "bundleEligible": true/false}, ...2-3 items],
-  "purchaseSteps": ["string - 4-5 steps to close"],
-  "coachsCorner": "string - brief coaching tip for this specific scenario"
-}`;
+  "welcomeMessages": ["string"],
+  "smallTalk": [{"category": "string", "text": "string"}],
+  "discoveryQuestions": ["string"],
+  "valuePropositions": ["string"],
+  "objectionHandling": [{"concern": "string", "reassurance": "string"}],
+  "accessoryRecommendations": [{"name": "string", "why": "string", "priceRange": "string", "brands": ["string"], "bundleEligible": true}],
+  "purchaseSteps": ["string"],
+  "coachsCorner": "string"
+}`,
+    },
+  ];
 }
 
-function buildObjectionPrompt(
+function buildObjectionMessages(
   objection: string,
   context: SalesContext,
-  _script: SalesScript | null,
   selectedItems: string[],
   weeklyData: WeeklyUpdate | null,
-): string {
-  const carrier = context.currentCarrier || 'Unknown';
-  const products = context.product.join(', ');
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content: 'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+    },
+    {
+      role: 'user',
+      content: `Help a rep respond to this objection.
 
-  let alreadyTried = '';
-  if (selectedItems.length > 0) {
-    alreadyTried = `\nSTRATEGIES ALREADY TRIED (do NOT repeat these):\n- ${selectedItems.join('\n- ')}`;
-  }
-
-  let weeklyContext = '';
-  if (weeklyData?.weeklyFocus) {
-    weeklyContext = `\nCURRENT PROMOTIONS: ${weeklyData.weeklyFocus.headline}`;
-  }
-
-  return `You are a T-Mobile Virtual Retail sales coach AI. Help handle a customer objection.
-
-CUSTOMER CONTEXT:
+Customer context:
 - Age group: ${context.age}
 - Region: ${context.region}
-- Products: ${products}
-- Intent: ${context.purchaseIntent}
-- Current carrier: ${carrier}
+- Products: ${context.product.join(', ')}
+- Purchase intent: ${context.purchaseIntent}
+- Current carrier: ${context.currentCarrier || 'Unknown'}
 
-OBJECTION(S): "${objection}"
-${alreadyTried}${weeklyContext}
+Objection: ${objection}
+Already used: ${selectedItems.length > 0 ? selectedItems.join(' | ') : 'none'}
 
-RULES:
-- Be empathetic and understanding — acknowledge the concern first
-- Never be pushy or dismissive
-- Provide specific, factual counterpoints
-- If carrier-specific, highlight T-Mobile advantages over ${carrier}
-- Focus on value, not just price
-- Never reference specific account numbers, SSNs, or customer PII
+Weekly context:
+${buildWeeklySummary(weeklyData)}
 
-Respond with ONLY valid JSON matching this exact structure (no markdown, no extra text):
+Return JSON matching exactly:
 {
-  "talkingPoints": ["string - 3-4 key points to address the concern"],
-  "counterArguments": ["string - 3-4 factual rebuttals"],
-  "pivotPlays": [{"strategy": "string", "script": "string"}, ...2-3 pivot strategies],
-  "carrierSpecificArguments": ["string - 2-3 points if switching from ${carrier}"],
-  "coachsCorner": "string - coaching tip for handling this type of objection",
-  "complianceNotes": "string - any compliance reminders"
-}`;
+  "talkingPoints": ["string"],
+  "counterArguments": ["string"],
+  "pivotPlays": [{"strategy": "string", "script": "string"}],
+  "carrierSpecificArguments": ["string"],
+  "coachsCorner": "string",
+  "complianceNotes": "string"
+}`,
+    },
+  ];
 }
 
-// ---------------------------------------------------------------------------
-// Response parsing
-// ---------------------------------------------------------------------------
+function extractJsonObject(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) return trimmed;
 
-function extractJSON(raw: string): unknown {
-  // Try direct parse first
+  const codeBlock = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (codeBlock?.[1]) return codeBlock[1].trim();
+
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  throw new Error('Could not extract JSON from Gemma response.');
+}
+
+function ensureStringArray(value: unknown, fallback: string[] = []): string[] {
+  if (!Array.isArray(value)) return fallback;
+  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+}
+
+async function requestGemma(messages: ChatMessage[]): Promise<string> {
+  if (loadingState !== 'ready') {
+    await initializeGemma();
+  }
+
+  if (loadingState !== 'ready') {
+    throw new Error('AI is not ready.');
+  }
+
+  const { signal, cleanup } = withTimeoutSignal({ timeoutMs: REQUEST_TIMEOUT_MS });
+
   try {
-    return JSON.parse(raw);
-  } catch { /* continue */ }
+    const response = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      signal,
+      body: JSON.stringify({
+        messages,
+        temperature: 0.35,
+      }),
+    });
 
-  // Try extracting from markdown code blocks
-  const codeBlockMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    try {
-      return JSON.parse(codeBlockMatch[1].trim());
-    } catch { /* continue */ }
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setUnavailable(response.status);
+      throw new Error(typeof payload?.error === 'string' ? payload.error : `Gemma request failed with ${response.status}`);
+    }
+
+    const payload = await response.json();
+    if (typeof payload?.content !== 'string' || !payload.content.trim()) {
+      setUnavailable();
+      throw new Error('Gemma response was empty.');
+    }
+
+    cooldownUntil = 0;
+    setState('ready');
+    return payload.content;
+  } catch (error) {
+    if (isAbortError(error)) {
+      setUnavailable();
+      throw new Error('Gemma request timed out.');
+    }
+
+    throw error;
+  } finally {
+    cleanup();
   }
-
-  // Try finding first { to last }
-  const start = raw.indexOf('{');
-  const end = raw.lastIndexOf('}');
-  if (start !== -1 && end > start) {
-    try {
-      return JSON.parse(raw.slice(start, end + 1));
-    } catch { /* continue */ }
-  }
-
-  throw new Error('Could not extract valid JSON from Gemma response');
 }
 
-function ensureStringArray(val: unknown, fallback: string[] = []): string[] {
-  if (!Array.isArray(val)) return fallback;
-  return val.filter((v): v is string => typeof v === 'string');
+function parseModelJson(raw: string, fallbackLabel: string): Record<string, unknown> {
+  try {
+    return JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
+  } catch {
+    throw new Error(`${fallbackLabel} response could not be read.`);
+  }
 }
 
 function parseScriptResponse(raw: string): SalesScript {
-  const data = extractJSON(raw) as Record<string, unknown>;
+  const data = parseModelJson(raw, 'Gemma game plan');
 
   return {
     welcomeMessages: ensureStringArray(data.welcomeMessages, ['Welcome to T-Mobile! How can I help you today?']),
     smallTalk: Array.isArray(data.smallTalk)
-      ? data.smallTalk.map((s: { category?: string; text?: string }) => ({
-          category: String(s?.category || 'General'),
-          text: String(s?.text || ''),
-        })).filter(s => s.text)
+      ? data.smallTalk
+          .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+          .map((item) => ({
+            category: typeof item.category === 'string' ? item.category : 'General',
+            text: typeof item.text === 'string' ? item.text : '',
+          }))
+          .filter((item) => item.text)
       : [],
     discoveryQuestions: ensureStringArray(data.discoveryQuestions, ['What brings you to T-Mobile today?']),
-    valuePropositions: ensureStringArray(data.valuePropositions, ['T-Mobile offers the best value in wireless.']),
+    valuePropositions: ensureStringArray(data.valuePropositions, ['T-Mobile offers strong value and support.']),
     objectionHandling: Array.isArray(data.objectionHandling)
-      ? data.objectionHandling.map((o: { concern?: string; reassurance?: string }) => ({
-          concern: String(o?.concern || ''),
-          reassurance: String(o?.reassurance || ''),
-        })).filter(o => o.concern && o.reassurance)
+      ? data.objectionHandling
+          .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+          .map((item) => ({
+            concern: typeof item.concern === 'string' ? item.concern : '',
+            reassurance: typeof item.reassurance === 'string' ? item.reassurance : '',
+          }))
+          .filter((item) => item.concern && item.reassurance)
       : [],
     accessoryRecommendations: Array.isArray(data.accessoryRecommendations)
-      ? data.accessoryRecommendations.map((a: { name?: string; why?: string; priceRange?: string; brands?: string[]; bundleEligible?: boolean }) => ({
-          name: String(a?.name || 'Accessory'),
-          why: String(a?.why || ''),
-          priceRange: String(a?.priceRange || ''),
-          brands: ensureStringArray(a?.brands),
-          bundleEligible: Boolean(a?.bundleEligible),
-        }))
+      ? data.accessoryRecommendations
+          .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+          .map((item) => ({
+            name: typeof item.name === 'string' ? item.name : 'Accessory',
+            why: typeof item.why === 'string' ? item.why : '',
+            priceRange: typeof item.priceRange === 'string' ? item.priceRange : '',
+            brands: ensureStringArray(item.brands),
+            bundleEligible: Boolean(item.bundleEligible),
+          }))
       : [],
-    purchaseSteps: ensureStringArray(data.purchaseSteps, ['Review the customer\'s needs', 'Present the best plan option']),
-    coachsCorner: String(data.coachsCorner || 'Stay confident and listen actively!'),
+    purchaseSteps: ensureStringArray(data.purchaseSteps, ['Review needs', 'Present the best option', 'Close confidently']),
+    coachsCorner: typeof data.coachsCorner === 'string' ? data.coachsCorner : 'Stay calm, ask one more good question, and keep it simple.',
+    nearbyStores: [],
+    groundingSources: [],
   };
 }
 
 function parseObjectionResponse(raw: string): ObjectionAnalysis {
-  const data = extractJSON(raw) as Record<string, unknown>;
+  const data = parseModelJson(raw, 'Gemma objection');
 
   return {
-    talkingPoints: ensureStringArray(data.talkingPoints, ['I understand your concern.']),
-    counterArguments: ensureStringArray(data.counterArguments, ['T-Mobile offers great value.']),
+    talkingPoints: ensureStringArray(data.talkingPoints, ['Start by acknowledging the concern clearly.']),
+    counterArguments: ensureStringArray(data.counterArguments, ['Focus on the strongest value point for this caller.']),
     pivotPlays: Array.isArray(data.pivotPlays)
-      ? data.pivotPlays.map((p: { strategy?: string; script?: string }) => ({
-          strategy: String(p?.strategy || ''),
-          script: String(p?.script || ''),
-        })).filter(p => p.strategy && p.script)
+      ? data.pivotPlays
+          .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+          .map((item) => ({
+            strategy: typeof item.strategy === 'string' ? item.strategy : '',
+            script: typeof item.script === 'string' ? item.script : '',
+          }))
+          .filter((item) => item.strategy && item.script)
       : undefined,
     carrierSpecificArguments: ensureStringArray(data.carrierSpecificArguments),
-    coachsCorner: String(data.coachsCorner || 'Empathy first, facts second.'),
-    complianceNotes: String(data.complianceNotes || 'Follow all CPNI guidelines. Never share customer data.'),
+    coachsCorner: typeof data.coachsCorner === 'string' ? data.coachsCorner : 'Lead with empathy, then pivot to one strong reason to stay in the conversation.',
+    complianceNotes: typeof data.complianceNotes === 'string' ? data.complianceNotes : 'Follow CPNI rules and keep the conversation generic.',
+    groundingSources: [],
   };
 }
-
-// ---------------------------------------------------------------------------
-// Generation functions
-// ---------------------------------------------------------------------------
 
 export async function gemmaGenerateScript(
   context: SalesContext,
   weeklyData: WeeklyUpdate | null,
 ): Promise<SalesScript> {
-  if (!llmInstance) throw new Error('Gemma not initialized');
-  const prompt = buildScriptPrompt(context, weeklyData);
-  const response = await llmInstance.generateResponse(prompt);
+  const response = await requestGemma(buildScriptMessages(context, weeklyData));
   return parseScriptResponse(response);
 }
 
 export async function gemmaAnalyzeObjection(
   objection: string,
   context: SalesContext,
-  script: SalesScript | null,
+  _script: SalesScript | null,
   selectedItems: string[],
   weeklyData: WeeklyUpdate | null,
 ): Promise<ObjectionAnalysis> {
-  if (!llmInstance) throw new Error('Gemma not initialized');
-  const prompt = buildObjectionPrompt(objection, context, script, selectedItems, weeklyData);
-  const response = await llmInstance.generateResponse(prompt);
+  const response = await requestGemma(buildObjectionMessages(objection, context, selectedItems, weeklyData));
   return parseObjectionResponse(response);
 }

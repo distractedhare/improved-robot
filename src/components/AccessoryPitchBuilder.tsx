@@ -71,10 +71,10 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="rounded-2xl bg-t-dark-gray p-4 text-white dark:border-2 dark:border-t-light-gray dark:bg-surface-elevated dark:text-foreground">
+      <div className="rounded-2xl bg-t-dark-gray p-4 text-white">
         <p className="mb-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">Accessory Pitch Builder</p>
         <p className="text-sm font-black">{device.name}</p>
-        <p className="mt-1 text-[10px] font-medium text-white/60 dark:text-t-dark-gray">
+        <p className="mt-1 text-[10px] font-medium text-white/60">
           {accessories.length} add-ons • Top earners first • Start with the problem it solves, not the price.
         </p>
       </div>
@@ -153,7 +153,7 @@ function AccessoryCard({
       <div className="mt-2 rounded-lg bg-t-light-gray/20 p-3">
         <div className="flex items-start gap-2">
           <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
-          <p className="text-[11px] font-bold italic leading-relaxed text-t-dark-gray">
+          <p className="text-[11px] font-bold leading-relaxed text-t-dark-gray">
             {summary.sayThis}
           </p>
         </div>

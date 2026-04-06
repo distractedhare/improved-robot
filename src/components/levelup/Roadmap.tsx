@@ -56,21 +56,21 @@ const ROADMAP_ITEMS: RoadmapItem[] = [
 
 const STATUS_CONFIG: Record<RoadmapStatus, { className: string; dotClass: string; textClass: string; icon: typeof Code2 }> = {
   'IN DEVELOPMENT': {
-    className: 'bg-info-surface border-info-border',
-    dotClass: 'bg-info-surface',
-    textClass: 'text-info-foreground',
+    className: 'border-t-magenta/20 bg-t-magenta/5',
+    dotClass: 'bg-t-magenta/10',
+    textClass: 'text-t-magenta',
     icon: Code2,
   },
   'PLANNED': {
-    className: 'bg-t-berry/10 border-t-berry/30',
+    className: 'border-t-berry/20 bg-t-berry/5',
     dotClass: 'bg-t-berry/10',
     textClass: 'text-t-berry',
     icon: Calendar,
   },
   'UNDER CONSIDERATION': {
-    className: 'bg-support-surface border-support-border',
-    dotClass: 'bg-support-surface',
-    textClass: 'text-support-foreground',
+    className: 'border-t-light-gray bg-t-light-gray/30',
+    dotClass: 'bg-t-light-gray',
+    textClass: 'text-t-dark-gray',
     icon: Lightbulb,
   },
 };
@@ -104,7 +104,7 @@ export default function Roadmap({ onSwitchToFeedback }: RoadmapProps) {
           return (
             <div
               key={item.id}
-              className={`rounded-2xl p-4 transition-all border glass ${config.className}`}
+              className={`rounded-2xl border p-4 shadow-sm transition-all ${config.className}`}
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div

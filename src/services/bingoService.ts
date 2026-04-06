@@ -1,149 +1,289 @@
-import { BINGO_CELLS, FREE_SPACE, BingoCell } from '../constants/bingoBoard';
+import { BingoCell, FREE_SPACE, getBoardLayout, getFeaturedBoardId } from '../constants/bingoBoard';
 
-const STORAGE_PREFIX = 'cc-bingo-';
+const BINGO_PROGRESS_KEY = 'bingo-progress-v2';
+const BINGO_STREAK_KEY = 'bingo-streak-v2';
 
-function todayKey(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+export interface BingoBoardProgress {
+  completedCellIds: string[];
+  completedAtByCell: Record<string, number>;
+  celebratedRowKeys: string[];
+  startedAt: number | null;
+  completedAt: number | null;
+  lastUpdated: number | null;
 }
 
-function storageKey(): string {
-  return STORAGE_PREFIX + todayKey();
+export interface BingoStreakData {
+  count: number;
+  best: number;
+  lastDate: string;
 }
 
-// Seeded PRNG (mulberry32) so every rep gets the same board on a given day
-function mulberry32(seed: number) {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+export interface BingoStats {
+  completedCount: number;
+  weeklyCompletedCount: number;
+  rowCount: number;
+  streak: number;
+  bestStreak: number;
+  progressPct: number;
+}
+
+export interface BingoToggleResult {
+  progress: BingoBoardProgress;
+  stats: BingoStats;
+  newRowKeys: string[];
+  boardCompletedNow: boolean;
+}
+
+const WINNING_LINES: number[][] = [
+  [0, 1, 2, 3, 4],
+  [5, 6, 7, 8, 9],
+  [10, 11, 12, 13, 14],
+  [15, 16, 17, 18, 19],
+  [20, 21, 22, 23, 24],
+  [0, 5, 10, 15, 20],
+  [1, 6, 11, 16, 21],
+  [2, 7, 12, 17, 22],
+  [3, 8, 13, 18, 23],
+  [4, 9, 14, 19, 24],
+  [0, 6, 12, 18, 24],
+  [4, 8, 12, 16, 20],
+];
+
+function todayKey(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function yesterdayKey(date = new Date()): string {
+  const yesterday = new Date(date);
+  yesterday.setDate(yesterday.getDate() - 1);
+  return todayKey(yesterday);
+}
+
+function getWeekStart(date = new Date()): Date {
+  const start = new Date(date);
+  const day = start.getDay();
+  const diff = day === 0 ? 6 : day - 1;
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - diff);
+  return start;
+}
+
+function readStorage<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback;
+
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStorage<T>(key: string, value: T): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage failures so the board still works in-memory.
+  }
+}
+
+function defaultProgress(): BingoBoardProgress {
+  return {
+    completedCellIds: [FREE_SPACE.id],
+    completedAtByCell: {},
+    celebratedRowKeys: [],
+    startedAt: null,
+    completedAt: null,
+    lastUpdated: null,
   };
 }
 
-function dateToSeed(dateStr: string): number {
-  let hash = 0;
-  for (let i = 0; i < dateStr.length; i++) {
-    hash = ((hash << 5) - hash + dateStr.charCodeAt(i)) | 0;
-  }
-  return hash;
+function normalizeProgress(raw: Partial<BingoBoardProgress> | null | undefined): BingoBoardProgress {
+  const completedCellIds = Array.isArray(raw?.completedCellIds) ? raw.completedCellIds.filter(Boolean) : [];
+  const uniqueCompleted = new Set<string>([FREE_SPACE.id, ...completedCellIds]);
+
+  return {
+    completedCellIds: [...uniqueCompleted],
+    completedAtByCell: raw?.completedAtByCell && typeof raw.completedAtByCell === 'object'
+      ? Object.fromEntries(
+          Object.entries(raw.completedAtByCell)
+            .filter(([, value]) => typeof value === 'number' && Number.isFinite(value))
+        )
+      : {},
+    celebratedRowKeys: Array.isArray(raw?.celebratedRowKeys) ? raw.celebratedRowKeys.filter(Boolean) : [],
+    startedAt: typeof raw?.startedAt === 'number' ? raw.startedAt : null,
+    completedAt: typeof raw?.completedAt === 'number' ? raw.completedAt : null,
+    lastUpdated: typeof raw?.lastUpdated === 'number' ? raw.lastUpdated : null,
+  };
 }
 
-/** Shuffle the 24 real cells with a date-based seed, insert free space at center */
-export function shuffleBoardForDay(): BingoCell[] {
-  const cells = [...BINGO_CELLS];
-  const rng = mulberry32(dateToSeed(todayKey()));
-
-  // Fisher-Yates shuffle with seeded RNG
-  for (let i = cells.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [cells[i], cells[j]] = [cells[j], cells[i]];
-  }
-
-  // Insert free space at center (index 12)
-  cells.splice(12, 0, FREE_SPACE);
-  return cells;
-}
-
-/** Get today's completed cell IDs from localStorage */
-export function getBingoState(): Set<string> {
-  try {
-    const raw = localStorage.getItem(storageKey());
-    if (!raw) return new Set([FREE_SPACE.id]);
-    const parsed = JSON.parse(raw) as string[];
-    const set = new Set(parsed);
-    set.add(FREE_SPACE.id); // always marked
-    return set;
-  } catch {
-    return new Set([FREE_SPACE.id]);
-  }
-}
-
-/** Toggle a cell's completion status */
-export function toggleBingoCell(cellId: string): Set<string> {
-  if (cellId === FREE_SPACE.id) return getBingoState(); // can't untoggle free space
-  const state = getBingoState();
-  if (state.has(cellId)) {
-    state.delete(cellId);
-  } else {
-    state.add(cellId);
-  }
-  try {
-    localStorage.setItem(storageKey(), JSON.stringify([...state]));
-  } catch {
-    return state;
-  }
-  cleanOldEntries();
-  return state;
-}
-
-/** Check all 12 possible bingo lines (5 rows, 5 cols, 2 diagonals) */
-export function checkBingo(completedIds: Set<string>, board: BingoCell[]): { hasBingo: boolean; winningLines: number[][] } {
-  const lines: number[][] = [];
-
-  // Rows
-  for (let r = 0; r < 5; r++) {
-    lines.push([r * 5, r * 5 + 1, r * 5 + 2, r * 5 + 3, r * 5 + 4]);
-  }
-  // Columns
-  for (let c = 0; c < 5; c++) {
-    lines.push([c, c + 5, c + 10, c + 15, c + 20]);
-  }
-  // Diagonals
-  lines.push([0, 6, 12, 18, 24]);
-  lines.push([4, 8, 12, 16, 20]);
-
-  const winningLines = lines.filter(line =>
-    line.every(idx => completedIds.has(board[idx].id))
+function getAllProgress(): Record<string, BingoBoardProgress> {
+  const raw = readStorage<Record<string, Partial<BingoBoardProgress>>>(BINGO_PROGRESS_KEY, {});
+  return Object.fromEntries(
+    Object.entries(raw).map(([boardId, progress]) => [boardId, normalizeProgress(progress)])
   );
-
-  return { hasBingo: winningLines.length > 0, winningLines };
 }
 
-/** Generate a verification code for the coach */
-export function generateBingoCode(completedIds: Set<string>): string {
-  const date = todayKey().replace(/-/g, '');
-  const sorted = [...completedIds].sort().join('|');
-  let hash = 0;
-  for (let i = 0; i < sorted.length; i++) {
-    hash = ((hash << 5) - hash + sorted.charCodeAt(i)) | 0;
-  }
-  const hex = Math.abs(hash).toString(16).toUpperCase().padStart(6, '0').slice(0, 6);
-  return `BINGO-${date}-${hex}`;
+function saveBoardProgress(boardId: string, progress: BingoBoardProgress): void {
+  const store = getAllProgress();
+  store[boardId] = normalizeProgress(progress);
+  writeStorage(BINGO_PROGRESS_KEY, store);
 }
 
-/** Track whether bingo celebration has been shown today */
-export function hasCelebratedToday(): boolean {
-  try {
-    return localStorage.getItem(`cc-bingo-celebrated-${todayKey()}`) === 'true';
-  } catch {
-    return false;
-  }
+export function getBoardProgress(boardId: string): BingoBoardProgress {
+  return normalizeProgress(getAllProgress()[boardId]);
 }
 
-export function markCelebrated(): void {
-  try {
-    localStorage.setItem(`cc-bingo-celebrated-${todayKey()}`, 'true');
-  } catch {
-    // Ignore storage issues; celebration state is non-critical.
-  }
+export function getFeaturedBoardProgress(): BingoBoardProgress {
+  return getBoardProgress(getFeaturedBoardId());
 }
 
-/** Remove bingo entries older than 7 days */
-function cleanOldEntries(): void {
-  try {
-    const now = Date.now();
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key?.startsWith(STORAGE_PREFIX)) continue;
-      const dateStr = key.replace(STORAGE_PREFIX, '');
-      const entryDate = new Date(dateStr + 'T12:00:00');
-      if (now - entryDate.getTime() > 7 * 24 * 60 * 60 * 1000) {
-        localStorage.removeItem(key);
-      }
-    }
-  } catch {
-    // ignore cleanup errors
+export function getWinningLines(completedIds: Set<string>, board: BingoCell[]): { winningLines: number[][]; winningRowKeys: string[] } {
+  const winningLines = WINNING_LINES.filter((line) => line.every((index) => completedIds.has(board[index].id)));
+  return {
+    winningLines,
+    winningRowKeys: winningLines.map((line) => line.join('-')),
+  };
+}
+
+export function getStreakData(): BingoStreakData {
+  const raw = readStorage<Partial<BingoStreakData>>(BINGO_STREAK_KEY, {
+    count: 0,
+    best: 0,
+    lastDate: '',
+  });
+
+  return {
+    count: typeof raw.count === 'number' ? raw.count : 0,
+    best: typeof raw.best === 'number' ? raw.best : 0,
+    lastDate: typeof raw.lastDate === 'string' ? raw.lastDate : '',
+  };
+}
+
+function saveStreakData(data: BingoStreakData): void {
+  writeStorage(BINGO_STREAK_KEY, data);
+}
+
+export function updateStreak(now = Date.now()): BingoStreakData {
+  const data = getStreakData();
+  const today = todayKey(new Date(now));
+  const yesterday = yesterdayKey(new Date(now));
+
+  if (data.lastDate === today) {
+    return data;
   }
+
+  const nextCount = data.lastDate === yesterday ? data.count + 1 : 1;
+  const nextData = {
+    count: nextCount,
+    best: Math.max(data.best, nextCount),
+    lastDate: today,
+  };
+
+  saveStreakData(nextData);
+  return nextData;
+}
+
+export function getBingoStats(boardId: string): BingoStats {
+  const board = getBoardLayout(boardId);
+  const progress = getBoardProgress(boardId);
+  const completedIds = new Set(progress.completedCellIds);
+  const { winningLines } = getWinningLines(completedIds, board);
+  const streak = getStreakData();
+  const weekStart = getWeekStart().getTime();
+
+  const weeklyCompletedCount = progress.completedCellIds.filter((cellId) => {
+    if (cellId === FREE_SPACE.id) return true;
+    const completedAt = progress.completedAtByCell[cellId];
+    return typeof completedAt === 'number' && completedAt >= weekStart;
+  }).length;
+
+  return {
+    completedCount: completedIds.size,
+    weeklyCompletedCount,
+    rowCount: winningLines.length,
+    streak: streak.count,
+    bestStreak: streak.best,
+    progressPct: Math.round((completedIds.size / board.length) * 100),
+  };
+}
+
+export function toggleBingoCell(boardId: string, cellId: string): BingoToggleResult {
+  const board = getBoardLayout(boardId);
+  const progress = getBoardProgress(boardId);
+  const completedIds = new Set(progress.completedCellIds);
+
+  if (cellId === FREE_SPACE.id) {
+    return {
+      progress,
+      stats: getBingoStats(boardId),
+      newRowKeys: [],
+      boardCompletedNow: false,
+    };
+  }
+
+  const now = Date.now();
+  const wasCompleted = completedIds.has(cellId);
+
+  if (wasCompleted) {
+    completedIds.delete(cellId);
+    delete progress.completedAtByCell[cellId];
+    progress.completedAt = null;
+  } else {
+    completedIds.add(cellId);
+    progress.completedAtByCell[cellId] = now;
+    progress.startedAt ??= now;
+    updateStreak(now);
+  }
+
+  progress.completedCellIds = [...completedIds];
+  progress.lastUpdated = now;
+
+  const { winningRowKeys } = getWinningLines(completedIds, board);
+  const newRowKeys = winningRowKeys.filter((rowKey) => !progress.celebratedRowKeys.includes(rowKey));
+
+  if (newRowKeys.length > 0) {
+    progress.celebratedRowKeys = [...new Set([...progress.celebratedRowKeys, ...newRowKeys])];
+  }
+
+  const boardCompletedNow = completedIds.size === board.length && !progress.completedAt;
+  if (boardCompletedNow) {
+    progress.completedAt = now;
+  }
+
+  saveBoardProgress(boardId, progress);
+
+  return {
+    progress,
+    stats: getBingoStats(boardId),
+    newRowKeys,
+    boardCompletedNow,
+  };
+}
+
+export function formatBingoDuration(startedAt: number | null, endedAt: number | null): string {
+  if (!startedAt) return 'Just started';
+
+  const end = endedAt ?? Date.now();
+  const diffMs = Math.max(end - startedAt, 0);
+  const totalMinutes = Math.round(diffMs / 60000);
+
+  if (totalMinutes < 60) {
+    return `${Math.max(totalMinutes, 1)} min`;
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (minutes === 0) {
+    return `${hours} hr`;
+  }
+
+  return `${hours}h ${minutes}m`;
 }

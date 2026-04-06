@@ -255,7 +255,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
                 <Flame className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs font-black text-t-dark-gray">{item.buzz}</p>
-                  <p className="text-[11px] text-t-magenta font-bold italic">{item.repTip}</p>
+                  <p className="text-[11px] font-bold text-t-magenta">{item.repTip}</p>
                 </div>
               </div>
             ))}
@@ -306,7 +306,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
                 <span className="shrink-0 text-[9px] font-black uppercase bg-error-surface text-error-foreground px-2 py-0.5 rounded-full mt-0.5">
                   {intel.carrier}
                 </span>
-                <p className="text-xs text-t-magenta font-bold italic">"{intel.talkingPoint}"</p>
+                <p className="text-xs font-bold text-t-magenta">{intel.talkingPoint}</p>
               </div>
             ))}
           </div>
@@ -389,7 +389,7 @@ function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpda
                         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">Common Objections</p>
                         {promo.commonObjections.map((obj, j) => (
                           <div key={j} className="rounded-lg bg-t-light-gray/10 p-2">
-                            <p className="text-[10px] font-bold text-t-dark-gray/70 italic">"{obj.objection}"</p>
+                            <p className="text-[10px] font-bold text-t-dark-gray/70">{obj.objection}</p>
                             <p className="text-[10px] font-medium text-t-magenta mt-1">{obj.response}</p>
                           </div>
                         ))}

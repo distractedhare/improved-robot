@@ -1,281 +1,414 @@
-// --- Offline IFTTT-style Recommendation Engine ---
-// Recommendation rules, cross-sell rules, objection scripts, conversation talking points,
-// eligibility constraints, and comparison rules.
+/**
+ * recommendationRules.ts
+ *
+ * Offline IFTTT-style recommendation engine ported from the Gemini knowledge base.
+ * Evaluates customer context (profile, needs, intent) and returns matched
+ * recommendations for devices, plans, accessories, cross-sells, and objection scripts.
+ *
+ * This is the TypeScript equivalent of app_logic.py — runs entirely client-side,
+ * no API calls needed.
+ */
+
+import { SalesContext } from '../types';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export interface RecommendationRule {
   id: string;
-  condition: (ctx: RuleContext) => boolean;
-  recommendation: string;
-  priority: number;
+  /** Human-readable description of when this rule fires */
+  description: string;
+  /** Conditions that must be met */
+  if: {
+    customerProfile?: string[];
+    needs?: string[];
+    context?: string[];
+    intent?: string[];
+    carrier?: string[];
+    product?: string[];
+    /** Age bracket from customer context */
+    age?: string[];
+  };
+  /** What to recommend when conditions match */
+  then: {
+    recommendedDevices?: string[];
+    recommendedPlans?: string[];
+    recommendedAccessories?: string[];
+    recommendedServices?: string[];
+    talkingPoints: string[];
+    managerCoaching?: string;
+    why?: string;
+  };
 }
 
 export interface CrossSellRule {
   id: string;
-  trigger: string;
-  product: string;
-  pitch: string;
-  priority: number;
+  description: string;
+  if: {
+    context: string[];
+  };
+  then: {
+    recommendedCrossSell: string[];
+    managerCoaching: string;
+  };
 }
 
 export interface ObjectionScript {
-  key: string;
-  title: string;
-  customerSays: string;
-  repSays: string;
+  id: string;
+  objection: string;
+  likelyUnderlyingConcern: string;
   managerCoaching: string;
+  bestFitResponses: string[];
 }
 
-export interface TalkingPoint {
-  ageGroup: string;
-  topics: string[];
-  tone: string;
-  avoid: string[];
+export interface ConversationTalkingPoint {
+  type: 'discovery_question' | 'technical_support_pivot' | 'closing_question';
+  audience: string;
+  script: string;
 }
 
 export interface EligibilityRule {
-  id: string;
-  product: string;
-  requirement: string;
-  check: string;
+  rule: string;
+  managerCoaching: string;
 }
 
 export interface ComparisonRule {
-  id: string;
-  carrier: string;
-  category: string;
-  tMobileAdvantage: string;
-  competitorWeakness: string;
+  comparison: string;
+  managerCoaching: string;
+  whenProductAIsBetter: string;
+  whenProductBIsBetter: string;
 }
 
-export interface RuleContext {
-  age?: string;
-  carrier?: string;
-  products?: string[];
-  intent?: string;
-  linesCount?: number;
-}
+// ---------------------------------------------------------------------------
+// Recommendation Rules (from Gemini IFTTT doc)
+// ---------------------------------------------------------------------------
 
-// --- Recommendation Rules ---
 export const RECOMMENDATION_RULES: RecommendationRule[] = [
   {
-    id: 'family-better-value',
-    condition: (ctx) => (ctx.linesCount ?? 0) >= 3,
-    recommendation: 'Better Value plan: 3 lines for $140/mo with all premium perks. Best value for families.',
-    priority: 10,
+    id: 'REC_MOBILE_FIRST_001',
+    description: 'Mobile-first user looking for a new phone with low upfront friction',
+    if: {
+      needs: ['Latest hardware', 'Low upfront friction'],
+      context: ['Looking for a new phone'],
+    },
+    then: {
+      recommendedDevices: ['iPhone 17e', 'iPhone 17 Pro'],
+      recommendedAccessories: ['AirPods', 'Nimble CHAMP battery pack'],
+      recommendedPlans: ['Experience Beyond'],
+      talkingPoints: [
+        "Experience Beyond lets you upgrade every year after 6 months — you're never stuck with an old phone.",
+        "Grab the Nimble CHAMP battery pack so you never die on the go.",
+      ],
+      why: 'Mobile-first users value annual upgrades and ecosystem accessories. Experience Beyond fits this perfectly.',
+    },
   },
   {
-    id: 'senior-plan',
-    condition: (ctx) => ctx.age === '55+',
-    recommendation: '55+ plans start at $50/mo for 2 lines — same great network, better price.',
-    priority: 9,
+    id: 'REC_FAMILY_SWITCHER_002',
+    description: 'Multi-line family looking for lower bill and kid-friendly options',
+    if: {
+      customerProfile: ['Multi-line Family'],
+      needs: ['Lower bill', 'Hotspot for kids'],
+    },
+    then: {
+      recommendedDevices: ['Keep existing phones (Family Freedom buyout)', 'Heavily subsidized standard models'],
+      recommendedPlans: [],
+      talkingPoints: [
+        'Keep your current phones and save on the switch — Family Freedom helps cover what you owe.',
+        'Kids can use hotspot instead of a separate internet plan.',
+      ],
+      why: 'Families switching prioritize cost savings. Keeping devices reduces friction.',
+    },
   },
   {
-    id: 'switcher-freedom',
-    condition: (ctx) => !!ctx.carrier && ctx.carrier !== 'Not Specified' && ctx.carrier !== 'Other',
-    recommendation: 'Family Freedom: up to $800/line to cover remaining device balances when switching.',
-    priority: 8,
+    id: 'REC_BOOMER_003',
+    description: 'Older customer upgrading or asking account questions',
+    if: {
+      age: ['55+'],
+      context: ['Upgrading an old phone or asking account questions'],
+    },
+    then: {
+      recommendedDevices: ['Mid-range or standard flagship with large screen'],
+      recommendedPlans: ['Essentials Choice 55', 'All-In Plan'],
+      talkingPoints: [
+        'Prioritizes human support and removes the fear of rate hikes or AI-driven customer service mazes.',
+        'Large screen makes everything easier to see and use.',
+      ],
+      why: 'Older customers value simplicity, human support, and price transparency.',
+    },
   },
   {
-    id: 'support-bts-pivot',
-    condition: (ctx) => ['order support', 'tech support', 'account support'].includes(ctx.intent ?? ''),
-    recommendation: 'Service-to-sales: pivot to connected devices (watches, tablets, trackers) after resolving their issue.',
-    priority: 7,
+    id: 'REC_PARENT_KIDS_004',
+    description: 'Parent concerned about child safety and cost control',
+    if: {
+      customerProfile: ['Gen X (35-54)', 'Parent'],
+      needs: ['Child safety', 'Cost control'],
+      context: ['Adding a line or upgrading their own phone'],
+    },
+    then: {
+      recommendedDevices: ['SyncUP KIDS Watch 2'],
+      recommendedServices: ['SyncUP KIDS Watch service'],
+      talkingPoints: [
+        'Provides peace of mind for parents without giving a young child unrestricted internet access.',
+        'GPS tracking, safe zones, and pre-approved contacts only.',
+      ],
+      why: 'Parents want to stay connected to kids without the risks of a full smartphone.',
+    },
   },
   {
-    id: 'home-internet-bundle',
-    condition: (ctx) => (ctx.products ?? []).includes('Home Internet'),
-    recommendation: 'Bundle discount: $15/mo off Home Internet with any T-Mobile voice line.',
-    priority: 6,
-  },
-  {
-    id: 'explorer-experience-beyond',
-    condition: (ctx) => ctx.intent === 'exploring',
-    recommendation: 'Lead with Experience Beyond — premium data, 250GB hotspot, streaming perks included.',
-    priority: 5,
-  },
-  {
-    id: 'international-traveler',
-    condition: (ctx) => ctx.age === '25-34' || ctx.age === '35-54',
-    recommendation: 'International roaming in 215+ countries FREE. Family of 4 saves $672 vs AT&T/Verizon on a 2-week trip.',
-    priority: 4,
+    id: 'REC_COMPETITOR_EMERGENCY_005',
+    description: 'Customer asking about off-grid coverage for emergencies',
+    if: {
+      needs: ['Emergency connectivity', 'Off-grid coverage'],
+      context: ['Inquiring about coverage in dead zones or hiking trips'],
+    },
+    then: {
+      recommendedServices: ['T-Satellite Standalone Add-on'],
+      talkingPoints: [
+        'T-Satellite with Starlink gives you texting, location sharing, and 911 access even with zero cell signal.',
+        'Included free on Experience Beyond, or $10/mo add-on for other plans.',
+      ],
+      why: 'Off-grid coverage is a growing differentiator. Satellite fills the gap.',
+    },
   },
 ];
 
-// --- Cross-Sell Rules ---
+// ---------------------------------------------------------------------------
+// Cross-Sell / Upsell Rules
+// ---------------------------------------------------------------------------
+
 export const CROSS_SELL_RULES: CrossSellRule[] = [
-  { id: 'phone-to-watch', trigger: 'Phone', product: 'Watch', pitch: 'Galaxy Watch8 FREE with new wearable line ($5/mo on Experience Beyond). Leave your phone behind.', priority: 10 },
-  { id: 'phone-to-tablet', trigger: 'Phone', product: 'Tablet', pitch: 'iPad up to $400 off with new tablet line. Galaxy Tab A11+ FREE with S26 purchase.', priority: 9 },
-  { id: 'phone-to-protection', trigger: 'Phone', product: 'Protection 360', pitch: 'P360: $0 screen repair, theft protection, AppleCare Services + JUMP! upgrades. Better than AppleCare+ alone.', priority: 8 },
-  { id: 'phone-to-hi', trigger: 'Phone', product: 'Home Internet', pitch: 'Home Internet starting at $30/mo with voice line. No contract, 15-day test drive.', priority: 7 },
-  { id: 'phone-to-tracker', trigger: 'Phone', product: 'SyncUP Tracker', pitch: 'SyncUP Tracker: real GPS on T-Mobile network, not Bluetooth like AirTag. Great for kids, pets, luggage.', priority: 6 },
-  { id: 'hi-to-phone', trigger: 'Home Internet', product: 'Phone', pitch: 'Add a phone line and save $15/mo on your Home Internet bundle.', priority: 8 },
-  { id: 'tablet-to-watch', trigger: 'BTS', product: 'Watch', pitch: 'Already adding a tablet? Watch lines are just $5/mo too. Galaxy Watch8 is FREE.', priority: 7 },
-  { id: 'support-to-watch', trigger: 'tech support', product: 'Watch', pitch: 'While we have your account open — Galaxy Watch8 is FREE with a new wearable line. $5/mo.', priority: 6 },
-  { id: 'support-to-tracker', trigger: 'account support', product: 'SyncUP', pitch: 'SyncUP Tracker is real GPS tracking for $5/mo. Great for keeping tabs on kids, pets, or cars.', priority: 5 },
+  {
+    id: 'CROSS_SELL_HINT_001',
+    description: 'Home Internet Pivot — ask every customer about their Wi-Fi',
+    if: { context: ['Any customer interaction'] },
+    then: {
+      recommendedCrossSell: ['5G Home Internet'],
+      managerCoaching: "Team, this is the 'Home Internet Pivot'. Ask every customer: 'How is your home Wi-Fi holding up?' If they complain, offer the $35/mo apartment deal or the $20 bundle credit. If they have a large house, add a mesh extender. Remind them we will pay up to $500 to break their current ISP contract!",
+    },
+  },
+  {
+    id: 'CROSS_SELL_INTERNET_BACKUP_002',
+    description: 'Customer declines HINT because they have Fiber',
+    if: { context: ['Customer declines 5G Home Internet because they already have reliable Fiber'] },
+    then: {
+      recommendedCrossSell: ['Home Internet Backup'],
+      managerCoaching: "If they say 'I have Fiber, I don't need this', pivot to Backup plan! Tell them: 'Fiber is great, but when a storm knocks out the line, your smart home dies. For just $10/mo with your voice line, our Home Internet Backup automatically kicks in with 100 hours of uncapped data to keep you online.'",
+    },
+  },
+  {
+    id: 'CROSS_SELL_ACCESSORY_ECOSYSTEM_003',
+    description: 'Customer buying flagship phone — counter Amazon accessory objection',
+    if: { context: ['Customer is buying a new flagship phone', 'Customer pushes back on accessory pricing vs Amazon'] },
+    then: {
+      recommendedCrossSell: ['Certified accessories', '3-Item Bundle'],
+      managerCoaching: "Use the 'Investment Protection' rule. Cheap Amazon cables destroy battery health due to inconsistent wattage. Remind them that our Apple MFi chargers and Samsung 25W adapters are certified safe for their $1,000 investment. Also, tell them cheap screen protectors block the ultrasonic fingerprint sensors on the Galaxy S26 and Pixel 10 — our ZAGG graphene protectors don't! Close them with the 3-Item Bundle for 25% off.",
+    },
+  },
+  {
+    id: 'CROSS_SELL_PROTECTION_004',
+    description: 'Any hardware transaction — pitch Protection 360',
+    if: { context: ['Any hardware transaction'] },
+    then: {
+      recommendedCrossSell: ['Protection 360 (P360)'],
+      managerCoaching: "Hit them with the new 2026 benefits: P360 now offers $0 front screen repairs and unlimited free screen protector replacements in-store. It's the only way they can get JUMP! upgrades at the 50% payoff mark. Don't forget the AutoPay discount — that instantly saves you $5 to $10 on every single line.",
+    },
+  },
 ];
 
-// --- Objection Scripts with Manager Coaching ---
+// ---------------------------------------------------------------------------
+// Objection Scripts (from Gemini doc — complements the playbook)
+// ---------------------------------------------------------------------------
+
 export const OBJECTION_SCRIPTS: ObjectionScript[] = [
   {
-    key: 'price-objection',
-    title: 'Price / Value Objection',
-    customerSays: "It's too expensive. I can get a cheaper plan elsewhere.",
-    repSays: "I hear you — let's do a real comparison. When you add streaming perks ($30/mo value), international roaming (free vs $12/day), and the 5-Year Price Guarantee, T-Mobile actually costs less total. What are you paying now with everything included?",
-    managerCoaching: "Never defend the price. Reframe to total value. Pull up the competitor's actual bill and compare line by line. The math always wins.",
+    id: 'OBJ_5G_RELIABILITY',
+    objection: 'Is the 5G connection actually reliable for my home?',
+    likelyUnderlyingConcern: 'Fear of buffering during remote work.',
+    managerCoaching: "Use 'Proof & Risk Reversal'. Remove the psychological barrier of switching.",
+    bestFitResponses: [
+      "It's powered by America's largest 5G network, and we offer a 15-day worry-free test drive so you can prove it to yourself without canceling your old provider first.",
+    ],
   },
   {
-    key: 'value-reframe',
-    title: 'Value Reframe Script',
-    customerSays: "I don't need all those extras.",
-    repSays: "That's fair — but here's the thing: you're paying for them whether you use them or not at other carriers. With T-Mobile, they're built in at a lower total price. It's like getting a car with leather seats for less than the base model next door.",
-    managerCoaching: "The 'I don't need it' objection is really about perceived value. Don't list features — connect each one to something they actually do (stream, travel, hotspot for kids).",
+    id: 'OBJ_CONTRACT_TRAP',
+    objection: "I'm worried about being trapped in a long-term contract.",
+    likelyUnderlyingConcern: 'Historical carrier PTSD.',
+    managerCoaching: "Deploy the 'Freedom Focus' script. Emphasize no contracts, no ETFs.",
+    bestFitResponses: [
+      "We don't do contracts. Period. You're free to leave anytime. The device payments are separate from your service — and with the new trade-in policy, you're never upside down.",
+    ],
   },
   {
-    key: 'competitor-comparison',
-    title: 'Competitor Comparison Script',
-    customerSays: "AT&T/Verizon has a better deal.",
-    repSays: "Let's pull it up side by side. I want to make sure we're comparing the same things — same data, same perks, same number of lines. In my experience, when you add it all up, T-Mobile comes out ahead. But let's see with YOUR specific situation.",
-    managerCoaching: "Always say 'let's look together' — never dismiss their research. Side-by-side comparison builds credibility. Know the competitor's current promos cold.",
+    id: 'OBJ_RATE_HIKES',
+    objection: "I've had bad experiences with rate hikes at my last carrier.",
+    likelyUnderlyingConcern: 'Fear of bait-and-switch pricing.',
+    managerCoaching: "Deploy the 'Guarantee Logic' rebuttal. 5-Year Price Guarantee is the differentiator.",
+    bestFitResponses: [
+      'We have a 5-Year Price Guarantee in writing. The price I quote you today for talk, text, and data is locked for five years. No surprises.',
+    ],
   },
   {
-    key: 'switching-ease',
-    title: 'Switching Process Script',
-    customerSays: "Switching sounds like too much work.",
-    repSays: "I get it. But here's the reality: we handle everything. Number porting? 15 minutes. Data transfer? We do it in-store. Owe money on your phones? Family Freedom covers up to $800/line. Most people tell me they wish they'd done it sooner.",
-    managerCoaching: "Break it into concrete steps with timeframes. '15 minutes' is more persuasive than 'it's easy'. Offer to start the process so they see how simple it is.",
+    id: 'OBJ_TOO_COMPLICATED',
+    objection: "I'm not tech-savvy / It's too complicated to switch.",
+    likelyUnderlyingConcern: 'Anxiety about setting up new devices or internet.',
+    managerCoaching: "Use the 'Simplification' rebuttal. Lean into human support.",
+    bestFitResponses: [
+      'With the All-In plan and P360, you get 24/7 live video assistance from our experts to walk you through anything.',
+      'We handle the number transfer, the data migration — you just show up with your old phone and leave with everything working.',
+    ],
   },
   {
-    key: 'family-freedom',
-    title: 'Family Freedom / ETF Script',
-    customerSays: "I still owe money on my phones.",
-    repSays: "That's exactly what Family Freedom is for — up to $800 per line via prepaid Mastercard to cover your remaining balance. Plus you'll start saving immediately on the monthly plan. Let me calculate the break-even for you.",
-    managerCoaching: "Do the math on paper in front of them. Remaining balance vs. monthly savings over 12 months. The visual makes it real.",
-  },
-  {
-    key: 'network-quality',
-    title: 'Network Quality Script',
-    customerSays: "I've heard T-Mobile's network isn't good.",
-    repSays: "That was true 5 years ago — but things have changed dramatically. T-Mobile is now #1 in network quality by JD Power, Ookla-certified fastest 5G at 309 Mbps, and we even have satellite coverage with Starlink where there are zero towers. Want to run a speed test right here?",
-    managerCoaching: "Lead with third-party data (JD Power, Ookla), not our own claims. A live speed test in-store is the ultimate closer.",
-  },
-  {
-    key: 'coverage-proof',
-    title: 'Coverage Proof Script',
-    customerSays: "Does T-Mobile work where I live?",
-    repSays: "Let's check right now. What's your zip code? [Check map] And with T-Satellite powered by Starlink, we're covering 500,000+ square miles where there are literally zero cell towers. Plus the 15-day Home Internet test drive means you can try risk-free.",
-    managerCoaching: "Always check the map together. Don't guess or promise — show them. T-Satellite is the differentiator for rural/suburban concerns.",
-  },
-  {
-    key: 'decision-delay',
-    title: 'Decision Delay Script',
-    customerSays: "I need to think about it / talk to my spouse.",
-    repSays: "Absolutely — no rush. Let me put together a quick summary with the numbers so the conversation is easy. I'll include what you're paying now vs what you'd pay here. Can I get your number to follow up in a couple days?",
-    managerCoaching: "Don't pressure. Make it easy for them to sell it at home: printed comparison, your card, and a specific follow-up time. The goal is a warm lead, not a hard close.",
-  },
-  {
-    key: 'device-promo',
-    title: 'Device Promotion Script',
-    customerSays: "The phone is too expensive / I'll wait for a sale.",
-    repSays: "Totally get it. But with trade-in (any condition), you can get up to $1,100 off. That often means $0-5/month for a flagship phone. And trade-in values actually drop when new models come out because everyone trades in at once. Now is genuinely the best time.",
-    managerCoaching: "Focus on monthly cost, not sticker price. '$5/month for the latest iPhone' sounds very different from '$1,099'. Always check trade-in value first.",
-  },
-  {
-    key: 'trust-rebuild',
-    title: 'Trust Rebuild Script',
-    customerSays: "I had a bad experience / I don't trust the deals.",
-    repSays: "I appreciate the honesty. What happened? [Listen] That shouldn't have happened, and I'm sorry it did. Here's what's changed: we're now #1 in customer satisfaction, we have a 5-Year Price Guarantee so no surprises, and no contracts means you can leave anytime if we don't deliver.",
-    managerCoaching: "Listen first, acknowledge second, differentiate third. Never dismiss their experience. The no-contract angle is key — it removes risk.",
-  },
-  {
-    key: 'tech-support-flow',
-    title: 'Tech Support Resolution Script',
-    customerSays: "My phone/account has an issue.",
-    repSays: "I've got you — let's get this sorted right now. [Resolve issue] While I have your account open, I noticed you might be able to save on your plan / add a device. Mind if I take a quick look?",
-    managerCoaching: "Always resolve the issue FIRST. Never pivot to sales before the customer feels taken care of. The trust you build by fixing their problem is your best opening.",
-  },
-  {
-    key: 'protection-360',
-    title: 'Protection 360 Script',
-    customerSays: "I don't need phone insurance.",
-    repSays: "I used to think that too. But P360 covers screen repairs at $0, theft replacement, and includes AppleCare Services plus JUMP! upgrades. It's actually better AND cheaper than AppleCare+ alone. One cracked screen pays for a year of coverage.",
-    managerCoaching: "Lead with the $0 screen repair — everyone's cracked a screen. The AppleCare comparison is strong for iPhone users. Don't call it 'insurance' — call it 'protection'.",
+    id: 'OBJ_PROMO_CREDITS',
+    objection: 'Why do I lose my promotional credits if I pay off the phone early?',
+    likelyUnderlyingConcern: 'Frustration with the new 2026 100% RDC trade-in rule.',
+    managerCoaching: "Frame the 100% RDC as a billing simplification that keeps their out-of-pocket low. The credits convert on trade-in now — they don't just vanish.",
+    bestFitResponses: [
+      "With the 2026 trade-in policy, your remaining credits convert when you trade in — so you're not losing value, you're just moving it to your next phone.",
+    ],
   },
 ];
 
-// --- Conversation Talking Points by Age Group ---
-export const CONVERSATION_TALKING_POINTS: TalkingPoint[] = [
+// ---------------------------------------------------------------------------
+// Conversation Talking Points (by audience)
+// ---------------------------------------------------------------------------
+
+export const CONVERSATION_TALKING_POINTS: ConversationTalkingPoint[] = [
   {
-    ageGroup: '18-24',
-    topics: ['Streaming perks (Netflix, Hulu, Apple TV+)', '5G speeds for gaming/content', 'eSIM and dual-number flexibility', 'Instagram/TikTok-worthy phone cameras', 'Affordable plans with premium features'],
-    tone: 'Casual, direct, no corporate speak. Be real.',
-    avoid: ['Talking down to them', 'Assuming they need parental help', 'Over-explaining technology'],
+    type: 'discovery_question',
+    audience: 'Millennials (25-34)',
+    script: 'Are you working from home or mostly using your data for streaming and gaming?',
   },
   {
-    ageGroup: '25-34',
-    topics: ['International travel savings', 'Home Internet bundles for new homeowners', 'Family plan value as life stage shifts', 'Trade-in deals for flagship upgrades', 'Work-from-home hotspot needs'],
-    tone: 'Peer-to-peer, value-focused. Show the math.',
-    avoid: ['Being pushy', 'Assuming family status', 'Generic pitches'],
+    type: 'discovery_question',
+    audience: 'Gen X (35-54)',
+    script: 'With everyone in the house online, are you finding that your current internet is slowing down when multiple people are streaming at once?',
   },
   {
-    ageGroup: '35-54',
-    topics: ['Family plan savings (Better Value)', 'Kids safety (watches, trackers)', 'Total cost comparison vs current carrier', '5-Year Price Guarantee stability', 'Protection 360 for family devices'],
-    tone: 'Consultative, solution-oriented. Respect their time.',
-    avoid: ['Wasting time on features they won\'t use', 'Being overly casual', 'Ignoring their research'],
+    type: 'discovery_question',
+    audience: 'Boomers (55+)',
+    script: "Are you interested in a plan that's simple to manage and offers a consistent monthly price without any surprises?",
   },
   {
-    ageGroup: '55+',
-    topics: ['55+ plan pricing', 'Simplified plan options', 'Coverage and reliability', 'In-store support availability', 'Scam Shield protection'],
-    tone: 'Patient, respectful, clear. No jargon.',
-    avoid: ['Rushing', 'Tech jargon', 'Assuming tech illiteracy', 'Condescending tone'],
+    type: 'technical_support_pivot',
+    audience: 'Any customer requesting tech support',
+    script: "Are you finding that you're hitting your hotspot limits? Maybe it's time for a plan with more high-speed data.",
+  },
+  {
+    type: 'closing_question',
+    audience: 'All',
+    script: "Will you be taking advantage of our AutoPay discount? It's the easiest way to save $5 to $10 every single month on your bill.",
   },
 ];
 
-// --- Eligibility Rules ---
+// ---------------------------------------------------------------------------
+// Eligibility Constraints
+// ---------------------------------------------------------------------------
+
 export const ELIGIBILITY_RULES: EligibilityRule[] = [
-  { id: 'better-value-min-lines', product: 'Better Value', requirement: 'Requires 3+ lines with port-in', check: 'linesCount >= 3 && hasPortIn' },
-  { id: 'family-freedom-switcher', product: 'Family Freedom', requirement: 'Must port in from qualifying carrier', check: 'carrier !== "T-Mobile" && carrier !== "Other"' },
-  { id: 'trade-in-any-condition', product: 'Trade-In', requirement: 'Any device, any condition accepted', check: 'hasDevice' },
-  { id: '55-plus-age', product: '55+ Plan', requirement: 'Account holder must be 55 or older', check: 'age === "55+"' },
-  { id: 'hi-address-check', product: 'Home Internet', requirement: 'Must pass address availability check', check: 'addressEligible' },
-  { id: 'p360-within-30-days', product: 'Protection 360', requirement: 'Must add within 30 days of device activation', check: 'withinEnrollmentWindow' },
+  {
+    rule: 'Free Line Promo Exclusion',
+    managerCoaching: 'As of April 2026, standard free lines are NO LONGER ELIGIBLE for high-value device promotions. You must check the account carefully. They either pay retail on that free line or add a paid line to get the subsidy.',
+  },
+  {
+    rule: 'High-Value Promo Limits',
+    managerCoaching: 'Flagship promotions (e.g., $800+ off) are strictly capped at TWO uses per account now. Do not over-promise on massive family plans!',
+  },
+  {
+    rule: 'Tablet & Watch Financing Terms',
+    managerCoaching: 'Remember that iPads and smartwatches are now mandatorily placed on 36-month EIP terms. Set that expectation up front.',
+  },
 ];
 
-// --- Comparison Rules ---
+// ---------------------------------------------------------------------------
+// Comparison Rules
+// ---------------------------------------------------------------------------
+
 export const COMPARISON_RULES: ComparisonRule[] = [
-  { id: 'att-price', carrier: 'AT&T', category: 'Pricing', tMobileAdvantage: '5-Year Price Guarantee locks your rate', competitorWeakness: 'AT&T has raised prices 4+ times in 2 years' },
-  { id: 'att-perks', carrier: 'AT&T', category: 'Perks', tMobileAdvantage: 'Netflix + Hulu + Apple TV+ included (~$30/mo value)', competitorWeakness: 'AT&T includes zero streaming perks' },
-  { id: 'att-international', carrier: 'AT&T', category: 'International', tMobileAdvantage: 'Free roaming in 215+ countries', competitorWeakness: 'AT&T charges $12/day International Day Pass' },
-  { id: 'vz-price', carrier: 'Verizon', category: 'Pricing', tMobileAdvantage: '5-Year Price Guarantee (vs Verizon\'s 3 years)', competitorWeakness: 'Verizon\'s guarantee is shorter and has more exceptions' },
-  { id: 'vz-perks', carrier: 'Verizon', category: 'Perks', tMobileAdvantage: 'Streaming perks built into plan price', competitorWeakness: 'Verizon charges $10/perk as add-ons' },
-  { id: 'vz-speed', carrier: 'Verizon', category: 'Network', tMobileAdvantage: '309 Mbps median 5G — fastest certified by Ookla', competitorWeakness: 'Verizon 5G Ultra Wideband has very limited coverage' },
-  { id: 'spectrum-network', carrier: 'Spectrum', category: 'Network', tMobileAdvantage: 'Own nationwide 5G network', competitorWeakness: 'Spectrum is an MVNO — uses others\' towers with lower priority' },
-  { id: 'xfinity-network', carrier: 'Xfinity', category: 'Network', tMobileAdvantage: 'Own nationwide 5G network with satellite backup', competitorWeakness: 'Xfinity Mobile runs on Verizon — deprioritized during congestion' },
-  { id: 'uscellular-coverage', carrier: 'US Cellular', category: 'Coverage', tMobileAdvantage: '1.9M sq miles 5G coverage + Starlink satellite', competitorWeakness: 'US Cellular has limited national footprint' },
-  { id: 'prepaid-value', carrier: 'Prepaid (Mint, Boost, etc.)', category: 'Value', tMobileAdvantage: 'Premium data priority, not deprioritized', competitorWeakness: 'Prepaid MVNOs get lowest network priority during congestion' },
+  {
+    comparison: 'Samsung Galaxy S26 Ultra vs iPhone 17 Pro Max',
+    managerCoaching: 'Push the S26 Ultra to enterprise commuters or heavy productivity users. Demo the Privacy Display so they see how it stops shoulder-surfers, and highlight the embedded S Pen and 5x optical zoom.',
+    whenProductAIsBetter: 'Enterprise, productivity, S Pen users, privacy-conscious',
+    whenProductBIsBetter: 'Ecosystem loyalists, content creators, heavy video streamers',
+  },
+  {
+    comparison: '5G Home Internet vs Fiber',
+    managerCoaching: 'Fiber is faster, but we win on convenience, failover, and price.',
+    whenProductAIsBetter: 'Renters, apartment dwellers, anyone sick of complex installations. Pitch the $35/mo price and plug-and-play setup.',
+    whenProductBIsBetter: 'Hardcore gamers needing symmetric upload speeds. But counter by selling our 5G Home Internet BACKUP as a $10/mo failover to keep their smart home running when fiber goes down!',
+  },
 ];
 
-// --- Helper Functions ---
+// ---------------------------------------------------------------------------
+// Rule Engine — evaluates context and returns matches
+// ---------------------------------------------------------------------------
 
-/** Evaluate recommendation rules against a context and return sorted matches */
-export function evaluateRules(ctx: RuleContext): RecommendationRule[] {
-  return RECOMMENDATION_RULES
-    .filter(rule => rule.condition(ctx))
-    .sort((a, b) => b.priority - a.priority);
+export function evaluateRules(context: SalesContext): RecommendationRule[] {
+  return RECOMMENDATION_RULES.filter(rule => {
+    const cond = rule.if;
+
+    // Check age match
+    if (cond.age && cond.age.length > 0) {
+      if (!cond.age.includes(context.age)) return false;
+    }
+
+    // Check product match
+    if (cond.product && cond.product.length > 0) {
+      if (!cond.product.some(p => context.product.includes(p as any))) return false;
+    }
+
+    // Check intent match
+    if (cond.intent && cond.intent.length > 0) {
+      if (!cond.intent.includes(context.purchaseIntent)) return false;
+    }
+
+    // Check carrier match
+    if (cond.carrier && cond.carrier.length > 0) {
+      if (!context.currentCarrier || !cond.carrier.includes(context.currentCarrier)) return false;
+    }
+
+    // If no specific conditions are set, rule matches broadly
+    return true;
+  });
 }
 
-/** Get deep dive objection scripts by keys */
+/**
+ * Get objection scripts relevant to specific deep dive keys
+ * (linked from the objection playbook scenarios)
+ */
 export function getDeepDiveScripts(keys: string[]): ObjectionScript[] {
-  return OBJECTION_SCRIPTS.filter(s => keys.includes(s.key));
+  // Simple keyword matching against objection IDs and content
+  return OBJECTION_SCRIPTS.filter(script => {
+    const searchText = `${script.id} ${script.objection} ${script.managerCoaching}`.toLowerCase();
+    return keys.some(key => searchText.includes(key.toLowerCase().replace(/_/g, ' ')));
+  });
 }
 
-/** Get talking points for a specific age group */
-export function getTalkingPointsForAge(age: string): TalkingPoint | undefined {
-  return CONVERSATION_TALKING_POINTS.find(tp => tp.ageGroup === age);
+/**
+ * Get conversation talking points for a specific age group
+ */
+export function getTalkingPointsForAge(age: string): ConversationTalkingPoint[] {
+  const ageToAudience: Record<string, string> = {
+    '18-24': 'Millennials',
+    '25-34': 'Millennials',
+    '35-54': 'Gen X',
+    '55+': 'Boomers',
+  };
+  const audience = ageToAudience[age] || '';
+  return CONVERSATION_TALKING_POINTS.filter(
+    tp => tp.audience === 'All' || tp.audience.includes(audience)
+  );
 }
 
-/** Get relevant cross-sell opportunities based on current products/intent */
-export function getRelevantCrossSells(triggers: string[]): CrossSellRule[] {
-  return CROSS_SELL_RULES
-    .filter(rule => triggers.some(t => t === rule.trigger))
-    .sort((a, b) => b.priority - a.priority);
+/**
+ * Get relevant cross-sell rules based on context keywords
+ */
+export function getRelevantCrossSells(contextKeywords: string[]): CrossSellRule[] {
+  return CROSS_SELL_RULES.filter(rule => {
+    return rule.if.context.some(ctx =>
+      ctx.toLowerCase() === 'any customer interaction' ||
+      ctx.toLowerCase() === 'any hardware transaction' ||
+      contextKeywords.some(kw => ctx.toLowerCase().includes(kw.toLowerCase()))
+    );
+  });
 }

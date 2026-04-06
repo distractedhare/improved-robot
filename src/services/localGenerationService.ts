@@ -1,9 +1,28 @@
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpdateValidationError } from './weeklyUpdateSchema';
 import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
-import { REGIONAL_DATA, getStateTalkingPoints, RegionKey } from '../data/regionalData';
 import { findScenario } from '../data/objectionPlaybook';
-import { getDeepDiveScripts } from '../data/recommendationRules';
+import { getDeepDiveScripts, OBJECTION_SCRIPTS } from '../data/recommendationRules';
+import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
+
+const DEEP_DIVE_SCRIPT_MAP: Record<string, string[]> = {
+  account_access: ['OBJ_TOO_COMPLICATED'],
+  tlife_app_guidance: ['OBJ_TOO_COMPLICATED'],
+  screen_share: ['OBJ_TOO_COMPLICATED'],
+  simplification_rebuttal: ['OBJ_TOO_COMPLICATED'],
+  switching_ease: ['OBJ_TOO_COMPLICATED'],
+  price_objections: ['OBJ_RATE_HIKES'],
+  value_comparison: ['OBJ_RATE_HIKES'],
+  guarantee_logic: ['OBJ_RATE_HIKES'],
+  price_lock: ['OBJ_RATE_HIKES'],
+  reliability_objections: ['OBJ_5G_RELIABILITY'],
+  proof_and_risk_reversal: ['OBJ_5G_RELIABILITY'],
+  coverage_proof: ['OBJ_5G_RELIABILITY'],
+  contract_fear_objections: ['OBJ_CONTRACT_TRAP'],
+  freedom_focus: ['OBJ_CONTRACT_TRAP'],
+  promo_credit_explanation: ['OBJ_PROMO_CREDITS'],
+  rdc_simplification: ['OBJ_PROMO_CREDITS'],
+};
 
 // --- Weekly Update Loading ---
 
@@ -26,6 +45,12 @@ export interface WeeklyUpdateUploadResult {
   source?: WeeklyUpdateSource;
 }
 
+function warnDev(message: string): void {
+  if (import.meta.env.DEV) {
+    console.warn(message);
+  }
+}
+
 function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   if (typeof window === 'undefined') return null;
 
@@ -33,7 +58,7 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   try {
     stored = localStorage.getItem(UPLOADED_WEEKLY_UPDATE_KEY);
   } catch {
-    console.warn('Stored weekly update could not be accessed, falling back to bundled data');
+    warnDev('Stored weekly update could not be accessed, falling back to bundled data');
     return null;
   }
 
@@ -42,7 +67,7 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   try {
     const parsed = JSON.parse(stored);
     if (!validateWeeklyUpdate(parsed)) {
-      console.warn('Stored weekly update is invalid, falling back to bundled data');
+      warnDev('Stored weekly update is invalid, falling back to bundled data');
       return null;
     }
 
@@ -50,27 +75,46 @@ function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
     cachedWeeklySource = 'uploaded';
     return { data: parsed, source: 'uploaded' };
   } catch {
-    console.warn('Stored weekly update could not be parsed, falling back to bundled data');
+    warnDev('Stored weekly update could not be parsed, falling back to bundled data');
     return null;
   }
 }
 
 /** Load weekly update: uploaded local data → bundled file → placeholder */
-export async function loadWeeklyUpdate(): Promise<WeeklyUpdateLoadResult> {
+export async function loadWeeklyUpdate(options: RequestSignalOptions = {}): Promise<WeeklyUpdateLoadResult> {
+  if (cachedWeeklyUpdate) {
+    return { data: cachedWeeklyUpdate, source: cachedWeeklySource };
+  }
+
   const uploaded = readUploadedWeeklyUpdate();
   if (uploaded) return uploaded;
 
+  const { signal, cleanup } = withTimeoutSignal({ ...options, timeoutMs: options.timeoutMs ?? 4000 });
+
   try {
-    const response = await fetch('/weekly-update.json');
+    const response = await fetch('/weekly-update.json', {
+      cache: 'no-store',
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Bundled weekly update request failed with ${response.status}.`);
+    }
+
     const data = await response.json();
     if (validateWeeklyUpdate(data)) {
       cachedWeeklyUpdate = data;
       cachedWeeklySource = 'bundled';
       return { data, source: 'bundled' };
     }
-    console.warn('Bundled weekly update failed validation, falling back to placeholder');
-  } catch {
-    console.warn('Failed to load bundled weekly-update.json');
+    warnDev('Bundled weekly update failed validation, falling back to placeholder');
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+    warnDev('Failed to load bundled weekly-update.json');
+  } finally {
+    cleanup();
   }
 
   cachedWeeklyUpdate = getPlaceholderUpdate();
@@ -120,7 +164,7 @@ export function clearUploadedUpdate(): void {
     try {
       localStorage.removeItem(UPLOADED_WEEKLY_UPDATE_KEY);
     } catch {
-      console.warn('Uploaded weekly update could not be cleared from local storage');
+      warnDev('Uploaded weekly update could not be cleared from local storage');
     }
   }
   cachedWeeklyUpdate = null;
@@ -137,27 +181,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
   // Start with template-driven base from embedded data
   const template = getTemplateScript(context) as SalesScript;
 
-  if (!weekly) {
-    // Even without weekly data, enrich with regional intel
-    if (context.region !== 'Not Specified') {
-      const regionData = REGIONAL_DATA[context.region as RegionKey];
-      if (regionData) {
-        const carrierThreat = context.currentCarrier && context.currentCarrier !== 'Not Specified' && context.currentCarrier !== 'Other'
-          ? regionData.competitorThreats.find(t => context.currentCarrier!.toLowerCase().includes(t.carrier.toLowerCase()))
-          : null;
-        const regionalVPs: string[] = [
-          `${context.region}: ${regionData.networkEdge}`,
-          ...(carrierThreat ? [`vs ${carrierThreat.carrier}: ${carrierThreat.counter}`] : []),
-          regionData.localAngles[0],
-        ];
-        template.valuePropositions = [...regionalVPs, ...template.valuePropositions].slice(0, 8);
-        template.coachsCorner += ` 📍 ${regionData.quickStat}`;
-        const stateTip = context.state ? getStateTalkingPoints(context.region as RegionKey, context.state) : null;
-        if (stateTip) template.coachsCorner += ` ${stateTip}`;
-      }
-    }
-    return template;
-  }
+  if (!weekly) return template;
 
   // Get the intent-specific playbook
   const playbook = weekly.intentPlaybooks[intent];
@@ -181,28 +205,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     .filter(c => !c.appliesToIntents || c.appliesToIntents.includes(intent))
     .map(c => c.talkingPoint);
 
-  // Regional competitive intel
-  const regionalProps: string[] = [];
-  if (context.region !== 'Not Specified') {
-    const regionData = REGIONAL_DATA[context.region as RegionKey];
-    if (regionData) {
-      regionalProps.push(`${context.region}: ${regionData.networkEdge}`);
-      // Add carrier-specific counter if we know their carrier
-      const carrierThreat = context.currentCarrier && context.currentCarrier !== 'Not Specified' && context.currentCarrier !== 'Other'
-        ? regionData.competitorThreats.find(t => context.currentCarrier!.toLowerCase().includes(t.carrier.toLowerCase()))
-        : null;
-      if (carrierThreat) {
-        regionalProps.push(`vs ${carrierThreat.carrier}: ${carrierThreat.counter}`);
-      }
-      // Add local angle
-      if (regionData.localAngles[0]) {
-        regionalProps.push(regionData.localAngles[0]);
-      }
-    }
-  }
-
   const valuePropositions = [
-    ...regionalProps.slice(0, 2),
     ...matchingPromos.slice(0, 3),
     ...matchingIntel.slice(0, 2),
     ...template.valuePropositions.slice(0, 3),
@@ -222,22 +225,12 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     ? playbook.keyMoves
     : template.purchaseSteps;
 
-  // Coach's corner: keep it short and actionable + regional context
+  // Coach's corner: keep it short and actionable
   const closingTip = playbook?.closingTips?.[0] || '';
   const avoidNote = playbook?.avoidMoves?.[0] || '';
-  let coachsCorner = closingTip
+  const coachsCorner = closingTip
     ? `${closingTip}${avoidNote ? ` Watch out: ${avoidNote}` : ''}`
     : template.coachsCorner;
-
-  // Append regional quick stat and state tip
-  if (context.region !== 'Not Specified') {
-    const regionData = REGIONAL_DATA[context.region as RegionKey];
-    if (regionData) {
-      coachsCorner += ` 📍 ${regionData.quickStat}`;
-      const stateTip = context.state ? getStateTalkingPoints(context.region as RegionKey, context.state) : null;
-      if (stateTip) coachsCorner += ` ${stateTip}`;
-    }
-  }
 
   // Known issues relevant to this intent
   const matchingIssues = weekly.knownIssues
@@ -267,7 +260,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
 
 // --- Objection Analysis (fully offline) ---
 
-/** Analyze objections using embedded data + weekly update (replaces Gemini) */
+/** Analyze objections using embedded data + weekly update (local fallback path) */
 export function analyzeObjectionLocal(
   objection: string,
   context: SalesContext,
@@ -276,29 +269,61 @@ export function analyzeObjectionLocal(
   weeklyData?: WeeklyUpdate | null,
 ): ObjectionAnalysis {
   const weekly = weeklyData || cachedWeeklyUpdate;
-  const objectionKeys = objection.split(', ').map(o => o.trim());
+  const objectionInputs = objection
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(rawKey => {
+      const scenarioMatch = findScenario(rawKey);
+      const scenario = scenarioMatch?.scenario;
+      const deepDiveScripts = scenario?.deepDiveKeys?.length
+        ? getDeepDiveScripts(scenario.deepDiveKeys)
+        : [];
+
+      const mappedScripts = deepDiveScripts.length === 0 && scenario?.deepDiveKeys?.length
+        ? OBJECTION_SCRIPTS.filter((script) =>
+            scenario.deepDiveKeys!.some((key) => DEEP_DIVE_SCRIPT_MAP[key]?.includes(script.id))
+          )
+        : [];
+
+      const matchedDeepDiveScripts = [...new Map(
+        [...deepDiveScripts, ...mappedScripts].map(script => [script.id, script])
+      ).values()];
+
+      return {
+        rawKey,
+        displayKey: scenario?.label ?? rawKey,
+        searchTerms: scenario
+          ? [rawKey, scenario.label, scenario.description, scenario.quickResponse]
+          : [rawKey],
+        scenario,
+        matchedDeepDiveScripts,
+      };
+    });
+  const objectionKeys = objectionInputs.map(item => item.displayKey);
   const triedCategories = getTriedCategories(selectedGamePlanItems, currentScript);
 
   const talkingPoints: string[] = [];
   const counterArguments: string[] = [];
   const carrierSpecificArguments: string[] = [];
+  const coachingNotes: string[] = [];
 
-  for (const key of objectionKeys) {
-    // Try new scenario ID format first (from redesigned ObjectionTab)
-    const scenario = findScenario(key);
-    if (scenario) {
-      talkingPoints.push(scenario.quickResponse);
-      if (scenario.deepDiveKeys) {
-        const scripts = getDeepDiveScripts(scenario.deepDiveKeys);
-        for (const script of scripts) {
-          counterArguments.push(script.repSays);
-          talkingPoints.push(script.managerCoaching);
-        }
+  for (const input of objectionInputs) {
+    if (input.scenario) {
+      talkingPoints.push(input.scenario.quickResponse);
+      counterArguments.push(input.scenario.quickResponse);
+      coachingNotes.push(input.scenario.tip);
+
+      for (const script of input.matchedDeepDiveScripts) {
+        talkingPoints.push(...script.bestFitResponses);
+        counterArguments.push(...script.bestFitResponses);
+        coachingNotes.push(script.managerCoaching);
       }
+
       continue;
     }
-    // Fallback: old human-readable key format (backwards compatibility)
-    const template = OBJECTION_TEMPLATES[key];
+
+    const template = OBJECTION_TEMPLATES[input.rawKey] ?? OBJECTION_TEMPLATES[input.displayKey];
     if (template) {
       talkingPoints.push(...template.talkingPoints.slice(0, 3));
       counterArguments.push(template.rebuttal);
@@ -309,8 +334,14 @@ export function analyzeObjectionLocal(
   if (weekly) {
     for (const promo of weekly.currentPromos) {
       for (const promoObj of promo.commonObjections) {
-        if (objectionKeys.some(k => promoObj.objection.toLowerCase().includes(k.toLowerCase()) ||
-            k.toLowerCase().includes(promoObj.objection.toLowerCase().slice(0, 20)))) {
+        if (objectionInputs.some(({ searchTerms }) =>
+          searchTerms.some((term) => {
+            const normalizedTerm = term.toLowerCase();
+            const normalizedObjection = promoObj.objection.toLowerCase();
+            return normalizedObjection.includes(normalizedTerm) ||
+              normalizedTerm.includes(normalizedObjection.slice(0, 20));
+          })
+        )) {
           talkingPoints.push(`${promo.name}: ${promoObj.response}`);
         }
       }
@@ -355,15 +386,9 @@ export function analyzeObjectionLocal(
     ? `You've already hit them with ${describeTriedCategories(triedCategories)}. Good. Don't recycle the same lane — pivot to something they haven't heard yet.`
     : null;
 
-  // Include scenario coaching tips in coach's corner
-  const scenarioTips = objectionKeys
-    .map(key => findScenario(key))
-    .filter(Boolean)
-    .map(s => s!.tip);
-
   const coachsCorner = [
     triedAcknowledgement,
-    ...scenarioTips,
+    ...[...new Set(coachingNotes)].slice(0, 3),
     'Acknowledge the concern first, then redirect. Never argue — show empathy and offer a different angle.',
   ].filter(Boolean).join(' ');
 

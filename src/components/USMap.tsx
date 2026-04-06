@@ -3,6 +3,7 @@ import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { merge } from "topojson-client";
 import * as topojson from "topojson-client";
 import { geoPath, geoAlbersUsa } from "d3-geo";
+import { isAbortError, withTimeoutSignal } from "../services/networkUtils";
 
 // Bundled locally for offline support — no CDN dependency
 const geoUrl = "/states-10m.json";
@@ -67,8 +68,16 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
   const [transform, setTransform] = useState({ k: 1, x: 0, y: 0 });
 
   useEffect(() => {
-    fetch(geoUrl)
-      .then(res => res.json())
+    const controller = new AbortController();
+    const { signal, cleanup } = withTimeoutSignal({ signal: controller.signal, timeoutMs: 8000 });
+
+    fetch(geoUrl, { signal, cache: 'force-cache' })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Map request failed with ${res.status}`);
+        }
+        return res.json();
+      })
       .then(topology => {
         setLoadFailed(false);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,9 +102,16 @@ const USMap = ({ selectedRegion, onSelectRegion, selectedState, onSelectState }:
         
         setRegionFeatures(rFeatures);
       })
-      .catch(() => {
-        setLoadFailed(true);
+      .catch((error) => {
+        if (!isAbortError(error)) {
+          setLoadFailed(true);
+        }
       });
+
+    return () => {
+      controller.abort();
+      cleanup();
+    };
   }, []);
 
   // Compute what to display based on selectedRegion

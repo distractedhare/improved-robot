@@ -342,7 +342,7 @@ function AccessoryReferenceCard({
         ))}
       </div>
 
-      <p className="mt-2 text-[10px] font-bold italic leading-relaxed text-t-magenta">{summary.sayThis}</p>
+      <p className="mt-2 text-[10px] font-bold leading-relaxed text-t-magenta">{summary.sayThis}</p>
       <p className="mt-2 text-[10px] font-medium leading-snug text-t-dark-gray">{summary.whyItLands}</p>
 
       <p className="mt-2 text-[9px] font-bold text-info-foreground">
