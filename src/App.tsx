@@ -573,7 +573,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 md:px-10 md:pt-2 pb-4">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6">
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
@@ -670,8 +670,8 @@ export default function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
           {/* Input Section */}
-          <div className="lg:col-span-5 space-y-3">
-            {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* INTENT + PRODUCT SELECTOR */}
             <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
