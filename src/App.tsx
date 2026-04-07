@@ -7,7 +7,8 @@ import React, { Suspense, lazy, startTransition, useState, useCallback, useRef, 
 import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
-import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
+import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
+import { generateSalesScript, analyzeObjection as aiAnalyzeObjection, getAIStatus } from './services/aiService';
 import {
   generateObjectionEnhancement,
   generateScriptEnhancement,
@@ -16,6 +17,7 @@ import {
   warmAIEnhancement,
 } from './services/aiEnhancementService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
+import { initializeGemma, onGemmaStatusChange } from './services/gemmaService';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
@@ -190,6 +192,16 @@ export default function App() {
     return () => controller.abort();
   }, [refreshWeeklyData]);
 
+  // Initialize Gemma 4 local inference (WebGPU) for offline AI
+  const [aiStatus, setAiStatus] = useState(() => getAIStatus());
+  useEffect(() => {
+    void initializeGemma();
+    const unsubscribe = onGemmaStatusChange(() => {
+      setAiStatus(getAIStatus());
+    });
+    return unsubscribe;
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -301,7 +313,7 @@ export default function App() {
       const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
       if (controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
-      const result = generateScript(ctx, resolvedWeeklyData);
+      const result = await generateSalesScript(ctx, resolvedWeeklyData);
       localResult = result;
       setScript(result);
       setObjectionResult(null);
@@ -316,25 +328,28 @@ export default function App() {
         }
       }
 
-      setEnhancingPlan(true);
-      void (async () => {
-        try {
-          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
-          if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
+      // If Gemma wasn't used, try server-side AI enhancement as a secondary boost
+      if (aiStatus.provider !== 'gemma') {
+        setEnhancingPlan(true);
+        void (async () => {
+          try {
+            const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
+            if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
-          startTransition(() => {
-            setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
-          });
-        } catch (enhancementError) {
-          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-            console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
+            startTransition(() => {
+              setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
+            });
+          } catch (enhancementError) {
+            if (!isAbortError(enhancementError) && import.meta.env.DEV) {
+              console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
+            }
+          } finally {
+            if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
+              setEnhancingPlan(false);
+            }
           }
-        } finally {
-          if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
-            setEnhancingPlan(false);
-          }
-        }
-      })();
+        })();
+      }
     } catch (err) {
       if (isAbortError(err)) return;
       if (planRequestIdRef.current !== requestId) return;
@@ -373,7 +388,7 @@ export default function App() {
       const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
       if (controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
-      const result = analyzeObjectionLocal(
+      const result = await aiAnalyzeObjection(
         selectedObjections.join(', '),
         context,
         script,
@@ -389,32 +404,35 @@ export default function App() {
         logDevWarning('Objection tracking failed, but the analysis was built.', trackingError);
       }
 
-      setEnhancingObjection(true);
-      void (async () => {
-        try {
-          const enhancement = await generateObjectionEnhancement(
-            selectedObjections.join(', '),
-            context,
-            result,
-            resolvedWeeklyData,
-            { signal: controller.signal },
-          );
+      // If Gemma wasn't used, try server-side AI enhancement as a secondary boost
+      if (aiStatus.provider !== 'gemma') {
+        setEnhancingObjection(true);
+        void (async () => {
+          try {
+            const enhancement = await generateObjectionEnhancement(
+              selectedObjections.join(', '),
+              context,
+              result,
+              resolvedWeeklyData,
+              { signal: controller.signal },
+            );
 
-          if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
+            if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
-          startTransition(() => {
-            setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
-          });
-        } catch (enhancementError) {
-          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-            console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
+            startTransition(() => {
+              setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
+            });
+          } catch (enhancementError) {
+            if (!isAbortError(enhancementError) && import.meta.env.DEV) {
+              console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
+            }
+          } finally {
+            if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
+              setEnhancingObjection(false);
+            }
           }
-        } finally {
-          if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
-            setEnhancingObjection(false);
-          }
-        }
-      })();
+        })();
+      }
     } catch (err) {
       if (isAbortError(err)) return;
       if (objectionRequestIdRef.current !== requestId) return;
