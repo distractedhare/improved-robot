@@ -668,7 +668,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-3">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
@@ -856,6 +856,15 @@ export default function App() {
               lastDemoScenarioName={lastDemoScenarioName}
             />
 
+            <SessionStats stats={sessionStats} />
+            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
+              <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
+              <span>CPNI compliant. No PII. Fully offline.</span>
+            </p>
+          </div>
+
+          {/* RIGHT PANEL — Tabs + Results */}
+          <div className="lg:col-span-7 space-y-4">
             {/* Tabs — Plan + Objections */}
             <div
               role="tablist"
@@ -883,76 +892,39 @@ export default function App() {
               ))}
             </div>
 
-	            {/* Tab-specific content on left (objections form, devices list, briefing) */}
-	            <AnimatePresence mode="wait">
-	              {activeTab === 'objections' && (
-	                <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
-	                  <ObjectionTab
-	                    context={context}
-	                    script={script}
-	                    selectedObjections={selectedObjections}
-	                    setSelectedObjections={setSelectedObjections}
-	                    selectedGamePlanItems={selectedGamePlanItems}
-	                    objectionResult={objectionResult}
-	                    analyzing={analyzing}
-	                    onAnalyze={handleAnalyzeObjection}
-	                    onClearResult={() => setObjectionResult(null)}
-	                  />
-	                </div>
-	              )}
-	            </AnimatePresence>
+            {/* Objection form — shows when objections tab active */}
+            <AnimatePresence mode="wait">
+              {activeTab === 'objections' && (
+                <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
+                  <ObjectionTab
+                    context={context}
+                    script={script}
+                    selectedObjections={selectedObjections}
+                    setSelectedObjections={setSelectedObjections}
+                    selectedGamePlanItems={selectedGamePlanItems}
+                    objectionResult={objectionResult}
+                    analyzing={analyzing}
+                    onAnalyze={handleAnalyzeObjection}
+                    onClearResult={() => setObjectionResult(null)}
+                  />
+                </div>
+              )}
+            </AnimatePresence>
 
-            <SessionStats stats={sessionStats} />
-            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
-              <span>CPNI compliant. No PII. Fully offline.</span>
-            </p>
-          </div>
-
-	          {/* RIGHT PANEL — Results */}
-	          <div className="lg:col-span-7">
-	            <ErrorBoundary
-	              compact
-	              resetKey={`live-results-${activeTab}`}
-	              title="Results panel needs a refresh"
-	              message="The local coaching engine is still safe. Reset this panel and keep the conversation moving."
-	            >
-	            <div id="live-panel-gameplan" role="tabpanel" aria-labelledby="live-tab-gameplan">
-	            <AnimatePresence mode="wait">
-	              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
-	              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-	                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+            <ErrorBoundary
+              compact
+              resetKey={`live-results-${activeTab}`}
+              title="Results panel needs a refresh"
+              message="The local coaching engine is still safe. Reset this panel and keep the conversation moving."
+            >
+            <div id="live-panel-gameplan" role="tabpanel" aria-labelledby="live-tab-gameplan">
+            <AnimatePresence mode="wait">
+              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
+              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
+                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
               )}
 
-
-              {/* Objections empty state */}
-              {activeTab === 'objections' && !objectionResult && !analyzing && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-	                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine glass-specular"
-	                  style={{ borderStyle: 'dashed' }}
-	                >
-	                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
-	                    <AlertCircle className="w-8 h-8 text-t-magenta" />
-	                  </div>
-	                  <h3 className="mb-6 text-xl font-black uppercase tracking-tight text-t-magenta">Flip the Script</h3>
-	                  <div className="text-left space-y-4 max-w-sm w-full">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
-                      <p className="text-sm text-t-dark-gray font-medium">Pick the pushback you're hearing.</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
-                      <p className="text-sm text-t-dark-gray font-medium">Hit <span className="font-bold text-t-magenta">Analyze</span> and get your comeback.</p>
-                    </div>
-                    <div className="flex items-start gap-3 bg-surface-elevated p-3 rounded-xl border border-t-light-gray shadow-sm mt-2">
-                      <div className="w-6 h-6 rounded-full bg-t-magenta/10 text-t-magenta flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">★</div>
-                      <p className="text-xs text-t-dark-gray font-medium"><span className="font-bold text-t-magenta">Pro tip:</span> Build your Game Plan first — it makes the analyzer way sharper.</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-	              {/* Loading state */}
+              {/* Loading state */}
 	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
 	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
 	                  className="min-h-[400px] rounded-3xl glass-card p-6"
