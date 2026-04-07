@@ -47,7 +47,7 @@ function LazySectionFallback({ label }: { label: string }) {
           <div className="h-28 rounded-xl bg-t-light-gray/70" />
         </div>
       </div>
-      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-t-dark-gray/70">
+      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-t-dark-gray">
         Loading {label}
       </p>
     </div>
@@ -559,7 +559,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-    <div className="relative min-h-screen font-sans text-foreground selection:bg-t-magenta/20">
+    <div className="relative min-h-screen overflow-x-hidden font-sans text-foreground selection:bg-t-magenta/20">
       <div className="bg-orb bg-orb-1" aria-hidden="true" />
       <div className="bg-orb bg-orb-2" aria-hidden="true" />
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
@@ -668,19 +668,11 @@ export default function App() {
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="mx-auto mb-4 max-w-3xl text-center">
-          <div className="space-y-0.5">
-            <p className="text-sm font-bold text-t-dark-gray">Pick the call type. Get useful talk tracks fast.</p>
-            <p className="text-xs font-medium text-t-dark-gray/70">Instant local coaching shows up first. AI sharpening layers in after.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
           {/* Input Section */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-3">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl p-5 lg:sticky lg:top-[60px] lg:z-[5] space-y-4 glass-card glass-shine glass-specular">
+            <section className="rounded-3xl p-4 lg:sticky lg:top-[60px] lg:z-[5] space-y-3 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
@@ -763,7 +755,7 @@ export default function App() {
                       >
                         <div className="text-left">
                           <span>{p}</span>
-                          <span className={`block text-[8px] normal-case font-medium mt-0.5 ${isSelected ? 'text-white/80' : 'text-t-dark-gray/60'}`}>
+                          <span className={`block text-[9px] normal-case font-medium mt-0.5 ${isSelected ? 'text-white/80' : 'text-t-dark-gray'}`}>
                             {p === 'BTS' ? 'Tablets, Watches, etc.' :
                              p === 'IOT' ? 'SyncUP Trackers, DRIVE' :
                              p === 'Phone' ? 'Smartphones & Plans' :
@@ -780,14 +772,14 @@ export default function App() {
             </section>
 
             {/* LOCATION MAP — first-class in live flow */}
-            <section className="rounded-3xl p-5 glass-card glass-shine glass-specular space-y-4">
+            <section className="rounded-3xl p-4 glass-card glass-shine glass-specular space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold text-t-dark-gray">
                     Where are they calling from?
                   </p>
-                  <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray/65">
-                    Keep the market map in view so reps can line up the pitch, check the local angle, and capture the ZIP when it matters.
+                  <p className="mt-0.5 text-[10px] font-medium text-t-dark-gray">
+                    Tap a region, zoom to state, add ZIP if they give it.
                   </p>
                 </div>
                 {(context.region !== 'Not Specified' || context.zipCode) && (
@@ -911,7 +903,7 @@ export default function App() {
 	            </AnimatePresence>
 
             <SessionStats stats={sessionStats} />
-            <p className="text-[9px] text-center text-t-dark-gray/60 font-medium px-4 flex items-center justify-center gap-1">
+            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
               <span>CPNI compliant. No PII. Fully offline.</span>
             </p>
@@ -1028,7 +1020,7 @@ export default function App() {
 
       <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center mt-10 space-y-4 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
         {weeklyLoaded && weeklyData && (
-          <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
+          <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-muted">
             <Calendar className="w-3 h-3 text-t-magenta/50" />
             <span>Data updated: {weeklyData.metadata.updatedDate}</span>
             <span className="opacity-40">|</span>
@@ -1053,11 +1045,11 @@ export default function App() {
             <RefreshCw className={`h-3.5 w-3.5 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
             {refreshingApp ? 'Refreshing App...' : 'Refresh App'}
           </button>
-          <p className="text-[10px] font-medium text-t-dark-gray/55">
+          <p className="text-[10px] font-medium text-t-dark-gray">
             Use this if the app looks stale or a tester thinks they are seeing an older version.
           </p>
         </div>
-        <p className="pt-4 text-[10px] font-black uppercase tracking-widest text-t-dark-gray/60">
+        <p className="pt-4 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
           &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
         </p>
       </footer>

@@ -51,7 +51,7 @@ function StepGuide({ steps }: { steps: ObjectionStep[] }) {
   const [currentStep, setCurrentStep] = useState(0);
   return (
     <div className="mt-3 space-y-2">
-      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">
         Step-by-Step Guide
       </p>
       {steps.map((step, i) => {
@@ -72,13 +72,13 @@ function StepGuide({ steps }: { steps: ObjectionStep[] }) {
           >
             <div className="flex items-start gap-2">
               <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black ${
-                isActive ? 'bg-t-magenta text-white' : isDone ? 'bg-success-accent text-white' : 'bg-t-light-gray text-t-dark-gray/50'
+                isActive ? 'bg-t-magenta text-white' : isDone ? 'bg-success-accent text-white' : 'bg-t-light-gray text-t-muted'
               }`}>
                 {isDone ? '✓' : i + 1}
               </div>
               <div>
                 <p className={`text-[10px] font-black uppercase tracking-wider ${
-                  isActive ? 'text-t-magenta' : isDone ? 'text-success-foreground' : 'text-t-dark-gray/50'
+                  isActive ? 'text-t-magenta' : isDone ? 'text-success-foreground' : 'text-t-muted'
                 }`}>
                   {step.gate}
                 </p>
@@ -133,12 +133,12 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
         aria-label={`${scenario.label} — tap to ${isExpanded ? 'collapse' : 'expand'}`}
         className="focus-ring w-full p-3.5 text-left flex items-start gap-3 rounded-2xl"
       >
-        <ChevronRight className={`w-4 h-4 mt-0.5 shrink-0 text-t-dark-gray/40 transition-transform ${
+        <ChevronRight className={`w-4 h-4 mt-0.5 shrink-0 text-t-muted transition-transform ${
           isExpanded ? 'rotate-90' : ''
         }`} />
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-t-dark-gray">{scenario.label}</p>
-          <p className="text-[10px] text-t-dark-gray/50 font-medium mt-0.5">{scenario.description}</p>
+          <p className="text-[10px] text-t-muted font-medium mt-0.5">{scenario.description}</p>
         </div>
         {isSelected && (
           <CheckCircle2 className="w-4 h-4 text-t-magenta shrink-0 mt-0.5" />
@@ -190,7 +190,7 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
                 className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
                   isSelected
                     ? 'bg-t-magenta text-white'
-                    : 'bg-t-light-gray/30 text-t-dark-gray/60 hover:bg-t-magenta/10 hover:text-t-magenta'
+                    : 'bg-t-light-gray/30 text-t-dark-gray hover:bg-t-magenta/10 hover:text-t-magenta'
                 }`}
               >
                 {isSelected ? (
@@ -235,7 +235,7 @@ function CategorySection({ category, expandedScenario, setExpandedScenario, sele
         className="focus-ring w-full p-4 text-left flex items-center gap-3 rounded-2xl"
       >
         <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-          isOpen ? 'bg-t-magenta text-white' : isSuggested ? 'bg-t-magenta/10 text-t-magenta' : 'bg-t-light-gray/30 text-t-dark-gray/50'
+          isOpen ? 'bg-t-magenta text-white' : isSuggested ? 'bg-t-magenta/10 text-t-magenta' : 'bg-t-light-gray/30 text-t-muted'
         }`}>
           <Icon className="w-4 h-4" />
         </div>
@@ -253,7 +253,7 @@ function CategorySection({ category, expandedScenario, setExpandedScenario, sele
               </span>
             )}
           </div>
-          <p className="text-[10px] text-t-dark-gray/50 font-medium mt-0.5">{category.description}</p>
+          <p className="text-[10px] text-t-muted font-medium mt-0.5">{category.description}</p>
         </div>
         <ChevronDown className={`w-4 h-4 text-t-dark-gray/30 transition-transform shrink-0 ${
           isOpen ? 'rotate-180' : ''
@@ -322,7 +322,7 @@ export default function ObjectionTab({
         <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
           <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
         </h2>
-        <p className="text-xs text-t-dark-gray/60 font-medium">
+        <p className="text-xs text-t-dark-gray font-medium">
           Tap a category to see what you're dealing with. Tap a scenario for an <strong className="text-t-magenta">instant comeback</strong>. Select scenarios and hit <strong className="text-t-magenta">Flip the Script</strong> for the full deep-dive strategy.
         </p>
       </div>

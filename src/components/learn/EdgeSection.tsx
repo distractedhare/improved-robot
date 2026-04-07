@@ -19,7 +19,7 @@ export default function EdgeSection() {
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
           Your Edge
         </p>
         <p className="text-xs text-t-dark-gray font-medium">
@@ -42,12 +42,12 @@ export default function EdgeSection() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-black uppercase tracking-tight">{diff.category}</p>
-              <p className="text-[10px] text-t-dark-gray/60 font-medium truncate">{diff.headline}</p>
+              <p className="text-[10px] text-t-dark-gray font-medium truncate">{diff.headline}</p>
             </div>
             {expanded === diff.category ? (
-              <ChevronUp className="w-4 h-4 text-t-dark-gray/40 shrink-0" />
+              <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-t-dark-gray/40 shrink-0" />
+              <ChevronDown className="w-4 h-4 text-t-muted shrink-0" />
             )}
           </button>
 

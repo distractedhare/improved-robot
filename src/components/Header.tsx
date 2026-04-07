@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Moon, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
+import { BookOpen, Monitor, Moon, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
+
+type ThemePref = 'light' | 'dark' | 'auto';
 
 interface HeaderProps {
   onReset: () => void;
@@ -16,15 +18,53 @@ const MODES = [
   { id: 'level-up' as const, icon: Trophy, label: 'Level Up', helper: 'Bingo + practice' },
 ] as const;
 
+function applyTheme(dark: boolean) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.documentElement.classList.toggle('dark', dark);
+}
+
+function getSystemDark() {
+  return matchMedia('(prefers-color-scheme:dark)').matches;
+}
+
 export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
+  const [pref, setPref] = useState<ThemePref>(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return 'auto';
+  });
   const [isDark, setIsDark] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark');
 
-  const toggleTheme = () => {
-    const next = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    document.documentElement.classList.toggle('dark', next === 'dark');
-    localStorage.setItem('theme', next);
-    setIsDark(next === 'dark');
+  // Listen for system theme changes when in auto mode
+  useEffect(() => {
+    if (pref !== 'auto') return;
+    const mq = matchMedia('(prefers-color-scheme:dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      applyTheme(e.matches);
+      setIsDark(e.matches);
+    };
+    // Apply system preference now
+    applyTheme(mq.matches);
+    setIsDark(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [pref]);
+
+  const cycleTheme = () => {
+    // Cycle: light → auto → dark → light
+    const order: ThemePref[] = ['light', 'auto', 'dark'];
+    const next = order[(order.indexOf(pref) + 1) % 3];
+    setPref(next);
+    if (next === 'auto') {
+      localStorage.removeItem('theme');
+      const sysDark = getSystemDark();
+      applyTheme(sysDark);
+      setIsDark(sysDark);
+    } else {
+      localStorage.setItem('theme', next);
+      applyTheme(next === 'dark');
+      setIsDark(next === 'dark');
+    }
   };
 
   const handleNewCall = () => {
@@ -71,11 +111,12 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
           <button
             type="button"
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
+            onClick={cycleTheme}
+            aria-label={pref === 'auto' ? 'Theme: auto (follows system)' : pref === 'dark' ? 'Theme: dark' : 'Theme: light'}
+            title={pref === 'auto' ? 'Auto' : pref === 'dark' ? 'Dark' : 'Light'}
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {pref === 'auto' ? <Monitor className="h-4 w-4" /> : isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
 
           <button
@@ -131,7 +172,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                           <item.icon className="h-4 w-4 shrink-0" />
                           {item.label}
                         </span>
-                        <span className={`mt-1 block text-[9px] font-bold tracking-wide sm:text-[10px] ${isActive ? 'text-white/80' : 'text-t-dark-gray/65'}`}>
+                        <span className={`mt-1 block text-[9px] font-bold tracking-wide sm:text-[10px] ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
                           {item.helper}
                         </span>
                       </span>

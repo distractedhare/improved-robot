@@ -19,7 +19,7 @@ interface AccessoryPitchBuilderProps {
 const MARGIN_COLORS = {
   high: { bg: 'bg-success-surface', text: 'text-success-foreground', label: '$$$ Earner' },
   medium: { bg: 'bg-warning-surface', text: 'text-warning-foreground', label: '$$ Solid' },
-  low: { bg: 'bg-t-light-gray/50', text: 'text-t-dark-gray/60', label: '$ Low' },
+  low: { bg: 'bg-t-light-gray/50', text: 'text-t-dark-gray', label: '$ Low' },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -58,7 +58,7 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
     return (
       <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-t-light-gray bg-t-light-gray/20 p-8 text-center">
         <ShoppingBag className="mb-3 h-8 w-8 text-t-dark-gray/30" />
-        <p className="text-xs font-bold uppercase tracking-widest text-t-dark-gray/50">
+        <p className="text-xs font-bold uppercase tracking-widest text-t-muted">
           Pick a device to unlock accessory plays
         </p>
       </div>
@@ -81,7 +81,7 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
 
       {Object.entries(grouped).map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <h4 className="px-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">
+          <h4 className="px-1 text-[9px] font-black uppercase tracking-widest text-t-muted">
             {CATEGORY_LABELS[category] || category}
           </h4>
           {items.map(({ accessory, summary, outcomeLabel }) => (
@@ -134,7 +134,7 @@ function AccessoryCard({
             <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black uppercase text-t-magenta">
               {getAppealTypeLabel(summary.appealType)}
             </span>
-            <span className="rounded-full bg-t-light-gray/30 px-1.5 py-0.5 text-[8px] font-black uppercase text-t-dark-gray/70">
+            <span className="rounded-full bg-t-light-gray/30 px-1.5 py-0.5 text-[8px] font-black uppercase text-t-dark-gray">
               {outcomeLabel}
             </span>
           </div>
@@ -172,7 +172,7 @@ function AccessoryCard({
             {summary.listenFor.slice(0, 3).map(cue => (
               <span
                 key={cue}
-                className="rounded-lg border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-bold text-t-dark-gray/75"
+                className="rounded-lg border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-bold text-t-dark-gray"
               >
                 {cue}
               </span>
@@ -208,7 +208,7 @@ function AccessoryCard({
               : 'Open the backup angle, tone guidance, and call guardrail only if you need them.'}
           </p>
         </div>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-t-dark-gray/50 transition-transform ${showMore ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-t-muted transition-transform ${showMore ? 'rotate-180' : ''}`} />
       </button>
 
       <AnimatePresence initial={false}>

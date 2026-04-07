@@ -60,7 +60,7 @@ export default function HomeInternetSection() {
             className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-2 rounded-xl transition-all whitespace-nowrap ${
               activeSection === s.id
                 ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                : 'text-t-dark-gray/50 hover:text-t-dark-gray'
+                : 'text-t-muted hover:text-t-dark-gray'
             }`}
           >
             <s.icon className="w-3 h-3" />
@@ -94,27 +94,27 @@ export default function HomeInternetSection() {
                     <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
                     {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
                   </div>
-                  <p className="text-[11px] text-t-dark-gray/60 font-medium mt-0.5">{plan.bestFor}</p>
+                  <p className="text-[11px] text-t-dark-gray font-medium mt-0.5">{plan.bestFor}</p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {tierConfig.customerTypes.map((ct) => (
-                      <span key={ct} className="text-[9px] font-bold text-t-dark-gray/50 bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+                      <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
                     ))}
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-black text-t-magenta">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
-                  <p className="text-[10px] text-t-dark-gray/50 font-bold">w/ voice line</p>
-                  <p className="text-[10px] text-t-dark-gray/40">${plan.standalonePrice}/mo standalone</p>
+                  <p className="text-[10px] text-t-muted font-bold">w/ voice line</p>
+                  <p className="text-[10px] text-t-muted">${plan.standalonePrice}/mo standalone</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div className="bg-t-light-gray/30 rounded-xl p-3">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/40 mb-1">Download</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
                   <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
                 </div>
                 <div className="bg-t-light-gray/30 rounded-xl p-3">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/40 mb-1">Upload</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
                   <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
                 </div>
               </div>
@@ -153,7 +153,7 @@ export default function HomeInternetSection() {
                       <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
                         The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
                       </p>
-                      <p className="text-[11px] text-t-dark-gray/70 font-medium mt-2 leading-relaxed">
+                      <p className="text-[11px] text-t-dark-gray font-medium mt-2 leading-relaxed">
                         For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
                       </p>
                       <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
@@ -172,21 +172,21 @@ export default function HomeInternetSection() {
 
           {/* Other products */}
           <div className="rounded-2xl border-2 glass-card p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Other Home Products</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">Other Home Products</p>
             <div className="space-y-3">
               <div className="bg-t-light-gray/30 rounded-xl p-3">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-black text-t-dark-gray">{OTHER_HOME_PRODUCTS.away.name}</p>
                   <p className="text-sm font-black text-t-magenta">${OTHER_HOME_PRODUCTS.away.price}/mo</p>
                 </div>
-                <p className="text-[11px] text-t-dark-gray/60 font-medium">{OTHER_HOME_PRODUCTS.away.description}</p>
+                <p className="text-[11px] text-t-dark-gray font-medium">{OTHER_HOME_PRODUCTS.away.description}</p>
               </div>
               <div className="bg-t-light-gray/30 rounded-xl p-3">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-black text-t-dark-gray">{OTHER_HOME_PRODUCTS.backup.name}</p>
                   <p className="text-sm font-black text-t-magenta">${OTHER_HOME_PRODUCTS.backup.price}/mo</p>
                 </div>
-                <p className="text-[11px] text-t-dark-gray/60 font-medium">{OTHER_HOME_PRODUCTS.backup.description}</p>
+                <p className="text-[11px] text-t-dark-gray font-medium">{OTHER_HOME_PRODUCTS.backup.description}</p>
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function HomeInternetSection() {
 
           {/* The pitch flow */}
           <div className="rounded-2xl border-2 glass-card p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">The 30-Second Pitch</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">The 30-Second Pitch</p>
             <div className="space-y-3">
               {[
                 { step: '1', title: 'Check the Address', desc: '"Let me see if Home Internet is available at your address — takes two seconds."' },
@@ -242,7 +242,7 @@ export default function HomeInternetSection() {
                   </div>
                   <div>
                     <p className="text-xs font-black text-t-dark-gray">{step.title}</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray/70">{step.desc}</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -262,7 +262,7 @@ export default function HomeInternetSection() {
       {/* Objection Handling */}
       {activeSection === 'objections' && (
         <div className="space-y-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">When They Push Back</p>
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">When They Push Back</p>
           {HINT_SELLING_FRAMEWORK.objectionHandlers.map((obj, i) => (
             <CollapsibleCard key={i} title={obj.objection} defaultOpen={i === 0}>
               <div className="bg-t-dark-gray rounded-xl p-4 text-white">
@@ -276,7 +276,7 @@ export default function HomeInternetSection() {
       {/* vs Competition */}
       {activeSection === 'competitors' && (
         <div className="space-y-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">Why T-Mobile Wins</p>
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Why T-Mobile Wins</p>
           {HINT_SELLING_FRAMEWORK.vsCompetitors.map((comp, i) => (
             <CollapsibleCard key={i} title={`vs ${comp.competitor}`} defaultOpen={i === 0}>
               <div className="space-y-2">
@@ -305,16 +305,16 @@ export default function HomeInternetSection() {
 
           {/* Fiber plans */}
           <div className="rounded-2xl border-2 glass-card p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Fiber Plans (Preview)</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">Fiber Plans (Preview)</p>
             <div className="space-y-3">
               {FIBER_INFO.plans.map((plan, i) => (
                 <div key={i} className="bg-t-light-gray/30 rounded-xl p-3">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-sm font-black text-t-dark-gray">{plan.name}</p>
-                    <p className="text-sm font-bold text-t-dark-gray/40">{plan.price}</p>
+                    <p className="text-sm font-bold text-t-muted">{plan.price}</p>
                   </div>
-                  <p className="text-[11px] text-t-dark-gray/60 font-medium">{plan.speeds}</p>
-                  <p className="text-[10px] text-t-dark-gray/40 font-medium mt-1">{plan.notes}</p>
+                  <p className="text-[11px] text-t-dark-gray font-medium">{plan.speeds}</p>
+                  <p className="text-[10px] text-t-muted font-medium mt-1">{plan.notes}</p>
                 </div>
               ))}
             </div>
@@ -322,7 +322,7 @@ export default function HomeInternetSection() {
 
           {/* Fiber vs Wireless differences */}
           <div className="rounded-2xl border-2 glass-card p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">Fiber vs Wireless — Key Differences</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">Fiber vs Wireless — Key Differences</p>
             <div className="space-y-2">
               {FIBER_INFO.keyDifferences.map((diff, i) => (
                 <div key={i} className="flex items-start gap-2">
@@ -356,7 +356,7 @@ function CollapsibleCard({ title, children, defaultOpen = false }: { title: stri
         className="w-full flex items-center justify-between p-4 text-left"
       >
         <p className="text-sm font-black text-t-dark-gray">{title}</p>
-        {open ? <ChevronDown className="w-4 h-4 text-t-dark-gray/40" /> : <ChevronRight className="w-4 h-4 text-t-dark-gray/40" />}
+        {open ? <ChevronDown className="w-4 h-4 text-t-muted" /> : <ChevronRight className="w-4 h-4 text-t-muted" />}
       </button>
       {open && <div className="px-4 pb-4">{children}</div>}
     </div>

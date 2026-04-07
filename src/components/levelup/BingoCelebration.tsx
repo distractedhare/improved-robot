@@ -84,7 +84,7 @@ export default function BingoCelebration({
               type="button"
               onClick={onClose}
               aria-label="Close bingo celebration"
-              className="focus-ring absolute right-4 top-4 rounded-full p-1 text-t-dark-gray/50 transition-colors hover:text-t-magenta"
+              className="focus-ring absolute right-4 top-4 rounded-full p-1 text-t-muted transition-colors hover:text-t-magenta"
             >
               <X className="h-5 w-5" />
             </button>
@@ -106,15 +106,15 @@ export default function BingoCelebration({
 
               <div className="grid grid-cols-3 gap-3 text-left">
                 <div className="glass-stat rounded-xl p-3">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Time</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Time</p>
                   <p className="mt-1 text-sm font-black text-foreground">{durationLabel}</p>
                 </div>
                 <div className="glass-stat rounded-xl p-3">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Rows</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Rows</p>
                   <p className="mt-1 text-sm font-black text-foreground">{rowCount}</p>
                 </div>
                 <div className="glass-stat rounded-xl p-3">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Streak</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Streak</p>
                   <p className="mt-1 text-sm font-black text-foreground">{streakCount} day{streakCount === 1 ? '' : 's'}</p>
                 </div>
               </div>

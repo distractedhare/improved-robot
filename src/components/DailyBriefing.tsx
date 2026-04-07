@@ -118,9 +118,9 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
       <div className="rounded-2xl glass-card p-4 shadow-sm space-y-3">
         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/50">Weekly Update Loader</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">Weekly Update Loader</p>
             <p className="text-xs font-bold text-t-dark-gray mt-1">Using: {currentSourceLabel}</p>
-            <p className="text-[10px] text-t-dark-gray/60 font-medium mt-1">
+            <p className="text-[10px] text-t-dark-gray font-medium mt-1">
               Upload a validated `weekly-update.json` to refresh promos, intel, and talking points offline.
             </p>
           </div>
@@ -180,7 +180,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
             <p className="text-xs font-black uppercase tracking-widest text-t-dark-gray">
               {isUploading ? 'Validating update...' : 'Drop a JSON file here or click to browse'}
             </p>
-            <p className="text-[10px] font-medium text-t-dark-gray/60">
+            <p className="text-[10px] font-medium text-t-dark-gray">
               Local-only upload. The current dataset stays active unless validation passes.
             </p>
           </div>
@@ -278,13 +278,13 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
                 <span className="shrink-0 w-5 h-5 rounded-full bg-t-magenta/15 flex items-center justify-center text-[8px] font-black text-t-magenta mt-0.5">{i + 1}</span>
                 <div>
                   <p className="text-xs font-black text-t-dark-gray uppercase">{promo.name}</p>
-                  <p className="text-[11px] text-t-dark-gray/70 font-medium mt-0.5 leading-snug">{promo.details.split('.').slice(0, 2).join('.') + '.'}</p>
+                  <p className="text-[11px] text-t-dark-gray font-medium mt-0.5 leading-snug">{promo.details.split('.').slice(0, 2).join('.') + '.'}</p>
                 </div>
               </div>
             ))}
           </div>
           {weeklyData.currentPromos.length > 4 && (
-            <p className="text-[10px] text-t-dark-gray/40 font-bold mt-3 text-center">
+            <p className="text-[10px] text-t-muted font-bold mt-3 text-center">
               + {weeklyData.currentPromos.length - 4} more promos — see Learn → Plans for full list
             </p>
           )}
@@ -371,7 +371,7 @@ function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpda
                 <span className="shrink-0 w-5 h-5 rounded-full bg-t-magenta/15 flex items-center justify-center text-[8px] font-black text-t-magenta">{i + 1}</span>
                 <span className="text-xs font-black text-t-dark-gray uppercase truncate">{promo.name}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 shrink-0 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-t-muted shrink-0 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
               {isOpen && (
@@ -383,13 +383,13 @@ function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpda
                   className="overflow-hidden"
                 >
                   <div className="px-3 pb-3 space-y-2 border-t border-t-light-gray/50">
-                    <p className="text-[11px] text-t-dark-gray/80 font-medium leading-relaxed mt-2">{promo.details}</p>
+                    <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed mt-2">{promo.details}</p>
                     {promo.commonObjections.length > 0 && (
                       <div className="space-y-1.5">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50">Common Objections</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Common Objections</p>
                         {promo.commonObjections.map((obj, j) => (
                           <div key={j} className="rounded-lg bg-t-light-gray/10 p-2">
-                            <p className="text-[10px] font-bold text-t-dark-gray/70">{obj.objection}</p>
+                            <p className="text-[10px] font-bold text-t-dark-gray">{obj.objection}</p>
                             <p className="text-[10px] font-medium text-t-magenta mt-1">{obj.response}</p>
                           </div>
                         ))}
@@ -444,7 +444,7 @@ function BriefingCard({
           </div>
           <span className="text-xs font-black uppercase tracking-widest text-t-dark-gray">{title}</span>
         </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-t-dark-gray/40" /> : <ChevronDown className="w-4 h-4 text-t-dark-gray/40" />}
+        {expanded ? <ChevronUp className="w-4 h-4 text-t-muted" /> : <ChevronDown className="w-4 h-4 text-t-muted" />}
       </button>
       <AnimatePresence>
         {expanded && (
@@ -468,9 +468,9 @@ function BriefingCard({
 function StatCard({ label, value, subtext }: { label: string; value: string; subtext: string }) {
   return (
     <div className="rounded-xl glass-card p-3 text-center">
-      <p className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/50">{label}</p>
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">{label}</p>
       <p className="text-lg font-black text-t-magenta">{value}</p>
-      <p className="text-[9px] font-bold text-t-dark-gray/60">{subtext}</p>
+      <p className="text-[9px] font-bold text-t-dark-gray">{subtext}</p>
     </div>
   );
 }

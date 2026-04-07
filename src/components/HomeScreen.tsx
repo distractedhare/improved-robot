@@ -85,7 +85,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="text-center pt-2"
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-t-dark-gray/50 mb-1">
+        <p className="text-xs font-bold uppercase tracking-widest text-t-muted mb-1">
           {formatDate()}
         </p>
 	        <h1
@@ -101,7 +101,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
         <p className="text-sm font-bold text-t-dark-gray">
           {role.greeting}
         </p>
-	        <p className="mt-1 max-w-md mx-auto text-xs text-t-dark-gray/60">
+	        <p className="mt-1 max-w-md mx-auto text-xs text-t-dark-gray">
 	          {coachingLine}
 	        </p>
       </motion.div>
@@ -152,7 +152,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
             <p className="text-sm font-black text-t-dark-gray leading-snug mb-1">
               {todaysHot.headline}
             </p>
-            <p className="text-xs text-t-dark-gray/70 font-medium leading-relaxed">
+            <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
               {todaysHot.context}
             </p>
           </div>
@@ -165,7 +165,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
                   <TrendingUp className="w-3 h-3 text-t-magenta/60 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-[11px] font-bold text-t-dark-gray">{item.buzz}</p>
-                    <p className="text-[10px] text-t-dark-gray/55 font-medium">{item.repTip}</p>
+                    <p className="text-[10px] text-t-dark-gray font-medium">{item.repTip}</p>
                   </div>
                 </div>
               ))}
@@ -231,7 +231,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
                     </p>
                     <p
                       className={`text-xs font-medium mt-0.5 ${
-                        isPrimary ? 'text-white/75' : 'text-t-dark-gray/60'
+                        isPrimary ? 'text-white/75' : 'text-t-dark-gray'
                       }`}
                     >
                       {card.subtitle}
@@ -256,17 +256,17 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
         transition={{ delay: 0.4, duration: 0.4 }}
         className="flex items-center justify-center gap-4 pt-2 pb-4 flex-wrap"
       >
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-dark-gray/40">
+        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
           <Shield className="w-3 h-3 text-t-magenta/40" />
           <span>CPNI Safe</span>
         </div>
         <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-dark-gray/40">
+        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
           <Sparkles className="w-3 h-3 text-t-magenta/40" />
           <span>AI Ready</span>
         </div>
         <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-dark-gray/40">
+        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
           <Wifi className="w-3 h-3 text-t-magenta/40" />
           <span>Works Offline</span>
         </div>

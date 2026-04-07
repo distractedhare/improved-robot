@@ -21,7 +21,7 @@ export default function PlaybookSection() {
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
           Sales Playbook
         </p>
         <p className="text-xs text-t-dark-gray font-medium">
@@ -85,7 +85,7 @@ export default function PlaybookSection() {
               <p className="text-xs font-bold text-t-dark-gray mb-2">{data.rebuttal}</p>
               <ul className="space-y-1">
                 {data.talkingPoints.map((tp, i) => (
-                  <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium flex gap-2">
+                  <li key={i} className="text-[11px] text-t-dark-gray font-medium flex gap-2">
                     <span className="text-t-magenta/50 shrink-0">&bull;</span>
                     <span>{tp}</span>
                   </li>
@@ -125,12 +125,12 @@ export default function PlaybookSection() {
             <p className="text-[10px] font-black uppercase tracking-wider text-t-berry mb-2">Transition Phrases</p>
             {Object.entries(TRANSITIONS).map(([phase, phrases]) => (
               <div key={phase} className="mb-3">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-t-dark-gray/50 mb-1">
+                <p className="text-[9px] font-bold uppercase tracking-wider text-t-muted mb-1">
                   {phase === 'discoveryToValue' ? 'Discovery → Value' : phase === 'valueToClose' ? 'Value → Close' : 'Objection → Pivot'}
                 </p>
                 <ul className="space-y-1">
                   {phrases.map((p, i) => (
-                    <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium">{p}</li>
+                    <li key={i} className="text-[11px] text-t-dark-gray font-medium">{p}</li>
                   ))}
                 </ul>
               </div>
@@ -160,7 +160,7 @@ export default function PlaybookSection() {
                   <p className="text-[9px] font-black uppercase tracking-wider text-success-accent mb-1">Talk about</p>
                   <ul className="space-y-0.5">
                     {data.topics.map((t, i) => (
-                      <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium">{t}</li>
+                      <li key={i} className="text-[11px] text-t-dark-gray font-medium">{t}</li>
                     ))}
                   </ul>
                 </div>
@@ -168,7 +168,7 @@ export default function PlaybookSection() {
                   <p className="text-[9px] font-black uppercase tracking-wider text-error-accent mb-1">Avoid</p>
                   <ul className="space-y-0.5">
                     {data.avoid.map((a, i) => (
-                      <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium">{a}</li>
+                      <li key={i} className="text-[11px] text-t-dark-gray font-medium">{a}</li>
                     ))}
                   </ul>
                 </div>
@@ -196,7 +196,7 @@ export default function PlaybookSection() {
               </p>
               <ul className="space-y-1.5">
                 {data.pivots.map((p, i) => (
-                  <li key={i} className="text-[11px] text-t-dark-gray/80 font-medium">{p}</li>
+                  <li key={i} className="text-[11px] text-t-dark-gray font-medium">{p}</li>
                 ))}
               </ul>
             </div>
@@ -234,12 +234,12 @@ function CollapsibleCard({ id, icon, title, subtitle, expanded, onToggle, childr
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-black uppercase tracking-tight">{title}</p>
-          <p className="text-[10px] text-t-dark-gray/60 font-medium">{subtitle}</p>
+          <p className="text-[10px] text-t-dark-gray font-medium">{subtitle}</p>
         </div>
         {expanded ? (
-          <ChevronUp className="w-4 h-4 text-t-dark-gray/40 shrink-0" />
+          <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-t-dark-gray/40 shrink-0" />
+          <ChevronDown className="w-4 h-4 text-t-muted shrink-0" />
         )}
       </button>
       <AnimatePresence>

@@ -221,12 +221,12 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       {/* Intent header */}
       <div className="rounded-2xl glass-card glass-shine p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
-        <p className="text-xs font-medium text-t-dark-gray/70">{plays.subtitle}</p>
+        <p className="text-xs font-medium text-t-dark-gray">{plays.subtitle}</p>
       </div>
 
       {/* Plays */}
       <div className="rounded-2xl glass-card glass-shine glass-card-hover p-4 shadow-sm space-y-1.5">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Quick plays</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">Quick plays</p>
         {plays.plays.map((play, i) => (
           <div key={i} className="flex items-start gap-2 py-1">
             <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
@@ -242,10 +242,10 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
           <button
             type="button"
             onClick={() => setAccOpen(!accOpen)}
-            className="focus-ring w-full flex items-center justify-between p-3 rounded-xl glass-card text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60"
+            className="focus-ring w-full flex items-center justify-between p-3 rounded-xl glass-card text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
           >
             <span className="flex items-center gap-2"><Tag className="w-3 h-3 text-t-magenta" /> Accessories play</span>
-            <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${accOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-t-muted transition-transform ${accOpen ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
             {accOpen && (
@@ -298,7 +298,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1.5 flex-1">
                 <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
-                <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug">{supportAccessory.pitch}</p>
+                <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{supportAccessory.pitch}</p>
               </div>
 	              <div className="text-right shrink-0">
 	                <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
@@ -307,7 +307,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
             </div>
             <div className="mt-3 pt-2.5 border-t border-support-border flex items-center gap-1.5">
               <CreditCard className="w-3 h-3 text-t-magenta shrink-0" />
-              <p className="text-[9px] text-t-dark-gray/60 font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
+              <p className="text-[9px] text-t-dark-gray font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
             </div>
           </div>
 	          <p className="text-[9px] font-medium text-support-foreground">{supportAccessory.item.naturalTransition}</p>
@@ -350,7 +350,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
   return (
     <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
       <div className="px-4 pt-4 pb-2">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
           Top Essentials — Bundle-eligible (25% off w/ 3+)
         </p>
       </div>
@@ -367,7 +367,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                 className="focus-ring w-full flex items-center justify-between px-4 py-2.5 hover:bg-t-light-gray/20 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <p className={`text-[9px] font-black uppercase tracking-wider ${isRec ? 'text-t-magenta' : 'text-t-dark-gray/70'}`}>
+                  <p className={`text-[9px] font-black uppercase tracking-wider ${isRec ? 'text-t-magenta' : 'text-t-dark-gray'}`}>
                     {cat.category}
                   </p>
                   {isRec && (
@@ -375,9 +375,9 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                       Recommended
                     </span>
                   )}
-                  <span className="text-[8px] text-t-dark-gray/40 font-medium">{cat.items.length} items</span>
+                  <span className="text-[8px] text-t-muted font-medium">{cat.items.length} items</span>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-t-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>
               <AnimatePresence>
                 {isOpen && (
@@ -396,18 +396,18 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                             <div className="flex items-center gap-3 shrink-0">
                               {'originalPrice' in item && item.originalPrice ? (
                                 <>
-                                  <span className="line-through text-t-dark-gray/40">{item.originalPrice}</span>
+                                  <span className="line-through text-t-muted">{item.originalPrice}</span>
                                   <span className="font-bold text-t-magenta">{item.price}</span>
                                 </>
                               ) : item.bundle ? (
-                                <span className="text-t-dark-gray/40 line-through">{item.price}</span>
+                                <span className="text-t-muted line-through">{item.price}</span>
                               ) : (
                                 <span className="font-bold text-t-dark-gray">{item.price}</span>
                               )}
                               {item.bundle && (
                                 <>
                                   <span className="font-bold text-t-magenta">{item.bundle}</span>
-                                  <span className="text-[10px] font-semibold text-t-dark-gray/70">w/ bundle</span>
+                                  <span className="text-[10px] font-semibold text-t-dark-gray">w/ bundle</span>
                                 </>
                               )}
                             </div>
@@ -415,11 +415,11 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                           {item.worksWith && (
                             <div className="flex gap-1 mt-1">
                               {item.worksWith.map((eco) => (
-                                <span key={eco} className="text-[7px] font-black uppercase tracking-wider bg-t-light-gray/30 text-t-dark-gray/60 px-1 py-0.5 rounded">{eco}</span>
+                                <span key={eco} className="text-[7px] font-black uppercase tracking-wider bg-t-light-gray/30 text-t-dark-gray px-1 py-0.5 rounded">{eco}</span>
                               ))}
                             </div>
                           )}
-                          <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
+                          <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
                           <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
                         </div>
                       ))}
@@ -452,7 +452,7 @@ function BigAddsSection({ age }: { age?: string }) {
 
   return (
     <div className="rounded-2xl glass-card p-4 shadow-sm">
-      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60 mb-2">Top big swings</p>
+      <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Top big swings</p>
       <div className="space-y-2">
         {visibleAdds.map((item, i) => {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
@@ -461,14 +461,14 @@ function BigAddsSection({ age }: { age?: string }) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-black text-t-dark-gray">{item.name}</span>
-                  <span className="text-t-dark-gray/50">{item.note}</span>
+                  <span className="text-t-muted">{item.note}</span>
                   {highlighted && (
                     <Star className="w-2.5 h-2.5 text-t-magenta fill-t-magenta" />
                   )}
                 </div>
                 <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
               </div>
-              <p className="text-[9px] text-t-dark-gray/70 font-medium leading-snug mt-1.5">{item.why}</p>
+              <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
               <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
             </div>
           );

@@ -133,7 +133,7 @@ export default function SpeedRound() {
         </div>
 
         <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">Focus categories (optional)</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Focus categories (optional)</p>
           <div className="flex flex-wrap gap-2">
             {(Object.entries(CATEGORY_META) as [QuizCategory, typeof CATEGORY_META.sales][]).map(([key, meta]) => {
               const active = selectedCategories.includes(key);
@@ -143,7 +143,7 @@ export default function SpeedRound() {
                   type="button"
                   onClick={() => toggleCategory(key)}
                   aria-pressed={active}
-                  className={`focus-ring rounded-lg border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  className={`focus-ring min-h-[44px] rounded-lg border px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
                     active
                       ? 'border-t-magenta bg-t-magenta text-white'
                       : 'glass-button text-t-dark-gray hover:border-t-magenta/30'
@@ -157,7 +157,7 @@ export default function SpeedRound() {
         </div>
 
         <div className="glass-card rounded-xl p-4">
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/50">How it works</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">How it works</p>
           <ul className="mt-2 space-y-1.5 text-xs font-medium text-t-dark-gray">
             <li className="flex items-start gap-2">
               <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
@@ -201,7 +201,7 @@ export default function SpeedRound() {
               {timeLeft}s
             </span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray/60">
+          <span className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
             {currentIndex + 1} / {questions.length}
           </span>
         </div>
@@ -233,7 +233,7 @@ export default function SpeedRound() {
               >
                 {CATEGORY_META[currentQuestion.category].label}
               </span>
-              <span className="text-[8px] font-bold text-t-dark-gray/40">
+              <span className="text-[8px] font-bold text-t-muted">
                 {'*'.repeat(currentQuestion.difficulty)}
               </span>
             </div>
@@ -326,15 +326,15 @@ export default function SpeedRound() {
 
       <div className="grid grid-cols-3 gap-2">
         <div className="glass-stat rounded-xl p-3 text-center">
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Score</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Score</p>
           <p className="mt-1 text-lg font-black text-foreground">{finalScore}%</p>
         </div>
         <div className="glass-stat rounded-xl p-3 text-center">
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Correct</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Correct</p>
           <p className="mt-1 text-lg font-black text-foreground">{correctCount}/{answers.length}</p>
         </div>
         <div className="glass-stat rounded-xl p-3 text-center">
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Avg Time</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Avg Time</p>
           <p className="mt-1 text-lg font-black text-foreground">{avgTime}s</p>
         </div>
       </div>
@@ -342,7 +342,7 @@ export default function SpeedRound() {
       {/* Missed questions review */}
       {answers.some((a) => !a.correct) && (
         <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">Review missed</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Review missed</p>
           {answers.filter((a) => !a.correct).map((a) => {
             const q = questions.find((qq) => qq.id === a.questionId);
             if (!q) return null;
@@ -355,7 +355,7 @@ export default function SpeedRound() {
                 <p className="mt-0.5 text-[11px] text-success-foreground font-medium">
                   Correct: {q.options[q.correctIndex]}
                 </p>
-                <p className="mt-1 text-[10px] text-t-dark-gray/70 italic">{q.explanation}</p>
+                <p className="mt-1 text-[10px] text-t-dark-gray italic">{q.explanation}</p>
               </div>
             );
           })}

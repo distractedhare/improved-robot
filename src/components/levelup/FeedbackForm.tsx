@@ -160,7 +160,7 @@ export default function FeedbackForm() {
             className="space-y-5"
           >
             <div className="text-center">
-              <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">Step 1 of 2</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Step 1 of 2</p>
               <h3 className="text-lg font-black uppercase tracking-tight">Quick Feedback</h3>
               <p className="text-xs text-t-dark-gray font-medium mt-1">
                 What helps, what doesn't, what's missing — 100% anonymous
@@ -179,7 +179,7 @@ export default function FeedbackForm() {
                     className={`focus-ring p-2 rounded-xl transition-all ${
                       overallRating && r <= overallRating
                         ? 'bg-t-magenta text-white shadow-lg shadow-t-magenta/20'
-                        : 'bg-surface-elevated text-t-dark-gray/40 hover:bg-t-magenta/10 hover:text-t-magenta'
+                        : 'bg-surface-elevated text-t-muted hover:bg-t-magenta/10 hover:text-t-magenta'
                     }`}
                   >
                     <Star className={`w-5 h-5 ${overallRating && r <= overallRating ? 'fill-current' : ''}`} />
@@ -242,7 +242,7 @@ export default function FeedbackForm() {
             className="space-y-4"
           >
             <div className="text-center">
-              <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">Step 2 of 2</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Step 2 of 2</p>
               <h3 className="text-lg font-black uppercase tracking-tight">Anything else?</h3>
               <p className="text-xs text-t-dark-gray font-medium mt-1">
                 Both fields are optional — skip them and hit send, or give us the details.
@@ -300,7 +300,7 @@ export default function FeedbackForm() {
               </button>
             </div>
 
-            <p className="text-[9px] text-t-dark-gray/40 font-medium text-center">
+            <p className="text-[9px] text-t-muted font-medium text-center">
               Submitted anonymously — no names, no IDs, no tracking.
             </p>
           </motion.div>
@@ -330,7 +330,7 @@ export default function FeedbackForm() {
             </button>
 
             <div className="mt-6 rounded-xl border border-t-light-gray bg-surface-elevated p-4">
-              <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">
                 Want to share more? Reach out directly
               </p>
               <a

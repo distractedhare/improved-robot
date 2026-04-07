@@ -6,7 +6,7 @@ export default function GroundingSources({ sources }: { sources?: GroundingSourc
 
   return (
     <div className="mt-6 pt-6 border-t border-t-light-gray">
-      <h4 className="text-[9px] font-black text-t-dark-gray/60 uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
+      <h4 className="text-[9px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-3 flex items-center gap-1.5">
         <Globe className="w-3 h-3" /> Where This Came From
       </h4>
       <div className="flex flex-wrap gap-2">

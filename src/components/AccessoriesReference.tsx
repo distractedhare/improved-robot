@@ -107,7 +107,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="space-y-2">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">Filter by outcome</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">Filter by outcome</p>
         <div className="flex flex-wrap gap-1.5">
           {OUTCOME_FILTERS.map(filter => {
             const isActive = outcomeFilter === filter.id;
@@ -122,13 +122,13 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                 className={`focus-ring flex items-center gap-1.5 rounded-xl border-2 px-3 py-2 text-[9px] font-black uppercase tracking-wider transition-all ${
                   isActive
                     ? 'border-t-magenta bg-t-magenta text-white shadow-md shadow-t-magenta/20'
-                    : 'border-t-light-gray bg-surface text-t-dark-gray/70 hover:border-t-magenta/40'
+                    : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/40'
                 }`}
               >
                 <filter.icon className="h-3 w-3" />
                 <span>{filter.label}</span>
                 <span className={`rounded-full px-1.5 py-0.5 text-[7px] font-bold ${
-                  isActive ? 'bg-surface/20 text-white' : 'bg-t-light-gray/50 text-t-dark-gray/50'
+                  isActive ? 'bg-surface/20 text-white' : 'bg-t-light-gray/50 text-t-muted'
                 }`}>
                   {count}
                 </span>
@@ -149,7 +149,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
 
       <div className="overflow-hidden rounded-2xl glass-card shadow-sm">
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
             Essentials — bundle-eligible (25% off with 3+)
           </p>
           <button
@@ -174,7 +174,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                   className="focus-ring flex w-full items-center justify-between px-4 py-2.5 transition-colors hover:bg-t-light-gray/20"
                 >
                   <div className="flex items-center gap-2">
-                    <p className={`text-[9px] font-black uppercase tracking-wider ${hasMatches ? 'text-t-magenta' : 'text-t-dark-gray/50'}`}>
+                    <p className={`text-[9px] font-black uppercase tracking-wider ${hasMatches ? 'text-t-magenta' : 'text-t-muted'}`}>
                       {category.category}
                     </p>
                     {outcomeFilter !== 'all' && matchCount > 0 && (
@@ -182,9 +182,9 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                         {matchCount} match{matchCount !== 1 ? 'es' : ''}
                       </span>
                     )}
-                    <span className="text-[8px] font-medium text-t-dark-gray/40">{category.items.length} items</span>
+                    <span className="text-[8px] font-medium text-t-muted">{category.items.length} items</span>
                   </div>
-                  <ChevronDown className={`h-3.5 w-3.5 text-t-dark-gray/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-3.5 w-3.5 text-t-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -210,7 +210,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                                 <div className="flex shrink-0 items-center gap-3">
                                   {'originalPrice' in item && item.originalPrice ? (
                                     <>
-                                      <span className="line-through text-t-dark-gray/40">{item.originalPrice}</span>
+                                      <span className="line-through text-t-muted">{item.originalPrice}</span>
                                       <span className="font-bold text-success-accent">{item.price}</span>
                                     </>
                                   ) : item.bundle ? (
@@ -233,7 +233,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                                     {item.worksWith.map(eco => (
                                       <span
                                         key={eco}
-                                        className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-dark-gray/60"
+                                        className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-dark-gray"
                                       >
                                         {eco}
                                       </span>
@@ -261,7 +261,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="rounded-2xl glass-card p-4 shadow-sm">
-        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/60">
+        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
           Premium add-ons (no bundle discount)
         </p>
         <div className="space-y-2">
@@ -276,7 +276,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-black text-t-dark-gray">{item.name}</span>
-                    <span className="text-t-dark-gray/50">{item.note}</span>
+                    <span className="text-t-muted">{item.note}</span>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="font-black text-t-dark-gray">{item.price}</span>
@@ -329,13 +329,13 @@ function AccessoryReferenceCard({
         <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
           {getAppealTypeLabel(summary.appealType)}
         </span>
-        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray/70">
+        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
           {outcomeLabel}
         </span>
         {summary.bestFit.slice(0, 2).map(fit => (
           <span
             key={fit}
-            className="rounded-full border border-t-light-gray px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray/65"
+            className="rounded-full border border-t-light-gray px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray"
           >
             {fit}
           </span>

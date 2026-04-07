@@ -137,7 +137,7 @@ export default function Roadmap({ onSwitchToFeedback }: RoadmapProps) {
                 </span>
               </div>
               <p className="text-sm font-black uppercase tracking-tight">{item.title}</p>
-              <p className="text-[11px] text-t-dark-gray/80 font-medium leading-relaxed mt-0.5">
+              <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed mt-0.5">
                 {item.description}
               </p>
             </div>

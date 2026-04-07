@@ -136,7 +136,7 @@ export default function PlansSection() {
             className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-2 rounded-xl transition-all whitespace-nowrap ${
               activeSection === s.id
                 ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                : 'text-t-dark-gray/50 hover:text-t-dark-gray'
+                : 'text-t-muted hover:text-t-dark-gray'
             }`}
           >
             <s.icon className="w-3 h-3" />
@@ -206,7 +206,7 @@ export default function PlansSection() {
 
           {/* The script */}
           <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-3">How to say it</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it</p>
             <div className="space-y-3">
               {[
                 '"I want to make sure you\'re getting the most out of T-Mobile. The plan you\'re on — your data can get slowed down when the network\'s busy. On Experience More, that never happens."',
@@ -234,10 +234,10 @@ export default function PlansSection() {
 
           {/* Retired plans note */}
           <div className="rounded-2xl border border-t-light-gray/50 p-4">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/40 mb-2">Retired Plans</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">Retired Plans</p>
             <div className="space-y-1">
               {RETIRED_PLANS.map((p) => (
-                <p key={p.name} className="text-[11px] text-t-dark-gray/50 font-medium">
+                <p key={p.name} className="text-[11px] text-t-muted font-medium">
                   <span className="font-bold">{p.name}</span> — {p.note}
                 </p>
               ))}
@@ -269,7 +269,7 @@ export default function PlansSection() {
                     <span className="font-bold text-t-dark-gray">{p.plan}</span>
                     <div className="flex items-center gap-3">
                       <span className="font-black text-t-magenta">{p.price}</span>
-                      <span className="text-t-dark-gray/50 font-medium text-[10px]">{p.note}</span>
+                      <span className="text-t-muted font-medium text-[10px]">{p.note}</span>
                     </div>
                   </div>
                 ))}
@@ -310,7 +310,7 @@ export default function PlansSection() {
                 <div key={p.name} className="flex items-center justify-between text-[11px] py-1.5 border-b border-t-light-gray/50 last:border-0">
                   <div>
                     <span className="font-bold text-t-dark-gray">{p.name}</span>
-                    <span className="text-t-dark-gray/50 ml-2 font-medium">{p.data}</span>
+                    <span className="text-t-muted ml-2 font-medium">{p.data}</span>
                   </div>
                   <span className="font-black text-t-magenta">${p.price}/mo</span>
                 </div>
@@ -345,7 +345,7 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
 
       {/* Pricing grid */}
       <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
-        <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-dark-gray/50 bg-t-light-gray/30 px-3 py-1.5">
+        <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
           <span>Lines</span>
           <span className="text-right">Total</span>
           <span className="text-right">Per Line</span>
@@ -376,7 +376,7 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-dark-gray/50 hover:text-t-dark-gray transition-colors"
+        className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
       >
         <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />

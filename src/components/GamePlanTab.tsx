@@ -76,7 +76,7 @@ export default function GamePlanTab({
               Auto-load one of the Learn &gt; Practice presets so testers can try the app instantly without filling anything out first.
             </p>
             {lastDemoScenarioName && (
-              <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray/60">
+              <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray">
                 Last loaded: {lastDemoScenarioName}
               </p>
             )}
@@ -244,7 +244,7 @@ export function GamePlanResults({
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
-          <p className="mb-3 text-[10px] font-medium text-t-dark-gray/60">
+          <p className="mb-3 text-[10px] font-medium text-t-dark-gray">
             {demoSection.trustLanguage}
           </p>
           <div className="space-y-3">
@@ -283,7 +283,7 @@ export function GamePlanResults({
             <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
               <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label} ({demoAccessoryRecs.length})
             </h3>
-            <ChevronDown className={`w-4 h-4 text-t-dark-gray/40 transition-transform ${showDemoAcc ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-t-muted transition-transform ${showDemoAcc ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
             {showDemoAcc && (
@@ -316,7 +316,7 @@ export function GamePlanResults({
             <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
               <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch ({script.accessoryRecommendations.length})
             </h3>
-            <ChevronDown className={`w-4 h-4 text-t-dark-gray/40 transition-transform ${showAcc ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-t-muted transition-transform ${showAcc ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
             {showAcc && (
@@ -400,7 +400,7 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
           ) : rec.name === 'Protection 360' ? (
             <Shield className="w-3 h-3 text-t-magenta shrink-0" />
           ) : (
-            <ShoppingBag className="w-3 h-3 text-t-dark-gray/40 shrink-0" />
+            <ShoppingBag className="w-3 h-3 text-t-muted shrink-0" />
           )}
           <span className="text-xs font-black text-t-dark-gray uppercase tracking-wide">{rec.name}</span>
           {rec.bundleEligible && (
@@ -409,7 +409,7 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
             </span>
           )}
         </div>
-        <p className="text-[11px] text-t-dark-gray/80 font-medium leading-relaxed ml-5">
+        <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed ml-5">
           {rec.why}
         </p>
 
@@ -418,10 +418,10 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
           <div className="ml-5 mt-2 space-y-1">
             {rec.verifiedPrices.map((vp, i) => (
               <div key={i} className="flex items-center gap-2 text-[10px]">
-                <span className="font-bold text-t-dark-gray/70">{vp.item}:</span>
+                <span className="font-bold text-t-dark-gray">{vp.item}:</span>
                 {vp.salePrice ? (
                   <>
-                    <span className="line-through text-t-dark-gray/40">{vp.fullPrice}</span>
+                    <span className="line-through text-t-muted">{vp.fullPrice}</span>
                     <span className="font-black text-t-magenta">{vp.salePrice}</span>
                   </>
                 ) : (
@@ -436,7 +436,7 @@ function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
           {!rec.verifiedPrices?.length && (
             <span className="text-[10px] font-black text-t-magenta">{rec.priceRange}</span>
           )}
-          <span className="text-[9px] text-t-dark-gray/50 font-bold">
+          <span className="text-[9px] text-t-muted font-bold">
             {rec.brands.slice(0, 3).join(' · ')}
           </span>
         </div>
@@ -462,7 +462,7 @@ function DemoRecCard({ rec }: { rec: DemoProductRec }) {
         </span>
         <span className="text-xs font-black text-t-dark-gray">{rec.name}</span>
       </div>
-      <p className="text-[11px] text-t-dark-gray/80 font-medium leading-snug ml-0.5">
+      <p className="text-[11px] text-t-dark-gray font-medium leading-snug ml-0.5">
         {rec.pitch}
       </p>
     </div>
@@ -476,14 +476,14 @@ function DemoAccessoryCard({ rec }: { rec: DemoAccessoryRec }) {
         <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
           {rec.category}
         </span>
-        <span className="text-[10px] text-t-dark-gray/60 font-bold uppercase tracking-wide">
+        <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
           {rec.items.join(' • ')}
         </span>
       </div>
       <p className="text-[11px] text-t-dark-gray font-bold leading-snug break-words">
         {rec.pitch}
       </p>
-      <p className="text-[10px] text-t-dark-gray/70 font-medium leading-relaxed break-words">
+      <p className="text-[10px] text-t-dark-gray font-medium leading-relaxed break-words">
         {rec.why}
       </p>
     </div>

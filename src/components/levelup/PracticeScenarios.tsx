@@ -10,7 +10,7 @@ export default function PracticeScenarios({ onSelectScenario }: PracticeScenario
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">Practice Scenarios</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Practice Scenarios</p>
         <p className="text-xs text-t-dark-gray font-medium">
           Pick a customer profile to practice with. It'll load into Live mode with a full game plan ready.
         </p>
@@ -54,7 +54,7 @@ export default function PracticeScenarios({ onSelectScenario }: PracticeScenario
         ))}
       </div>
 
-      <p className="text-[9px] text-center text-t-dark-gray/40 font-medium">
+      <p className="text-[9px] text-center text-t-muted font-medium">
         Pick one and we'll load it up — instant talking points, no typing.
       </p>
     </div>

@@ -85,9 +85,9 @@ export default function PrizeHub() {
                         }}
                       />
                     </div>
-                    <span className="text-[9px] font-bold text-t-dark-gray/50 tabular-nums">{progress}</span>
+                    <span className="text-[9px] font-bold text-t-muted tabular-nums">{progress}</span>
                   </div>
-                  <p className="mt-1 text-[9px] text-t-dark-gray/40">{config.requirement}</p>
+                  <p className="mt-1 text-[9px] text-t-muted">{config.requirement}</p>
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function PrizeHub() {
       {/* Recent history */}
       {data.history.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             <TrendingUp className="mr-1 inline h-3 w-3" />
             Recent Wins
           </p>
@@ -106,7 +106,7 @@ export default function PrizeHub() {
             <div key={`${entry.date}-${i}`} className="glass-card rounded-xl px-3 py-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-medium text-foreground">{entry.label}</span>
-                <span className="text-[9px] text-t-dark-gray/40">{entry.date}</span>
+                <span className="text-[9px] text-t-muted">{entry.date}</span>
               </div>
             </div>
           ))}

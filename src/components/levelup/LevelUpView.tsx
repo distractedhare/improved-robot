@@ -114,7 +114,7 @@ export default function LevelUpView() {
                 aria-selected={isActive}
                 aria-controls={`level-up-panel-${item.id}`}
                 onClick={() => setTab(item.id)}
-                className={`focus-ring rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
+                className={`focus-ring min-h-[44px] rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_18px_rgba(226,0,116,0.22)]'
                     : 'glass-tab text-t-dark-gray hover:text-foreground'
@@ -124,7 +124,7 @@ export default function LevelUpView() {
                   <item.icon className="h-3.5 w-3.5 shrink-0" />
                   {item.label}
                 </span>
-                <span className={`mt-0.5 block text-[9px] font-medium ${isActive ? 'text-white/75' : 'text-t-dark-gray/55'}`}>
+                <span className={`mt-0.5 block text-[9px] font-medium ${isActive ? 'text-white/75' : 'text-t-dark-gray'}`}>
                   {item.helper}
                 </span>
               </button>

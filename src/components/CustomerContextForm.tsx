@@ -54,7 +54,7 @@ export default function CustomerContextForm({
                 type="button"
                 onClick={() => setContext(prev => ({ ...prev, age: a }))}
                 aria-pressed={context.age === a}
-                className={`focus-ring py-2 px-2 text-[10px] font-black rounded-lg border-2 uppercase transition-all ${
+                className={`focus-ring min-h-[44px] py-2.5 px-2.5 text-[10px] font-black rounded-lg border-2 uppercase transition-all ${
                   context.age === a
                     ? 'bg-t-magenta text-white border-t-magenta shadow-md shadow-t-magenta/10'
                     : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/30'
@@ -87,7 +87,7 @@ export default function CustomerContextForm({
                 </span>
               )}
             </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-t-dark-gray/40 transition-transform ${locationOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-t-muted transition-transform ${locationOpen ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
@@ -102,14 +102,14 @@ export default function CustomerContextForm({
               >
                 <div className="space-y-3 pt-1">
                   {locationHint && (
-                    <p className="text-[10px] font-medium leading-relaxed text-t-dark-gray/60">
+                    <p className="text-[10px] font-medium leading-relaxed text-t-dark-gray">
                       {locationHint}
                     </p>
                   )}
                   {/* Region map */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold text-t-dark-gray/60 uppercase tracking-wider">Region</span>
+                      <span className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider">Region</span>
                       {context.region !== 'Not Specified' && (
                         <button
                           type="button"
@@ -130,8 +130,8 @@ export default function CustomerContextForm({
 
                   {/* ZIP Code */}
                   <div>
-                    <label htmlFor={zipInputId} className="text-[10px] font-bold text-t-dark-gray/60 uppercase tracking-wider mb-1 block">
-                      Zip code <span className="font-medium normal-case text-t-dark-gray/40">(optional)</span>
+                    <label htmlFor={zipInputId} className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider mb-1 block">
+                      Zip code <span className="font-medium normal-case text-t-muted">(optional)</span>
                     </label>
                     <input
                       id={zipInputId}
@@ -163,7 +163,7 @@ export default function CustomerContextForm({
                 type="button"
                 onClick={() => setContext(prev => ({ ...prev, currentCarrier: c }))}
                 aria-pressed={context.currentCarrier === c}
-                className={`focus-ring py-2 px-3 text-left text-[10px] font-black rounded-lg border-2 uppercase transition-all flex items-center justify-between ${
+                className={`focus-ring min-h-[44px] py-2.5 px-3 text-left text-[10px] font-black rounded-lg border-2 uppercase transition-all flex items-center justify-between ${
                   context.currentCarrier === c
                     ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
                     : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'

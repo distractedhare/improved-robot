@@ -38,7 +38,7 @@ export default function SessionStats({ stats }: SessionStatsProps) {
   if (topIntent) parts.push(`top: ${formatIntentLabel(topIntent)}`);
 
   return (
-    <p className="text-[9px] font-medium text-center px-2 text-t-dark-gray/50">
+    <p className="text-[9px] font-medium text-center px-2 text-t-muted">
       {parts.join(' \u00b7 ')}
     </p>
   );

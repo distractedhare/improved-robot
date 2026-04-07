@@ -104,7 +104,7 @@ export default function TeamConfig() {
             <p className="mt-1 text-xs font-medium text-t-dark-gray italic">"{config.goalText}"</p>
           )}
           {config.managerName && (
-            <p className="mt-1 text-[10px] text-t-dark-gray/50">Led by {config.managerName}</p>
+            <p className="mt-1 text-[10px] text-t-muted">Led by {config.managerName}</p>
           )}
         </div>
       )}
@@ -113,7 +113,7 @@ export default function TeamConfig() {
       <div className="space-y-4">
         {/* Team Name */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Team Name
           </label>
           <input
@@ -127,7 +127,7 @@ export default function TeamConfig() {
 
         {/* Manager Name */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Manager / Lead Name
           </label>
           <input
@@ -141,7 +141,7 @@ export default function TeamConfig() {
 
         {/* Mascot */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Team Mascot
           </label>
           <div className="flex flex-wrap gap-2">
@@ -165,7 +165,7 @@ export default function TeamConfig() {
 
         {/* Custom Logo URL */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Custom Logo URL (optional — overrides mascot)
           </label>
           <input
@@ -179,7 +179,7 @@ export default function TeamConfig() {
 
         {/* Weekly Focus */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Weekly Focus
           </label>
           <div className="flex flex-wrap gap-2">
@@ -202,7 +202,7 @@ export default function TeamConfig() {
 
         {/* Goal Text */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">
+          <label className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             Team Goal / Motto
           </label>
           <input
@@ -237,8 +237,8 @@ export default function TeamConfig() {
       {/* Import / Export */}
       <div className="glass-card rounded-xl p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Settings className="h-3.5 w-3.5 text-t-dark-gray/50" />
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray/50">
+          <Settings className="h-3.5 w-3.5 text-t-muted" />
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-muted">
             Import / Export Config
           </p>
         </div>

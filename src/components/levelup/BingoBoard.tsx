@@ -7,7 +7,10 @@ import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, 
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
 
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function celebrateRow(): void {
+  if (prefersReducedMotion()) return;
   void confetti({
     particleCount: 90,
     spread: 68,
@@ -19,6 +22,7 @@ function celebrateRow(): void {
 }
 
 function celebrateBoard(): void {
+  if (prefersReducedMotion()) return;
   void confetti({
     particleCount: 160,
     spread: 82,
@@ -108,7 +112,7 @@ export default function BingoBoard() {
             <button
               type="button"
               onClick={() => setQuickMode(!quickMode)}
-              className={`focus-ring rounded-full px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-all ${
+              className={`focus-ring min-h-[44px] rounded-full px-3.5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
                 quickMode
                   ? 'bg-t-berry text-white'
                   : 'glass-button text-t-dark-gray hover:text-t-berry'
@@ -142,7 +146,7 @@ export default function BingoBoard() {
                 }`}
               >
                 <p className="text-[10px] font-black uppercase tracking-[0.18em]">{boardOption.name}</p>
-                <p className={`mt-1 text-[11px] font-medium leading-relaxed ${isActive ? 'text-white/80' : 'text-t-dark-gray/70'}`}>
+                <p className={`mt-1 text-[11px] font-medium leading-relaxed ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
                   {boardOption.subtitle}
                 </p>
               </button>
@@ -183,7 +187,7 @@ export default function BingoBoard() {
         </div>
 
         {/* Grid */}
-        <div className="grid gap-1.5 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+        <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
           {board.map((cell, index) => (
             <BingoCell
               key={`${activeBoardId}-${cell.id}`}
@@ -213,7 +217,7 @@ export default function BingoBoard() {
         </div>
       </div>
 
-      <p className="text-center text-[10px] font-medium text-t-dark-gray/50">
+      <p className="text-center text-[10px] font-medium text-t-muted">
         Tap a square to mark it. {quickMode ? 'Quick mode — no reflection prompts.' : 'Reflect mode — a quick check-in on each tap.'} Progress saves automatically.
       </p>
 
@@ -259,7 +263,7 @@ function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label
     <div className="glass-stat rounded-xl p-3">
       <div className="flex items-center gap-1.5">
         <span style={{ color: accent }}>{icon}</span>
-        <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray/60">{label}</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">{label}</p>
       </div>
       <p className="mt-1.5 text-lg font-black text-foreground">{value}</p>
     </div>

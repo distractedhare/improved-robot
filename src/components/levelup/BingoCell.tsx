@@ -156,7 +156,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
           )}
 
           <span
-            className={`block text-[8px] font-black uppercase tracking-[0.06em] leading-tight sm:text-[10px] ${
+            className={`block text-[9px] font-black uppercase tracking-[0.06em] leading-tight sm:text-[10px] ${
               completed ? 'text-white' : 'text-foreground'
             }`}
           >
@@ -187,7 +187,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
               <button
                 type="button"
                 onClick={handleSkipReflection}
-                className="absolute right-3 top-3 rounded-full p-1 text-t-dark-gray/40 hover:text-t-magenta"
+                className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-t-muted hover:text-t-magenta"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -202,13 +202,13 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {QUICK_REFLECTIONS[cell.category].map((text) => (
                     <button
                       key={text}
                       type="button"
                       onClick={() => handleQuickReflection(text)}
-                      className="focus-ring rounded-lg border px-2.5 py-1.5 text-[10px] font-bold transition-all"
+                      className="focus-ring min-h-[44px] rounded-lg border px-3 py-2.5 text-[11px] font-bold transition-all"
                       style={{
                         borderColor: style.border,
                         backgroundColor: style.bg,
@@ -223,7 +223,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
                 <button
                   type="button"
                   onClick={handleSkipReflection}
-                  className="w-full rounded-lg py-2 text-[10px] font-bold uppercase tracking-wider text-t-dark-gray/50 transition-colors hover:text-t-dark-gray"
+                  className="w-full min-h-[44px] rounded-lg py-2.5 text-[11px] font-bold uppercase tracking-wider text-t-muted transition-colors hover:text-t-dark-gray"
                 >
                   Skip — just mark it
                 </button>

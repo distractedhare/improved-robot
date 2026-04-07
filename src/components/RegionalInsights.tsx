@@ -97,12 +97,12 @@ export default function RegionalInsights({ region, state, currentCarrier }: Regi
           .map((threat, i) => (
             <div key={i} className="rounded-xl glass-card p-3 shadow-sm">
               <div className="flex items-start gap-2">
-                <Shield className="w-3 h-3 text-t-dark-gray/40 mt-0.5 shrink-0" />
+                <Shield className="w-3 h-3 text-t-muted mt-0.5 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-t-dark-gray/60 mb-0.5">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-t-dark-gray mb-0.5">
                     vs {threat.carrier}
                   </p>
-                  <p className="text-[10px] font-medium text-t-dark-gray/70 mb-1">{threat.threat}</p>
+                  <p className="text-[10px] font-medium text-t-dark-gray mb-1">{threat.threat}</p>
                   <p className="text-[11px] font-bold text-t-dark-gray leading-snug">{threat.counter}</p>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function RegionalInsights({ region, state, currentCarrier }: Regi
 
         {/* Local angles */}
         <div className="rounded-2xl glass-card p-4 shadow-sm">
-          <p className="text-[9px] font-black uppercase tracking-[0.16em] text-t-dark-gray/60 mb-2.5 flex items-center gap-1.5">
+          <p className="text-[9px] font-black uppercase tracking-[0.16em] text-t-dark-gray mb-2.5 flex items-center gap-1.5">
             <Wifi className="w-3 h-3 text-t-magenta" />
             Local Angles
           </p>

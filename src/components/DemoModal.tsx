@@ -82,7 +82,7 @@ export default function DemoModal({ isOpen, onClose, onSelectScenario }: DemoMod
               ))}
             </div>
 
-            <p className="text-[9px] text-center text-t-dark-gray/50 font-medium mt-4">
+            <p className="text-[9px] text-center text-t-muted font-medium mt-4">
               Pick one and we'll load it up — instant talking points, no typing.
             </p>
           </motion.div>

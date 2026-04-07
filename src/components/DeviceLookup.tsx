@@ -150,7 +150,7 @@ export default function DeviceLookup({
       {/* Selected devices chips */}
       {selectedDevices.length > 0 && (
         <div className="flex flex-wrap gap-1.5 items-center">
-          <span className="text-[8px] font-black uppercase tracking-widest text-t-dark-gray/40">Comparing:</span>
+          <span className="text-[9px] font-black uppercase tracking-widest text-t-muted">Comparing:</span>
           {selectedDevices.map(d => (
             <button
               type="button"
@@ -167,7 +167,7 @@ export default function DeviceLookup({
             <button
               type="button"
               onClick={onClearDevices}
-              className="focus-ring rounded text-[8px] font-black uppercase text-t-dark-gray/40 hover:text-t-magenta transition-colors"
+              className="focus-ring rounded text-[9px] font-black uppercase text-t-muted hover:text-t-magenta transition-colors"
             >
               Clear all
             </button>
@@ -177,7 +177,7 @@ export default function DeviceLookup({
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-dark-gray/40" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
         <input
           type="text"
           aria-label="Search devices"
@@ -236,7 +236,7 @@ export default function DeviceLookup({
                     </div>
                     <span className="text-xs font-black text-t-dark-gray truncate">{device.name}</span>
                   </div>
-                  <p className="text-[10px] text-t-dark-gray/60 font-medium mt-1 ml-6 line-clamp-2">
+                  <p className="text-[10px] text-t-dark-gray font-medium mt-1 ml-6 line-clamp-2">
                     {device.keySpecs}
                   </p>
                   <div className="flex items-center gap-2 mt-1.5 ml-6">
@@ -292,7 +292,7 @@ export function DeviceComparison({
           <table className="min-w-[760px] w-full text-xs">
             <thead>
               <tr className="border-b border-t-light-gray">
-                <th className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 w-24">Feature</th>
+                <th className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-muted w-24">Feature</th>
                 {devices.map(d => (
                   <th key={d.name} className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-magenta min-w-[120px]">
                     {d.name.split(' ').slice(-2).join(' ')}
@@ -325,7 +325,7 @@ export function DeviceComparison({
 function CompRow({ label, values }: { label: string; values: string[] }) {
   return (
     <tr className="border-b border-t-light-gray/50 last:border-0">
-      <td className="p-3 text-[10px] font-black uppercase text-t-dark-gray/50">{label}</td>
+      <td className="p-3 text-[10px] font-black uppercase text-t-muted">{label}</td>
       {values.map((v, i) => (
         <td key={i} className="p-3 text-xs font-bold text-t-dark-gray">{v}</td>
       ))}
@@ -363,7 +363,7 @@ export function DeviceDetail({
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">{device.category}</p>
           <h3 className="text-sm font-black text-t-dark-gray">{device.name}</h3>
-          <p className="text-[10px] text-t-dark-gray/60 font-medium mt-0.5">{device.keySpecs}</p>
+          <p className="text-[10px] text-t-dark-gray font-medium mt-0.5">{device.keySpecs}</p>
         </div>
         <p className="text-lg font-black text-t-magenta">
           {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
@@ -387,7 +387,7 @@ export function DeviceDetail({
         {summary.bestFit.slice(0, 3).map(fit => (
           <span
             key={fit}
-            className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray/70"
+            className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
           >
             {fit}
           </span>
@@ -425,19 +425,19 @@ export function DeviceDetail({
           icon={<Ear className="w-3 h-3" />}
           tone="neutral"
         >
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-2">Listen For</p>
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">Listen For</p>
           <div className="flex flex-wrap gap-2">
             {summary.listenFor.map(cue => (
               <span
                 key={cue}
-                className="rounded-xl border border-t-light-gray bg-surface-elevated px-2 py-1 text-[10px] font-bold text-t-dark-gray/80"
+                className="rounded-xl border border-t-light-gray bg-surface-elevated px-2 py-1 text-[10px] font-bold text-t-dark-gray"
               >
                 {cue}
               </span>
             ))}
           </div>
 
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mt-4 mb-2">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mt-4 mb-2">
             Best Fit
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -586,7 +586,7 @@ function DisclosureButton({ expanded, onToggle }: { expanded: boolean; onToggle:
             : 'Open backup language, tone guidance, and tech translation only if you need it.'}
         </p>
       </div>
-      <ChevronDown className={`w-4 h-4 shrink-0 text-t-dark-gray/50 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      <ChevronDown className={`w-4 h-4 shrink-0 text-t-muted transition-transform ${expanded ? 'rotate-180' : ''}`} />
     </button>
   );
 }

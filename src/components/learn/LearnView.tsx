@@ -172,7 +172,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-sm px-4'
-                    : 'text-t-dark-gray/60 hover:text-t-dark-gray px-2'
+                    : 'text-t-dark-gray hover:text-t-dark-gray px-2'
                 }`}
               >
                 <t.icon className="w-3 h-3 shrink-0" />
@@ -226,7 +226,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-xl transition-all ${
                   deviceCategory === cat.id
                     ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                    : 'text-t-dark-gray/50 hover:text-t-dark-gray'
+                    : 'text-t-muted hover:text-t-dark-gray'
                 }`}
               >
                 <cat.icon className="w-3 h-3" />
@@ -317,7 +317,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       {tab === 'practice' && (
         <div className="rounded-3xl p-5 glass-card glass-specular">
           <div className="mb-4">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray/50 mb-1">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
               Practice Mode
             </p>
             <p className="text-xs text-t-dark-gray font-medium">
