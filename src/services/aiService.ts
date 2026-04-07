@@ -17,8 +17,10 @@ import {
   getGemmaLoadingState,
   gemmaGenerateScript,
   gemmaAnalyzeObjection,
+  gemmaGenerateQuiz,
 } from './gemmaService';
 import type { GemmaLoadingState } from './gemmaService';
+import { getRandomQuestions, type QuizQuestion, type QuizCategory } from '../constants/quizQuestions';
 
 export type AIProvider = 'local' | 'gemma';
 
@@ -79,4 +81,27 @@ export async function analyzeObjection(
     }
   }
   return analyzeObjectionLocal(objection, context, script, selectedItems, weeklyData);
+}
+
+/**
+ * Generate quiz questions.
+ * Tries Gemma first (produces fresh, promo-aware questions),
+ * falls back to the static question bank.
+ */
+export async function generateQuizQuestions(
+  count: number,
+  categories: QuizCategory[],
+  weeklyData: WeeklyUpdate | null,
+): Promise<{ questions: QuizQuestion[]; source: 'gemma' | 'local' }> {
+  if (isGemmaAvailable()) {
+    try {
+      const questions = await gemmaGenerateQuiz(count, categories, weeklyData);
+      if (questions.length >= count) {
+        return { questions, source: 'gemma' };
+      }
+    } catch (err) {
+      console.warn('Gemma quiz generation failed, falling back to static bank:', err);
+    }
+  }
+  return { questions: getRandomQuestions(count, categories.length > 0 ? categories : undefined), source: 'local' };
 }

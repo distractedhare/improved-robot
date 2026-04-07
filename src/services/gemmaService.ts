@@ -9,6 +9,7 @@
 import { FilesetResolver, LlmInference } from '@mediapipe/tasks-genai';
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
+import type { QuizQuestion, QuizCategory } from '../constants/quizQuestions';
 
 // ---------------------------------------------------------------------------
 // Model configuration
@@ -352,4 +353,96 @@ export async function gemmaAnalyzeObjection(
   const prompt = buildObjectionPrompt(objection, context, script, selectedItems, weeklyData);
   const response = await llmInstance.generateResponse(prompt);
   return parseObjectionResponse(response);
+}
+
+// ---------------------------------------------------------------------------
+// Quiz question generation
+// ---------------------------------------------------------------------------
+
+function buildQuizPrompt(
+  count: number,
+  categories: QuizCategory[],
+  weeklyData: WeeklyUpdate | null,
+): string {
+  const catList = categories.length > 0 ? categories.join(', ') : 'sales, products, tmobile, competitors';
+
+  let weeklyContext = '';
+  if (weeklyData?.weeklyFocus) {
+    weeklyContext += `\nCURRENT WEEKLY FOCUS: ${weeklyData.weeklyFocus.headline}\n${weeklyData.weeklyFocus.context}`;
+  }
+  if (weeklyData?.currentPromos?.length) {
+    weeklyContext += '\nCURRENT PROMOS:\n' + weeklyData.currentPromos.slice(0, 5).map(p => `- ${p.name}: ${p.details}`).join('\n');
+  }
+  if (weeklyData?.competitiveIntel?.length) {
+    weeklyContext += '\nCOMPETITIVE INTEL:\n' + weeklyData.competitiveIntel.slice(0, 4).map(i => `- ${i.carrier}: ${i.talkingPoint}`).join('\n');
+  }
+  if (weeklyData?.planUpdates?.length) {
+    weeklyContext += '\nPLAN UPDATES:\n' + weeklyData.planUpdates.slice(0, 4).map(u => `- ${u.planName}: ${u.change}`).join('\n');
+  }
+
+  return `You are a T-Mobile Virtual Retail training coach. Generate ${count} multiple-choice quiz questions to test sales rep knowledge.
+
+CATEGORIES TO COVER: ${catList}
+- sales: selling techniques, discovery, closing, objection handling
+- products: device specs, plans, accessories, home internet
+- tmobile: T-Mobile advantages, network, perks, programs
+- competitors: AT&T, Verizon, cable companies, competitive positioning
+${weeklyContext}
+
+RULES:
+- Questions should be practical and scenario-based, not trivia
+- Each question has exactly 4 answer options
+- Only ONE option is correct
+- Explanations should teach WHY the answer matters on a real call
+- Mix difficulty levels (1=easy, 2=medium, 3=hard)
+- If weekly promos/intel are provided, make at least half the questions about current topics
+- Never reference specific customer PII
+
+Respond with ONLY valid JSON — an array of objects, no markdown, no extra text:
+[
+  {
+    "category": "sales|products|tmobile|competitors",
+    "question": "string",
+    "options": ["string", "string", "string", "string"],
+    "correctIndex": 0-3,
+    "explanation": "string",
+    "difficulty": 1|2|3
+  }
+]`;
+}
+
+function parseQuizResponse(raw: string, count: number): QuizQuestion[] {
+  const parsed = extractJSON(raw);
+  const arr = Array.isArray(parsed) ? parsed : [];
+
+  const validCategories = new Set(['sales', 'products', 'tmobile', 'competitors']);
+
+  return arr.slice(0, count).map((item: Record<string, unknown>, i: number) => {
+    const category = validCategories.has(String(item.category)) ? String(item.category) as QuizCategory : 'sales';
+    const options = ensureStringArray(item.options);
+    const correctIndex = typeof item.correctIndex === 'number' && item.correctIndex >= 0 && item.correctIndex < options.length
+      ? item.correctIndex : 0;
+    const difficulty = (item.difficulty === 1 || item.difficulty === 2 || item.difficulty === 3) ? item.difficulty : 2;
+
+    return {
+      id: `gemma-q-${Date.now()}-${i}`,
+      category,
+      question: String(item.question || `Question ${i + 1}`),
+      options: options.length === 4 ? options : ['Option A', 'Option B', 'Option C', 'Option D'],
+      correctIndex,
+      explanation: String(item.explanation || 'Review this topic for your next call.'),
+      difficulty: difficulty as 1 | 2 | 3,
+    };
+  });
+}
+
+export async function gemmaGenerateQuiz(
+  count: number,
+  categories: QuizCategory[],
+  weeklyData: WeeklyUpdate | null,
+): Promise<QuizQuestion[]> {
+  if (!llmInstance) throw new Error('Gemma not initialized');
+  const prompt = buildQuizPrompt(count, categories, weeklyData);
+  const response = await llmInstance.generateResponse(prompt);
+  return parseQuizResponse(response, count);
 }

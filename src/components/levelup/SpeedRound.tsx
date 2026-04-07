@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Check, Clock, RotateCcw, Sparkles, X, Zap } from 'lucide-react';
+import { Check, Clock, Loader2, RotateCcw, Sparkles, X, Zap } from 'lucide-react';
 import { QuizQuestion, getRandomQuestions, CATEGORY_META, QuizCategory } from '../../constants/quizQuestions';
 import { recordQuizScore } from '../../services/prizeService';
+import { generateQuizQuestions } from '../../services/aiService';
+import { isGemmaAvailable } from '../../services/gemmaService';
+import { getCachedWeeklyUpdate } from '../../services/localGenerationService';
 
 const ROUND_SIZE = 10;
 const ROUND_TIME = 90; // seconds
 
-type GameState = 'ready' | 'playing' | 'review';
+type GameState = 'ready' | 'generating' | 'playing' | 'review';
 
 interface AnswerRecord {
   questionId: string;
@@ -25,28 +28,47 @@ export default function SpeedRound() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<QuizCategory[]>([]);
+  const [quizSource, setQuizSource] = useState<'gemma' | 'local'>('local');
   const questionStartRef = useRef(Date.now());
   const timerRef = useRef<number | null>(null);
   const advanceTimerRef = useRef<number | null>(null);
 
   const currentQuestion = questions[currentIndex] ?? null;
+  const gemmaReady = isGemmaAvailable();
 
   const score = useMemo(() => {
     if (answers.length === 0) return 0;
     return Math.round((answers.filter((a) => a.correct).length / answers.length) * 100);
   }, [answers]);
 
-  const startRound = useCallback(() => {
-    const q = getRandomQuestions(ROUND_SIZE, selectedCategories.length > 0 ? selectedCategories : undefined);
-    setQuestions(q);
+  const startRound = useCallback(async () => {
     setCurrentIndex(0);
     setAnswers([]);
     setTimeLeft(ROUND_TIME);
     setSelectedAnswer(null);
     setShowExplanation(false);
+
+    if (gemmaReady) {
+      setState('generating');
+      try {
+        const weeklyData = getCachedWeeklyUpdate();
+        const result = await generateQuizQuestions(ROUND_SIZE, selectedCategories, weeklyData);
+        setQuestions(result.questions);
+        setQuizSource(result.source);
+      } catch {
+        // Fallback to static bank
+        setQuestions(getRandomQuestions(ROUND_SIZE, selectedCategories.length > 0 ? selectedCategories : undefined));
+        setQuizSource('local');
+      }
+    } else {
+      const q = getRandomQuestions(ROUND_SIZE, selectedCategories.length > 0 ? selectedCategories : undefined);
+      setQuestions(q);
+      setQuizSource('local');
+    }
+
     setState('playing');
     questionStartRef.current = Date.now();
-  }, [selectedCategories]);
+  }, [selectedCategories, gemmaReady]);
 
   // Clean up advance timer on unmount
   useEffect(() => {
@@ -118,6 +140,21 @@ export default function SpeedRound() {
     );
   };
 
+  // GENERATING STATE
+  if (state === 'generating') {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-16">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-t-magenta/10">
+          <Loader2 className="h-7 w-7 text-t-magenta animate-spin" />
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-bold text-foreground">Gemma is writing your quiz...</p>
+          <p className="mt-1 text-xs text-t-dark-gray">Fresh questions based on this week's promos</p>
+        </div>
+      </div>
+    );
+  }
+
   // READY STATE
   if (state === 'ready') {
     return (
@@ -169,7 +206,9 @@ export default function SpeedRound() {
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
-              Every question makes your next call sharper
+              {gemmaReady
+                ? 'Gemma 4 generates fresh questions from this week\u2019s promos'
+                : 'Every question makes your next call sharper'}
             </li>
           </ul>
         </div>
@@ -179,7 +218,7 @@ export default function SpeedRound() {
           onClick={startRound}
           className="focus-ring w-full rounded-xl bg-t-magenta py-3.5 text-sm font-black uppercase tracking-wider text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)] transition-transform hover:scale-[1.01] active:scale-[0.98]"
         >
-          Start Round
+          {gemmaReady ? 'Generate & Start' : 'Start Round'}
         </button>
       </div>
     );
@@ -201,9 +240,16 @@ export default function SpeedRound() {
               {timeLeft}s
             </span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
-            {currentIndex + 1} / {questions.length}
-          </span>
+          <div className="flex items-center gap-2">
+            {quizSource === 'gemma' && (
+              <span className="rounded-md bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-t-magenta">
+                AI Generated
+              </span>
+            )}
+            <span className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
+              {currentIndex + 1} / {questions.length}
+            </span>
+          </div>
         </div>
 
         {/* Progress bar */}
@@ -322,6 +368,11 @@ export default function SpeedRound() {
             ? 'You hit 70%+ — your Momentum Badge is locked in.'
             : `${finalScore}% — you need 70% for the badge. Try again!`}
         </p>
+        {quizSource === 'gemma' && (
+          <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-t-magenta">
+            AI-Generated Questions
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-2">
