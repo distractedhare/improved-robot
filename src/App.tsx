@@ -573,7 +573,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 py-6 md:p-10">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 py-4 md:px-10 md:py-6">
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
@@ -656,7 +656,7 @@ export default function App() {
         >
         <>
         {/* On-the-clock disclaimer */}
-        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
@@ -668,11 +668,11 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-3">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl p-4 lg:sticky lg:top-[60px] lg:z-[5] space-y-3 glass-card glass-shine glass-specular">
+            <section className="rounded-3xl p-4 lg:sticky lg:top-[56px] lg:z-[5] space-y-3 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
@@ -864,7 +864,7 @@ export default function App() {
           </div>
 
           {/* RIGHT PANEL — Tabs + Results */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-3">
             {/* Tabs — Plan + Objections */}
             <div
               role="tablist"
