@@ -573,7 +573,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 py-4 md:px-10 md:py-6">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 md:px-10 md:pt-2 pb-4">
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
@@ -672,7 +672,7 @@ export default function App() {
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-3">
             {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
-            <section className="rounded-3xl p-4 lg:sticky lg:top-[56px] lg:z-[5] space-y-3 glass-card glass-shine glass-specular">
+            <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
               <div>
                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
                   Why are they calling?
