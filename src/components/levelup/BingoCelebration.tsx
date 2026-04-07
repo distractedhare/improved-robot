@@ -78,7 +78,7 @@ export default function BingoCelebration({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 24 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-            className="relative z-[1] w-full max-w-md overflow-hidden rounded-[1.75rem] border border-t-magenta/20 bg-surface p-6 shadow-[0_30px_90px_rgba(0,0,0,0.2)]"
+            className="relative z-[1] w-full max-w-md overflow-hidden rounded-[1.75rem] glass-modal p-6"
           >
             <button
               type="button"
@@ -105,15 +105,15 @@ export default function BingoCelebration({
               </div>
 
               <div className="grid grid-cols-3 gap-3 text-left">
-                <div className="rounded-xl border border-t-light-gray bg-t-light-gray/20 p-3">
+                <div className="glass-stat rounded-xl p-3">
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Time</p>
                   <p className="mt-1 text-sm font-black text-foreground">{durationLabel}</p>
                 </div>
-                <div className="rounded-xl border border-t-light-gray bg-t-light-gray/20 p-3">
+                <div className="glass-stat rounded-xl p-3">
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Rows</p>
                   <p className="mt-1 text-sm font-black text-foreground">{rowCount}</p>
                 </div>
-                <div className="rounded-xl border border-t-light-gray bg-t-light-gray/20 p-3">
+                <div className="glass-stat rounded-xl p-3">
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray/55">Streak</p>
                   <p className="mt-1 text-sm font-black text-foreground">{streakCount} day{streakCount === 1 ? '' : 's'}</p>
                 </div>

@@ -51,7 +51,7 @@ const SALES_FUNDAMENTALS_CELLS: BingoCell[] = [
   makeCell('sf-recap', 'Recap Next', 'skill', 'Recapped the next steps before ending the call.', 'Count it when the customer leaves knowing exactly what happens next.', 'Example: you confirm shipping, order timing, and any follow-up steps.'),
   makeCell('sf-tradein', 'Trade-In', 'sales', 'Brought trade-in value into the conversation.', 'Count it when the trade-in meaningfully helps the close.', 'Example: you use the old phone value to soften a premium-device payment.'),
   makeCell('sf-autopay', 'AutoPay', 'sales', 'Included AutoPay in the value story.', 'Count it when AutoPay helps clarify the final monthly price.', 'Example: you explain the price with AutoPay already baked in.'),
-  makeCell('sf-name', 'Use Name', 'vibe', 'Used the customer’s name naturally.', 'Count it when you personalize the call without sounding robotic.', 'Example: you use their name in the opener and close.'),
+  makeCell('sf-name', 'Mirror Words', 'vibe', "Used the customer's own words back to them.", 'Count it when you repeat a phrase the customer said to show you were listening.', 'Example: they say "I just need something reliable" and you say "Let me find you the most reliable setup."'),
   makeCell('sf-reset-objection', 'Reset Calm', 'skill', 'Stayed calm and reset after pushback.', 'Count it when you slow the call down instead of sounding defensive.', 'Example: you acknowledge the concern, then guide the customer back to one clear option.'),
   makeCell('sf-upgrade-path', 'Upgrade Path', 'sales', 'Mapped the cleanest upgrade path.', 'Count it when you explain the best route without overcomplicating the account.', 'Example: you show whether upgrade, add-a-line, or switcher math lands best.'),
   makeCell('sf-add-line', 'Add Line', 'sales', 'Opened a real add-a-line angle.', 'Count it when you plant or close a connected voice-line opportunity.', 'Example: a family plan conversation turns into a kid-line discussion.'),
@@ -60,7 +60,7 @@ const SALES_FUNDAMENTALS_CELLS: BingoCell[] = [
   makeCell('sf-simple-language', 'Keep Simple', 'skill', 'Kept the language clean and non-jargony.', 'Count it when the explanation feels fast and customer-facing.', 'Example: you skip the internal lingo and use one clear monthly comparison.'),
   makeCell('sf-second-question', '2nd Q', 'skill', 'Asked one more discovery question than expected.', 'Count it when the extra question uncovers the real need.', 'Example: the second question reveals the customer really cares about hotspot and travel.'),
   makeCell('sf-fulfillment', 'Pickup/Ship', 'sales', 'Confirmed fulfillment cleanly.', 'Count it when shipping, pickup, or delivery is handled without confusion.', 'Example: you clarify whether the device arrives or is ready in-store.'),
-  makeCell('sf-close-clean', 'End Strong', 'vibe', 'Ended with confidence and gratitude.', 'Count it when the call ends feeling clear, calm, and complete.', 'Example: the customer knows you handled it and thanks you before hanging up.'),
+  makeCell('sf-close-clean', 'Callback Hook', 'vibe', 'Gave one specific reason the customer would call back.', 'Count it when you leave the customer with a reason to return even if they do not buy today.', 'Example: "That trade-in value is locked for 14 days — call me back anytime before then."'),
 ];
 
 const PRODUCT_PRO_CELLS: BingoCell[] = [
@@ -87,7 +87,7 @@ const PRODUCT_PRO_CELLS: BingoCell[] = [
   makeCell('pp-plan-compare', 'More vs Beyond', 'skill', 'Compared Experience More and Beyond clearly.', 'Count it when the customer understands the value gap quickly.', 'Example: you anchor Beyond on premium perks and More on strong daily value.'),
   makeCell('pp-value-pivot', 'Value Pivot', 'skill', 'Pivoted from flagship to value device cleanly.', 'Count it when you save the sale without sounding like a downgrade.', 'Example: you move from a premium phone to a smarter monthly fit.'),
   makeCell('pp-streaming-story', 'Perk Story', 'skill', 'Used streaming or bundle perks in a clean way.', 'Count it when perks help, but do not overwhelm the close.', 'Example: Hulu and Apple TV+ become part of the value math.'),
-  makeCell('pp-promo-verify', 'Verify Promo', 'vibe', 'Checked PromoHub or verified pricing before promising.', 'Count it when you protect the demo with a real verification step.', 'Example: you verify the latest offer before quoting the close.'),
+  makeCell('pp-promo-verify', 'Verify First', 'vibe', 'Checked PromoHub or verified pricing before quoting the customer.', 'Count it when you confirm the numbers are real before you say them out loud.', 'Example: you open PromoHub mid-call to double-check the offer before committing to a price.'),
 ];
 
 const CLOSERS_CLUB_CELLS: BingoCell[] = [
@@ -99,12 +99,12 @@ const CLOSERS_CLUB_CELLS: BingoCell[] = [
   makeCell('cc-hint-bill', 'Bill to HI', 'sales', 'Moved a billing conversation into Home Internet.', 'Count it when savings pain becomes a clean HINT pivot.', 'Example: after fixing the bill confusion, you compare internet spend and close HINT.'),
   makeCell('cc-premium-audio', 'Premium Audio', 'sales', 'Closed a premium audio add-on.', 'Count it when the customer takes the premium accessory, not just the basics.', 'Example: AirPods Pro or Buds Pro land because the use case fits perfectly.'),
   makeCell('cc-premium-bundle', 'Premium Bundle', 'sales', 'Closed a higher-value full bundle.', 'Count it when essentials plus one premium add-on land together.', 'Example: case, glass, charger, and audio all go on the same order.'),
-  makeCell('cc-assumption-close', 'Assume Close', 'skill', 'Used a confident assumption close.', 'Count it when you move naturally into the next step instead of asking timidly.', 'Example: "Perfect, I’ll lock in the black one and add the glass."'),
+  makeCell('cc-assumption-close', 'Assume Close', 'skill', 'Used a confident assumption close.', 'Count it when you move naturally into the next step instead of asking timidly.', "Example: \"Perfect, I'll lock in the black one and add the glass.\""),
   makeCell('cc-silence', 'Use Silence', 'skill', 'Held the silence after the close ask.', 'Count it when you resist filling the gap and let the customer decide.', 'Example: you ask for the order and stay quiet long enough for the yes.'),
   makeCell('cc-choice-close', 'Choice Close', 'skill', 'Used a choice close instead of yes/no.', 'Count it when the customer picks between two good options.', 'Example: you ask whether they want More or Beyond, not whether they want anything at all.'),
   makeCell('cc-payment-focus', 'Payment Fit', 'skill', 'Solved around the monthly payment target.', 'Count it when you reshape the offer around what they can really do today.', 'Example: trade-in, plan fit, or device pivot gets the monthly number in range.'),
   makeCell('cc-urgency-clean', 'Clean Urgency', 'skill', 'Created urgency without pressure.', 'Count it when you use timing cleanly and compliantly.', 'Example: you mention current promos ending without sounding pushy or made-up.'),
-  makeCell('cc-deescalate', 'De-Escalate', 'vibe', 'De-escalated first, then sold second.', 'Count it when you calm the room before trying to close anything.', 'Example: the caller starts hot, you reset the tone, then reopen the sales path.'),
+  makeCell('cc-deescalate', 'Reset Tone', 'vibe', 'Acknowledged the frustration before pivoting to solutions.', 'Count it when you name what the customer is feeling before you try to fix it.', 'Example: "I hear you — that charge is confusing. Let me pull it up and walk through it together."'),
   makeCell('cc-tech-to-sale', 'Tech to Sale', 'sales', 'Turned a service call into a real sales path.', 'Count it when fixing the issue naturally opens a valid recommendation.', 'Example: you solve a device problem, then close the upgrade or P360.'),
   makeCell('cc-warm-transfer', 'Warm Transfer', 'skill', 'Made a warm transfer that stayed usable.', 'Count it when the handoff includes real context and momentum.', 'Example: the next rep knows the need before the customer repeats the story.'),
   makeCell('cc-recovery-close', 'Recover Close', 'skill', 'Recovered after a rough moment and still closed.', 'Count it when the call slips but you recover cleanly.', 'Example: pricing confusion happens, you reset the numbers, and still win the order.'),
@@ -114,7 +114,7 @@ const CLOSERS_CLUB_CELLS: BingoCell[] = [
   makeCell('cc-contract-fear', 'No Contract', 'skill', 'Handled fear about lock-in or commitment.', 'Count it when you remove risk in a believable way.', 'Example: you use the test drive or flexibility story to calm the customer.'),
   makeCell('cc-savings-story', 'Savings Story', 'sales', 'Made the savings story feel real.', 'Count it when the caller can repeat the monthly or yearly value back to you.', 'Example: you stack plan, rebate, and internet savings into one clean story.'),
   makeCell('cc-next-question', 'Next Q', 'skill', 'Used one more question to reopen the close.', 'Count it when a single extra question uncovers the real blocker.', 'Example: "What still feels off about this option?" reopens the call.'),
-  makeCell('cc-finish-strong', 'Strong Finish', 'vibe', 'Finished the call sounding confident and helpful.', 'Count it when the customer leaves with momentum and clarity.', 'Example: even after a long conversation, the end still feels sharp and professional.'),
+  makeCell('cc-finish-strong', 'Recap & Next', 'vibe', 'Ended by restating exactly what happens next in one sentence.', 'Count it when the customer can repeat back the next step without asking.', 'Example: "Your Galaxy S25 ships tomorrow, you will get a tracking text, and your first bill with the new plan hits in 30 days."'),
 ];
 
 export const BINGO_BOARDS: BingoBoardDefinition[] = [

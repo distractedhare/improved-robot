@@ -6,6 +6,7 @@ const BINGO_STREAK_KEY = 'bingo-streak-v2';
 export interface BingoBoardProgress {
   completedCellIds: string[];
   completedAtByCell: Record<string, number>;
+  reflectionsByCell: Record<string, string>;
   celebratedRowKeys: string[];
   startedAt: number | null;
   completedAt: number | null;
@@ -97,6 +98,7 @@ function defaultProgress(): BingoBoardProgress {
   return {
     completedCellIds: [FREE_SPACE.id],
     completedAtByCell: {},
+    reflectionsByCell: {},
     celebratedRowKeys: [],
     startedAt: null,
     completedAt: null,
@@ -114,6 +116,12 @@ function normalizeProgress(raw: Partial<BingoBoardProgress> | null | undefined):
       ? Object.fromEntries(
           Object.entries(raw.completedAtByCell)
             .filter(([, value]) => typeof value === 'number' && Number.isFinite(value))
+        )
+      : {},
+    reflectionsByCell: raw?.reflectionsByCell && typeof raw.reflectionsByCell === 'object'
+      ? Object.fromEntries(
+          Object.entries(raw.reflectionsByCell)
+            .filter(([, value]) => typeof value === 'string')
         )
       : {},
     celebratedRowKeys: Array.isArray(raw?.celebratedRowKeys) ? raw.celebratedRowKeys.filter(Boolean) : [],
@@ -214,7 +222,7 @@ export function getBingoStats(boardId: string): BingoStats {
   };
 }
 
-export function toggleBingoCell(boardId: string, cellId: string): BingoToggleResult {
+export function toggleBingoCell(boardId: string, cellId: string, reflection?: string): BingoToggleResult {
   const board = getBoardLayout(boardId);
   const progress = getBoardProgress(boardId);
   const completedIds = new Set(progress.completedCellIds);
@@ -234,10 +242,14 @@ export function toggleBingoCell(boardId: string, cellId: string): BingoToggleRes
   if (wasCompleted) {
     completedIds.delete(cellId);
     delete progress.completedAtByCell[cellId];
+    delete progress.reflectionsByCell[cellId];
     progress.completedAt = null;
   } else {
     completedIds.add(cellId);
     progress.completedAtByCell[cellId] = now;
+    if (reflection) {
+      progress.reflectionsByCell[cellId] = reflection;
+    }
     progress.startedAt ??= now;
     updateStreak(now);
   }
