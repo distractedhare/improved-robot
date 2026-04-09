@@ -38,6 +38,7 @@ const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 import TroubleshootingPivot from './components/TroubleshootingPivot';
+import GuidedCallModal from './components/GuidedCallModal';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -130,6 +131,8 @@ export default function App() {
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
+
+  const [showGuidedModal, setShowGuidedModal] = useState(false);
 
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -485,6 +488,7 @@ export default function App() {
     setIntentTapped(true);
     setError(null);
     resetRotation();
+    setShowGuidedModal(true);
   }, [cancelInFlightRequests]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
@@ -571,6 +575,8 @@ export default function App() {
       setAnalyzing(false);
       setEnhancingPlan(false);
       setEnhancingObjection(false);
+    } else {
+      setShowGuidedModal(true);
     }
 
     setMode(nextMode);
@@ -1177,6 +1183,13 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      <GuidedCallModal
+        open={showGuidedModal}
+        onClose={() => setShowGuidedModal(false)}
+        context={context}
+        setContext={setContext}
+      />
     </div>
     </ErrorBoundary>
   );
