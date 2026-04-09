@@ -261,7 +261,7 @@ export default function App() {
     setObjectionResult(null);
     setSelectedObjections([]);
     setSelectedGamePlanItems([]);
-    if (intent === 'tech support' || intent === 'order support' || intent === 'account support') {
+    if (intent === 'tech support') {
       setActiveTab('troubleshoot');
     } else {
       setActiveTab('gameplan');
