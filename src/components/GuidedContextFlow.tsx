@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext } from '../types';
+import OrderSupportSelector, { OrderSupportType } from './OrderSupportSelector';
 
 interface GuidedContextFlowProps {
   context: SalesContext;
@@ -29,10 +30,10 @@ interface GuidedContextFlowProps {
   onComplete: () => void;
 }
 
-type Step = 'intent' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'age';
+type Step = 'intent' | 'hintCheck' | 'orderSupport' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'age';
 
 const SUPPORT_INTENTS = ['order support', 'tech support', 'account support'];
-const ALL_STEPS: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
+const ALL_STEPS: Step[] = ['intent', 'hintCheck', 'orderSupport', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
 
 export default function GuidedContextFlow({ context, setContext, onComplete }: GuidedContextFlowProps) {
   const [currentStep, setCurrentStep] = useState<Step>('intent');
@@ -55,9 +56,12 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
 
     let finalNextStep = nextStep;
 
-    // Support intents after hintCheck → skip straight to complete
+    // Support intents after hintCheck → order support gets sub-type step, others complete
     if (currentStep === 'hintCheck') {
-      if (isSupport || SUPPORT_INTENTS.includes(context.purchaseIntent || '')) {
+      const intent = context.purchaseIntent || '';
+      if (intent === 'order support') {
+        finalNextStep = 'orderSupport';
+      } else if (SUPPORT_INTENTS.includes(intent)) {
         finalNextStep = 'complete';
       } else {
         finalNextStep = 'product';
@@ -243,6 +247,33 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       </motion.div>
     );
   };
+
+  const renderOrderSupport = () => (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Order Issue</h2>
+        <p className="text-sm font-medium text-t-dark-gray">What kind of order support is needed?</p>
+      </div>
+      <OrderSupportSelector
+        value={context.orderSupportType ?? null}
+        onChange={(type: OrderSupportType) => {
+          setContext(prev => ({ ...prev, orderSupportType: type }));
+          setTimeout(() => onComplete(), 400);
+        }}
+      />
+      <button
+        onClick={() => onComplete()}
+        className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
+      >
+        Skip / Not Sure
+      </button>
+    </motion.div>
+  );
 
   const renderProduct = () => (
     <motion.div
@@ -590,6 +621,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
 
   // Build the visible steps for progress bar (filter out irrelevant steps)
   const getVisibleSteps = (): Step[] => {
+    if (context.purchaseIntent === 'order support') return ['intent', 'hintCheck', 'orderSupport'];
     if (isSupport) return ['intent', 'hintCheck'];
     const steps: Step[] = ['intent', 'hintCheck', 'product'];
     if (context.purchaseIntent === 'upgrade / add a line') steps.push('currentDevice');
@@ -638,6 +670,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           >
             {currentStep === 'intent' && renderIntent()}
             {currentStep === 'hintCheck' && renderHintCheck()}
+            {currentStep === 'orderSupport' && renderOrderSupport()}
             {currentStep === 'product' && renderProduct()}
             {currentStep === 'currentDevice' && renderCurrentDevice()}
             {currentStep === 'carrier' && renderCarrier()}

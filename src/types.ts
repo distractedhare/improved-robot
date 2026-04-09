@@ -11,6 +11,7 @@ export interface SalesContext {
   currentPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
   desiredPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
   hintAvailable?: boolean;
+  orderSupportType?: 'track_status' | 'modify_order' | 'return_exchange' | 'cancel_order' | 'payment_issue' | 'missing_damaged';
 }
 
 export interface StoreInfo {

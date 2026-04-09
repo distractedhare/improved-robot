@@ -993,7 +993,14 @@ export default function App() {
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+                <InstantPlays
+                  intent={context.purchaseIntent}
+                  age={context.age}
+                  product={context.product}
+                  ecosystemMatrix={ecosystemMatrix}
+                  orderSupportType={context.orderSupportType}
+                  onOrderSupportTypeChange={(type) => setContext(prev => ({ ...prev, orderSupportType: type }))}
+                />
               )}
 
               {/* Loading state */}

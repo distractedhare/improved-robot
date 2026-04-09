@@ -1,9 +1,10 @@
-import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Zap } from 'lucide-react';
+import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Zap, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ESSENTIALS_TABLE, BIG_ADDS, getRecommendedCategories, Intent } from '../data/essentialAccessories';
+import OrderSupportSelector, { OrderSupportType } from './OrderSupportSelector';
 
 type ProductType = 'Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product';
 
@@ -12,6 +13,8 @@ interface InstantPlaysProps {
   age?: string;
   product?: ProductType[];
   ecosystemMatrix?: EcosystemMatrix | null;
+  orderSupportType?: OrderSupportType | null;
+  onOrderSupportTypeChange?: (type: OrderSupportType) => void;
 }
 
 interface Play {
@@ -297,7 +300,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
   },
 };
 
-export default function InstantPlays({ intent, age, product, ecosystemMatrix }: InstantPlaysProps) {
+export default function InstantPlays({ intent, age, product, ecosystemMatrix, orderSupportType, onOrderSupportTypeChange }: InstantPlaysProps) {
   const plays = INTENT_PLAYS[intent];
   const showAccessories = isSalesIntent(intent);
   const isSupportCall = !showAccessories;
@@ -368,6 +371,21 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs font-medium text-t-dark-gray">{plays.subtitle}</p>
       </div>
+
+      {/* Order support sub-type selector */}
+      {intent === 'order support' && onOrderSupportTypeChange && (
+        <div className="rounded-2xl glass-card glass-shine p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Package className="w-4 h-4 text-t-magenta" />
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">What kind of order issue?</p>
+          </div>
+          <OrderSupportSelector
+            value={orderSupportType}
+            onChange={onOrderSupportTypeChange}
+            compact
+          />
+        </div>
+      )}
 
       {/* Plays */}
       <div className="rounded-2xl glass-card glass-shine glass-card-hover p-5 shadow-sm space-y-3">
