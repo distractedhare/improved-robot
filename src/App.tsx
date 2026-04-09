@@ -133,6 +133,7 @@ export default function App() {
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
 
   const [showGuidedModal, setShowGuidedModal] = useState(false);
+  const [guidedModalKey, setGuidedModalKey] = useState(0);
 
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -488,6 +489,7 @@ export default function App() {
     setIntentTapped(true);
     setError(null);
     resetRotation();
+    setGuidedModalKey(k => k + 1);
     setShowGuidedModal(true);
   }, [cancelInFlightRequests]);
 
@@ -1185,6 +1187,7 @@ export default function App() {
       </AnimatePresence>
 
       <GuidedCallModal
+        key={guidedModalKey}
         open={showGuidedModal}
         onClose={() => setShowGuidedModal(false)}
         context={context}
