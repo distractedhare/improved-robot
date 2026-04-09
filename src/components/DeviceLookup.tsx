@@ -214,40 +214,50 @@ export default function DeviceLookup({
         {filteredDevices.map((device, i) => {
           const selected = isSelected(device);
 
-          return (
-            <button
-              type="button"
-              key={i}
-              onClick={() => onToggleDevice(device)}
-              aria-pressed={selected}
-              className={`focus-ring w-full text-left p-3 rounded-xl border-2 transition-all ${
-                selected
-                  ? 'border-t-magenta bg-t-magenta/5 shadow-md'
-                  : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
-                      selected ? 'bg-t-magenta border-t-magenta' : 'border-t-light-gray'
-                    }`}>
-                      {selected && <span className="text-white text-[8px] font-black">✓</span>}
-                    </div>
-                    <span className="text-xs font-black text-t-dark-gray truncate">{device.name}</span>
+            return (
+              <button
+                type="button"
+                key={i}
+                onClick={() => onToggleDevice(device)}
+                aria-pressed={selected}
+                className={`focus-ring w-full text-left p-3 rounded-2xl border-2 transition-all ${
+                  selected
+                    ? 'border-t-magenta bg-t-magenta/5 shadow-md'
+                    : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Device Thumbnail */}
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-t-light-gray/20 shrink-0 border border-t-light-gray/50">
+                    <img
+                      src={`https://picsum.photos/seed/${device.name.replace(/\s+/g, '-').toLowerCase()}/200/200`}
+                      alt={device.name}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
-                  <p className="text-[10px] text-t-dark-gray font-medium mt-1 ml-6 line-clamp-2">
-                    {device.keySpecs}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5 ml-6">
-                    <span className="text-[10px] font-black text-t-magenta">
-                      {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
-                    </span>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
+                        selected ? 'bg-t-magenta border-t-magenta' : 'border-t-light-gray'
+                      }`}>
+                        {selected && <span className="text-white text-[8px] font-black">✓</span>}
+                      </div>
+                      <span className="text-xs font-black text-t-dark-gray truncate">{device.name}</span>
+                    </div>
+                    <p className="text-[10px] text-t-dark-gray font-medium mt-1 ml-6 line-clamp-1">
+                      {device.keySpecs}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1 ml-6">
+                      <span className="text-[10px] font-black text-t-magenta">
+                        {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </button>
-          );
+              </button>
+            );
         })}
       </div>
     </div>

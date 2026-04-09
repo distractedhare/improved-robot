@@ -45,6 +45,7 @@ export interface IntentPlaybook {
   keyMoves: string[];
   closingTips: string[];
   avoidMoves: string[];
+  oneLiners?: string[];
 }
 
 export interface TrendingItem {
@@ -163,6 +164,9 @@ export function getWeeklyUpdateValidationError(data: unknown): string | null {
     if (!isStringArray(playbook.keyMoves)) return `intentPlaybooks.${intent}.keyMoves must be an array of strings.`;
     if (!isStringArray(playbook.closingTips)) return `intentPlaybooks.${intent}.closingTips must be an array of strings.`;
     if (!isStringArray(playbook.avoidMoves)) return `intentPlaybooks.${intent}.avoidMoves must be an array of strings.`;
+    if (playbook.oneLiners !== undefined && !isStringArray(playbook.oneLiners)) {
+      return `intentPlaybooks.${intent}.oneLiners must be an array of strings when present.`;
+    }
   }
 
   if (data.planSellingGuide !== undefined) {

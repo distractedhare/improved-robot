@@ -225,10 +225,15 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     ? playbook.keyMoves
     : template.purchaseSteps;
 
+  // One-liners
+  const oneLiners = playbook?.oneLiners?.length
+    ? playbook.oneLiners
+    : template.oneLiners || [];
+
   // Coach's corner: keep it short and actionable
   const closingTip = playbook?.closingTips?.[0] || '';
   const avoidNote = playbook?.avoidMoves?.[0] || '';
-  const coachsCorner = closingTip
+  let coachsCorner = closingTip
     ? `${closingTip}${avoidNote ? ` Watch out: ${avoidNote}` : ''}`
     : template.coachsCorner;
 
@@ -244,6 +249,37 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
       }))
     : [{ category: 'Weekly Focus', text: weekly.weeklyFocus.headline }];
 
+  // HINT Unavailable Logic
+  if (context.hintAvailable === false) {
+    const isTMobile = context.currentCarrier === 'Not Specified';
+    if (isTMobile) {
+      valuePropositions.unshift("HINT Priority List: Secure their spot for the next rollout.");
+      valuePropositions.push("Pivot to BTS/IOT: Focus on SyncUP or Wearables while waiting for HINT.");
+      oneLiners.push("I'll get you on the HINT priority list today so you're first in line when we open more spots.");
+    } else {
+      valuePropositions.unshift("Early Phone Port: Switch phones now to lock in HINT priority later.");
+      oneLiners.push("Switching your phones today ensures you're at the top of the list for Home Internet as soon as it's ready.");
+      coachsCorner += " HINT is full. Build trust in the 5G mobile network first. Pitch the 5G mobile experience as a 'test drive' for their home internet needs, and emphasize that switching now guarantees them priority access when spots open up.";
+    }
+  }
+
+  // Family Plan Logic
+  if (context.familyCount && context.familyCount >= 3) {
+    valuePropositions.unshift(`Better Value Plan: 3+ lines for $140/mo — perfect for your family of ${context.familyCount}.`);
+    discoveryQuestions.push(`With ${context.familyCount} people, who uses the most data? We can optimize the lines individually.`);
+    oneLiners.push(`For a family of ${context.familyCount}, our Better Value plan is basically a volume discount on premium service.`);
+  }
+
+  // Platform Switching Logic
+  if (context.currentPlatform && context.desiredPlatform && context.currentPlatform !== context.desiredPlatform && context.currentPlatform !== 'Not Specified' && context.desiredPlatform !== 'Not Specified') {
+    const switchingTo = context.desiredPlatform;
+    const switchingFrom = context.currentPlatform;
+    valuePropositions.push(`Easy Switch to ${switchingTo}: We'll handle the data transfer from your ${switchingFrom} right here.`);
+    discoveryQuestions.push(`What's the main reason for the jump from ${switchingFrom} to ${switchingTo}?`);
+    oneLiners.push(`Moving from ${switchingFrom} to ${switchingTo} is way easier than it used to be — I'll walk you through the setup.`);
+    coachsCorner += ` Customer is switching platforms (${switchingFrom} -> ${switchingTo}). Emphasize data safety and ease of use.`;
+  }
+
   return {
     welcomeMessages,
     discoveryQuestions: [...new Set(discoveryQuestions)].slice(0, 8),
@@ -251,6 +287,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     objectionHandling,
     accessoryRecommendations: template.accessoryRecommendations || [],
     purchaseSteps,
+    oneLiners,
     coachsCorner,
     smallTalk: conversationBuilders,
     nearbyStores: [], // No longer available offline

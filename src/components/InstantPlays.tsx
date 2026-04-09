@@ -1,4 +1,4 @@
-import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star } from 'lucide-react';
+import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
@@ -14,54 +14,132 @@ interface InstantPlaysProps {
   ecosystemMatrix?: EcosystemMatrix | null;
 }
 
+interface Play {
+  title: string;
+  description: string;
+  talkTrack: string;
+}
+
 // Intent-specific play content
-const INTENT_PLAYS: Record<Intent, { subtitle: string; plays: string[] }> = {
+const INTENT_PLAYS: Record<Intent, { subtitle: string; plays: Play[] }> = {
   'exploring': {
     subtitle: 'Find the need. Don\'t pitch yet.',
     plays: [
-      'Ask what brought them in today — listen, don\'t sell.',
-      'Find the ONE thing they care about: price, phone, or coverage.',
-      'Check the address for Home Internet — every call.',
+      {
+        title: 'The "What Brings You In" Open',
+        description: 'Lower the pressure by acknowledging they might just be looking.',
+        talkTrack: '"Hey! No pressure at all — are you just exploring what\'s out there today, or did something specific catch your eye?"'
+      },
+      {
+        title: 'Identify the Friction',
+        description: 'Find the one thing they hate about their current setup.',
+        talkTrack: '"If you could change one thing about your current service or phone, what would it be? Is it the bill, the battery, or the coverage?"'
+      },
+      {
+        title: 'The Home Internet Seed',
+        description: 'Every customer is a potential HINT customer. Check availability early.',
+        talkTrack: '"While we\'re looking at that, let me check your address for our Home Internet. Most people are saving $20-40/mo switching from cable."'
+      },
     ],
   },
   'ready to buy': {
     subtitle: 'Confirm, stack value, close fast.',
     plays: [
-      'Confirm their choice, add P360 on every device.',
-      'Bundle 3+ accessories for 25% off — don\'t skip it.',
-      'Check the address for Home Internet before you wrap.',
+      {
+        title: 'The "Best Deal" Assurance',
+        description: 'Confirm their choice and reassure them they are getting the peak promo.',
+        talkTrack: '"Love that choice. You actually timed this perfectly — that\'s the best deal we have running right now. Let\'s get you set up."'
+      },
+      {
+        title: 'The P360 Protection Wrap',
+        description: 'Pitch protection as a logical part of the purchase, not an add-on.',
+        talkTrack: '"Since we\'re getting you a brand new device, I\'m going to include P360. It covers theft, loss, and screen breaks for $0. It\'s the best way to protect your investment."'
+      },
+      {
+        title: 'The Accessory Bundle Save',
+        description: 'Use the 25% discount to drive multi-item sales.',
+        talkTrack: '"Since you\'re getting the phone, if we grab a case and a screen protector, we can add a third item like a charger or audio and get 25% off all of them."'
+      },
     ],
   },
   'upgrade / add a line': {
     subtitle: 'Check trade-in. Review plan. Stack.',
     plays: [
-      'Check trade-in value and review their current plan.',
-      'Pitch connected devices — watch, tablet, SyncUP.',
-      'Check the address for Home Internet — easy add.',
+      {
+        title: 'The Trade-In Audit',
+        description: 'Check values for all devices on the account, not just the one they asked about.',
+        talkTrack: '"Let\'s see what your current phone is worth. We\'re taking devices in any condition right now, so even if it\'s cracked, it might be worth a lot."'
+      },
+      {
+        title: 'The $5 Add-On Pivot',
+        description: 'Pitch connected devices as a low-cost account enhancement.',
+        talkTrack: '"Did you know on your plan it\'s only $5/mo to add a watch or tablet? We have some free device deals that make it a no-brainer."'
+      },
+      {
+        title: 'The Plan Optimization',
+        description: 'Show how a plan move can unlock better device credits.',
+        talkTrack: '"If we move you to Experience Beyond, it actually unlocks an extra $400 in trade-in credit. The plan pays for the phone upgrade itself."'
+      },
     ],
   },
   'order support': {
     subtitle: 'Fix it first. Then find the angle.',
     plays: [
-      'Resolve the order issue — clear answer, clear ETA.',
-      'After the fix, check the address for Home Internet.',
-      'Plant a seed on plan upgrade or add-a-line, then move on.',
+      {
+        title: 'The Resolution Earn',
+        description: 'Earn the right to sell by being the hero on their order issue.',
+        talkTrack: '"I\'ve got you. I\'m going to track this order down and get you a clear answer. I know how annoying it is to be in limbo."'
+      },
+      {
+        title: 'The "While We Wait" HINT Check',
+        description: 'Use the system loading time to check Home Internet availability.',
+        talkTrack: '"While the system is pulling up your order details, let me check your address for Home Internet. It only takes a second and could save you a ton on your home bill."'
+      },
+      {
+        title: 'The Tracker Seed',
+        description: 'Pitch SyncUP Trackers for the new device they just ordered.',
+        talkTrack: '"Since you have that new [Device] coming, have you thought about a SyncUP Tracker? It\'s great for keeping an eye on your gear when you travel."'
+      },
     ],
   },
   'tech support': {
     subtitle: 'Fix the problem. Sell after, not during.',
     plays: [
-      'Fix the issue first — don\'t pitch mid-frustration.',
-      'After the fix: check P360 on the device.',
-      'Check the address for Home Internet before hanging up.',
+      {
+        title: 'The Empathy Fix',
+        description: 'Acknowledge the frustration before jumping into troubleshooting.',
+        talkTrack: '"I deal with this stuff all day — we\'ll get it sorted. I know it\'s frustrating when your tech isn\'t cooperating."'
+      },
+      {
+        title: 'The P360 Safety Net',
+        description: 'Use the current issue to highlight the value of protection.',
+        talkTrack: '"Now that we fixed it, I noticed you don\'t have P360. If this had been a hardware failure or a break, you\'d be looking at a full-price replacement. Want to add that safety net?"'
+      },
+      {
+        title: 'The Tablet Backup',
+        description: 'Pitch a cellular tablet as a backup for when their phone has issues.',
+        talkTrack: '"It\'s always good to have a backup. We have iPads for basically free right now — it\'s only $5/mo for the line. Great to have if your phone ever acts up again."'
+      },
     ],
   },
   'account support': {
     subtitle: 'Clarify the bill. Find savings.',
     plays: [
-      'Walk through the bill simply — never make them feel dumb.',
-      'Review the plan for savings or a better-fit tier.',
-      'Check the address for Home Internet — always.',
+      {
+        title: 'The Bill Breakdown',
+        description: 'Simplify the bill so they feel in control of their spending.',
+        talkTrack: '"Let\'s look at this together. I\'ll break down exactly what you\'re paying for so there are no surprises. My goal is to make sure you\'re only paying for what you use."'
+      },
+      {
+        title: 'The Plan Audit Pivot',
+        description: 'Find a plan that includes the perks they are already paying for.',
+        talkTrack: '"I see you\'re paying for Netflix and Hulu separately. If we move you to Experience Beyond, those are included. You\'d save about $30/mo right there."'
+      },
+      {
+        title: 'The 5-Year Price Lock Assurance',
+        description: 'Highlight the stability of T-Mobile pricing vs competitors.',
+        talkTrack: '"The best part about your plan is the 5-Year Price Guarantee. While other carriers are raising rates, your price is locked in. That\'s peace of mind."'
+      },
     ],
   },
 };
@@ -69,34 +147,62 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; plays: string[] }> = {
 const isSalesIntent = (intent: Intent) => ['exploring', 'ready to buy', 'upgrade / add a line'].includes(intent);
 
 // Product-specific context cards that overlay on top of intent plays
-const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Record<string, string[]> }> = {
+const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Record<string, Play[]> }> = {
   'Home Internet': {
     label: 'Home Internet',
     color: 'from-t-magenta to-t-berry',
     tips: {
       'exploring': [
-        'Check address first — everything depends on availability.',
-        'Ask what they pay now. Most cable customers overpay.',
+        {
+          title: 'The Address Check',
+          description: 'Availability is the first hurdle. Check it immediately.',
+          talkTrack: '"Let me check your address real quick. If you\'re in a good spot, we can get you off that cable bill today."'
+        },
+        {
+          title: 'The Cable Comparison',
+          description: 'Ask what they pay for cable internet to show the gap.',
+          talkTrack: '"What are you paying [Provider] right now? Most people are shocked when they see our $30-50 All-In price."'
+        },
       ],
       'ready to buy': [
-        'Push All-In ($55/mo w/ phone line) — streaming perks sell themselves.',
-        'Stack the value: up to $300 rebate + Month On Us + 15-day test drive.',
+        {
+          title: 'The All-In Upsell',
+          description: 'The $55 All-In tier is the best value with streaming perks.',
+          talkTrack: '"Since you\'re ready, I highly recommend the All-In tier. It includes Hulu and Paramount+, so it basically pays for itself."'
+        },
+        {
+          title: 'The 15-Day Test Drive',
+          description: 'Lower the risk of switching with the trial period.',
+          talkTrack: '"Remember, you have 15 days to try it out. If it\'s not the best internet you\'ve had, bring it back for a full refund. Zero risk."'
+        },
       ],
       'upgrade / add a line': [
-        'HINT with a voice line is $30-50/mo — run the savings vs their ISP.',
-        'All-In bundle ($55/mo) + streaming perks = over $480/year in value.',
+        {
+          title: 'The Voice Line Discount',
+          description: 'Highlight the $20/mo savings for existing voice customers.',
+          talkTrack: '"Since you already have a phone line with us, you get Home Internet for just $30-50/mo. It\'s the best deal in the house."'
+        },
       ],
       'order support': [
-        'Check order status, give a clear ETA, confirm gateway shipping.',
-        'After resolving: mention All-In tier if they are on a lower plan.',
+        {
+          title: 'The Gateway ETA',
+          description: 'Give a clear expectation of when they will be online.',
+          talkTrack: '"Your gateway is on its way. You should have it by [Date]. Once it arrives, setup takes about 15 minutes through the app."'
+        },
       ],
       'tech support': [
-        'Gateway fix: unplug 30 seconds, replug. Check placement near a window.',
-        'After resolving: check if they have the mesh extender (free on All-In).',
+        {
+          title: 'The Window Placement',
+          description: 'Placement is 90% of HINT performance.',
+          talkTrack: '"The best spot is usually near a window, ideally on a higher floor. Let\'s try moving it and see if those speeds jump up."'
+        },
       ],
       'account support': [
-        'Review their HINT tier — Rely customers often benefit from All-In.',
-        'Mention the 5-Year Price Guarantee — their rate is locked.',
+        {
+          title: 'The Price Lock Reminder',
+          description: 'Reassure them their rate won\'t go up like cable does.',
+          talkTrack: '"Unlike cable companies that hike your rate after 12 months, your T-Mobile price is locked for 5 years. No surprises."'
+        },
       ],
     },
   },
@@ -105,28 +211,46 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
     color: 'from-black to-t-berry',
     tips: {
       'exploring': [
-        'Tablet line is $20/mo, watch line is $10-15/mo — easy add-ons.',
-        'Match ecosystem: Apple Watch for iPhone, Galaxy Watch for Android.',
+        {
+          title: 'The $5 Line Hook',
+          description: 'The low monthly cost of adding a connected device.',
+          talkTrack: '"Most people don\'t realize it\'s only $5/mo to add a watch or tablet to your account. It\'s the cheapest way to stay connected."'
+        },
       ],
       'ready to buy': [
-        'Confirm device, add the line, pitch P360 on the new device.',
-        'SyncUP KIDS Watch 2 ($174, $10/mo) for parents wanting GPS tracking.',
+        {
+          title: 'The SyncUP KIDS Safety',
+          description: 'Pitch the kids watch as a safety tool for parents.',
+          talkTrack: '"For the kids, this watch is a game-changer. You can see where they are and call them, but they don\'t have the distractions of a full phone."'
+        },
       ],
       'upgrade / add a line': [
-        'Check which devices are due for upgrade on their account.',
-        'Watch trade-in values can be decent — always check first.',
+        {
+          title: 'The Watch Trade-In',
+          description: 'Check values for old watches to lower the cost of the new one.',
+          talkTrack: '"Let\'s see what your old watch is worth. We can usually stack that trade-in on top of the current promos."'
+        },
       ],
       'order support': [
-        'Verify both device and line are active — line sometimes activates first.',
-        'For watches: walk them through eSIM activation via the carrier app.',
+        {
+          title: 'The Activation Walkthrough',
+          description: 'Help them understand the eSIM process for watches.',
+          talkTrack: '"Once the watch arrives, we\'ll use the T-Mobile app to pair it. It uses an eSIM, so there\'s no physical card to worry about."'
+        },
       ],
       'tech support': [
-        'Watch issues: check phone proximity, Bluetooth, and watch plan status.',
-        'Tablet cellular issues: check SIM/eSIM, APN settings, line status.',
+        {
+          title: 'The Proximity Check',
+          description: 'Basic troubleshooting for watch connectivity.',
+          talkTrack: '"Is your phone nearby? Most watch issues are just a Bluetooth sync hiccup. Let\'s try a quick toggle and see if it reconnects."'
+        },
       ],
       'account support': [
-        'Review connected device lines — are they paying for unused lines?',
-        'If removing a line: check for remaining device payments first.',
+        {
+          title: 'The Unused Line Audit',
+          description: 'Check for old tablet/watch lines that can be repurposed.',
+          talkTrack: '"I see an old tablet line here that isn\'t being used. We could actually move that to a new iPad for basically nothing today."'
+        },
       ],
     },
   },
@@ -135,24 +259,39 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
     color: 'from-t-berry to-t-magenta',
     tips: {
       'exploring': [
-        'SyncUP Tracker ($5/mo) — pets, luggage, backpacks. Dead simple.',
-        'SyncUP DRIVE ($108 + $20/mo) — connected car with Wi-Fi and GPS.',
+        {
+          title: 'The Pet/Luggage Peace of Mind',
+          description: 'Pitch the tracker for high-stress scenarios.',
+          talkTrack: '"If you travel or have pets, this tracker is a lifesaver. It uses our cellular network, so it works everywhere, not just near other phones."'
+        },
       ],
       'ready to buy': [
-        'SyncUP Tracker is the easiest add — $5/mo, minimal setup.',
-        'SyncUP DRIVE: confirm vehicle is OBD-II compatible (2008+ usually).',
+        {
+          title: 'The SyncUP DRIVE Diagnostics',
+          description: 'Pitch the car tracker as a vehicle health tool.',
+          talkTrack: '"SyncUP DRIVE doesn\'t just track your car; it tells you why the check engine light is on. It\'s like having a mechanic in your pocket."'
+        },
       ],
       'order support': [
-        'Confirm activation status and shipping for tracker or DRIVE orders.',
-        'Franklin T10: make sure the data plan is attached correctly.',
+        {
+          title: 'The App Setup Prep',
+          description: 'Get them ready to use the SyncUP app.',
+          talkTrack: '"While your tracker is shipping, go ahead and download the SyncUP app. You can set up your profile and be ready to go the second it arrives."'
+        },
       ],
       'tech support': [
-        'Tracker not updating? Check the app, battery, and cellular coverage.',
-        'DRIVE not connecting? Confirm it is seated in the OBD-II port, vehicle running.',
+        {
+          title: 'The Geofence Fix',
+          description: 'Troubleshoot alert issues in the SyncUP app.',
+          talkTrack: '"If you aren\'t getting alerts, let\'s check your geofence settings in the app. Sometimes a small adjustment to the radius fixes everything."'
+        },
       ],
       'account support': [
-        'Review IoT lines — $5/mo tracker lines are easy to forget about.',
-        'DRIVE data plan: $20/mo for Magenta Drive plan.',
+        {
+          title: 'The $5 Tracker Value',
+          description: 'Remind them how cheap it is to keep their valuables safe.',
+          talkTrack: '"For $5/mo, you have real-time GPS on your most important gear. It\'s the cheapest insurance you can buy."'
+        },
       ],
     },
   },
@@ -206,11 +345,17 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70 mb-2">
               {ctx.label} — {intent}
             </p>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {tips.map((tip, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <ChevronRight className="w-3 h-3 text-white/70 mt-0.5 shrink-0" />
-                  <p className="text-[11px] font-medium text-white/90 leading-snug">{tip}</p>
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <ChevronRight className="w-3 h-3 text-white/70 shrink-0" />
+                    <p className="text-[11px] font-black uppercase tracking-wider text-white">{tip.title}</p>
+                  </div>
+                  <p className="text-[10px] text-white/80 leading-snug ml-5">{tip.description}</p>
+                  <div className="bg-white/10 rounded-lg p-2 ml-5 border border-white/10">
+                    <p className="text-[10px] font-bold text-white leading-snug">{tip.talkTrack}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -225,14 +370,27 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       </div>
 
       {/* Plays */}
-      <div className="rounded-2xl glass-card glass-shine glass-card-hover p-4 shadow-sm space-y-1.5">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">Quick plays</p>
-        {plays.plays.map((play, i) => (
-          <div key={i} className="flex items-start gap-2 py-1">
-            <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
-            <p className="text-xs text-t-dark-gray font-semibold leading-snug">{play}</p>
-          </div>
-        ))}
+      <div className="rounded-2xl glass-card glass-shine glass-card-hover p-5 shadow-sm space-y-3">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Quick plays</p>
+        <div className="space-y-4">
+          {plays.plays.map((play, i) => (
+            <div key={i} className="space-y-2 pb-4 border-b border-t-light-gray/30 last:border-0 last:pb-0">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
+                  <Zap className="w-3 h-3 text-t-magenta" />
+                </div>
+                <p className="text-xs font-black text-t-dark-gray uppercase tracking-tight">{play.title}</p>
+              </div>
+              <p className="text-[11px] text-t-dark-gray font-medium leading-snug ml-8">{play.description}</p>
+              <div className="bg-t-magenta/5 rounded-xl p-3 ml-8 border border-t-magenta/10 relative group">
+                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-t-magenta rounded-full opacity-50" />
+                <p className="text-xs font-bold text-t-magenta leading-relaxed">
+                  {play.talkTrack}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
 

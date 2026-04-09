@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Monitor, Moon, Sun, Trophy, UserPlus, Zap } from 'lucide-react';
+import { BookOpen, Monitor, Moon, Settings, Sun, Trophy, UserPlus, Zap, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export type AppMode = 'home' | 'live' | 'learn' | 'level-up';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings';
 
 type ThemePref = 'light' | 'dark' | 'auto';
 
@@ -16,6 +16,8 @@ const MODES = [
   { id: 'live' as const, icon: Zap, label: 'Live Call', helper: 'Fast talk tracks' },
   { id: 'learn' as const, icon: BookOpen, label: 'Learn', helper: 'Coaching library' },
   { id: 'level-up' as const, icon: Trophy, label: 'Level Up', helper: 'Bingo + practice' },
+  { id: 'offline-coach' as const, icon: Wifi, label: 'Offline Coach', helper: 'Local AI' },
+  { id: 'settings' as const, icon: Settings, label: 'Settings', helper: 'Config & Tools' },
 ] as const;
 
 function applyTheme(dark: boolean) {
@@ -140,7 +142,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
             role="tablist"
             className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
           >
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
               {MODES.map((item) => {
                 const isActive = mode === item.id;
                 return (

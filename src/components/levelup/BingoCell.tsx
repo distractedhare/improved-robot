@@ -8,7 +8,6 @@ interface BingoCellProps {
   completed: boolean;
   isWinning: boolean;
   onToggle: (reflection?: string) => void;
-  quickMode?: boolean;
 }
 
 const CATEGORY_STYLES = {
@@ -35,13 +34,24 @@ const CATEGORY_STYLES = {
   },
 } as const;
 
-const QUICK_REFLECTIONS: Record<string, string[]> = {
-  sales: ['Customer said yes', 'Mentioned it — no close yet', 'Missed the window'],
-  skill: ['Got a real response', 'Tried it — needs work', 'Skipped it this time'],
-  vibe: ['Changed the call tone', 'Did it naturally', 'Forced it — felt off'],
+const QUICK_REFLECTIONS: Record<string, { text: string; marks: boolean }[]> = {
+  sales: [
+    { text: 'Pitched it & Closed it 💰', marks: true },
+    { text: 'Shot my shot (They said no) 🤷‍♂️', marks: true },
+    { text: 'Missed the opportunity 🤦‍♂️', marks: false },
+  ],
+  skill: [
+    { text: 'Nailed it 🎯', marks: true },
+    { text: 'Forgot to do it 😬', marks: false },
+  ],
+  vibe: [
+    { text: 'Brought the energy 🔥', marks: true },
+    { text: 'Tried, but felt clunky 😅', marks: true },
+    { text: 'Totally blanked on it 👻', marks: false },
+  ],
 };
 
-export default function BingoCell({ cell, completed, isWinning, onToggle, quickMode = false }: BingoCellProps) {
+export default function BingoCell({ cell, completed, isWinning, onToggle }: BingoCellProps) {
   const isFree = cell.id === 'free-space';
   const style = CATEGORY_STYLES[cell.category];
   const [showReflection, setShowReflection] = useState(false);
@@ -55,23 +65,18 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
       return;
     }
 
-    // If quick mode or already completed, skip reflection
-    if (quickMode) {
-      onToggle();
-      return;
-    }
-
     setShowReflection(true);
   };
 
-  const handleQuickReflection = (text: string) => {
+  const handleQuickReflection = (option: { text: string; marks: boolean }) => {
     setShowReflection(false);
-    onToggle(text);
+    if (option.marks) {
+      onToggle(option.text);
+    }
   };
 
-  const handleSkipReflection = () => {
+  const handleCancel = () => {
     setShowReflection(false);
-    onToggle();
   };
 
   return (
@@ -82,7 +87,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
         aria-pressed={completed}
         aria-label={`${cell.label}: ${cell.description}`}
         whileTap={isFree ? undefined : { scale: 0.93 }}
-        className={`focus-ring glass-cell relative aspect-square overflow-hidden rounded-2xl p-1.5 text-center ${
+        className={`focus-ring glass-cell relative aspect-square overflow-hidden rounded-2xl p-1 sm:p-1.5 text-center ${
           isFree ? 'cursor-default' : 'cursor-pointer'
         }`}
         style={{
@@ -173,7 +178,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] flex items-center justify-center p-4"
-            onClick={handleSkipReflection}
+            onClick={handleCancel}
           >
             <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
             <motion.div
@@ -186,7 +191,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
             >
               <button
                 type="button"
-                onClick={handleSkipReflection}
+                onClick={handleCancel}
                 className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-t-muted hover:text-t-magenta"
               >
                 <X className="h-4 w-4" />
@@ -202,31 +207,23 @@ export default function BingoCell({ cell, completed, isWinning, onToggle, quickM
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {QUICK_REFLECTIONS[cell.category].map((text) => (
+                <div className="flex flex-col gap-2">
+                  {QUICK_REFLECTIONS[cell.category].map((option) => (
                     <button
-                      key={text}
+                      key={option.text}
                       type="button"
-                      onClick={() => handleQuickReflection(text)}
-                      className="focus-ring min-h-[44px] rounded-lg border px-3 py-2.5 text-[11px] font-bold transition-all"
+                      onClick={() => handleQuickReflection(option)}
+                      className="focus-ring min-h-[44px] rounded-lg border px-3 py-2.5 text-[12px] font-bold transition-all"
                       style={{
-                        borderColor: style.border,
-                        backgroundColor: style.bg,
-                        color: style.accent,
+                        borderColor: option.marks ? style.border : 'transparent',
+                        backgroundColor: option.marks ? style.bg : 'rgba(0,0,0,0.05)',
+                        color: option.marks ? style.accent : 'var(--t-dark-gray)',
                       }}
                     >
-                      {text}
+                      {option.text}
                     </button>
                   ))}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleSkipReflection}
-                  className="w-full min-h-[44px] rounded-lg py-2.5 text-[11px] font-bold uppercase tracking-wider text-t-muted transition-colors hover:text-t-dark-gray"
-                >
-                  Skip — just mark it
-                </button>
               </div>
             </motion.div>
           </motion.div>

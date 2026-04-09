@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Gamepad2, Briefcase, Heart } from 'lucide-react';
+import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Briefcase, Heart } from 'lucide-react';
 import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, HINT_QUICK_FACTS, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
 
 type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
@@ -10,21 +10,33 @@ export default function HomeInternetSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-6">
-        <div className="absolute top-0 right-0 opacity-10">
-          <Wifi className="w-36 h-36 -mt-6 -mr-6 text-white" />
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <Wifi className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
-        <div className="relative">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/60 mb-1">Biggest Push Right Now</p>
-          <h3 className="text-2xl font-black text-white mb-2">T-Mobile Home Internet</h3>
-          <p className="text-sm text-white/90 font-medium leading-relaxed max-w-lg">
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
+            <Home className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Biggest Push Right Now</p>
+          </div>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">T-Mobile Home Internet</h3>
+          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
             Check every address, every call. No data caps, no contracts, no equipment fees.
-            Up to $300 rebate + "Month On Us" promo active now.
+            <span className="text-white font-black"> Up to $300 rebate + "Month On Us" promo active now.</span>
           </p>
-          <div className="flex flex-wrap gap-2 mt-4">
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <DollarSign className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Zap className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Router className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
+            </div>
           </div>
         </div>
       </div>
@@ -45,14 +57,14 @@ export default function HomeInternetSection() {
       </div>
 
       {/* Section nav */}
-      <div className="flex rounded-2xl p-1 gap-1 overflow-x-auto glass-tab">
-        {([
+      <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
+        {[
           { id: 'plans' as Section, icon: DollarSign, label: 'Plans' },
           { id: 'selling' as Section, icon: MessageSquareQuote, label: 'How to Sell' },
           { id: 'objections' as Section, icon: Shield, label: 'Objections' },
           { id: 'competitors' as Section, icon: Globe, label: 'vs Competition' },
           { id: 'fiber' as Section, icon: Cable, label: 'Fiber' },
-        ]).map((s) => (
+        ].map((s) => (
           <button
             key={s.id}
             type="button"
@@ -72,7 +84,6 @@ export default function HomeInternetSection() {
       {/* Plans */}
       {activeSection === 'plans' && (
         <div className="space-y-4">
-          {/* Plan cards */}
           {HOME_INTERNET_PLANS.map((plan, idx) => {
             const tierConfig = [
               { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: ['Budget-conscious', 'Light browsing'], icon: Users },
@@ -81,93 +92,105 @@ export default function HomeInternetSection() {
             ][idx] || { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: [], icon: Users };
 
             return (
-            <div
-              key={plan.name}
-              className={`rounded-2xl border-2 p-5 ${
-                idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'glass-card'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="text-lg font-black text-t-dark-gray">{plan.name}</h4>
-                    <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
-                    {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
+              <div
+                key={plan.name}
+                className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${
+                  idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'glass-card'
+                }`}
+              >
+                {/* Plan Image */}
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src={`https://picsum.photos/seed/hint-${idx}/800/400`}
+                    alt={plan.name}
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h4 className="text-xl font-black text-white uppercase tracking-tight">{plan.name}</h4>
+                      <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
+                      {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
+                    </div>
+                    <p className="text-[11px] text-white/90 font-medium">{plan.bestFor}</p>
                   </div>
-                  <p className="text-[11px] text-t-dark-gray font-medium mt-0.5">{plan.bestFor}</p>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {tierConfig.customerTypes.map((ct) => (
-                      <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+                </div>
+
+                <div className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {tierConfig.customerTypes.map((ct) => (
+                        <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+                      ))}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-black text-t-magenta leading-none">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
+                      <p className="text-[10px] text-t-muted font-bold mt-1">w/ voice line</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-t-light-gray/30 rounded-xl p-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
+                      <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
+                    </div>
+                    <div className="bg-t-light-gray/30 rounded-xl p-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
+                      <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 mb-3">
+                    {plan.features.map((f, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-success-accent shrink-0" />
+                        <p className="text-[11px] text-t-dark-gray font-medium">{f}</p>
+                      </div>
                     ))}
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black text-t-magenta">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
-                  <p className="text-[10px] text-t-muted font-bold">w/ voice line</p>
-                  <p className="text-[10px] text-t-muted">${plan.standalonePrice}/mo standalone</p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="bg-t-light-gray/30 rounded-xl p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
-                  <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
-                </div>
-                <div className="bg-t-light-gray/30 rounded-xl p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
-                  <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 mb-3">
-                {plan.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-success-accent shrink-0" />
-                    <p className="text-[11px] text-t-dark-gray font-medium">{f}</p>
-                  </div>
-                ))}
-              </div>
-
-              {plan.includedPerks.length > 0 && (
-                <div className="bg-success-surface rounded-xl border border-success-border p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Included Perks</p>
-                  {plan.includedPerks.map((perk, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <Zap className="w-3 h-3 text-success-accent shrink-0" />
-                      <p className="text-[11px] text-success-foreground font-bold">{perk}</p>
+                  {plan.includedPerks.length > 0 && (
+                    <div className="bg-success-surface rounded-xl border border-success-border p-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Included Perks</p>
+                      {plan.includedPerks.map((perk, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Zap className="w-3 h-3 text-success-accent shrink-0" />
+                          <p className="text-[11px] text-success-foreground font-bold">{perk}</p>
+                        </div>
+                      ))}
+                      <p className="mt-2 text-[10px] font-medium text-success-foreground/70">Over $480/year in streaming & security value</p>
                     </div>
-                  ))}
-                  <p className="mt-2 text-[10px] font-medium text-success-foreground/70">Over $480/year in streaming & security value</p>
-                </div>
-              )}
+                  )}
 
-              {/* Mesh Router callout for All-In */}
-              {idx === 2 && (
-                <div className="bg-gradient-to-r from-t-magenta/10 to-t-berry/10 rounded-xl border-2 border-t-magenta/30 p-4 mt-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-t-magenta/20 flex items-center justify-center shrink-0">
-                      <Router className="w-5 h-5 text-t-magenta" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-tight text-t-magenta mb-1">The #1 Reason to Push All-In</p>
-                      <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
-                        The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
-                      </p>
-                      <p className="text-[11px] text-t-dark-gray font-medium mt-2 leading-relaxed">
-                        For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
-                      </p>
-                      <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
-                        <p className="text-sm font-bold leading-relaxed text-white">
-                          "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
-                        </p>
+                  {/* Mesh Router callout for All-In */}
+                  {idx === 2 && (
+                    <div className="bg-gradient-to-r from-t-magenta/10 to-t-berry/10 rounded-xl border-2 border-t-magenta/30 p-4 mt-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-t-magenta/20 flex items-center justify-center shrink-0">
+                          <Router className="w-5 h-5 text-t-magenta" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-tight text-t-magenta mb-1">The #1 Reason to Push All-In</p>
+                          <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
+                            The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
+                          </p>
+                          <p className="text-[11px] text-t-dark-gray font-medium mt-2 leading-relaxed">
+                            For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
+                          </p>
+                          <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
+                            <p className="text-sm font-bold leading-relaxed text-white">
+                              "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
-          );
+              </div>
+            );
           })}
 
           {/* Other products */}
@@ -264,11 +287,12 @@ export default function HomeInternetSection() {
         <div className="space-y-3">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">When They Push Back</p>
           {HINT_SELLING_FRAMEWORK.objectionHandlers.map((obj, i) => (
-            <CollapsibleCard key={i} title={obj.objection} defaultOpen={i === 0}>
+            <div key={i} className="rounded-2xl border-2 glass-card p-4">
+              <p className="text-sm font-black text-t-dark-gray mb-3">{obj.objection}</p>
               <div className="bg-t-dark-gray rounded-xl p-4 text-white">
                 <p className="text-sm font-bold leading-relaxed">{obj.response}</p>
               </div>
-            </CollapsibleCard>
+            </div>
           ))}
         </div>
       )}
@@ -278,7 +302,8 @@ export default function HomeInternetSection() {
         <div className="space-y-3">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Why T-Mobile Wins</p>
           {HINT_SELLING_FRAMEWORK.vsCompetitors.map((comp, i) => (
-            <CollapsibleCard key={i} title={`vs ${comp.competitor}`} defaultOpen={i === 0}>
+            <div key={i} className="rounded-2xl border-2 glass-card p-4">
+              <p className="text-sm font-black text-t-dark-gray mb-3">vs {comp.competitor}</p>
               <div className="space-y-2">
                 {comp.tmobileAdvantages.map((adv, j) => (
                   <div key={j} className="flex items-start gap-2">
@@ -287,7 +312,7 @@ export default function HomeInternetSection() {
                   </div>
                 ))}
               </div>
-            </CollapsibleCard>
+            </div>
           ))}
         </div>
       )}
@@ -342,23 +367,6 @@ export default function HomeInternetSection() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function CollapsibleCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="rounded-2xl border-2 glass-card overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-4 text-left"
-      >
-        <p className="text-sm font-black text-t-dark-gray">{title}</p>
-        {open ? <ChevronDown className="w-4 h-4 text-t-muted" /> : <ChevronRight className="w-4 h-4 text-t-muted" />}
-      </button>
-      {open && <div className="px-4 pb-4">{children}</div>}
     </div>
   );
 }

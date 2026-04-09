@@ -13,6 +13,7 @@ export interface BingoBoardDefinition {
   id: string;
   name: string;
   subtitle: string;
+  miniLesson: string;
   cells: BingoCell[];
 }
 
@@ -50,7 +51,7 @@ const SALES_FUNDAMENTALS_CELLS: BingoCell[] = [
   makeCell('sf-ask-sale', 'Ask Sale', 'skill', 'Made a direct close attempt.', 'Count it when you clearly ask for the order.', 'Example: "Want me to lock that in for you today?"'),
   makeCell('sf-recap', 'Recap Next', 'skill', 'Recapped the next steps before ending the call.', 'Count it when the customer leaves knowing exactly what happens next.', 'Example: you confirm shipping, order timing, and any follow-up steps.'),
   makeCell('sf-tradein', 'Trade-In', 'sales', 'Brought trade-in value into the conversation.', 'Count it when the trade-in meaningfully helps the close.', 'Example: you use the old phone value to soften a premium-device payment.'),
-  makeCell('sf-autopay', 'AutoPay', 'sales', 'Included AutoPay in the value story.', 'Count it when AutoPay helps clarify the final monthly price.', 'Example: you explain the price with AutoPay already baked in.'),
+  makeCell('sf-govt-paid', 'Govt to Paid', 'sales', 'Converted a Govt/Lifeline account to a standard paid line.', 'Count it when you successfully transition a customer from a subsidized plan to a standard paid line.', 'Example: you show the value of unlimited data and device promos on a paid plan.'),
   makeCell('sf-name', 'Mirror Words', 'vibe', "Used the customer's own words back to them.", 'Count it when you repeat a phrase the customer said to show you were listening.', 'Example: they say "I just need something reliable" and you say "Let me find you the most reliable setup."'),
   makeCell('sf-reset-objection', 'Reset Calm', 'skill', 'Stayed calm and reset after pushback.', 'Count it when you slow the call down instead of sounding defensive.', 'Example: you acknowledge the concern, then guide the customer back to one clear option.'),
   makeCell('sf-upgrade-path', 'Upgrade Path', 'sales', 'Mapped the cleanest upgrade path.', 'Count it when you explain the best route without overcomplicating the account.', 'Example: you show whether upgrade, add-a-line, or switcher math lands best.'),
@@ -77,10 +78,10 @@ const PRODUCT_PRO_CELLS: BingoCell[] = [
   makeCell('pp-samsung-eco', 'Samsung Eco', 'skill', 'Told a clean Samsung ecosystem story.', 'Count it when Galaxy devices feel built to work together.', 'Example: phone, watch, and Buds become one simple productivity pitch.'),
   makeCell('pp-pixel-eco', 'Pixel Eco', 'skill', 'Used Pixel + Google services as a story.', 'Count it when Pixel lands because the Google workflow fits them.', 'Example: photos, Gemini, and smart-home tie-ins make the pitch stronger.'),
   makeCell('pp-syncup-tracker', 'Tracker', 'sales', 'Recommended SyncUP Tracker naturally.', 'Count it when tracker feels useful instead of random.', 'Example: pets, luggage, or a kid backpack makes the $5 line make sense.'),
-  makeCell('pp-syncup-drive', 'DRIVE', 'sales', 'Recommended SyncUP DRIVE with a real need.', 'Count it when connected-car value is part of the story.', 'Example: a parent wants in-car Wi-Fi and location visibility.'),
+  makeCell('pp-full-house', 'Full House', 'sales', 'Sold a "Full House" (Phone + Watch + SyncUP/Tablet on one call).', 'Count it when you attach multiple connected devices to a single phone sale.', 'Example: you close a new iPhone, an Apple Watch, and a SyncUP Tracker in one basket.'),
   makeCell('pp-hotspot-use', 'Hotspot', 'skill', 'Used hotspot needs in the plan conversation.', 'Count it when hotspot demand clearly shapes the recommendation.', 'Example: travel or remote work points the customer to a stronger plan tier.'),
   makeCell('pp-kids-watch', 'Kids Watch', 'sales', 'Positioned a kids watch well.', 'Count it when the parent clearly sees the watch-line value.', 'Example: GPS and messaging land for a family that is not ready for a phone.'),
-  makeCell('pp-mesh-value', 'Mesh Value', 'skill', 'Used mesh/extender value in the HINT story.', 'Count it when better in-home coverage helps the pitch.', 'Example: the customer worries about dead zones and you position the extender.'),
+  makeCell('pp-blindside-hint', 'Blindside HINT', 'sales', 'Pitched and closed Home Internet on a call that had nothing to do with internet.', 'Count it when you successfully pivot a completely unrelated call into a HINT sale.', 'Example: a customer calls about a billing issue, and you close them on Home Internet.'),
   makeCell('pp-audio-upgrade', 'Audio Fit', 'sales', 'Matched the right audio add-on to the customer.', 'Count it when premium audio solves a real routine.', 'Example: commute, workouts, or work calls point to the right earbuds.'),
   makeCell('pp-charge-mount', 'Mount/Charge', 'sales', 'Used charging or mounting as the friction fixer.', 'Count it when convenience gear becomes the easy yes.', 'Example: you solve a dead-battery problem with charger + cable.'),
   makeCell('pp-case-glass', 'Case + Glass', 'sales', 'Explained why setup protection matters on day one.', 'Count it when the caller sees case and glass as essential, not optional.', 'Example: a new phone order leaves with both protection basics.'),
@@ -112,8 +113,8 @@ const CLOSERS_CLUB_CELLS: BingoCell[] = [
   makeCell('cc-three-objections', 'Beat Three', 'skill', 'Worked through three objections on one call.', 'Count it when you overcome repeated pushback without losing the tone.', 'Example: price, timing, and trust all show up, and you still land the order.'),
   makeCell('cc-competitor-reframe', 'Competitor Flip', 'skill', 'Reframed a competitor claim well.', 'Count it when you answer a competitor pitch with calm, relevant value.', 'Example: you answer an AT&T or Verizon claim with savings plus better fit.'),
   makeCell('cc-contract-fear', 'No Contract', 'skill', 'Handled fear about lock-in or commitment.', 'Count it when you remove risk in a believable way.', 'Example: you use the test drive or flexibility story to calm the customer.'),
-  makeCell('cc-savings-story', 'Savings Story', 'sales', 'Made the savings story feel real.', 'Count it when the caller can repeat the monthly or yearly value back to you.', 'Example: you stack plan, rebate, and internet savings into one clean story.'),
-  makeCell('cc-next-question', 'Next Q', 'skill', 'Used one more question to reopen the close.', 'Count it when a single extra question uncovers the real blocker.', 'Example: "What still feels off about this option?" reopens the call.'),
+  makeCell('cc-competitor-flip', 'Comp Flip', 'skill', 'Customer explicitly said they were leaving Verizon/AT&T because of your pitch.', 'Count it when your pitch directly causes a switcher to commit.', 'Example: "I was going to stay with Verizon, but you made this so easy."'),
+  makeCell('cc-save-cancel', 'Save Cancel', 'sales', 'Saved a cancellation by pivoting to a lower tier or connected device.', 'Count it when you retain a line that was about to cancel by finding a better fit.', 'Example: instead of canceling a tablet line, you pivot them to a $5 watch line.'),
   makeCell('cc-finish-strong', 'Recap & Next', 'vibe', 'Ended by restating exactly what happens next in one sentence.', 'Count it when the customer can repeat back the next step without asking.', 'Example: "Your Galaxy S25 ships tomorrow, you will get a tracking text, and your first bill with the new plan hits in 30 days."'),
 ];
 
@@ -122,18 +123,21 @@ export const BINGO_BOARDS: BingoBoardDefinition[] = [
     id: 'sales-fundamentals',
     name: 'Sales Fundamentals',
     subtitle: 'Win the clean, repeatable habits that make live calls feel easy.',
+    miniLesson: 'Stop leaving money on the table. Control the call from "hello", dig into their real pain points, and quote the full stack. This board is about owning the interaction, not just taking orders.',
     cells: SALES_FUNDAMENTALS_CELLS,
   },
   {
     id: 'product-pro',
     name: 'Product Pro',
     subtitle: 'Sharpen the stories that make devices, perks, and Home Internet feel obvious.',
+    miniLesson: 'Don\'t just sell a phone—sell the whole ecosystem. Listen for the lifestyle drop (kids, travel, gym) and attach the gear that makes sense. Turn a single upgrade into a massive basket.',
     cells: PRODUCT_PRO_CELLS,
   },
   {
     id: 'closers-club',
     name: "Closer's Club",
     subtitle: 'Practice the pivots, pressure-handling, and closes that move the room.',
+    miniLesson: "Time to get paid. When they push back, you pivot. Hold the silence, assume the sale, and turn 'I need to think about it' into 'Let's do it.' This board is for the heavy hitters.",
     cells: CLOSERS_CLUB_CELLS,
   },
 ];

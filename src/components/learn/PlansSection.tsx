@@ -1,40 +1,45 @@
 import { useState } from 'react';
-import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet } from 'lucide-react';
+import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS, RETIRED_PLANS } from '../../data/plans';
 
 type Section = 'phone' | 'connected' | 'specialized' | 'why-premium';
 
-const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: string; repInsight: string }> = {
+const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: string; repInsight: string; image: string }> = {
   'Experience Beyond': {
     tag: 'BEST',
     tagColor: 'bg-t-magenta text-white',
     bestFor: 'Power users, streamers, travelers, families who want everything. Customers who hate limits.',
     repInsight: 'Highest margin, lowest churn. These customers stay because they never hit a wall — no throttling, no "you used too much." They get Netflix + Hulu + Apple TV+, 250GB hotspot, yearly upgrades, and satellite. When they call back, it\'s to ADD lines, not complain. This is the plan you want every customer on.',
+    image: 'https://picsum.photos/seed/beyond/800/400',
   },
   'Experience More': {
     tag: 'BETTER',
     tagColor: 'bg-t-berry text-white',
     bestFor: 'Most customers. Great balance of premium features and price. The sweet spot.',
     repInsight: 'Your bread and butter. Same unlimited premium data as Beyond, Netflix + Apple TV+ included, 60GB hotspot, in-flight Wi-Fi. Covers 90% of what customers actually need. When someone says "I don\'t need ALL that" about Beyond, this is where you land them. Still a premium plan, still great metrics for you.',
+    image: 'https://picsum.photos/seed/more/800/400',
   },
   'Better Value': {
     tag: 'BEST VALUE',
     tagColor: 'bg-success-accent text-white',
     bestFor: 'Families with 3+ lines who qualify — switchers or long-tenure customers.',
     repInsight: 'This is your secret weapon for switchers. Beyond-level features at $46.67/line for 3 lines. The catch: they need 3+ lines AND either 2 port-ins (new) or 5+ years tenure (existing). If they qualify, it\'s an easy close — show the math vs what they\'re paying at AT&T/Verizon.',
+    image: 'https://picsum.photos/seed/value/800/400',
   },
   'Essentials': {
     tag: 'GOOD',
     tagColor: 'bg-t-dark-gray/60 text-white',
     bestFor: 'Price-sensitive customers, light users, seniors on a budget. Use as a last resort.',
     repInsight: 'Don\'t lead with this. It has deprioritized data (slow during congestion), 480p video, no hotspot worth using, and no in-flight Wi-Fi. If you put someone here who streams or hotspots, they\'ll call back frustrated. Only use when the customer truly can\'t afford More/Beyond and you\'d lose the sale entirely.',
+    image: 'https://picsum.photos/seed/essentials/800/400',
   },
   'Essentials Saver': {
     tag: 'BUDGET',
     tagColor: 'bg-t-dark-gray/40 text-white',
     bestFor: 'Absolute bottom dollar. Not eligible for most promos.',
     repInsight: 'Last resort only. Most device promos don\'t apply, data is heavily deprioritized, no perks. If a customer is on this plan, you\'re leaving money on the table AND they\'ll have a worse experience. Always try to move them up to at least Essentials.',
+    image: 'https://picsum.photos/seed/budget/800/400',
   },
 };
 
@@ -87,21 +92,33 @@ export default function PlansSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-berry to-t-magenta p-6">
-        <div className="absolute top-0 right-0 opacity-10">
-          <Crown className="w-36 h-36 -mt-6 -mr-6 text-white" />
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <Crown className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
-        <div className="relative">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/60 mb-1">Product Knowledge</p>
-          <h3 className="text-2xl font-black text-white mb-2">Plans Breakdown</h3>
-          <p className="text-sm text-white/90 font-medium leading-relaxed max-w-lg">
-            Know the tiers, know the value, know WHY premium plans are better for the customer AND for you.
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
+            <Sparkles className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Product Knowledge</p>
+          </div>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Plans Breakdown</h3>
+          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
+            Know the tiers, know the value, know <span className="text-white font-black underline decoration-white/40 underline-offset-4">WHY</span> premium plans are better for the customer AND for you.
             Every plan upgrade means happier customers and better metrics.
           </p>
-          <div className="flex flex-wrap gap-2 mt-4">
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Smartphone className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Watch className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Star className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
+            </div>
           </div>
         </div>
       </div>
@@ -123,12 +140,12 @@ export default function PlansSection() {
 
       {/* Section nav */}
       <div className="flex rounded-2xl p-1 glass-tab gap-1 overflow-x-auto">
-        {([
+        {[
           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },
           { id: 'connected' as Section, icon: Watch, label: 'Connected' },
           { id: 'specialized' as Section, icon: Users, label: 'Specialized' },
-        ]).map((s) => (
+        ].map((s) => (
           <button
             key={s.id}
             type="button"
@@ -158,7 +175,7 @@ export default function PlansSection() {
                   'No throttling. Ever. Their data is premium — they\'ll never get slowed down at a concert, sporting event, or busy area.',
                   'Streaming perks pay for themselves. Netflix + Hulu + Apple TV+ = ~$20/mo in value. That\'s basically the price difference from Essentials.',
                   'They can actually USE their hotspot. 60-250GB vs basically nothing on Essentials.',
-                  'In-flight Wi-Fi included. No more paying $8/hr on Southwest.',
+                  'In-flight Wi-Fi included. No more paying $8 per flight.',
                   'Satellite connectivity (Beyond) — texts go through even with zero bars in remote areas.',
                 ]},
                 { title: 'For you', points: [
@@ -285,11 +302,11 @@ export default function PlansSection() {
       {/* SPECIALIZED */}
       {activeSection === 'specialized' && (
         <div className="space-y-4">
-          {([
+          {[
             { title: '55+ Plans', icon: Users, content: SPECIALIZED_PLANS.senior.description },
             { title: 'Military & First Responder', icon: Shield, content: SPECIALIZED_PLANS.military.description },
             { title: 'Business Plans', icon: Briefcase, content: SPECIALIZED_PLANS.business.description },
-          ]).map((sp) => (
+          ].map((sp) => (
             <div key={sp.title} className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
               <div className="flex items-center gap-2 mb-2">
                 <sp.icon className="w-4 h-4 text-t-berry" />
@@ -329,101 +346,110 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
   const isBetter = tier.tag === 'BETTER' || tier.tag === 'BEST VALUE';
 
   return (
-    <div className={`rounded-2xl border-2 p-5 ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
+    <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
+      {/* Plan Image */}
+      <div className="relative h-40 overflow-hidden">
+        <img
+          src={tier.image}
+          alt={plan.name}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-4 left-5">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-base font-black uppercase tracking-tight">{plan.name}</h4>
+            <h4 className="text-xl font-black uppercase tracking-tight text-white">{plan.name}</h4>
             <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${tier.tagColor}`}>
               {tier.tag}
             </span>
           </div>
-          <p className="text-[11px] text-t-dark-gray font-medium">{tier.bestFor}</p>
+          <p className="text-[11px] text-white/90 font-medium">{tier.bestFor}</p>
         </div>
       </div>
 
-      {/* Pricing grid */}
-      <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
-        <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
-          <span>Lines</span>
-          <span className="text-right">Total</span>
-          <span className="text-right">Per Line</span>
-        </div>
-        {plan.pricing.map((p) => (
-          <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">
-            <span className="font-bold text-t-dark-gray">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
-            <span className="text-right font-bold text-t-dark-gray">${p.monthlyTotal}/mo</span>
-            <span className="text-right font-black text-t-magenta">${p.perLine.toFixed(2)}/line</span>
+      <div className="p-5">
+        {/* Pricing grid */}
+        <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
+          <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
+            <span>Lines</span>
+            <span className="text-right">Total</span>
+            <span className="text-right">Per Line</span>
           </div>
-        ))}
-        {plan.pricing.some(p => p.promoNote) && (
-          <div className="px-3 py-1.5 bg-success-surface border-t border-success-border">
-            <p className="text-[9px] font-bold text-success-foreground">
-              {plan.pricing.find(p => p.promoNote)?.promoNote}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Rep insight */}
-      <div className="bg-t-magenta/5 rounded-xl px-3 py-2.5 border border-t-magenta/10 mb-3">
-        <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
-        <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
-      </div>
-
-      {/* Expandable features */}
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
-      >
-        <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-3 space-y-1.5">
-              {plan.features.map((f, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
-                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{f}</p>
-                </div>
-              ))}
-              {plan.limitations && plan.limitations.length > 0 && (
-                <>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mt-3 mb-1">Limitations</p>
-                  {plan.limitations.map((l, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="text-warning-accent font-black text-xs mt-0.5">!</span>
-                      <p className="text-[11px] text-warning-foreground font-medium leading-snug">{l}</p>
-                    </div>
-                  ))}
-                </>
-              )}
-              {plan.eligibility && plan.eligibility.length > 0 && (
-                <>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-1">Eligibility</p>
-                  {plan.eligibility.map((e, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
-                      <p className="text-[11px] text-info-foreground font-medium leading-snug">{e}</p>
-                    </div>
-                  ))}
-                </>
-              )}
+          {plan.pricing.map((p) => (
+            <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">
+              <span className="font-bold text-t-dark-gray">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
+              <span className="text-right font-bold text-t-dark-gray">${p.monthlyTotal}/mo</span>
+              <span className="text-right font-black text-t-magenta">${p.perLine.toFixed(2)}/line</span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ))}
+          {plan.pricing.some(p => p.promoNote) && (
+            <div className="px-3 py-1.5 bg-success-surface border-t border-success-border">
+              <p className="text-[9px] font-bold text-success-foreground">
+                {plan.pricing.find(p => p.promoNote)?.promoNote}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Rep insight */}
+        <div className="bg-t-magenta/5 rounded-xl px-3 py-2.5 border border-t-magenta/10 mb-3">
+          <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
+          <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
+        </div>
+
+        {/* Expandable features */}
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
+        >
+          <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 space-y-1.5">
+                {plan.features.map((f, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{f}</p>
+                  </div>
+                ))}
+                {plan.limitations && plan.limitations.length > 0 && (
+                  <>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mt-3 mb-1">Limitations</p>
+                    {plan.limitations.map((l, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className="text-warning-accent font-black text-xs mt-0.5">!</span>
+                        <p className="text-[11px] text-warning-foreground font-medium leading-snug">{l}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {plan.eligibility && plan.eligibility.length > 0 && (
+                  <>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-1">Eligibility</p>
+                    {plan.eligibility.map((e, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
+                        <p className="text-[11px] text-info-foreground font-medium leading-snug">{e}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

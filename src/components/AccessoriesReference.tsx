@@ -200,6 +200,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                         {category.items.map(({ item, summary, outcomeLabel, matches }) => (
                           <AccessoryReferenceCard
                             key={item.name}
+                            name={item.name}
                             summary={summary}
                             outcomeLabel={outcomeLabel}
                             highlighted={outcomeFilter !== 'all' && matches}
@@ -268,6 +269,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
           {bigAddSummaries.map(({ item, summary, outcomeLabel, matches }) => (
             <AccessoryReferenceCard
               key={item.name}
+              name={item.name}
               summary={summary}
               outcomeLabel={outcomeLabel}
               highlighted={outcomeFilter !== 'all' && matches}
@@ -304,6 +306,7 @@ function AccessoryReferenceCard({
   dimmed,
   header,
   meta,
+  name,
 }: {
   summary: PositioningSummary;
   outcomeLabel: string;
@@ -311,6 +314,7 @@ function AccessoryReferenceCard({
   dimmed?: boolean;
   header: ReactNode;
   meta?: ReactNode;
+  name: string;
 }) {
   const callCue = summary.listenFor.slice(0, 2).join(' • ');
 
@@ -322,8 +326,21 @@ function AccessoryReferenceCard({
           ? 'border-t-light-gray/30 opacity-40'
           : 'border-t-light-gray/50'
     }`}>
-      {header}
-      {meta}
+      <div className="flex gap-3">
+        {/* Accessory Thumbnail */}
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-t-light-gray/20 shrink-0 border border-t-light-gray/50">
+          <img
+            src={`https://picsum.photos/seed/${name.replace(/\s+/g, '-').toLowerCase()}/100/100`}
+            alt={name}
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          {header}
+          {meta}
+        </div>
+      </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
         <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">

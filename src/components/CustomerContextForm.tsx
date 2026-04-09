@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, CheckCircle2, ChevronDown, MapPin } from 'lucide-react';
+import { User, CheckCircle2, ChevronDown, MapPin, Smartphone, Users, WifiOff, Sparkles, Wifi } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext } from '../types';
 import USMap from './USMap';
@@ -11,6 +11,7 @@ interface CustomerContextFormProps {
   showAge?: boolean;
   showLocation?: boolean;
   showCarrier?: boolean;
+  showSharperRead?: boolean;
   defaultLocationOpen?: boolean;
   locationLabel?: string;
   locationHint?: string;
@@ -24,12 +25,14 @@ export default function CustomerContextForm({
   showAge = true,
   showLocation = true,
   showCarrier = true,
+  showSharperRead = true,
   defaultLocationOpen = false,
   locationLabel = 'Location',
   locationHint,
   locationPanelId,
 }: CustomerContextFormProps) {
   const [locationOpen, setLocationOpen] = useState(defaultLocationOpen);
+  const [sharperReadOpen, setSharperReadOpen] = useState(true);
   const zipInputId = inline ? 'customer-zip-inline' : 'customer-zip';
   const resolvedLocationPanelId = locationPanelId || (inline ? 'location-panel-inline' : 'location-panel');
 
@@ -40,7 +43,7 @@ export default function CustomerContextForm({
       : null;
 
   const content = (
-    <div className="space-y-5">
+    <div className="space-y-6">
 
       {showAge && (
         <fieldset className="space-y-2">
@@ -175,6 +178,120 @@ export default function CustomerContextForm({
             ))}
           </div>
         </fieldset>
+      )}
+
+      {showSharperRead && (
+        <div className="space-y-4 pt-2 border-t border-t-light-gray/50">
+          <button
+            type="button"
+            onClick={() => setSharperReadOpen(!sharperReadOpen)}
+            className="flex items-center justify-between w-full group"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-t-magenta">Sharper Read</h3>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-t-muted transition-transform ${sharperReadOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {sharperReadOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-4 overflow-hidden"
+              >
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider flex items-center gap-1.5">
+                      <Smartphone className="w-3 h-3" /> Total Lines
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 4"
+                      value={context.totalLines || ''}
+                      onChange={(e) => setContext(prev => ({ ...prev, totalLines: parseInt(e.target.value) || undefined }))}
+                      className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-lg py-2.5 px-3 text-xs font-bold text-foreground transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider flex items-center gap-1.5">
+                      <Users className="w-3 h-3" /> Family Count
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 5"
+                      value={context.familyCount || ''}
+                      onChange={(e) => setContext(prev => ({ ...prev, familyCount: parseInt(e.target.value) || undefined }))}
+                      className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-lg py-2.5 px-3 text-xs font-bold text-foreground transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider">Current Platform</label>
+                    <select
+                      value={context.currentPlatform || 'Not Specified'}
+                      onChange={(e) => setContext(prev => ({ ...prev, currentPlatform: e.target.value as any }))}
+                      className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-lg py-2.5 px-3 text-xs font-bold text-foreground transition-all"
+                    >
+                      <option value="Not Specified">Not Specified</option>
+                      <option value="iOS">iOS (iPhone)</option>
+                      <option value="Android">Android</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-t-dark-gray uppercase tracking-wider">Desired Platform</label>
+                    <select
+                      value={context.desiredPlatform || 'Not Specified'}
+                      onChange={(e) => setContext(prev => ({ ...prev, desiredPlatform: e.target.value as any }))}
+                      className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-lg py-2.5 px-3 text-xs font-bold text-foreground transition-all"
+                    >
+                      <option value="Not Specified">Not Specified</option>
+                      <option value="iOS">iOS (iPhone)</option>
+                      <option value="Android">Android</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setContext(prev => ({ ...prev, hintAvailable: !prev.hintAvailable }))}
+                    className={`focus-ring w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                      context.hintAvailable === false
+                        ? 'bg-warning-surface border-warning-border text-warning-foreground'
+                        : 'bg-surface border-t-light-gray text-t-dark-gray'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {context.hintAvailable === false ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        HINT Availability
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                      context.hintAvailable === false ? 'bg-warning-accent text-white' : 'bg-t-light-gray text-t-dark-gray'
+                    }`}>
+                      {context.hintAvailable === false ? 'Unavailable' : 'Available'}
+                    </span>
+                  </button>
+                  {context.hintAvailable === false && (
+                    <p className="mt-2 text-[10px] font-medium text-warning-foreground/80 px-1">
+                      * Open spots full. Use waiting list & pivot to BTS/IOT or early phone port.
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       )}
     </div>
   );

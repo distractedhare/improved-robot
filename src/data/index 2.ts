@@ -15,6 +15,7 @@ import {
   CPNI_REMINDERS,
   SERVICE_TO_SALES,
   BTS_IOT_VALUE_PROPS,
+  ONE_LINERS,
 } from './salesMethodology';
 import { getVocabulary } from '../services/vocabularyService';
 
@@ -66,6 +67,11 @@ export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
   const primaryProduct = context.product[0] || 'No Specific Product';
   const purchaseSteps = PURCHASE_STEPS[primaryProduct] || PURCHASE_STEPS['No Specific Product'];
 
+  // One-liners
+  const oneLiners = getVocabulary('oneLiners', context.purchaseIntent)
+    || ONE_LINERS[context.purchaseIntent]
+    || ONE_LINERS['exploring'];
+
   // Coach's corner — support calls get service-to-sales tips
   const rapportTips = RAPPORT_BY_AGE[context.age] || RAPPORT_BY_AGE['Not Specified'];
   let coachsCorner = `Tone: ${rapportTips.tone} Good topics: ${rapportTips.topics.slice(0, 3).join(', ')}. Avoid: ${rapportTips.avoid[0]}.`;
@@ -84,6 +90,7 @@ export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
     objectionHandling,
     accessoryRecommendations: buildAccessoryRecommendations(context),
     purchaseSteps,
+    oneLiners,
     coachsCorner,
     smallTalk: [], // AI will fill this
     nearbyStores: [], // AI will fill this

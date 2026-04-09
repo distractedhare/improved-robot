@@ -6,6 +6,11 @@ export interface SalesContext {
   product: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[];
   purchaseIntent: 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
   currentCarrier?: 'AT&T' | 'Verizon' | 'Spectrum' | 'Xfinity' | 'US Cellular' | 'Prepaid (Mint, Boost, etc.)' | 'Other' | 'Not Specified';
+  totalLines?: number;
+  familyCount?: number;
+  currentPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
+  desiredPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
+  hintAvailable?: boolean;
 }
 
 export interface StoreInfo {
@@ -47,6 +52,7 @@ export interface SalesScript {
   }[];
   accessoryRecommendations: AccessoryRecommendation[];
   purchaseSteps: string[];
+  oneLiners: string[];
   coachsCorner: string;
   nearbyStores?: StoreInfo[];
   groundingSources?: GroundingSource[];

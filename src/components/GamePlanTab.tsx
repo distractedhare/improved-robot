@@ -1,6 +1,7 @@
 import {
   Sparkles, ArrowRight, Loader2, CheckCircle2, Target,
-  ChevronRight, ChevronDown, Zap, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users, Play
+  ChevronRight, ChevronDown, Zap, RefreshCw, MessageSquare, ShoppingBag, Tag, Shield, Users, Play,
+  ArrowRightLeft, Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -8,6 +9,11 @@ import { SalesContext, SalesScript, AccessoryRecommendation } from '../types';
 import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getDemoProductRecs, getCrossDemoPitches, getDemoSection, getDemoAccessoryRecs, DemoProductRec, DemoAccessoryRec } from '../services/ecosystemService';
+import CreditPivot from './CreditPivot';
+import PersonaTranslator from './PersonaTranslator';
+import PlanMathVisualizer from './PlanMathVisualizer';
+import DynamicAccessoryFlow from './DynamicAccessoryFlow';
+import { PHONES } from '../data/devices';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -103,8 +109,7 @@ export function GamePlanResults({
   onToggleItem, onReset, onSwitchToObjections,
   ecosystemMatrix,
 }: GamePlanResultsProps) {
-  const [showAcc, setShowAcc] = useState(false);
-  const [showDemoAcc, setShowDemoAcc] = useState(false);
+  const [activeTool, setActiveTool] = useState<'none' | 'credit' | 'persona' | 'math' | 'accessories'>('none');
 
   // Demographic-aware product recs from ecosystem matrix
   const demoRecs = useMemo(() => {
@@ -147,125 +152,83 @@ export function GamePlanResults({
       </div>
 
       {/* Welcome Messages */}
-      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
         </h3>
-        <div className="space-y-3">
-          {script.welcomeMessages.map((msg, i) => {
-            const isSelected = selectedGamePlanItems.includes(msg);
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => onToggleItem(msg)}
-                aria-pressed={isSelected}
-                className={`focus-ring w-full text-left group flex items-start gap-3 p-3 rounded-xl transition-colors border ${
-                  isSelected
-                    ? 'bg-t-magenta/10 border-t-magenta shadow-sm'
-                    : 'bg-surface border-transparent hover:border-t-light-gray hover:bg-t-light-gray/30'
-                }`}
-              >
-                <div className={`mt-1 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 transition-colors ${
-                  isSelected ? 'bg-t-magenta text-white' : 'bg-t-light-gray text-t-dark-gray group-hover:bg-t-magenta group-hover:text-white'
-                }`}>
-                  {isSelected ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
-                </div>
-                <p className={`text-sm font-bold leading-relaxed ${isSelected ? 'text-t-magenta' : 'text-t-dark-gray'}`}>{msg}</p>
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {script.welcomeMessages.map((msg, i) => (
+            <WelcomeFlipCard key={i} message={msg} index={i} />
+          ))}
         </div>
       </div>
 
+      {/* One-Liners */}
+      {script.oneLiners && script.oneLiners.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+            <MessageSquare className="w-3 h-3" /> Quick One-Liners
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {script.oneLiners.map((line, i) => (
+              <OneLinerFlipCard key={i} line={line} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Discovery Questions */}
-      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {script.discoveryQuestions.slice(0, 4).map((q, i) => {
-            const isSelected = selectedGamePlanItems.includes(q);
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => onToggleItem(q)}
-                aria-pressed={isSelected}
-                className={`focus-ring text-left p-4 rounded-2xl border text-sm font-bold flex items-start gap-2 transition-all ${
-                  isSelected
-                    ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
-                    : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
-                }`}
-              >
-                {isSelected ? (
-                  <CheckCircle2 className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
-                )}
-                {q}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {script.discoveryQuestions.slice(0, 4).map((q, i) => (
+            <DiscoveryFlipCard key={i} question={q} />
+          ))}
         </div>
       </div>
 
       {/* Value Props */}
-      <div className="rounded-3xl glass-card glass-shine glass-card-hover p-6 shadow-sm">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+      <div className="space-y-4">
+        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
-        <div className="space-y-3">
-          {script.valuePropositions.slice(0, 4).map((prop, i) => {
-            const isSelected = selectedGamePlanItems.includes(prop);
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => onToggleItem(prop)}
-                aria-pressed={isSelected}
-                className={`focus-ring w-full text-left text-xs p-3 rounded-xl border font-bold transition-all flex items-start gap-2 ${
-                  isSelected
-                    ? 'bg-t-magenta/10 border-t-magenta text-t-magenta shadow-sm'
-                    : 'bg-t-light-gray/20 border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
-                }`}
-              >
-                {isSelected && <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                {prop}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {script.valuePropositions.slice(0, 4).map((prop, i) => (
+            <ValuePropFlipCard key={i} prop={prop} />
+          ))}
         </div>
       </div>
 
       {/* Demographic Product Recommendations */}
       {demoRecs.length > 0 && demoSection && (
-        <div className="rounded-3xl glass-card p-6 shadow-sm space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
-          <p className="mb-3 text-[10px] font-medium text-t-dark-gray">
+          <p className="px-1 text-[10px] font-medium text-t-dark-gray/60">
             {demoSection.trustLanguage}
           </p>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {demoRecs.map((rec, i) => (
-              <DemoRecCard key={`${rec.name}-${i}`} rec={rec} />
+              <DemoRecFlipCard key={`${rec.name}-${i}`} rec={rec} />
             ))}
           </div>
 
           {/* Cross-demographic: P360 + T-Life */}
           {crossDemo && (
-            <div className="space-y-2 pt-3 border-t border-t-light-gray">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {crossDemo.p360 && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-t-magenta/5 border border-t-magenta/10">
-                  <Shield className="w-3.5 h-3.5 text-t-magenta mt-0.5 shrink-0" />
-                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{crossDemo.p360}</p>
+                <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10">
+                  <Shield className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-t-dark-gray font-bold leading-snug">{crossDemo.p360}</p>
                 </div>
               )}
               {crossDemo.tLife && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-info-surface border border-info-border">
-                  <Sparkles className="w-3.5 h-3.5 text-info-accent mt-0.5 shrink-0" />
-                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{crossDemo.tLife}</p>
+                <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-info-surface border border-info-border">
+                  <Sparkles className="w-4 h-4 text-info-accent mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-t-dark-gray font-bold leading-snug">{crossDemo.tLife}</p>
                 </div>
               )}
             </div>
@@ -274,79 +237,131 @@ export function GamePlanResults({
       )}
 
       {demoAccessoryRecs.length > 0 && demoSection && (
-        <div className="rounded-3xl glass-card shadow-sm overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setShowDemoAcc(!showDemoAcc)}
-            className="focus-ring w-full flex items-center justify-between p-6"
-          >
-            <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
-              <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessory angles for {demoSection.label} ({demoAccessoryRecs.length})
-            </h3>
-            <ChevronDown className={`w-4 h-4 text-t-muted transition-transform ${showDemoAcc ? 'rotate-180' : ''}`} />
-          </button>
-          <AnimatePresence>
-            {showDemoAcc && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="overflow-hidden"
-              >
-                <div className="px-6 pb-6 space-y-3">
-                  {demoAccessoryRecs.map((rec) => (
-                    <DemoAccessoryCard key={rec.category} rec={rec} />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Top {demoSection.label} Accessories
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {demoAccessoryRecs.map((rec, i) => (
+              <DemoAccessoryFlipCard key={i} rec={rec} />
+            ))}
+          </div>
         </div>
       )}
 
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
-        <div className="rounded-3xl glass-card shadow-sm overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setShowAcc(!showAcc)}
-            className="focus-ring w-full flex items-center justify-between p-6"
-          >
-            <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
-              <ShoppingBag className="w-3 h-3 text-t-magenta" /> Accessories to Pitch ({script.accessoryRecommendations.length})
-            </h3>
-            <ChevronDown className={`w-4 h-4 text-t-muted transition-transform ${showAcc ? 'rotate-180' : ''}`} />
-          </button>
-          <AnimatePresence>
-            {showAcc && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="overflow-hidden"
-              >
-                <div className="px-6 pb-6 space-y-4">
-                  {/* Bundle deal banner */}
-                  <div className="bg-gradient-to-r from-t-magenta to-t-berry rounded-2xl p-4 text-white">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Tag className="w-4 h-4" />
-                      <p className="text-xs font-black uppercase tracking-wider">{ESSENTIAL_BUNDLE_DEAL.headline}</p>
-                    </div>
-                    <p className="text-[11px] font-medium opacity-90">{ESSENTIAL_BUNDLE_DEAL.pitch}</p>
-                  </div>
-                  <div className="space-y-3">
-                    {script.accessoryRecommendations.map((rec, i) => (
-                      <AccessoryCard key={i} rec={rec} />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+            <ShoppingBag className="w-3 h-3 text-t-magenta" /> Recommended Accessories
+          </h3>
+          <DynamicAccessoryFlow recommendations={script.accessoryRecommendations} />
         </div>
       )}
+
+      {/* Interactive Sales Tools Section */}
+      <div className="space-y-4 pt-4 border-t border-t-light-gray">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+            <Sparkles className="w-3 h-3 text-t-magenta" /> Interactive Sales Tools
+          </h3>
+          <span className="text-[8px] font-black text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+            Gemini Powered
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button
+            onClick={() => setActiveTool(activeTool === 'credit' ? 'none' : 'credit')}
+            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'credit' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            }`}
+          >
+            <ArrowRightLeft className={`w-5 h-5 ${activeTool === 'credit' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <span className="text-[9px] font-black uppercase tracking-tight">Credit Pivot</span>
+          </button>
+          <button
+            onClick={() => setActiveTool(activeTool === 'persona' ? 'none' : 'persona')}
+            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'persona' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            }`}
+          >
+            <Users className={`w-5 h-5 ${activeTool === 'persona' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <span className="text-[9px] font-black uppercase tracking-tight">Persona Pitch</span>
+          </button>
+          <button
+            onClick={() => setActiveTool(activeTool === 'math' ? 'none' : 'math')}
+            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'math' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            }`}
+          >
+            <Calculator className={`w-5 h-5 ${activeTool === 'math' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <span className="text-[9px] font-black uppercase tracking-tight">Plan Math</span>
+          </button>
+          <button
+            onClick={() => setActiveTool(activeTool === 'accessories' ? 'none' : 'accessories')}
+            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'accessories' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            }`}
+          >
+            <ShoppingBag className={`w-5 h-5 ${activeTool === 'accessories' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <span className="text-[9px] font-black uppercase tracking-tight">Acc. Flow</span>
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTool === 'credit' && (
+            <motion.div
+              key="credit"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <CreditPivot 
+                targetDevice={PHONES.find(p => context.product.some(prod => p.name.includes(prod))) || null} 
+                onClose={() => setActiveTool('none')}
+              />
+            </motion.div>
+          )}
+          {activeTool === 'persona' && (
+            <motion.div
+              key="persona"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <PersonaTranslator 
+                baseText={script.valuePropositions[0] || "This device features the latest 5G technology and a stunning display."}
+                deviceName={context.product.join(', ')}
+              />
+            </motion.div>
+          )}
+          {activeTool === 'math' && (
+            <motion.div
+              key="math"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <PlanMathVisualizer lineCount={3} />
+            </motion.div>
+          )}
+          {activeTool === 'accessories' && (
+            <motion.div
+              key="accessories"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <DynamicAccessoryFlow recommendations={script.accessoryRecommendations || []} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Next Steps */}
       <div className="rounded-3xl p-5 shadow-sm" style={{ background: 'var(--bg-surface-primary)', border: '2px solid var(--border-surface-strong)' }}>
@@ -386,61 +401,247 @@ export function GamePlanResults({
   );
 }
 
-function AccessoryCard({ rec }: { rec: AccessoryRecommendation }) {
+function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <div className={`p-4 rounded-2xl border-2 transition-all ${
-      rec.bundleEligible
-        ? 'border-t-magenta/30 bg-t-magenta/5'
-        : 'border-t-light-gray bg-t-light-gray/10'
-    }`}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          {rec.bundleEligible ? (
-            <Tag className="w-3 h-3 text-t-magenta shrink-0" />
-          ) : rec.name === 'Protection 360' ? (
-            <Shield className="w-3 h-3 text-t-magenta shrink-0" />
-          ) : (
-            <ShoppingBag className="w-3 h-3 text-t-muted shrink-0" />
-          )}
-          <span className="text-xs font-black text-t-dark-gray uppercase tracking-wide">{rec.name}</span>
-          {rec.bundleEligible && (
+    <div className="relative h-[120px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+          <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
-              25% off w/ 3+
+              {CATEGORY_LABELS[rec.category] ?? rec.category}
             </span>
-          )}
-        </div>
-        <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed ml-5">
-          {rec.why}
-        </p>
-
-        {/* Verified prices */}
-        {rec.verifiedPrices && rec.verifiedPrices.length > 0 && (
-          <div className="ml-5 mt-2 space-y-1">
-            {rec.verifiedPrices.map((vp, i) => (
-              <div key={i} className="flex items-center gap-2 text-[10px]">
-                <span className="font-bold text-t-dark-gray">{vp.item}:</span>
-                {vp.salePrice ? (
-                  <>
-                    <span className="line-through text-t-muted">{vp.fullPrice}</span>
-                    <span className="font-black text-t-magenta">{vp.salePrice}</span>
-                  </>
-                ) : (
-                  <span className="font-black text-t-magenta">{vp.fullPrice}</span>
-                )}
-              </div>
-            ))}
+            <span className="text-xs font-black text-t-dark-gray">{rec.name}</span>
           </div>
-        )}
-
-        <div className="flex items-center gap-3 mt-2 ml-5">
-          {!rec.verifiedPrices?.length && (
-            <span className="text-[10px] font-black text-t-magenta">{rec.priceRange}</span>
-          )}
-          <span className="text-[9px] text-t-muted font-bold">
-            {rec.brands.slice(0, 3).join(' · ')}
-          </span>
+          <p className="text-[11px] text-t-dark-gray font-bold leading-snug">
+            {rec.pitch}
+          </p>
         </div>
-      </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">Why this?</p>
+          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+            This product is a top choice for this demographic because it delivers on their specific needs for reliability and value.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="relative h-[160px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+              {rec.category}
+            </span>
+            <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
+              {rec.items.join(' • ')}
+            </span>
+          </div>
+          <p className="text-[11px] text-t-dark-gray font-black leading-snug">
+            {rec.pitch}
+          </p>
+        </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">The "Why"</p>
+          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+            {rec.why}
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function OneLinerFlipCard({ line }: { line: string }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="relative h-[100px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-t-magenta/20 bg-t-magenta/5">
+          <div className="flex items-center gap-2 mb-1">
+            <Zap className="w-3 h-3 text-t-magenta" />
+            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Quick Hit</p>
+          </div>
+          <p className="text-xs font-black text-t-dark-gray leading-tight">
+            "{line}"
+          </p>
+        </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">When to use</p>
+          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+            Drop this when the customer is on the fence or needs a quick reason to say yes.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function WelcomeFlipCard({ message, index }: { message: string, index: number }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="relative h-[120px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-5 rounded-full bg-t-magenta text-white text-[10px] font-black flex items-center justify-center">
+              {index + 1}
+            </div>
+            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Opening Hook</p>
+          </div>
+          <p className="text-sm font-bold text-t-dark-gray leading-tight">
+            {message}
+          </p>
+        </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Pro Tip</p>
+          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+            Smile while you say this! Your energy sets the tone for the entire interaction.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function DiscoveryFlipCard({ question }: { question: string }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="relative h-[120px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-3 h-3 text-t-magenta" />
+            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Discovery Question</p>
+          </div>
+          <p className="text-xs font-bold text-t-dark-gray leading-tight">
+            {question}
+          </p>
+        </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Why ask this?</p>
+          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+            This helps uncover hidden needs and builds rapport by showing you care about their specific situation.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function ValuePropFlipCard({ prop }: { prop: string }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="relative h-[140px] perspective-1000">
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="w-full h-full cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        {/* FRONT */}
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-5 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-t-magenta/10 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-t-magenta" />
+            </div>
+            <p className="text-[10px] font-black text-t-magenta uppercase tracking-widest">Key Value Prop</p>
+          </div>
+          <p className="text-sm font-black text-t-dark-gray leading-tight">
+            {prop}
+          </p>
+          <div className="mt-auto flex items-center justify-between text-[9px] font-black text-t-muted uppercase tracking-widest">
+            <span>Tap for talk track</span>
+            <ChevronRight className="w-3 h-3" />
+          </div>
+        </div>
+
+        {/* BACK */}
+        <div 
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-5 flex flex-col justify-center border-2 border-t-magenta/30"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">How to pitch it</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
+            "The best part about this is how it fits into your daily routine. You're getting the speed you need without any of the typical compromises."
+          </p>
+          <div className="mt-auto text-[9px] font-black text-t-magenta uppercase tracking-widest">
+            Tap to return
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -452,40 +653,3 @@ const CATEGORY_LABELS: Record<string, string> = {
   iotProducts: 'IoT / Connected',
   accessories: 'Accessory',
 };
-
-function DemoRecCard({ rec }: { rec: DemoProductRec }) {
-  return (
-    <div className="p-3 rounded-xl border border-t-light-gray bg-t-light-gray/10 hover:border-t-magenta/30 transition-all">
-      <div className="flex items-center gap-2 mb-1.5">
-        <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
-          {CATEGORY_LABELS[rec.category] ?? rec.category}
-        </span>
-        <span className="text-xs font-black text-t-dark-gray">{rec.name}</span>
-      </div>
-      <p className="text-[11px] text-t-dark-gray font-medium leading-snug ml-0.5">
-        {rec.pitch}
-      </p>
-    </div>
-  );
-}
-
-function DemoAccessoryCard({ rec }: { rec: DemoAccessoryRec }) {
-  return (
-    <div className="bg-t-light-gray/10 border border-t-light-gray rounded-xl p-3 space-y-2">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
-          {rec.category}
-        </span>
-        <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
-          {rec.items.join(' • ')}
-        </span>
-      </div>
-      <p className="text-[11px] text-t-dark-gray font-bold leading-snug break-words">
-        {rec.pitch}
-      </p>
-      <p className="text-[10px] text-t-dark-gray font-medium leading-relaxed break-words">
-        {rec.why}
-      </p>
-    </div>
-  );
-}

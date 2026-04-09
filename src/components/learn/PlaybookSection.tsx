@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, ChevronUp, MessageCircle, Target, ArrowRightLeft, Users, PhoneForwarded } from 'lucide-react';
+import { MessageCircle, Target, ArrowRightLeft, Users, PhoneForwarded, BookOpen } from 'lucide-react';
 import {
   DISCOVERY_QUESTIONS,
   OBJECTION_TEMPLATES,
@@ -10,23 +8,38 @@ import {
   TRANSITIONS,
 } from '../../data/salesMethodology';
 
-type PlaybookCard = 'discovery' | 'objections' | 'closing' | 'rapport' | 'pivots';
-
 export default function PlaybookSection() {
-  const [expanded, setExpanded] = useState<PlaybookCard | null>(null);
-
-  const toggle = (card: PlaybookCard) =>
-    setExpanded(prev => (prev === card ? null : card));
-
   return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
-          Sales Playbook
-        </p>
-        <p className="text-xs text-t-dark-gray font-medium">
-          Your cheat sheet. Discovery questions, objection comebacks, closing lines, and pivot techniques — all in one place.
-        </p>
+    <div className="space-y-5">
+      {/* Hero banner */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <BookOpen className="w-64 h-64 -mt-10 -mr-10 text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
+            <Target className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sales Playbook</p>
+          </div>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The Winning Playbook</h3>
+          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
+            Your cheat sheet. Discovery questions, objection comebacks, closing lines, and pivot techniques — all in one place.
+          </p>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <MessageCircle className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Discovery</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <ArrowRightLeft className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Pivots</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Users className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Rapport</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-info-border bg-info-surface p-4">
@@ -42,14 +55,16 @@ export default function PlaybookSection() {
       </div>
 
       {/* Discovery Questions */}
-      <CollapsibleCard
-        id="discovery"
-        icon={<MessageCircle className="w-4 h-4" />}
-        title="Discovery Questions"
-        subtitle="By product category"
-        expanded={expanded === 'discovery'}
-        onToggle={() => toggle('discovery')}
-      >
+      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
+            <MessageCircle className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-tight">Discovery Questions</p>
+            <p className="text-[10px] font-medium text-t-dark-gray">By product category</p>
+          </div>
+        </div>
         <div className="space-y-4">
           {Object.entries(DISCOVERY_QUESTIONS).map(([category, questions]) => (
             <div key={category}>
@@ -65,28 +80,30 @@ export default function PlaybookSection() {
             </div>
           ))}
         </div>
-      </CollapsibleCard>
+      </div>
 
       {/* Objection Frameworks */}
-      <CollapsibleCard
-        id="objections"
-        icon={<Target className="w-4 h-4" />}
-        title="Objection Comebacks"
-        subtitle={`${Object.keys(OBJECTION_TEMPLATES).length} common pushbacks`}
-        expanded={expanded === 'objections'}
-        onToggle={() => toggle('objections')}
-      >
+      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
+            <Target className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-tight">Objection Comebacks</p>
+            <p className="text-[10px] font-medium text-t-dark-gray">{Object.keys(OBJECTION_TEMPLATES).length} common pushbacks</p>
+          </div>
+        </div>
         <div className="space-y-4">
           {Object.entries(OBJECTION_TEMPLATES).map(([objection, data]) => (
-            <div key={objection} className="p-3 rounded-xl bg-surface border border-t-light-gray">
-              <p className="text-[10px] font-black uppercase tracking-wider text-error-accent mb-1">
+            <div key={objection} className="rounded-xl border border-t-light-gray bg-surface p-3">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-error-accent">
                 &ldquo;{objection}&rdquo;
               </p>
-              <p className="text-xs font-bold text-t-dark-gray mb-2">{data.rebuttal}</p>
+              <p className="mb-2 text-xs font-bold text-t-dark-gray">{data.rebuttal}</p>
               <ul className="space-y-1">
                 {data.talkingPoints.map((tp, i) => (
-                  <li key={i} className="text-[11px] text-t-dark-gray font-medium flex gap-2">
-                    <span className="text-t-magenta/50 shrink-0">&bull;</span>
+                  <li key={i} className="flex gap-2 text-[11px] font-medium text-t-dark-gray">
+                    <span className="shrink-0 text-t-magenta/50">&bull;</span>
                     <span>{tp}</span>
                   </li>
                 ))}
@@ -94,17 +111,19 @@ export default function PlaybookSection() {
             </div>
           ))}
         </div>
-      </CollapsibleCard>
+      </div>
 
       {/* Closing Techniques */}
-      <CollapsibleCard
-        id="closing"
-        icon={<ArrowRightLeft className="w-4 h-4" />}
-        title="Closing Lines"
-        subtitle="By call type"
-        expanded={expanded === 'closing'}
-        onToggle={() => toggle('closing')}
-      >
+      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
+            <ArrowRightLeft className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-tight">Closing Lines</p>
+            <p className="text-[10px] font-medium text-t-dark-gray">By call type</p>
+          </div>
+        </div>
         <div className="space-y-4">
           {Object.entries(CLOSING_TECHNIQUES).map(([intent, lines]) => (
             <div key={intent}>
@@ -137,17 +156,19 @@ export default function PlaybookSection() {
             ))}
           </div>
         </div>
-      </CollapsibleCard>
+      </div>
 
       {/* Rapport by Age */}
-      <CollapsibleCard
-        id="rapport"
-        icon={<Users className="w-4 h-4" />}
-        title="Rapport by Age"
-        subtitle="Tone, topics, and what to avoid"
-        expanded={expanded === 'rapport'}
-        onToggle={() => toggle('rapport')}
-      >
+      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
+            <Users className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-tight">Rapport by Age</p>
+            <p className="text-[10px] font-medium text-t-dark-gray">Tone, topics, and what to avoid</p>
+          </div>
+        </div>
         <div className="space-y-4">
           {Object.entries(RAPPORT_BY_AGE)
             .filter(([age]) => age !== 'Not Specified')
@@ -176,17 +197,19 @@ export default function PlaybookSection() {
             </div>
           ))}
         </div>
-      </CollapsibleCard>
+      </div>
 
       {/* Service-to-Sales Pivots */}
-      <CollapsibleCard
-        id="pivots"
-        icon={<PhoneForwarded className="w-4 h-4" />}
-        title="Support → Sales Pivots"
-        subtitle="Turn every support call into revenue"
-        expanded={expanded === 'pivots'}
-        onToggle={() => toggle('pivots')}
-      >
+      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
+            <PhoneForwarded className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-tight">Support → Sales Pivots</p>
+            <p className="text-[10px] font-medium text-t-dark-gray">Turn every support call into revenue</p>
+          </div>
+        </div>
         <div className="space-y-4">
           {Object.entries(SERVICE_TO_SALES).map(([intent, data]) => (
             <div key={intent} className="p-3 rounded-xl bg-surface border border-t-light-gray">
@@ -202,62 +225,7 @@ export default function PlaybookSection() {
             </div>
           ))}
         </div>
-      </CollapsibleCard>
-    </div>
-  );
-}
-
-interface CollapsibleCardProps {
-  id: string;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  expanded: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}
-
-function CollapsibleCard({ id, icon, title, subtitle, expanded, onToggle, children }: CollapsibleCardProps) {
-  return (
-    <div className="rounded-2xl border-2 border-t-light-gray overflow-hidden bg-surface-elevated">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={expanded}
-        aria-controls={`${id}-content`}
-        className="focus-ring w-full flex items-center gap-3 p-4 text-left group"
-      >
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-          expanded ? 'bg-t-magenta text-white' : 'bg-t-magenta/10 text-t-magenta group-hover:bg-t-magenta/20'
-        }`}>
-          {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-black uppercase tracking-tight">{title}</p>
-          <p className="text-[10px] text-t-dark-gray font-medium">{subtitle}</p>
-        </div>
-        {expanded ? (
-          <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-t-muted shrink-0" />
-        )}
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            id={`${id}-content`}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

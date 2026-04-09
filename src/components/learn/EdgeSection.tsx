@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, ChevronUp, Wifi, Satellite, ShieldCheck, Globe, Tv, Plane, Gift } from 'lucide-react';
+import { ChevronDown, ChevronUp, Wifi, Satellite, ShieldCheck, Globe, Tv, Plane, Gift, Zap } from 'lucide-react';
 import { DIFFERENTIATORS } from '../../data/differentiators';
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -17,17 +17,40 @@ export default function EdgeSection() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
-          Your Edge
-        </p>
-        <p className="text-xs text-t-dark-gray font-medium">
-          What makes T-Mobile different. Memorize these and you'll win more conversations.
-        </p>
+    <div className="space-y-5">
+      {/* Hero banner */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <ShieldCheck className="w-64 h-64 -mt-10 -mr-10 text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
+            <Zap className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Your Edge</p>
+          </div>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The T-Mobile Edge</h3>
+          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
+            What makes T-Mobile different. Memorize these and you'll win more conversations.
+          </p>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Wifi className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">5G Network</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Globe className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Global</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Tv className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Streaming</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {DIFFERENTIATORS.map((diff) => (
+      <div className="space-y-3">
+        {DIFFERENTIATORS.map((diff) => (
         <div key={diff.category} className="rounded-2xl border-2 border-t-light-gray overflow-hidden bg-surface-elevated">
           <button
             type="button"
@@ -82,6 +105,7 @@ export default function EdgeSection() {
           </AnimatePresence>
         </div>
       ))}
+    </div>
     </div>
   );
 }

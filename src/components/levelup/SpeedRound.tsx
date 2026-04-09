@@ -355,7 +355,7 @@ export default function SpeedRound() {
                 <p className="mt-0.5 text-[11px] text-success-foreground font-medium">
                   Correct: {q.options[q.correctIndex]}
                 </p>
-                <p className="mt-1 text-[10px] text-t-dark-gray italic">{q.explanation}</p>
+                <p className="mt-1 text-[10px] text-t-dark-gray font-medium">{q.explanation}</p>
               </div>
             );
           })}

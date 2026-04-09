@@ -4,11 +4,10 @@
  */
 
 import React, { Suspense, lazy, startTransition, useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
-import { loadWeeklyUpdate, WeeklyUpdateSource } from './services/localGenerationService';
-import { generateSalesScript, analyzeObjection as aiAnalyzeObjection, getAIStatus } from './services/aiService';
+import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
 import {
   generateObjectionEnhancement,
   generateScriptEnhancement,
@@ -17,7 +16,6 @@ import {
   warmAIEnhancement,
 } from './services/aiEnhancementService';
 import { WeeklyUpdate } from './services/weeklyUpdateSchema';
-import { initializeGemma, onGemmaStatusChange } from './services/gemmaService';
 import { EcosystemMatrix } from './types/ecosystem';
 import { loadEcosystemMatrix } from './services/ecosystemService';
 import { resetRotation } from './services/rotationService';
@@ -37,6 +35,9 @@ import SessionStats from './components/SessionStats';
 
 const LearnView = lazy(() => import('./components/learn/LearnView'));
 const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
+const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
+const SettingsView = lazy(() => import('./components/SettingsView'));
+import TroubleshootingPivot from './components/TroubleshootingPivot';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -101,7 +102,12 @@ export default function App() {
     zipCode: '',
     product: ['Phone'],
     purchaseIntent: 'exploring',
-    currentCarrier: 'Not Specified'
+    currentCarrier: 'Not Specified',
+    totalLines: undefined,
+    familyCount: undefined,
+    currentPlatform: 'Not Specified',
+    desiredPlatform: 'Not Specified',
+    hintAvailable: true
   });
   const [script, setScript] = useState<SalesScript | null>(null);
   const [loading, setLoading] = useState(false);
@@ -112,7 +118,7 @@ export default function App() {
   const [analyzing, setAnalyzing] = useState(false);
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
-  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
+  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
   const [mode, setMode] = useState<AppMode>('home');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
@@ -120,6 +126,7 @@ export default function App() {
   const [refreshingApp, setRefreshingApp] = useState(false);
   const [enhancingPlan, setEnhancingPlan] = useState(false);
   const [enhancingObjection, setEnhancingObjection] = useState(false);
+  const [showHintPrompt, setShowHintPrompt] = useState(false);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
@@ -192,16 +199,6 @@ export default function App() {
     return () => controller.abort();
   }, [refreshWeeklyData]);
 
-  // Initialize Gemma 4 local inference (WebGPU) for offline AI
-  const [aiStatus, setAiStatus] = useState(() => getAIStatus());
-  useEffect(() => {
-    void initializeGemma();
-    const unsubscribe = onGemmaStatusChange(() => {
-      setAiStatus(getAIStatus());
-    });
-    return unsubscribe;
-  }, []);
-
   useEffect(() => {
     const controller = new AbortController();
 
@@ -264,6 +261,11 @@ export default function App() {
     setObjectionResult(null);
     setSelectedObjections([]);
     setSelectedGamePlanItems([]);
+    if (intent === 'tech support' || intent === 'order support' || intent === 'account support') {
+      setActiveTab('troubleshoot');
+    } else {
+      setActiveTab('gameplan');
+    }
     setError(null);
     try {
       trackIntentUsed(intent);
@@ -313,7 +315,7 @@ export default function App() {
       const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
       if (controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
-      const result = await generateSalesScript(ctx, resolvedWeeklyData);
+      const result = generateScript(ctx, resolvedWeeklyData);
       localResult = result;
       setScript(result);
       setObjectionResult(null);
@@ -328,28 +330,25 @@ export default function App() {
         }
       }
 
-      // If Gemma wasn't used, try server-side AI enhancement as a secondary boost
-      if (aiStatus.provider !== 'gemma') {
-        setEnhancingPlan(true);
-        void (async () => {
-          try {
-            const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
-            if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
+      setEnhancingPlan(true);
+      void (async () => {
+        try {
+          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
+          if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
 
-            startTransition(() => {
-              setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
-            });
-          } catch (enhancementError) {
-            if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-              console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
-            }
-          } finally {
-            if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
-              setEnhancingPlan(false);
-            }
+          startTransition(() => {
+            setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
+          });
+        } catch (enhancementError) {
+          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
+            console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
           }
-        })();
-      }
+        } finally {
+          if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
+            setEnhancingPlan(false);
+          }
+        }
+      })();
     } catch (err) {
       if (isAbortError(err)) return;
       if (planRequestIdRef.current !== requestId) return;
@@ -388,7 +387,7 @@ export default function App() {
       const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
       if (controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
-      const result = await aiAnalyzeObjection(
+      const result = analyzeObjectionLocal(
         selectedObjections.join(', '),
         context,
         script,
@@ -404,35 +403,32 @@ export default function App() {
         logDevWarning('Objection tracking failed, but the analysis was built.', trackingError);
       }
 
-      // If Gemma wasn't used, try server-side AI enhancement as a secondary boost
-      if (aiStatus.provider !== 'gemma') {
-        setEnhancingObjection(true);
-        void (async () => {
-          try {
-            const enhancement = await generateObjectionEnhancement(
-              selectedObjections.join(', '),
-              context,
-              result,
-              resolvedWeeklyData,
-              { signal: controller.signal },
-            );
+      setEnhancingObjection(true);
+      void (async () => {
+        try {
+          const enhancement = await generateObjectionEnhancement(
+            selectedObjections.join(', '),
+            context,
+            result,
+            resolvedWeeklyData,
+            { signal: controller.signal },
+          );
 
-            if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
+          if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
 
-            startTransition(() => {
-              setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
-            });
-          } catch (enhancementError) {
-            if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-              console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
-            }
-          } finally {
-            if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
-              setEnhancingObjection(false);
-            }
+          startTransition(() => {
+            setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
+          });
+        } catch (enhancementError) {
+          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
+            console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
           }
-        })();
-      }
+        } finally {
+          if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
+            setEnhancingObjection(false);
+          }
+        }
+      })();
     } catch (err) {
       if (isAbortError(err)) return;
       if (objectionRequestIdRef.current !== requestId) return;
@@ -479,7 +475,12 @@ export default function App() {
       zipCode: '',
       product: ['Phone'],
       purchaseIntent: 'exploring',
-      currentCarrier: 'Not Specified'
+      currentCarrier: 'Not Specified',
+      totalLines: undefined,
+      familyCount: undefined,
+      currentPlatform: 'Not Specified',
+      desiredPlatform: 'Not Specified',
+      hintAvailable: true
     });
     setIntentTapped(true);
     setError(null);
@@ -657,6 +658,46 @@ export default function App() {
                 </Suspense>
               </ErrorBoundary>
             </motion.section>
+          ) : mode === 'settings' ? (
+            <motion.section
+              id="mode-panel-settings"
+              key="mode-settings"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <ErrorBoundary
+                compact
+                resetKey="mode-settings"
+                title="Settings needs a refresh"
+                message="The settings panel encountered an error."
+              >
+                <Suspense fallback={<LazySectionFallback label="Settings" />}>
+                  <SettingsView />
+                </Suspense>
+              </ErrorBoundary>
+            </motion.section>
+          ) : mode === 'offline-coach' ? (
+            <motion.section
+              id="mode-panel-offline-coach"
+              key="mode-offline-coach"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <ErrorBoundary
+                compact
+                resetKey="mode-offline-coach"
+                title="Offline Coach needs a refresh"
+                message="The local AI engine encountered an error."
+              >
+                <Suspense fallback={<LazySectionFallback label="Offline Coach" />}>
+                  <OfflineCoach />
+                </Suspense>
+              </ErrorBoundary>
+            </motion.section>
           ) : (
             <motion.section
               id="mode-panel-live"
@@ -748,21 +789,25 @@ export default function App() {
                         key={p}
                         type="button"
                         onClick={() => {
-                          handleContextUpdate((prev) => {
-                            if (p === 'No Specific Product') {
-                              return { ...prev, product: ['No Specific Product'] };
-                            }
-                            let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
-                            if (newProducts.includes(p)) {
-                              newProducts = newProducts.filter(prod => prod !== p);
-                            } else {
-                              newProducts.push(p);
-                            }
-                            if (newProducts.length === 0) {
-                              newProducts = ['No Specific Product'];
-                            }
-                            return { ...prev, product: newProducts };
-                          });
+                          if (!context.product.includes(p) && p === 'Home Internet') {
+                            setShowHintPrompt(true);
+                          } else {
+                            handleContextUpdate((prev) => {
+                              if (p === 'No Specific Product') {
+                                return { ...prev, product: ['No Specific Product'] };
+                              }
+                              let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
+                              if (newProducts.includes(p)) {
+                                newProducts = newProducts.filter(prod => prod !== p);
+                              } else {
+                                newProducts.push(p);
+                              }
+                              if (newProducts.length === 0) {
+                                newProducts = ['No Specific Product'];
+                              }
+                              return { ...prev, product: newProducts };
+                            });
+                          }
                         }}
                         aria-pressed={isSelected}
                         className={`focus-ring py-2 px-3 text-[10px] font-black rounded-xl border-2 uppercase transition-all flex items-center justify-between ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
@@ -814,6 +859,7 @@ export default function App() {
                 inline
                 showAge={false}
                 showCarrier={false}
+                showSharperRead={false}
                 defaultLocationOpen
                 locationLabel="Region + ZIP"
                 locationHint="Tap a region, zoom into the state, then add the ZIP if the caller gives it to you."
@@ -835,12 +881,14 @@ export default function App() {
                 aria-controls="customer-context-panel"
                 className="focus-ring w-full flex items-center justify-between p-5"
               >
-                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {contextExpanded ? 'Customer details' : 'Want a sharper read?'}
-                  {' '}<span style={{ color: 'var(--text-tertiary)' }} className="font-medium">
-                    {contextExpanded ? '(age + carrier)' : '— age + carrier sharpen the plan'}
+                <div className="text-left">
+                  <span className="text-xs font-bold block" style={{ color: 'var(--text-primary)' }}>
+                    {contextExpanded ? 'Customer Profile' : 'Sharper Read'}
                   </span>
-                </span>
+                  <span style={{ color: 'var(--text-tertiary)' }} className="text-[10px] font-medium">
+                    {contextExpanded ? 'Age, carrier, lines, and platforms' : 'Add lines, family count, and platforms for a better plan'}
+                  </span>
+                </div>
                 {contextExpanded ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />}
               </button>
               <AnimatePresence>
@@ -887,12 +935,13 @@ export default function App() {
             <div
               role="tablist"
               aria-label="Live call tools"
-              className="grid grid-cols-2 gap-1.5 rounded-2xl p-1.5 md:flex md:gap-0 glass-tab"
+              className="flex flex-wrap gap-1.5 rounded-2xl p-1.5 glass-tab"
               style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
             >
               {([
                 { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
                 { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
+                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix' },
               ]).map(tab => (
                 <button
                   key={tab.id}
@@ -902,7 +951,7 @@ export default function App() {
                   aria-selected={activeTab === tab.id}
                   aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`focus-ring flex-1 min-h-[48px] px-2 py-3 text-[10px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                  className={`focus-ring flex-1 min-h-[48px] min-w-[80px] px-1 py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
                   style={{ touchAction: 'manipulation' }}
                 >
                   <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
@@ -925,6 +974,11 @@ export default function App() {
                     onAnalyze={handleAnalyzeObjection}
                     onClearResult={() => setObjectionResult(null)}
                   />
+                </div>
+              )}
+              {activeTab === 'troubleshoot' && (
+                <div id="live-panel-troubleshoot" role="tabpanel" aria-labelledby="live-tab-troubleshoot">
+                  <TroubleshootingPivot initialCategory={context.product[0]} />
                 </div>
               )}
             </AnimatePresence>
@@ -1058,6 +1112,62 @@ export default function App() {
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* HINT Availability Prompt Modal */}
+      <AnimatePresence>
+        {showHintPrompt && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-surface w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-t-light-gray"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
+                  <Wifi className="w-5 h-5 text-t-magenta" />
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-t-dark-gray">HINT Availability</h3>
+              </div>
+              <p className="text-sm text-t-dark-gray font-medium mb-6">
+                Did you check their address? Is T-Mobile Home Internet currently available for them?
+              </p>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleContextUpdate(prev => ({
+                      ...prev,
+                      hintAvailable: true,
+                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
+                    }));
+                    setShowHintPrompt(false);
+                    void handleGenerate();
+                  }}
+                  className="w-full focus-ring btn-magenta-shimmer rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" /> Yes, Available
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleContextUpdate(prev => ({
+                      ...prev,
+                      hintAvailable: false,
+                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
+                    }));
+                    setShowHintPrompt(false);
+                    void handleGenerate();
+                  }}
+                  className="w-full focus-ring bg-surface border-2 border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                >
+                  <WifiOff className="w-4 h-4" /> No, Spots Full
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

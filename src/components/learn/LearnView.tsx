@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle } from 'lucide-react';
+import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle, Sparkles } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
@@ -149,19 +149,51 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       </div>
 
       {/* Hero */}
-      <div className="text-center">
-        <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
-          Know Your <span className="text-t-magenta">Stuff</span>
-        </h2>
-        <p className="text-sm text-t-dark-gray font-medium mt-1">
-          On-the-clock coaching for live calls, quick resets, and the T-Mobile story without the data dump.
-        </p>
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-10 shadow-2xl shadow-t-dark-gray/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <BookOpen className="w-80 h-80 -mt-16 -mr-16 text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
+            <Sparkles className="w-3 h-3 text-t-magenta" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Knowledge Center</p>
+          </div>
+          <h2 className="text-5xl font-black text-white mb-4 tracking-tight leading-none">
+            Know Your <span className="text-t-magenta">Stuff</span>
+          </h2>
+          <p className="text-lg text-white/80 font-medium leading-relaxed max-w-2xl">
+            On-the-clock coaching for live calls, quick resets, and the T-Mobile story without the data dump.
+            Stay sharp, stay fast, and win every conversation.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+              <Newspaper className="w-4 h-4 text-t-magenta" />
+              <div>
+                <p className="text-[10px] font-black text-white uppercase tracking-wider">Daily Briefing</p>
+                <p className="text-[9px] text-white/60 font-medium">Today's Promos</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+              <Smartphone className="w-4 h-4 text-t-magenta" />
+              <div>
+                <p className="text-[10px] font-black text-white uppercase tracking-wider">Device Lab</p>
+                <p className="text-[9px] text-white/60 font-medium">Compare & Pitch</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+              <Crown className="w-4 h-4 text-t-magenta" />
+              <div>
+                <p className="text-[10px] font-black text-white uppercase tracking-wider">Plan Master</p>
+                <p className="text-[9px] text-white/60 font-medium">Value Stacking</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Sub-tab toggle — scrollable on mobile, active tab expands */}
-      <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
-        <div className="flex rounded-full p-0.5 gap-0.5 min-w-max w-fit mx-auto glass-tab">
-          {TABS.map((t) => {
+      {/* Sub-tab toggle — wraps on desktop */}
+      <div className="flex flex-wrap justify-center rounded-3xl p-1 gap-1 glass-tab">
+        {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
               <button
@@ -180,7 +212,6 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </button>
             );
           })}
-        </div>
       </div>
 
       <div className="rounded-2xl px-4 py-3 glass-card glass-specular">

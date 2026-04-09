@@ -101,7 +101,7 @@ export default function TeamConfig() {
           </div>
           <p className="text-lg font-black uppercase tracking-tight text-foreground">{config.teamName}</p>
           {config.goalText && (
-            <p className="mt-1 text-xs font-medium text-t-dark-gray italic">"{config.goalText}"</p>
+            <p className="mt-1 text-xs font-medium text-t-dark-gray">"{config.goalText}"</p>
           )}
           {config.managerName && (
             <p className="mt-1 text-[10px] text-t-muted">Led by {config.managerName}</p>

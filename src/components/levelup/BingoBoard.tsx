@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import confetti from 'canvas-confetti';
-import { Flame, Sparkles, Trophy, Zap, Clock, Target } from 'lucide-react';
+import { Flame, Sparkles, Trophy, Zap, Clock, Target, Lightbulb } from 'lucide-react';
 import { BINGO_BOARDS, BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import BingoCell from './BingoCell';
@@ -57,7 +57,6 @@ export default function BingoBoard() {
   const [progress, setProgress] = useState(() => getBoardProgress(getFeaturedBoardId()));
   const [rowToast, setRowToast] = useState<{ count: number } | null>(null);
   const [boardCelebration, setBoardCelebration] = useState(false);
-  const [quickMode, setQuickMode] = useState(false);
 
   const activeBoard = useMemo(() => getBoardById(activeBoardId), [activeBoardId]);
   const board = useMemo(() => getBoardLayout(activeBoardId), [activeBoardId]);
@@ -108,19 +107,6 @@ export default function BingoBoard() {
             <p className="mt-1 text-sm font-medium text-t-dark-gray">{activeBoard.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
-            {/* Quick mode toggle */}
-            <button
-              type="button"
-              onClick={() => setQuickMode(!quickMode)}
-              className={`focus-ring min-h-[44px] rounded-full px-3.5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                quickMode
-                  ? 'bg-t-berry text-white'
-                  : 'glass-button text-t-dark-gray hover:text-t-berry'
-              }`}
-            >
-              <Zap className="mr-1 inline h-3 w-3" />
-              {quickMode ? 'Quick' : 'Reflect'}
-            </button>
             <div className="glass-stat rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
               {stats.progressPct}%
             </div>
@@ -128,7 +114,7 @@ export default function BingoBoard() {
         </div>
 
         {/* Board selector */}
-        <div className="grid gap-2 sm:grid-cols-3" role="tablist" aria-label="Weekly challenge boards">
+        <div className="flex overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 gap-2 scrollbar-hide" role="tablist" aria-label="Weekly challenge boards">
           {BINGO_BOARDS.map((boardOption) => {
             const isActive = boardOption.id === activeBoardId;
             return (
@@ -139,7 +125,7 @@ export default function BingoBoard() {
                 aria-selected={isActive}
                 aria-controls={`bingo-board-panel-${boardOption.id}`}
                 onClick={() => setActiveBoardId(boardOption.id)}
-                className={`focus-ring rounded-xl px-3 py-3 text-left transition-all active:scale-[0.97] ${
+                className={`focus-ring min-w-[200px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-3 text-left transition-all active:scale-[0.97] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)]'
                     : 'glass-card text-t-dark-gray hover:border-t-magenta/30'
@@ -155,8 +141,17 @@ export default function BingoBoard() {
         </div>
       </div>
 
+      {/* Mini Lesson Callout */}
+      <div className="glass-card flex items-start gap-3 rounded-xl border-l-4 border-l-t-magenta p-3">
+        <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-t-magenta" />
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">GAME PLAN</p>
+          <p className="mt-0.5 text-xs font-medium text-t-dark-gray leading-relaxed">{activeBoard.miniLesson}</p>
+        </div>
+      </div>
+
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <StatCard icon={<Target className="h-3 w-3" />} label="Progress" value={`${stats.weeklyCompletedCount}/25`} accent="var(--cat-sales-accent)" />
         <StatCard icon={<Trophy className="h-3 w-3" />} label="Rows" value={`${stats.rowCount}`} accent="var(--cat-skill-accent)" />
         <StatCard icon={<Flame className="h-3 w-3" />} label="Streak" value={`${stats.streak}d`} accent="var(--prize-weekly)" />
@@ -171,7 +166,7 @@ export default function BingoBoard() {
         className="glass-elevated rounded-[1.4rem] p-4"
       >
         {/* BINGO header letters */}
-        <div className="mb-3 grid grid-cols-5 gap-1.5 text-center">
+        <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
           {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
             <div
               key={letter}
@@ -187,7 +182,7 @@ export default function BingoBoard() {
         </div>
 
         {/* Grid */}
-        <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+        <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
           {board.map((cell, index) => (
             <BingoCell
               key={`${activeBoardId}-${cell.id}`}
@@ -195,7 +190,6 @@ export default function BingoBoard() {
               completed={completedIds.has(cell.id)}
               isWinning={winningIndices.has(index)}
               onToggle={(reflection) => handleToggle(cell, reflection)}
-              quickMode={quickMode}
             />
           ))}
         </div>
@@ -218,7 +212,7 @@ export default function BingoBoard() {
       </div>
 
       <p className="text-center text-[10px] font-medium text-t-muted">
-        Tap a square to mark it. {quickMode ? 'Quick mode — no reflection prompts.' : 'Reflect mode — a quick check-in on each tap.'} Progress saves automatically.
+        Tap a square to mark it. Reflect on your action to confirm. Progress saves automatically.
       </p>
 
       {/* Row completion toast */}

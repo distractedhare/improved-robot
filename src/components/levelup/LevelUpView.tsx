@@ -4,19 +4,13 @@ import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService'
 import BingoBoard from './BingoBoard';
 import SpeedRound from './SpeedRound';
 import PrizeHub from './PrizeHub';
-import TeamConfig from './TeamConfig';
-import FeedbackForm from './FeedbackForm';
-import Roadmap from './Roadmap';
 
-type LevelUpTab = 'bingo' | 'speed' | 'prizes' | 'team' | 'feedback' | 'roadmap';
+type LevelUpTab = 'bingo' | 'speed' | 'prizes';
 
 const LEVEL_UP_TABS = [
   { id: 'bingo' as const, icon: Trophy, label: 'Bingo', helper: 'Weekly challenge boards' },
   { id: 'speed' as const, icon: Zap, label: 'Speed Round', helper: 'Timed knowledge quiz' },
   { id: 'prizes' as const, icon: Award, label: 'Prizes', helper: 'Daily, weekly, monthly rewards' },
-  { id: 'team' as const, icon: Users, label: 'Team', helper: 'Squad setup & config' },
-  { id: 'feedback' as const, icon: MessageSquare, label: 'Feedback', helper: 'Pilot notes from the floor' },
-  { id: 'roadmap' as const, icon: Rocket, label: 'Roadmap', helper: "What's next" },
 ];
 
 export default function LevelUpView() {
@@ -57,7 +51,7 @@ export default function LevelUpView() {
                 Level <span className="text-t-magenta">Up</span>
               </h2>
               {teamConfig.goalText && (
-                <p className="mt-1 text-xs font-medium text-t-dark-gray italic">"{teamConfig.goalText}"</p>
+                <p className="mt-1 text-xs font-medium text-t-dark-gray">"{teamConfig.goalText}"</p>
               )}
               {teamConfig.weeklyFocus && (
                 <p className="mt-2 inline-block rounded-full bg-t-magenta/8 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-t-magenta">
@@ -101,7 +95,7 @@ export default function LevelUpView() {
         <nav
           aria-label="Level Up sections"
           role="tablist"
-          className="glass grid gap-2 rounded-2xl p-2 sm:grid-cols-3 lg:grid-cols-6"
+          className="glass grid gap-2 rounded-2xl p-2 sm:grid-cols-3"
         >
           {LEVEL_UP_TABS.map((item) => {
             const isActive = tab === item.id;
@@ -144,14 +138,8 @@ export default function LevelUpView() {
           <BingoBoard />
         ) : tab === 'speed' ? (
           <SpeedRound />
-        ) : tab === 'prizes' ? (
-          <PrizeHub />
-        ) : tab === 'team' ? (
-          <TeamConfig />
-        ) : tab === 'feedback' ? (
-          <FeedbackForm />
         ) : (
-          <Roadmap onSwitchToFeedback={() => setTab('feedback')} />
+          <PrizeHub />
         )}
       </div>
     </div>

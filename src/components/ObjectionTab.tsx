@@ -3,7 +3,7 @@ import {
   AlertCircle, CheckCircle2, Sparkles, Zap, Loader2,
   MessageSquare, Target, Briefcase, Lightbulb, ShieldCheck, RefreshCw,
   ChevronDown, ChevronRight, KeyRound, Smartphone, ArrowRightLeft,
-  WifiOff, CircleDollarSign, Wrench, MessageSquareWarning, ArrowRight,
+  Wifi, CircleDollarSign, Wrench, MessageSquareWarning, ArrowRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
@@ -23,7 +23,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   KeyRound,
   Smartphone,
   ArrowRightLeft,
-  WifiOff,
+  Wifi,
   CircleDollarSign,
   Wrench,
   MessageSquareWarning,

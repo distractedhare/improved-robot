@@ -1,117 +1,81 @@
-import { useMemo } from 'react';
-import { Award, Check, Coffee, Gift, Star, TrendingUp } from 'lucide-react';
-import { getPrizeData, PRIZE_TIERS, PrizeTier } from '../../services/prizeService';
-
-const TIER_ICONS: Record<PrizeTier, React.ElementType> = {
-  daily: Star,
-  weekly: Coffee,
-  monthly: Gift,
-};
+import { Award, Calendar, Gift, Star, Ticket, Trophy } from 'lucide-react';
 
 export default function PrizeHub() {
-  const data = useMemo(() => getPrizeData(), []);
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="text-center">
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-t-magenta/10">
           <Award className="h-7 w-7 text-t-magenta" />
         </div>
-        <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Prizes</h3>
+        <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Prize Hub</h3>
         <p className="mt-1 text-sm font-medium text-t-dark-gray">
-          Earn rewards by showing up, staying sharp, and keeping the streak alive.
+          Current team incentives. Hit the metrics, get the tickets, win the draw.
         </p>
       </div>
 
-      {/* Prize tiers */}
-      <div className="space-y-3">
-        {(Object.entries(PRIZE_TIERS) as [PrizeTier, typeof PRIZE_TIERS.daily][]).map(([tier, config]) => {
-          const Icon = TIER_ICONS[tier];
-          const earned =
-            tier === 'daily' ? data.daily.momentumEarned :
-            tier === 'weekly' ? data.weekly.raffleEntered :
-            data.monthly.raffleEntered;
-
-          const progress =
-            tier === 'daily'
-              ? `${data.daily.cellsCompleted} cells${data.daily.quizCompleted ? ` + ${data.daily.quizScore}% quiz` : ''}`
-              : tier === 'weekly'
-              ? `${data.weekly.totalRows} rows`
-              : `${data.monthly.longestStreak} day streak`;
-
-          return (
-            <div
-              key={tier}
-              className={`rounded-2xl border p-4 transition-all ${
-                earned
-                  ? 'border-success-border bg-success-surface'
-                  : 'glass-card'
-              }`}
-              style={earned ? undefined : { borderLeftWidth: 3, borderLeftColor: config.color }}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: earned ? 'var(--sem-success-surface)' : `${config.color}15` }}
-                >
-                  {earned ? (
-                    <Check className="h-5 w-5 text-success-accent" />
-                  ) : (
-                    <Icon className="h-5 w-5" style={{ color: config.color }} />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-black uppercase tracking-tight text-foreground">
-                      {config.label}
-                    </p>
-                    {earned && (
-                      <span className="rounded-md bg-success-accent px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-white">
-                        Earned
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray">{config.reward}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-t-light-gray/50">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          backgroundColor: earned ? 'var(--sem-success-accent)' : config.color,
-                          width: earned ? '100%' :
-                            tier === 'daily' ? `${Math.min((data.daily.cellsCompleted / 8) * 100, 100)}%` :
-                            tier === 'weekly' ? `${Math.min((data.weekly.totalRows / 3) * 100, 100)}%` :
-                            `${Math.min((data.monthly.longestStreak / 15) * 100, 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-[9px] font-bold text-t-muted tabular-nums">{progress}</span>
-                  </div>
-                  <p className="mt-1 text-[9px] text-t-muted">{config.requirement}</p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Daily Incentives */}
+      <div className="rounded-2xl border-2 border-t-magenta/20 bg-t-magenta/5 p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <Star className="h-5 w-5 text-t-magenta" />
+          <h4 className="text-sm font-black uppercase tracking-widest text-t-magenta">Daily Goals</h4>
+        </div>
+        <div className="space-y-3">
+          <IncentiveRow metric="40% Conversion" reward="Lotto Ticket" icon={Ticket} />
+          <IncentiveRow metric="15% HSI Conversion" reward="Lotto Ticket" icon={Ticket} />
+          <IncentiveRow metric="3 HSI Sales" reward="15 Min Break" icon={Award} />
+        </div>
       </div>
 
-      {/* Recent history */}
-      {data.history.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
-            <TrendingUp className="mr-1 inline h-3 w-3" />
-            Recent Wins
-          </p>
-          {data.history.slice(-5).reverse().map((entry, i) => (
-            <div key={`${entry.date}-${i}`} className="glass-card rounded-xl px-3 py-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium text-foreground">{entry.label}</span>
-                <span className="text-[9px] text-t-muted">{entry.date}</span>
-              </div>
-            </div>
-          ))}
+      {/* Weekly Incentives */}
+      <div className="rounded-2xl border border-t-light-gray bg-surface p-5 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-t-dark-gray" />
+          <h4 className="text-sm font-black uppercase tracking-widest text-t-dark-gray">Weekly Goals</h4>
         </div>
-      )}
+        <div className="space-y-3">
+          <IncentiveRow metric="40% Conversion" reward="1 Monthly Ticket" icon={Ticket} />
+          <IncentiveRow metric="15% HSI Conversion" reward="1 Monthly Ticket" icon={Ticket} />
+          <IncentiveRow metric="12 HSI Sales" reward="1 Monthly Ticket" icon={Ticket} />
+        </div>
+      </div>
+
+      {/* Monthly Grand Prize */}
+      <div className="rounded-2xl bg-gradient-to-br from-t-magenta to-t-berry p-5 text-white shadow-lg">
+        <div className="mb-4 flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-white" />
+          <h4 className="text-sm font-black uppercase tracking-widest text-white">End of Month Draw</h4>
+        </div>
+        <p className="mb-4 text-xs font-medium text-white/90 leading-relaxed">
+          Draw from all weekly ticket winners (3 winners total). Winners choose one of the following:
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <GrandPrizeCard title="WFH Week" />
+          <GrandPrizeCard title="$25 Amazon GC" />
+          <GrandPrizeCard title="$25 DoorDash" />
+          <GrandPrizeCard title="$25 in Lotto" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IncentiveRow({ metric, reward, icon: Icon }: { metric: string; reward: string; icon: any }) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-t-light-gray/50 bg-surface px-4 py-3">
+      <span className="text-xs font-bold text-foreground">{metric}</span>
+      <div className="flex items-center gap-1.5 rounded-lg bg-t-light-gray/20 px-2.5 py-1">
+        <Icon className="h-3.5 w-3.5 text-t-magenta" />
+        <span className="text-[10px] font-black uppercase tracking-wider text-t-magenta">{reward}</span>
+      </div>
+    </div>
+  );
+}
+
+function GrandPrizeCard({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-3 backdrop-blur-sm">
+      <Gift className="h-4 w-4 text-white/80" />
+      <span className="text-[11px] font-bold text-white">{title}</span>
     </div>
   );
 }
