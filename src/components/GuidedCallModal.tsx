@@ -126,7 +126,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-4 rounded-xl bg-t-magenta/8 border border-t-magenta/20 px-4 py-3"
+      className="mt-4 rounded-xl glass-card glass-shine bg-t-magenta/8 border border-t-magenta/20 px-4 py-3 shadow-md"
     >
       <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say this</p>
       <p className="text-[12px] font-semibold text-t-dark-gray leading-snug italic">"{text}"</p>
@@ -146,8 +146,9 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
             key={opt.id}
             type="button"
             whileTap={{ scale: 0.96 }}
+            whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
             onClick={() => selectIntent(opt.id)}
-            className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-center group"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl glass-card glass-shine border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-center group shadow-sm"
           >
             <div className="w-10 h-10 rounded-xl bg-t-light-gray/30 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
               <opt.icon className="w-5 h-5 text-t-dark-gray group-hover:text-white" />
@@ -202,8 +203,9 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
               key={String(opt.value)}
               type="button"
               whileTap={{ scale: 0.97 }}
+              whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
               onClick={() => selectHint(opt.value)}
-              className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${opt.color}`}
+              className={`flex-1 py-4 rounded-2xl glass-card glass-shine border-2 font-black text-sm transition-all shadow-sm ${opt.color}`}
             >
               <MapPin className="w-5 h-5 mx-auto mb-1" />
               {opt.label}
@@ -233,11 +235,12 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
               key={opt.id}
               type="button"
               whileTap={{ scale: 0.96 }}
+              whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
               onClick={() => toggleProduct(opt.id)}
-              className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all
+              className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl glass-card glass-shine border-2 transition-all shadow-sm
                 ${active
-                  ? 'border-t-magenta bg-t-magenta/8 shadow-sm'
-                  : 'border-t-light-gray bg-surface hover:border-t-magenta/40'
+                  ? 'border-t-magenta bg-t-magenta/8'
+                  : 'border-t-light-gray hover:border-t-magenta/40'
                 }`}
             >
               <opt.icon className={`w-6 h-6 ${active ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
@@ -271,8 +274,9 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
             key={age}
             type="button"
             whileTap={{ scale: 0.96 }}
+            whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
             onClick={() => selectAge(age)}
-            className="py-3.5 rounded-xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 text-sm font-black text-t-dark-gray transition-all"
+            className="py-3.5 rounded-xl glass-card glass-shine border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 text-sm font-black text-t-dark-gray transition-all shadow-sm"
           >
             {age}
           </motion.button>
@@ -300,7 +304,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
     return (
       <div className="space-y-4">
         {/* Hero gradient card */}
-        <div className={`rounded-3xl bg-gradient-to-br ${meta.gradient} p-5 text-white shadow-lg`}>
+        <div className={`rounded-3xl bg-gradient-to-br ${meta.gradient} p-5 text-white shadow-xl`}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[9px] font-black uppercase tracking-widest opacity-70">You're live</p>
@@ -337,7 +341,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Opener */}
-        <div className="rounded-2xl border border-t-light-gray bg-surface p-4 space-y-1.5">
+        <div className="rounded-2xl glass-card glass-shine border border-t-light-gray p-4 space-y-1.5 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Open with</p>
@@ -346,7 +350,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Ask first */}
-        <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+        <div className="rounded-2xl glass-card glass-shine border border-t-light-gray p-4 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <ChevronRight className="w-3.5 h-3.5 text-info-foreground" />
             <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Ask first</p>
@@ -355,7 +359,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* One-liner */}
-        <div className="rounded-2xl border border-t-magenta/20 bg-t-magenta/5 p-4">
+        <div className="rounded-2xl glass-card glass-shine border border-t-magenta/20 bg-t-magenta/5 p-4 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <Zap className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Talk track</p>
