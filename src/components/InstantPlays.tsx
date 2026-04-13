@@ -348,8 +348,8 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
               {ctx.label} — {intent}
             </p>
             <div className="space-y-4">
-              {tips.map((tip, i) => (
-                <div key={i} className="space-y-1">
+        {tips.map((tip) => (
+                <div key={tip.title} className="space-y-1">
                   <div className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-white/70 shrink-0" />
                     <p className="text-[11px] font-black uppercase tracking-wider text-white">{tip.title}</p>
@@ -375,8 +375,8 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       <div className="rounded-2xl glass-card glass-shine glass-card-hover p-5 shadow-sm space-y-3">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Quick plays</p>
         <div className="space-y-4">
-          {plays.plays.map((play, i) => (
-            <div key={i} className="space-y-2 pb-4 border-b border-t-light-gray/30 last:border-0 last:pb-0">
+          {plays.plays.map((play) => (
+            <div key={play.title} className="space-y-2 pb-4 border-b border-t-light-gray/30 last:border-0 last:pb-0">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
                   <Zap className="w-3 h-3 text-t-magenta" />
@@ -558,7 +558,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                   >
                     <div className="px-4 pb-3 space-y-1.5">
                       {cat.items.slice(0, 2).map((item, i) => (
-                        <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
+                        <div key={item.name} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
                           <div className="flex items-start gap-3">
                             <AccessoryImageSlot
                               name={item.name}
@@ -635,7 +635,7 @@ function BigAddsSection({ age }: { age?: string }) {
         {visibleAdds.map((item, i) => {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
           return (
-            <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
+            <div key={item.name} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
               <div className="flex items-start gap-3">
                 <AccessoryImageSlot
                   name={item.name}

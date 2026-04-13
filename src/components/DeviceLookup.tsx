@@ -211,13 +211,13 @@ export default function DeviceLookup({
 
       {/* Device list */}
       <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
-        {filteredDevices.map((device, i) => {
+        {filteredDevices.map((device) => {
           const selected = isSelected(device);
 
             return (
               <button
                 type="button"
-                key={i}
+                key={device.name}
                 onClick={() => onToggleDevice(device)}
                 aria-pressed={selected}
                 className={`focus-ring w-full text-left p-3 rounded-2xl border-2 transition-all ${
