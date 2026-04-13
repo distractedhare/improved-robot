@@ -228,14 +228,11 @@ export default function DeviceLookup({
               >
                 <div className="flex items-center gap-4">
                   {/* Device Thumbnail */}
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-t-light-gray/20 shrink-0 border border-t-light-gray/50">
-                    <img
-                      src={`https://picsum.photos/seed/${device.name.replace(/\s+/g, '-').toLowerCase()}/200/200`}
-                      alt={device.name}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
+                  <DeviceImageSlot
+                    device={device}
+                    className="h-16 w-16 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+                    imageClassName="h-full max-h-12 w-full object-contain"
+                  />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -305,7 +302,15 @@ export function DeviceComparison({
                 <th className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-muted w-24">Feature</th>
                 {devices.map(d => (
                   <th key={d.name} className="text-left p-3 text-[9px] font-black uppercase tracking-widest text-t-magenta min-w-[120px]">
-                    {d.name.split(' ').slice(-2).join(' ')}
+                    <div className="flex min-w-[120px] flex-col gap-2">
+                      <DeviceImageSlot
+                        device={d}
+                        className="h-14 w-14 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+                        imageClassName="h-full max-h-10 w-full object-contain"
+                        placeholderLabel="Image"
+                      />
+                      <span>{d.name.split(' ').slice(-2).join(' ')}</span>
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -369,15 +374,22 @@ export function DeviceDetail({
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl glass-card p-4 space-y-3"
     >
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">{device.category}</p>
           <h3 className="text-sm font-black text-t-dark-gray">{device.name}</h3>
           <p className="text-[10px] text-t-dark-gray font-medium mt-0.5">{device.keySpecs}</p>
         </div>
-        <p className="text-lg font-black text-t-magenta">
-          {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
-        </p>
+        <div className="flex items-start gap-3 self-start sm:flex-col sm:items-end">
+          <DeviceImageSlot
+            device={device}
+            className="h-20 w-20 rounded-2xl border border-t-light-gray/50 bg-t-light-gray/20 p-3 sm:h-24 sm:w-24"
+            imageClassName="h-full max-h-16 w-full object-contain sm:max-h-20"
+          />
+          <p className="text-lg font-black text-t-magenta">
+            {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
+          </p>
+        </div>
       </div>
 
       <div className="bg-t-dark-gray rounded-2xl p-4 text-white">
@@ -575,6 +587,38 @@ export function DeviceDetail({
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+function DeviceImageSlot({
+  device,
+  className,
+  imageClassName,
+  placeholderLabel = 'No image',
+}: {
+  device: Device;
+  className: string;
+  imageClassName: string;
+  placeholderLabel?: string;
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className={`flex items-center justify-center overflow-hidden ${className}`}>
+      {device.imageUrl && !hasError ? (
+        <img
+          src={device.imageUrl}
+          alt={device.name}
+          className={imageClassName}
+          loading="lazy"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-surface-elevated px-2 text-center text-[9px] font-black uppercase tracking-wider text-t-dark-gray/60">
+          {placeholderLabel}
+        </div>
+      )}
+    </div>
   );
 }
 

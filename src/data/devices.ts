@@ -4,6 +4,7 @@ export interface Device {
   startingPrice: number | string;
   released: string;
   keySpecs: string;
+  imageUrl?: string;
   /** Deeper selling points — ecosystem hooks, comparison data, use cases */
   sellingNotes?: string;
   // Note: promos are NOT stored here — they come exclusively from weekly-update.json
@@ -18,6 +19,7 @@ export const PHONES: Device[] = [
     startingPrice: 1199,
     released: 'Sept 2025',
     keySpecs: '6.9" OLED 120Hz (2868x1320, 460ppi), A19 Pro, 12GB RAM, triple 48MP (W+UW+4x Tele) / 18MP front, 256GB–2TB, 4,823–5,088 mAh, 40W wired + 25W MagSafe, vapour chamber cooling, Ceramic Shield 2',
+    imageUrl: '/images/devices/iphone-17-pro-max.png',
     sellingNotes: 'Best battery in any iPhone ever (39hr video). 2TB storage option is new. Vapour chamber keeps it cool during heavy AI tasks. A19 Pro runs local AI agents on-device for privacy. "Liquid Glass" back feels premium. Ceramic Shield 2 is 3x more scratch-resistant. Visual Intelligence reads what\'s on screen. Ecosystem anchor — pairs instantly with AirPods, Apple Watch, iPad.',
   },
   {
@@ -26,6 +28,7 @@ export const PHONES: Device[] = [
     startingPrice: 1099,
     released: 'Sept 2025',
     keySpecs: '6.3" OLED 120Hz (460ppi), A19 Pro, 12GB RAM, triple 48MP (W+UW+4x Tele) / 18MP front, 256GB–1TB, 40W wired + 25W MagSafe, vapour chamber cooling, Ceramic Shield 2',
+    imageUrl: '/images/devices/iphone-17-pro.png',
     sellingNotes: 'Same A19 Pro power as the Max in a smaller form factor. 12GB RAM for on-device AI. Siri On-Screen Awareness — reads your screen and acts on it (e.g. "add this flight to my calendar" from a text thread). Great for people who want flagship power but prefer a one-hand phone.',
   },
   {
@@ -34,6 +37,7 @@ export const PHONES: Device[] = [
     startingPrice: 999,
     released: 'Sept 2025',
     keySpecs: '6.5", A19 Pro, thinnest iPhone ever, Apple C1X modem',
+    imageUrl: '/images/devices/iphone-air.png',
     sellingNotes: 'The "MacBook Air" of iPhones — thin, light, premium. Apple C1X is their first custom modem chip. Great positioning for people who want something different from the Pro but still flagship quality.',
   },
   {
@@ -42,6 +46,7 @@ export const PHONES: Device[] = [
     startingPrice: 799,
     released: 'Sept 2025',
     keySpecs: '6.3" OLED 120Hz (2622x1206, 460ppi), A19, 8GB RAM, dual 48MP (W+UW) / 18MP front, 256GB/512GB, 3,692 mAh, 30–40W wired + 25W MagSafe',
+    imageUrl: '/images/devices/iphone-17.png',
     sellingNotes: '256GB base is a big deal — no more 128GB. 8GB RAM still runs on-device AI. Solid mid-tier pick for people who want the latest without paying Pro prices. $799–$1,029.',
   },
   {
@@ -50,9 +55,17 @@ export const PHONES: Device[] = [
     startingPrice: 599.99,
     released: 'March 2026',
     keySpecs: '6.3" OLED 120Hz (460ppi), A19, 8GB RAM, dual 48MP / 18MP front, 256GB/512GB, 30–40W wired + 25W MagSafe, MagSafe/Qi2',
+    imageUrl: '/images/devices/iphone-17e.png',
     sellingNotes: 'The value play — brings A19 AI power, MagSafe, and 256GB storage to $599. Same local AI features as the Pro models. Great for "Value Explorer" customers who want 2026 tech at an accessible price.',
   },
-  { name: 'iPhone 16', category: 'iphone', startingPrice: 799, released: 'Sept 2024', keySpecs: 'Still sold; 128GB base' },
+  {
+    name: 'iPhone 16',
+    category: 'iphone',
+    startingPrice: 799,
+    released: 'Sept 2024',
+    keySpecs: 'Still sold; 128GB base',
+    imageUrl: '/images/devices/iphone-16.png',
+  },
   // Samsung Galaxy lineup
   {
     name: 'Galaxy S26 Ultra',
@@ -60,6 +73,7 @@ export const PHONES: Device[] = [
     startingPrice: 1299.99,
     released: 'March 2026',
     keySpecs: '6.9" QHD+ AMOLED (3120x1440, 500ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12/16GB RAM, 200MP Wide + 50MP UW + 50MP 5x Tele + 10MP 3x Tele / 12MP front, 256GB/512GB/1TB, 5,000 mAh, 60W wired + 25W wireless, S Pen, Flex Magic Privacy Display, 7.9mm thin',
+    imageUrl: '/images/devices/galaxy-s26-ultra.png',
     sellingNotes: 'Flex Magic Privacy Display narrows viewing angle so screen looks black to people next to you — huge for commuters/business users on trains or planes. Thinnest Ultra ever at 7.9mm with rounded corners (finally). 200MP camera with 100x Space Zoom. 60W charging (vs Apple\'s 40W). On-device AI via "Now Nudge" predicts your needs proactively. One UI 8.5 on Android 16 with 7 years of updates. $1,299.99–$1,799.99.',
   },
   {
@@ -68,6 +82,7 @@ export const PHONES: Device[] = [
     startingPrice: 1099.99,
     released: 'March 2026',
     keySpecs: '6.7" QHD+ AMOLED (516ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12GB RAM, 50MP Wide + 12MP UW + 10MP 3x Tele / 12MP front, 256GB+, 4,900 mAh, 45W wired + 20W wireless',
+    imageUrl: '/images/devices/galaxy-s26-plus.png',
     sellingNotes: 'Same Snapdragon 8 Elite Gen 5 as the Ultra. Big screen without the S Pen premium. 45W charging. Now Nudge AI and on-device processing built in. Good middle ground.',
   },
   {
@@ -76,34 +91,182 @@ export const PHONES: Device[] = [
     startingPrice: 899.99,
     released: 'March 2026',
     keySpecs: '6.3" FHD+ AMOLED (2340x1080, 411ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12GB RAM, 50MP Wide + 12MP UW + 10MP 3x Tele / 12MP front, 256GB/512GB, 4,300 mAh, 25W wired + 15W wireless',
+    imageUrl: '/images/devices/galaxy-s26.png',
     sellingNotes: '256GB minimum (no more 128GB). Same processor as Ultra — on-device AI is the same. Most affordable way into the S26 ecosystem. Compare to iPhone 17 at $799 — similar positioning.',
   },
-  { name: 'Galaxy Z Fold7', category: 'samsung', startingPrice: 1799.99, released: '2025', keySpecs: 'Slimmer, virtually invisible crease, no S Pen' },
-  { name: 'Galaxy Z Flip7', category: 'samsung', startingPrice: 1099.99, released: '2025', keySpecs: 'Slimmest Flip ever (6.35mm), edge-to-edge external display' },
-  { name: 'Galaxy A17 5G', category: 'samsung', startingPrice: 229.99, released: '2026', keySpecs: 'Budget 5G phone' },
+  {
+    name: 'Galaxy Z Fold7',
+    category: 'samsung',
+    startingPrice: 1799.99,
+    released: '2025',
+    keySpecs: 'Slimmer, virtually invisible crease, no S Pen',
+    imageUrl: '/images/devices/galaxy-z-fold7.png',
+  },
+  {
+    name: 'Galaxy Z Flip7',
+    category: 'samsung',
+    startingPrice: 1099.99,
+    released: '2025',
+    keySpecs: 'Slimmest Flip ever (6.35mm), edge-to-edge external display',
+    imageUrl: '/images/devices/galaxy-z-flip7.png',
+  },
+  {
+    name: 'Galaxy A17 5G',
+    category: 'samsung',
+    startingPrice: 229.99,
+    released: '2026',
+    keySpecs: 'Budget 5G phone',
+    imageUrl: '/images/devices/galaxy-a17-5g.png',
+  },
   // Google Pixel lineup
-  { name: 'Pixel 10 Pro XL', category: 'pixel', startingPrice: 1099, released: 'Aug 2025', keySpecs: 'Largest Pixel battery (5,200mAh), Tensor G5' },
-  { name: 'Pixel 10 Pro', category: 'pixel', startingPrice: 999, released: 'Aug 2025', keySpecs: 'Tensor G5, 100x zoom' },
-  { name: 'Pixel 10', category: 'pixel', startingPrice: 799, released: 'Aug 2025', keySpecs: 'Tensor G5, 4,970mAh' },
-  { name: 'Pixel 10 Pro Fold', category: 'pixel', startingPrice: 1799, released: 'Oct 2025', keySpecs: 'Foldable, dual-cell 5,015mAh, Tensor G5' },
-  { name: 'Pixel 10a', category: 'pixel', startingPrice: 499.99, released: 'March 2026', keySpecs: 'Tensor G5, 128GB, Gorilla Glass 7i, 30+ hr battery' },
+  {
+    name: 'Pixel 10 Pro XL',
+    category: 'pixel',
+    startingPrice: 1099,
+    released: 'Aug 2025',
+    keySpecs: 'Largest Pixel battery (5,200mAh), Tensor G5',
+    imageUrl: '/images/devices/pixel-10-pro-xl.png',
+  },
+  {
+    name: 'Pixel 10 Pro',
+    category: 'pixel',
+    startingPrice: 999,
+    released: 'Aug 2025',
+    keySpecs: 'Tensor G5, 100x zoom',
+    imageUrl: '/images/devices/pixel-10-pro.png',
+  },
+  {
+    name: 'Pixel 10',
+    category: 'pixel',
+    startingPrice: 799,
+    released: 'Aug 2025',
+    keySpecs: 'Tensor G5, 4,970mAh',
+    imageUrl: '/images/devices/pixel-10.png',
+  },
+  {
+    name: 'Pixel 10 Pro Fold',
+    category: 'pixel',
+    startingPrice: 1799,
+    released: 'Oct 2025',
+    keySpecs: 'Foldable, dual-cell 5,015mAh, Tensor G5',
+    imageUrl: '/images/devices/pixel-10-pro-fold.png',
+  },
+  {
+    name: 'Pixel 10a',
+    category: 'pixel',
+    startingPrice: 499.99,
+    released: 'March 2026',
+    keySpecs: 'Tensor G5, 128GB, Gorilla Glass 7i, 30+ hr battery',
+    imageUrl: '/images/devices/pixel-10a.png',
+  },
   // Other / Niche
-  { name: 'Samsung Galaxy XCover7 Pro', category: 'other', startingPrice: 499.99, released: '2025', keySpecs: 'MIL-STD-810H rugged, IP68, removable battery, programmable key. Great backup phone for B2G1 deals — basically a satellite phone on Beyond.' },
-  { name: 'Motorola moto g 2026', category: 'other', startingPrice: 189.99, released: '2026', keySpecs: 'Budget device, solid for first-time smartphone users or kids' },
-  { name: 'T-Mobile REVVL 8 Pro', category: 'other', startingPrice: 249.99, released: '2025', keySpecs: '6.7" display. T-Mobile own-brand. Solid budget option — great for B2G1 third line, backup phones, or price-sensitive customers' },
-  { name: 'T-Mobile REVVL 8', category: 'other', startingPrice: 199.99, released: '2025', keySpecs: 'T-Mobile own-brand. Lowest cost option — kids phones, basic line adds, or backup devices' },
+  {
+    name: 'Samsung Galaxy XCover7 Pro',
+    category: 'other',
+    startingPrice: 499.99,
+    released: '2025',
+    keySpecs: 'MIL-STD-810H rugged, IP68, removable battery, programmable key. Great backup phone for B2G1 deals — basically a satellite phone on Beyond.',
+    imageUrl: '/images/devices/samsung-galaxy-xcover7-pro.png',
+  },
+  {
+    name: 'Motorola moto g 2026',
+    category: 'other',
+    startingPrice: 189.99,
+    released: '2026',
+    keySpecs: 'Budget device, solid for first-time smartphone users or kids',
+    imageUrl: '/images/devices/motorola-moto-g-2026.png',
+  },
+  {
+    name: 'T-Mobile REVVL 8 Pro',
+    category: 'other',
+    startingPrice: 249.99,
+    released: '2025',
+    keySpecs: '6.7" display. T-Mobile own-brand. Solid budget option — great for B2G1 third line, backup phones, or price-sensitive customers',
+    imageUrl: '/images/devices/t-mobile-revvl-8-pro.png',
+  },
+  {
+    name: 'T-Mobile REVVL 8',
+    category: 'other',
+    startingPrice: 199.99,
+    released: '2025',
+    keySpecs: 'T-Mobile own-brand. Lowest cost option — kids phones, basic line adds, or backup devices',
+    imageUrl: '/images/devices/t-mobile-revvl-8.png',
+  },
 ];
 
 export const TABLETS: Device[] = [
-  { name: 'iPad (A16)', category: 'tablet', startingPrice: 499.99, released: '2024', keySpecs: '10.9", A16 chip, USB-C, 128GB. Solid entry iPad for media, school, and light productivity.' },
-  { name: 'iPad mini (A17 Pro)', category: 'tablet', startingPrice: 499, released: '2024', keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.' },
-  { name: 'iPad Air 11" (M4)', category: 'tablet', startingPrice: 599, released: 'March 2026', keySpecs: '11", M4 chip, Apple Pencil Pro support. Best balance of power and price.' },
-  { name: 'iPad Air 13" (M4)', category: 'tablet', startingPrice: 799, released: 'March 2026', keySpecs: '13", M4 chip, Apple Pencil Pro support. Bigger screen for productivity and creative work.' },
-  { name: 'iPad Pro 11" (M5)', category: 'tablet', startingPrice: 999, released: '2025', keySpecs: '11" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Laptop replacement for creatives and pros.' },
-  { name: 'iPad Pro 13" (M5)', category: 'tablet', startingPrice: 1299, released: '2025', keySpecs: '13" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Ultimate creative canvas.' },
-  { name: 'Samsung Galaxy Tab S10+ 5G', category: 'tablet', startingPrice: 999.99, released: '2025', keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.' },
-  { name: 'Samsung Galaxy Tab S10 FE 5G', category: 'tablet', startingPrice: 599.99, released: '2025', keySpecs: '5G tablet with S Pen included. Samsung DeX desktop mode. Pairs with Galaxy ecosystem.' },
-  { name: 'Samsung Galaxy Tab A11+ 5G', category: 'tablet', startingPrice: 289.99, released: '2026', keySpecs: 'Budget 5G tablet. Great for kids in the car, streaming, or as a second screen. FREE with S26 purchase + tablet line.' },
+  {
+    name: 'iPad (A16)',
+    category: 'tablet',
+    startingPrice: 499.99,
+    released: '2024',
+    keySpecs: '10.9", A16 chip, USB-C, 128GB. Solid entry iPad for media, school, and light productivity.',
+    imageUrl: '/images/devices/ipad-a16.png',
+  },
+  {
+    name: 'iPad mini (A17 Pro)',
+    category: 'tablet',
+    startingPrice: 499,
+    released: '2024',
+    keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.',
+    imageUrl: '/images/devices/ipad-mini-a17-pro.png',
+  },
+  {
+    name: 'iPad Air 11" (M4)',
+    category: 'tablet',
+    startingPrice: 599,
+    released: 'March 2026',
+    keySpecs: '11", M4 chip, Apple Pencil Pro support. Best balance of power and price.',
+    imageUrl: '/images/devices/ipad-air-11-m4.png',
+  },
+  {
+    name: 'iPad Air 13" (M4)',
+    category: 'tablet',
+    startingPrice: 799,
+    released: 'March 2026',
+    keySpecs: '13", M4 chip, Apple Pencil Pro support. Bigger screen for productivity and creative work.',
+    imageUrl: '/images/devices/ipad-air-13-m4.png',
+  },
+  {
+    name: 'iPad Pro 11" (M5)',
+    category: 'tablet',
+    startingPrice: 999,
+    released: '2025',
+    keySpecs: '11" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Laptop replacement for creatives and pros.',
+    imageUrl: '/images/devices/ipad-pro-11-m5.png',
+  },
+  {
+    name: 'iPad Pro 13" (M5)',
+    category: 'tablet',
+    startingPrice: 1299,
+    released: '2025',
+    keySpecs: '13" OLED, M5 chip, ProMotion 120Hz, Thunderbolt. Ultimate creative canvas.',
+    imageUrl: '/images/devices/ipad-pro-13-m5.png',
+  },
+  {
+    name: 'Samsung Galaxy Tab S10+ 5G',
+    category: 'tablet',
+    startingPrice: 999.99,
+    released: '2025',
+    keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.',
+    imageUrl: '/images/devices/samsung-galaxy-tab-s10-plus-5g.png',
+  },
+  {
+    name: 'Samsung Galaxy Tab S10 FE 5G',
+    category: 'tablet',
+    startingPrice: 599.99,
+    released: '2025',
+    keySpecs: '5G tablet with S Pen included. Samsung DeX desktop mode. Pairs with Galaxy ecosystem.',
+    imageUrl: '/images/devices/samsung-galaxy-tab-s10-fe-5g.png',
+  },
+  {
+    name: 'Samsung Galaxy Tab A11+ 5G',
+    category: 'tablet',
+    startingPrice: 289.99,
+    released: '2026',
+    keySpecs: 'Budget 5G tablet. Great for kids in the car, streaming, or as a second screen. FREE with S26 purchase + tablet line.',
+    imageUrl: '/images/devices/samsung-galaxy-tab-a11-plus-5g.png',
+  },
 ];
 
 export const WATCHES: Device[] = [
@@ -113,6 +276,7 @@ export const WATCHES: Device[] = [
     startingPrice: 399,
     released: '2025',
     keySpecs: 'Latest Apple Watch flagship, Apple Pay, haptic maps, health sensors, fall detection',
+    imageUrl: '/images/devices/apple-watch-series-11.png',
     sellingNotes: 'Acts as a mini travel assistant — Apple Pay for contactless transit, haptic directions on your wrist so you never look at your phone while navigating. Ecosystem lock-in: automatic handoff with iPhone, AirPods seamless switching.',
   },
   {
@@ -121,6 +285,7 @@ export const WATCHES: Device[] = [
     startingPrice: 299.99,
     released: '2025',
     keySpecs: '40mm/44mm, sleep score, activity rings, crash detection, Apple Pay',
+    imageUrl: '/images/devices/apple-watch-se-3.png',
     sellingNotes: 'Best-value Apple Watch at $299.99 (40mm). Great for kids and teens — cellular means they can call/text without a phone.',
   },
   {
@@ -129,6 +294,7 @@ export const WATCHES: Device[] = [
     startingPrice: 249,
     released: '2024',
     keySpecs: '40mm/44mm. Previous-gen SE still available at lower price.',
+    imageUrl: '/images/devices/apple-watch-se-2nd-gen.png',
   },
   {
     name: 'Apple Watch Ultra 3',
@@ -136,6 +302,7 @@ export const WATCHES: Device[] = [
     startingPrice: 799,
     released: '2025',
     keySpecs: 'Advanced sports metrics, rugged titanium build, dual-frequency GPS, 36hr battery',
+    imageUrl: '/images/devices/apple-watch-ultra-3.png',
     sellingNotes: 'Built for extreme sports, diving, hiking. Action button for quick access. Premium positioning — sells itself to outdoor enthusiasts.',
   },
   {
@@ -144,6 +311,7 @@ export const WATCHES: Device[] = [
     startingPrice: 649.99,
     released: '2025',
     keySpecs: '47mm, Wear OS, BioActive Sensor (body composition, heart rate, SpO2)',
+    imageUrl: '/images/devices/samsung-galaxy-watch8-ultra.png',
     sellingNotes: 'Samsung\'s answer to the Apple Watch Ultra. BioActive Sensor does body composition analysis. Premium titanium build for outdoor/adventure users.',
   },
   {
@@ -152,6 +320,7 @@ export const WATCHES: Device[] = [
     startingPrice: 349.99,
     released: '2025',
     keySpecs: '46mm, rotating bezel, ECG, Wear OS',
+    imageUrl: '/images/devices/samsung-galaxy-watch8-classic.png',
     sellingNotes: 'Physical rotating bezel is back — classic look that appeals to traditional watch wearers. ECG and heart monitoring built in.',
   },
   {
@@ -160,6 +329,7 @@ export const WATCHES: Device[] = [
     startingPrice: 399.99,
     released: '2025',
     keySpecs: '40mm ($399.99) / 44mm ($429.99), sleep & stress tracking, Wear OS, GPS',
+    imageUrl: '/images/devices/samsung-galaxy-watch8.png',
     sellingNotes: 'FREE with new wearable line (36 monthly credits). Focuses on durability and GPS for active users. Pairs with Galaxy Buds for workout audio. Galaxy ecosystem — Now Nudge AI integration.',
   },
   {
@@ -168,6 +338,7 @@ export const WATCHES: Device[] = [
     startingPrice: 399.99,
     released: '2025',
     keySpecs: 'Health & wellness tracking ring. No screen, no charging dock needed daily. Sleep, heart rate, activity.',
+    imageUrl: '/images/devices/samsung-galaxy-ring.png',
     sellingNotes: 'For customers who don\'t want a watch but want health tracking. Discreet, fashionable. Pairs with Galaxy phone for full health dashboard.',
   },
   {
@@ -176,6 +347,7 @@ export const WATCHES: Device[] = [
     startingPrice: 449.99,
     released: '2025',
     keySpecs: '41mm ($449.99) / 45mm, Fitbit health integration, Gemini AI, Google Assistant',
+    imageUrl: '/images/devices/pixel-watch-4.png',
     sellingNotes: 'Fitbit health metrics built in. Gemini AI on-wrist. Best watch for Google ecosystem users.',
   },
   {
@@ -184,15 +356,44 @@ export const WATCHES: Device[] = [
     startingPrice: 174,
     released: '2025',
     keySpecs: 'Real-time GPS, dual cameras, Bluetooth, LED flashlight. For kids who aren\'t ready for a phone.',
+    imageUrl: '/images/devices/t-mobile-syncup-kids-watch-2.png',
     sellingNotes: 'Parents can track location in real time, set geofences, and kids can call/text approved contacts. Dual cameras let kids share photos. LED flashlight is a fun bonus. $174 + wearable line.',
   },
 ];
 
 export const HOTSPOTS: Device[] = [
-  { name: 'TCL LINKPORT IK511', category: 'hotspot', startingPrice: 96, released: 'Oct 2025', keySpecs: '5G RedCap, max 220Mbps down / 120Mbps up, OpenWrt OS, 256MB RAM, 1.01 oz, USB-C. Connects a single device (no Wi-Fi sharing). Bus-powered.' },
-  { name: 'Franklin T10', category: 'hotspot', startingPrice: 'Available', released: '2025', keySpecs: '4G LTE, Wi-Fi 5, connects up to 15 devices simultaneously. Traditional mobile hotspot.' },
-  { name: 'SyncUP DRIVE', category: 'hotspot', startingPrice: 108, released: '2025', keySpecs: 'OBD-II plug-in. Vehicle health diagnostics, 5G Wi-Fi hotspot (up to 5 devices), real-time GPS, trip history, speed/boundary alerts for teen drivers. FREE w/ 24 bill credits.' },
-  { name: 'SyncUP TRACKER 2', category: 'hotspot', startingPrice: 54, released: '2025', keySpecs: 'LTE/GPS tracking, IP67 weather-resistant, 890 mAh battery (up to 7 days). Real-time location via cellular — works anywhere, not just near phones like AirTag. FREE w/ 24 bill credits.' },
+  {
+    name: 'TCL LINKPORT IK511',
+    category: 'hotspot',
+    startingPrice: 96,
+    released: 'Oct 2025',
+    keySpecs: '5G RedCap, max 220Mbps down / 120Mbps up, OpenWrt OS, 256MB RAM, 1.01 oz, USB-C. Connects a single device (no Wi-Fi sharing). Bus-powered.',
+    imageUrl: '/images/devices/tcl-linkport-ik511.png',
+  },
+  {
+    name: 'Franklin T10',
+    category: 'hotspot',
+    startingPrice: 'Available',
+    released: '2025',
+    keySpecs: '4G LTE, Wi-Fi 5, connects up to 15 devices simultaneously. Traditional mobile hotspot.',
+    imageUrl: '/images/devices/franklin-t10.png',
+  },
+  {
+    name: 'SyncUP DRIVE',
+    category: 'hotspot',
+    startingPrice: 108,
+    released: '2025',
+    keySpecs: 'OBD-II plug-in. Vehicle health diagnostics, 5G Wi-Fi hotspot (up to 5 devices), real-time GPS, trip history, speed/boundary alerts for teen drivers. FREE w/ 24 bill credits.',
+    imageUrl: '/images/devices/syncup-drive.png',
+  },
+  {
+    name: 'SyncUP TRACKER 2',
+    category: 'hotspot',
+    startingPrice: 54,
+    released: '2025',
+    keySpecs: 'LTE/GPS tracking, IP67 weather-resistant, 890 mAh battery (up to 7 days). Real-time location via cellular — works anywhere, not just near phones like AirTag. FREE w/ 24 bill credits.',
+    imageUrl: '/images/devices/syncup-tracker-2.png',
+  },
 ];
 
 /** SyncUP tracker comparison data from Google NotebookLM research */

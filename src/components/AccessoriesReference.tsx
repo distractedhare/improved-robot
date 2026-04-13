@@ -3,6 +3,7 @@ import { ShoppingBag, ChevronDown, Shield, BatteryCharging, Headphones, CarFront
 import { motion, AnimatePresence } from 'motion/react';
 import { BIG_ADDS, ESSENTIALS_TABLE, EssentialItem, BigAddItem } from '../data/essentialAccessories';
 import { EcosystemMatrix } from '../types/ecosystem';
+import AccessoryImageSlot from './AccessoryImageSlot';
 import {
   getAccessoryOutcomeLabel,
   getAppealTypeLabel,
@@ -201,6 +202,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                           <AccessoryReferenceCard
                             key={item.name}
                             name={item.name}
+                            imageUrl={item.imageUrl}
                             summary={summary}
                             outcomeLabel={outcomeLabel}
                             highlighted={outcomeFilter !== 'all' && matches}
@@ -270,6 +272,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
             <AccessoryReferenceCard
               key={item.name}
               name={item.name}
+              imageUrl={item.imageUrl}
               summary={summary}
               outcomeLabel={outcomeLabel}
               highlighted={outcomeFilter !== 'all' && matches}
@@ -307,6 +310,7 @@ function AccessoryReferenceCard({
   header,
   meta,
   name,
+  imageUrl,
 }: {
   summary: PositioningSummary;
   outcomeLabel: string;
@@ -315,6 +319,7 @@ function AccessoryReferenceCard({
   header: ReactNode;
   meta?: ReactNode;
   name: string;
+  imageUrl?: string;
 }) {
   const callCue = summary.listenFor.slice(0, 2).join(' • ');
 
@@ -328,14 +333,12 @@ function AccessoryReferenceCard({
     }`}>
       <div className="flex gap-3">
         {/* Accessory Thumbnail */}
-        <div className="w-12 h-12 rounded-lg overflow-hidden bg-t-light-gray/20 shrink-0 border border-t-light-gray/50">
-          <img
-            src={`https://picsum.photos/seed/${name.replace(/\s+/g, '-').toLowerCase()}/100/100`}
-            alt={name}
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </div>
+        <AccessoryImageSlot
+          name={name}
+          imageUrl={imageUrl}
+          className="h-12 w-12 shrink-0 rounded-lg border border-t-light-gray/50 bg-t-light-gray/20 p-1.5"
+          imageClassName="h-full w-full object-contain"
+        />
         <div className="flex-1 min-w-0">
           {header}
           {meta}

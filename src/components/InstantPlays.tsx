@@ -4,6 +4,8 @@ import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ESSENTIALS_TABLE, BIG_ADDS, getRecommendedCategories, Intent } from '../data/essentialAccessories';
+import { getAccessoryImageUrl } from '../data/accessoryImagePaths';
+import AccessoryImageSlot from './AccessoryImageSlot';
 
 type ProductType = 'Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product';
 
@@ -454,9 +456,17 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
           </p>
           <div className="bg-surface-elevated rounded-xl p-4 border border-support-border shadow-sm">
             <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1.5 flex-1">
+              <div className="flex items-start gap-3 flex-1">
+                <AccessoryImageSlot
+                  name={supportAccessory.item.product}
+                  imageUrl={getAccessoryImageUrl(supportAccessory.item.product)}
+                  className="h-14 w-14 shrink-0 rounded-xl border border-support-border bg-support-surface/50 p-2"
+                  imageClassName="h-full w-full object-contain"
+                />
+                <div className="space-y-1.5 flex-1">
                 <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
                 <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{supportAccessory.pitch}</p>
+                </div>
               </div>
 	              <div className="text-right shrink-0">
 	                <p className="text-sm font-black text-t-dark-gray">{supportAccessory.item.price}</p>
@@ -549,9 +559,17 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                     <div className="px-4 pb-3 space-y-1.5">
                       {cat.items.slice(0, 2).map((item, i) => (
                         <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="font-bold text-t-dark-gray">{item.name}</span>
-                            <div className="flex items-center gap-3 shrink-0">
+                          <div className="flex items-start gap-3">
+                            <AccessoryImageSlot
+                              name={item.name}
+                              imageUrl={item.imageUrl}
+                              className="h-12 w-12 shrink-0 rounded-lg border border-t-light-gray/50 bg-t-light-gray/20 p-1.5"
+                              imageClassName="h-full w-full object-contain"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between text-[10px] gap-3">
+                                <span className="font-bold text-t-dark-gray">{item.name}</span>
+                                <div className="flex items-center gap-3 shrink-0">
                               {'originalPrice' in item && item.originalPrice ? (
                                 <>
                                   <span className="line-through text-t-muted">{item.originalPrice}</span>
@@ -568,17 +586,19 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                                   <span className="text-[10px] font-semibold text-t-dark-gray">w/ bundle</span>
                                 </>
                               )}
+                                </div>
+                              </div>
+                              {item.worksWith && (
+                                <div className="flex gap-1 mt-1">
+                                  {item.worksWith.map((eco) => (
+                                    <span key={eco} className="text-[7px] font-black uppercase tracking-wider bg-t-light-gray/30 text-t-dark-gray px-1 py-0.5 rounded">{eco}</span>
+                                  ))}
+                                </div>
+                              )}
+                              <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
+                              <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
                             </div>
                           </div>
-                          {item.worksWith && (
-                            <div className="flex gap-1 mt-1">
-                              {item.worksWith.map((eco) => (
-                                <span key={eco} className="text-[7px] font-black uppercase tracking-wider bg-t-light-gray/30 text-t-dark-gray px-1 py-0.5 rounded">{eco}</span>
-                              ))}
-                            </div>
-                          )}
-                          <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
-                          <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
                         </div>
                       ))}
                     </div>
@@ -616,18 +636,28 @@ function BigAddsSection({ age }: { age?: string }) {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
           return (
             <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex items-start gap-3">
+                <AccessoryImageSlot
+                  name={item.name}
+                  imageUrl={item.imageUrl}
+                  className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+                  imageClassName="h-full w-full object-contain"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
                   <span className="font-black text-t-dark-gray">{item.name}</span>
                   <span className="text-t-muted">{item.note}</span>
                   {highlighted && (
                     <Star className="w-2.5 h-2.5 text-t-magenta fill-t-magenta" />
                   )}
+                    </div>
+                    <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
+                  </div>
+                  <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
+                  <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
                 </div>
-                <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
               </div>
-              <p className="text-[9px] text-t-dark-gray font-medium leading-snug mt-1.5">{item.why}</p>
-              <p className="mt-1 text-[10px] font-bold text-t-magenta">{item.pitch}</p>
             </div>
           );
         })}

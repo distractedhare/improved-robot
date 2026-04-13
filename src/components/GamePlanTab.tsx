@@ -14,6 +14,8 @@ import PersonaTranslator from './PersonaTranslator';
 import PlanMathVisualizer from './PlanMathVisualizer';
 import DynamicAccessoryFlow from './DynamicAccessoryFlow';
 import { PHONES } from '../data/devices';
+import AccessoryImageSlot from './AccessoryImageSlot';
+import { getAccessoryImageUrl } from '../data/accessoryImagePaths';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -455,17 +457,28 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
       >
         {/* FRONT */}
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
-              {rec.category}
-            </span>
-            <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
-              {rec.items.join(' • ')}
-            </span>
+          <div className="flex items-start gap-3">
+            <AccessoryImageSlot
+              name={rec.items[0] ?? rec.category}
+              imageUrl={getAccessoryImageUrl(rec.items[0] ?? rec.category)}
+              className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+              imageClassName="h-full w-full object-contain"
+              placeholderLabel="Demo"
+            />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+                  {rec.category}
+                </span>
+                <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
+                  {rec.items.join(' • ')}
+                </span>
+              </div>
+              <p className="text-[11px] text-t-dark-gray font-black leading-snug">
+                {rec.pitch}
+              </p>
+            </div>
           </div>
-          <p className="text-[11px] text-t-dark-gray font-black leading-snug">
-            {rec.pitch}
-          </p>
         </div>
 
         {/* BACK */}
