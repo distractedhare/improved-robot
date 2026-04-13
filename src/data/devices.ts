@@ -74,7 +74,7 @@ export const PHONES: Device[] = [
     released: 'March 2026',
     keySpecs: '6.9" QHD+ AMOLED (3120x1440, 500ppi, 120Hz), Snapdragon 8 Elite Gen 5, 12/16GB RAM, 200MP Wide + 50MP UW + 50MP 5x Tele + 10MP 3x Tele / 12MP front, 256GB/512GB/1TB, 5,000 mAh, 60W wired + 25W wireless, S Pen, Flex Magic Privacy Display, 7.9mm thin',
     imageUrl: '/images/devices/galaxy-s26-ultra.png',
-    sellingNotes: 'Flex Magic Privacy Display narrows viewing angle so screen looks black to people next to you — huge for commuters/business users on trains or planes. Thinnest Ultra ever at 7.9mm with rounded corners (finally). 200MP camera with 100x Space Zoom. 60W charging (vs Apple\'s 40W). On-device AI via "Now Nudge" predicts your needs proactively. One UI 8.5 on Android 16 with 7 years of updates. $1,299.99–$1,799.99.',
+    sellingNotes: 'Flex Magic Privacy Display narrows the viewing angle so the screen looks dark to people next to you — especially helpful for commuters on trains or planes. Thinnest Ultra ever at 7.9mm with rounded corners. 200MP camera with 100x Space Zoom. 60W charging (vs Apple\'s 40W). On-device AI via "Now Nudge" predicts your needs proactively. One UI 8.5 on Android 16 with 7 years of updates. $1,299.99–$1,799.99.',
   },
   {
     name: 'Galaxy S26+',
@@ -165,7 +165,7 @@ export const PHONES: Device[] = [
     category: 'other',
     startingPrice: 499.99,
     released: '2025',
-    keySpecs: 'MIL-STD-810H rugged, IP68, removable battery, programmable key. Great backup phone for B2G1 deals — basically a satellite phone on Beyond.',
+    keySpecs: 'MIL-STD-810H rugged, IP68, removable battery, programmable key. Built for customers who want a durable outdoor or backup phone.',
     imageUrl: '/images/devices/samsung-galaxy-xcover7-pro.png',
   },
   {

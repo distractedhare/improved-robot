@@ -348,7 +348,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
               {ctx.label} — {intent}
             </p>
             <div className="space-y-4">
-        {tips.map((tip) => (
+              {tips.map((tip) => (
                 <div key={tip.title} className="space-y-1">
                   <div className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-white/70 shrink-0" />
@@ -557,7 +557,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                     className="overflow-hidden"
                   >
                     <div className="px-4 pb-3 space-y-1.5">
-                      {cat.items.slice(0, 2).map((item, i) => (
+                      {cat.items.slice(0, 2).map((item) => (
                         <div key={item.name} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
                           <div className="flex items-start gap-3">
                             <AccessoryImageSlot
@@ -632,7 +632,7 @@ function BigAddsSection({ age }: { age?: string }) {
     <div className="rounded-2xl glass-card p-4 shadow-sm">
       <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Top big swings</p>
       <div className="space-y-2">
-        {visibleAdds.map((item, i) => {
+        {visibleAdds.map((item) => {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
           return (
             <div key={item.name} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
