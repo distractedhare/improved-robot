@@ -38,7 +38,7 @@ export const WELCOME_MESSAGES: Record<string, string[]> = {
 export const ONE_LINERS: Record<string, string[]> = {
   'exploring': [
     "I'm here to help you navigate the noise — let's find the one thing that actually makes your life easier.",
-    "Think of me as your T-Mobile concierge. No pressure, just the facts and the best deals.",
+    'Think of me as your T-Mobile concierge. No pressure, just the facts and the best deals.',
     "The best part about T-Mobile is that we don't hide the ball. Let's look at the real numbers together.",
   ],
   'ready to buy': [
@@ -47,24 +47,24 @@ export const ONE_LINERS: Record<string, string[]> = {
     "Let's get you set up so you can start enjoying that new tech today.",
   ],
   'upgrade / add a line': [
-    "Adding a line is the single best way to lower your cost-per-line. It's basically a volume discount.",
-    "Your current plan is great, but let's see if a quick shift could unlock even more free streaming or data.",
-    "Upgrading now locks in your trade-in value before the next model cycle drops it.",
+    'Adding a line is the single best way to lower your cost-per-line. It is a volume discount.',
+    "Your current plan is solid, but a quick shift can unlock more free streaming or data.",
+    'Upgrading now locks your trade-in value before the next model cycle drops it.',
   ],
   'order support': [
-    "My goal is to get your order moving so you can stop worrying and start using your new gear.",
-    "I'll track this down like it's my own order. Let's get you some answers.",
-    "While we wait for the system, let's make sure your account is optimized for the best possible value.",
+    "My goal is to get your order moving so you can start using your new gear with confidence.",
+    "I'll track this down like it's my own order. Let's get you answers now.",
+    "While we wait for the backend, let me make sure your account is set up for the best possible value.",
   ],
   'tech support': [
     "Tech should work for you, not the other way around. Let's get this fixed.",
-    "I'll walk you through this step-by-step. We'll have you back up and running in no time.",
-    "If we can't fix it, I'll make sure we find the fastest path to a replacement or upgrade.",
+    "I'll walk you through this step by step. We'll have you back up and running quickly.",
+    'If we can\'t fix it here, I\'ll route you to the right specialist in one smooth move.',
   ],
   'account support': [
-    "Your account should be as simple as possible. Let's clean up any confusion.",
-    "I'll do a full account audit while we're at it to make sure you're not paying for anything you don't need.",
-    "Let's make sure you're taking full advantage of all the perks your plan already includes.",
+    "Your account should be as simple as possible. Let me clean up the confusion.",
+    "I\'ll do a quick account audit while we talk so you are not paying for anything you don\'t need.",
+    "I want you to feel confident in your account setup and what your plan is already including.",
   ],
 };
 
@@ -79,9 +79,6 @@ export const DISCOVERY_QUESTIONS: Record<string, string[]> = {
     "What are you paying right now per month? (Just ballpark is fine)",
     "Are you into streaming — Netflix, Hulu, that kind of stuff?",
     "Would you be interested in trading in your current device? We take them in any condition.",
-    "How often do you find yourself needing to charge your phone during the day?",
-    "Do you use your phone for work, or is it mostly personal?",
-    "Are you the type who likes to have the latest and greatest, or do you prefer something reliable that just works?",
   ],
   'Home Internet': [
     "What internet provider do you have now, and what are you paying?",
@@ -90,8 +87,6 @@ export const DISCOVERY_QUESTIONS: Record<string, string[]> = {
     "Are you happy with your current speeds, or do things feel slow sometimes?",
     "Have you ever had T-Mobile Home Internet on your radar before?",
     "Is your current provider locked into a contract?",
-    "Do you have any 'dead zones' in your house where the Wi-Fi just doesn't reach?",
-    "Are you a gamer? Low latency is huge for that, and our 5G is crushing it lately.",
   ],
   'BTS': [
     "Do you have a tablet or watch on your account yet? A lot of people don't realize it's only $5/month to add one.",
@@ -101,7 +96,6 @@ export const DISCOVERY_QUESTIONS: Record<string, string[]> = {
     "Would a tablet help with work or school? We've got iPads and Galaxy Tabs with cellular for basically nothing with a new line.",
     "Have you seen the Galaxy Watch8? It's FREE right now with a new wearable line — 36 monthly credits.",
     "The Apple Watch SE 3 is $200 off with a new line — great for fitness tracking and staying connected without your phone.",
-    "Do you ever find yourself tethering your laptop to your phone? A dedicated tablet or hotspot line is way more reliable.",
   ],
   'IOT': [
     "Do you ever worry about your car when it's parked somewhere? SyncUP DRIVE gives you GPS tracking, trip history, and even vehicle diagnostics.",
@@ -110,7 +104,6 @@ export const DISCOVERY_QUESTIONS: Record<string, string[]> = {
     "Do you travel a lot? A SyncUP Tracker on your luggage means you always know where your bags are — even if the airline doesn't.",
     "Have you used AirTag or Tile before? SyncUP is different — it uses cellular, so it works anywhere with T-Mobile coverage, not just near other people's phones.",
     "The TCL LINKPORT is under $50 right now — it's a USB-C 5G hotspot that works on any laptop. Great for people who work remotely.",
-    "Do you have any high-value items like a bike or a camera bag that you'd want to keep an eye on?",
   ],
   'No Specific Product': [
     "What brings you in today? Just checking things out?",
@@ -118,7 +111,6 @@ export const DISCOVERY_QUESTIONS: Record<string, string[]> = {
     "Is there anything specific that's been bugging you about your current service?",
     "Have you seen any T-Mobile deals that caught your eye?",
     "What's most important to you in a wireless carrier?",
-    "If you could change one thing about your current mobile experience, what would it be?",
   ],
 };
 
@@ -249,39 +241,33 @@ export const OBJECTION_TEMPLATES: Record<string, { rebuttal: string; talkingPoin
 // --- PURCHASE STEP TEMPLATES BY PRODUCT ---
 export const PURCHASE_STEPS: Record<string, string[]> = {
   'Phone': [
-    'Check trade-in value for their current device (any condition!)',
-    'Select the right plan (Experience Beyond for max perks, Better Value for max savings)',
-    'Apply eligible promotions and bill credits (verify stacking rules)',
-    'Set up Protection 360 (explain AppleCare Services + JUMP! benefits)',
-    'Port their number from current carrier (need Account # and Transfer PIN)',
-    'Transfer contacts, apps, and data in-store (use T-Mobile Content Transfer app)',
-    'Set up T-Life app and show them the T-Mobile Tuesdays perks',
-    'Walk through their first bill expectations (proration + activation fees)',
+    'Check trade-in value for their current device',
+    'Select the right plan (compare Experience Beyond vs More)',
+    'Apply eligible promotions and bill credits',
+    'Set up Protection 360 for device protection',
+    'Port their number from current carrier',
+    'Transfer contacts, apps, and data in-store',
+    'Set up T-Life app for account management',
   ],
   'Home Internet': [
-    'Check address for T-Mobile Home Internet availability (verify signal strength)',
+    'Check address for T-Mobile Home Internet availability',
     'Select tier: Rely ($35-50), Amplified ($45-60), or All-In ($55-70)',
     'Apply bundle discount if they have a T-Mobile voice line ($15/month off)',
-    'Schedule gateway delivery or in-store pickup (show them the device)',
+    'Schedule gateway delivery or in-store pickup',
     'Remind them about the 15-day test drive — full refund if not satisfied',
-    'Explain the 5-Year Price Guarantee — their rate won\'t change',
-    'Help them download the T-Mobile Internet app for setup',
   ],
   'BTS': [
     'Determine device type: tablet, watch, or laptop',
-    'Add connected device line ($5/month on Experience Beyond/Better Value)',
-    'Select device and apply promotions (Galaxy Watch8 is FREE right now)',
-    'Set up cellular activation on the device (DIGITS for watches)',
-    'Consider Protection 360 for the new device (theft/loss is huge for portables)',
-    'Show them how to use the device without their phone nearby',
+    'Add connected device line ($5/month on Experience Beyond)',
+    'Select device and apply promotions',
+    'Set up cellular activation on the device',
+    'Consider Protection 360 for the new device',
   ],
   'IOT': [
     'Identify tracking needs: vehicle, pet, child, luggage',
     'Select SyncUP device (SyncUP Tracker or SyncUP DRIVE)',
-    'Add data plan and activate in-store ($5/month for most)',
-    'Download SyncUP app and configure tracking (set up geofences)',
-    'Show them the real-time map and history features',
-    'Explain the difference between cellular GPS and Bluetooth (AirTag)',
+    'Add data plan and activate in-store',
+    'Download SyncUP app and configure tracking',
   ],
   'No Specific Product': [
     'Understand their needs through discovery questions',
@@ -289,7 +275,6 @@ export const PURCHASE_STEPS: Record<string, string[]> = {
     'Walk through pricing and available promotions',
     'Process any trade-ins if applicable',
     'Set up their account and devices',
-    'Explain the Un-carrier difference (Price Lock, No Contracts, Perks)',
   ],
 };
 

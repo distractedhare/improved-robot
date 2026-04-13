@@ -186,7 +186,7 @@ export const OBJECTION_PLAYBOOK: ObjectionCategory[] = [
     id: 'hint-unavailable',
     label: 'Home Internet Not Available',
     description: 'Customer wants 5G Home Internet but it\'s not available in their area or slots are full. The mailer disappointment pivot.',
-    icon: 'Wifi',
+    icon: 'WifiOff',
     scenarios: [
       {
         id: 'hint-mailer-disappointment',

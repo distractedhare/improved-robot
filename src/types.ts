@@ -32,6 +32,7 @@ export interface AccessoryRecommendation {
   name: string;
   why: string;
   priceRange: string;
+  imageUrl?: string;
   /** Specific verified prices from t-mobile.com for key items */
   verifiedPrices?: { item: string; fullPrice: string; salePrice?: string }[];
   brands: string[];

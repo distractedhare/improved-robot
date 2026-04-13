@@ -1,378 +1,350 @@
-/**
- * essentialAccessories.ts
- *
- * Essential accessories (bundle-eligible, 25% off with 3+) and premium big-add items
- * for the T-Mobile accessories coaching layer.
- *
- * ESSENTIALS_TABLE → categories of items that qualify for the 25% bundle deal
- * BIG_ADDS → premium items that don't qualify for bundle pricing
- */
-
-export type Intent =
-  | 'exploring'
-  | 'ready to buy'
-  | 'upgrade / add a line'
-  | 'order support'
-  | 'tech support'
-  | 'account support';
+// Essential accessories pricing data — shared between Live (InstantPlays) and Learn (AccessoriesReference)
+import { getAccessoryImageUrl } from './accessoryImagePaths';
 
 export interface EssentialItem {
   name: string;
   price: string;
+  bundle: string | null;
   originalPrice?: string;
-  bundle?: string;
-  worksWith?: string[];
+  imageUrl?: string;
+  /** What makes this product good — specs, differentiators, review highlights */
+  why: string;
+  /** One-liner the rep can say out loud to the customer */
+  pitch: string;
+  /** Which phone ecosystems this works with */
+  worksWith?: ('iPhone' | 'Samsung' | 'Pixel' | 'All')[];
+  /** Estimated rep bonus payout per unit sold */
   bonus?: string;
+  /** Outcome bucket(s): Protect it, Power it, etc. */
   outcomes?: string[];
-  why?: string;
-  pitch?: string;
+  /** Sales shorthand for who this lands with first */
+  shopperTags?: string[];
+}
+
+export interface EssentialCategory {
+  category: string;
+  id: string; // stable key for expand/collapse state
+  items: EssentialItem[];
 }
 
 export interface BigAddItem {
   name: string;
-  note: string;
   price: string;
+  note: string;
+  imageUrl?: string;
+  /** What makes this product worth the price — specs, differentiators, standout features */
+  why: string;
+  /** One-liner the rep can say to pitch it */
+  pitch: string;
+  /** Which demographics this appeals to most */
+  bestFor?: string[];
+  /** Estimated rep bonus payout per unit sold */
   bonus?: string;
+  /** Outcome bucket(s) */
   outcomes?: string[];
-  why?: string;
-  pitch?: string;
+  /** Sales shorthand for who this lands with first */
+  shopperTags?: string[];
 }
 
-export interface EssentialCategory {
-  id: string;
-  category: string;
-  items: EssentialItem[];
-}
-
-// ---------------------------------------------------------------------------
-// ESSENTIALS TABLE — qualify for 25% bundle discount (mix-and-match, 3+ items)
-// ---------------------------------------------------------------------------
-
-export const ESSENTIALS_TABLE: EssentialCategory[] = [
-  {
-    id: 'protection',
-    category: 'Screen Protection',
-    items: [
-      {
-        name: 'ZAGG InvisibleShield Glass Elite',
-        price: '$50',
-        worksWith: ['iPhone', 'Samsung', 'Pixel'],
-        outcomes: ['Protect it'],
-        why: 'Military-grade antimicrobial glass that self-heals minor scratches and is P360 replacement-eligible.',
-        pitch: '"This is the one that gets replaced free if it ever breaks — and it\'s covered under P360 at no extra cost."',
-      },
-      {
-        name: 'ZAGG InvisibleShield Glass Elite+ (Privacy)',
-        price: '$60',
-        worksWith: ['iPhone', 'Samsung'],
-        outcomes: ['Protect it'],
-        why: 'Same elite protection with a privacy filter — only the person holding the phone can see the screen.',
-        pitch: '"If you use your phone for banking or work emails in public, the privacy screen means nobody\'s reading over your shoulder."',
-      },
-      {
-        name: 'ZAGG Screen Protector (Standard)',
-        price: '$40',
-        worksWith: ['iPhone', 'Samsung', 'Pixel', 'any'],
-        outcomes: ['Protect it'],
-        why: 'Entry-level tempered glass screen protection — better than nothing, great bundle filler.',
-        pitch: '"Basic protection, great price — makes a perfect third item to hit the bundle discount."',
-      },
-    ],
-  },
-  {
-    id: 'cases',
-    category: 'Cases',
-    items: [
-      {
-        name: 'OtterBox Defender',
-        price: '$50-70',
-        worksWith: ['iPhone', 'Samsung', 'Pixel'],
-        outcomes: ['Protect it'],
-        why: 'Triple-layer rugged protection — the go-to for customers who drop their phones constantly.',
-        pitch: '"If you\'re hard on phones, OtterBox is the name. Three layers of protection, they\'ve been doing this for 20 years."',
-      },
-      {
-        name: 'OtterBox Symmetry',
-        price: '$40-55',
-        worksWith: ['iPhone', 'Samsung'],
-        outcomes: ['Protect it', 'Show personality'],
-        why: 'Slimmer than Defender, still solid drop protection with more color options.',
-        pitch: '"Same OtterBox quality but thinner — fits in your pocket like it came with the phone."',
-      },
-      {
-        name: 'Case-Mate Karat',
-        price: '$30-50',
-        worksWith: ['iPhone'],
-        outcomes: ['Show personality'],
-        why: 'Fashion-forward case with iridescent pearl and glitter options — strong appeal for callers who care about style.',
-        pitch: '"If protection is secondary and you want the phone to look amazing, Case-Mate is the move."',
-      },
-      {
-        name: 'Tech21 Evo Check',
-        price: '$35-45',
-        worksWith: ['iPhone', 'Pixel'],
-        outcomes: ['Protect it'],
-        why: 'FlexShock technology with a honeycomb pattern — great protection that doesn\'t add bulk.',
-        pitch: '"Tech21 uses a flex-shock material — absorbs the impact instead of spreading it. Slimmer than OtterBox but still serious protection."',
-      },
-      {
-        name: 'Samsung Clear Case',
-        price: '$30-40',
-        worksWith: ['Samsung'],
-        outcomes: ['Show personality', 'Protect it'],
-        why: 'Official Samsung clear case shows off the device color — pairs perfectly with new Galaxy purchases.',
-        pitch: '"You picked this color for a reason — keep it visible. The Samsung clear case protects without hiding anything."',
-      },
-      {
-        name: 'Pelican Protector',
-        price: '$45-60',
-        worksWith: ['iPhone', 'Samsung', 'Pixel'],
-        outcomes: ['Protect it'],
-        why: 'Ultra-rugged case used by first responders — great pitch for outdoor or trade workers.',
-        pitch: '"Pelican makes cases for military and emergency workers. If they trust it, your phone will be fine."',
-      },
-    ],
-  },
-  {
-    id: 'charging',
-    category: 'Chargers & Power',
-    items: [
-      {
-        name: 'MagSafe Charger (Apple)',
-        price: '$39',
-        worksWith: ['iPhone'],
-        outcomes: ['Power it'],
-        why: 'Magnetic snap-on wireless charger — 15W for iPhone 12 and newer. Much cleaner than cables at the nightstand.',
-        pitch: '"Snaps right to the back, no fumbling with cables in the dark. This is the charger most iPhone users end up buying anyway."',
-      },
-      {
-        name: 'Belkin Boost Charge Pro MagSafe 3-in-1',
-        price: '$60-80',
-        worksWith: ['iPhone', 'Apple Watch', 'AirPods'],
-        outcomes: ['Power it', 'Travel easier'],
-        why: 'Charges iPhone, Watch, and AirPods simultaneously — one pad, no cable chaos.',
-        pitch: '"One pad, three devices. Phone, watch, and AirPods all charged overnight without plugging anything in."',
-      },
-      {
-        name: 'mophie PowerStation MagSafe Battery Pack',
-        price: '$60-70',
-        worksWith: ['iPhone'],
-        outcomes: ['Power it', 'Travel easier'],
-        why: 'Magnetic snap-on battery pack — charges on the go without a cable. Great for people who are always out of battery.',
-        pitch: '"This snaps right to the back of the phone and charges it while you use it. No cables, no fumbling — just extra battery when you need it."',
-      },
-      {
-        name: 'Belkin Qi2 Wireless Charger',
-        price: '$30-45',
-        worksWith: ['Samsung', 'Pixel', 'iPhone'],
-        outcomes: ['Power it'],
-        why: 'Qi2 is the open standard that works like MagSafe — 15W fast wireless charging for supported Android flagships.',
-        pitch: '"Qi2 is basically MagSafe for Android. Pixel 10 and some Samsung models support it — fast and cable-free."',
-      },
-      {
-        name: 'SCOSCHE USB-C Fast Charger (Car)',
-        price: '$25-40',
-        worksWith: ['iPhone', 'Samsung', 'Pixel', 'any'],
-        outcomes: ['Power it', 'Travel easier'],
-        why: 'USB-C PD car charger — gets to 50% in about 30 minutes. Universal appeal for commuters.',
-        pitch: '"Do you charge in the car? This gets you to 50% in half an hour on the commute. USB-C on both sides so it works with anything."',
-      },
-      {
-        name: 'Nimble Wireless Charging Pad',
-        price: '$30-45',
-        worksWith: ['iPhone', 'Samsung', 'Pixel', 'any'],
-        outcomes: ['Power it'],
-        why: 'Clean, minimalist wireless charging pad — eco-friendly packaging, great gift appeal.',
-        pitch: '"Wireless charging pad — set it down, pick it up fully charged. Works with any phone that supports wireless."',
-      },
-    ],
-  },
-  {
-    id: 'mounts',
-    category: 'Mounts & Grips',
-    items: [
-      {
-        name: 'iOttie MagSafe Car Mount',
-        price: '$35-55',
-        worksWith: ['iPhone'],
-        outcomes: ['Travel easier', 'Power it'],
-        why: 'MagSafe car mount — snaps magnetically, charges at 15W while navigating. Perfect GPS upgrade pitch.',
-        pitch: '"If you use your phone for GPS, this mounts it at eye level and charges it while you drive. One snap and it\'s on."',
-      },
-      {
-        name: 'iOttie Easy One Touch 5 (Universal)',
-        price: '$30-40',
-        worksWith: ['iPhone', 'Samsung', 'Pixel', 'any'],
-        outcomes: ['Travel easier'],
-        why: 'Universal vent mount with one-touch mechanism — great for non-MagSafe phones or any Android.',
-        pitch: '"One-touch mount — you can put the phone in and pull it out with one hand while driving. Keeps the screen at eye level."',
-      },
-      {
-        name: 'PopSockets PopGrip',
-        price: '$15-25',
-        worksWith: ['iPhone', 'Samsung', 'Pixel', 'any'],
-        outcomes: ['Show personality'],
-        why: 'Repositionable grip that doubles as a stand — huge variety of designs, great bundle filler at low price point.',
-        pitch: '"PopSockets are huge right now — gives you a grip so the phone doesn\'t slip, and it folds flat. Hundreds of designs."',
-      },
-      {
-        name: 'PopSockets MagSafe PopGrip',
-        price: '$25-30',
-        worksWith: ['iPhone'],
-        outcomes: ['Show personality', 'Travel easier'],
-        why: 'MagSafe-compatible PopGrip — attaches magnetically, can be removed and swapped easily.',
-        pitch: '"Same PopSocket grip but magnetic — you can pop it off for wireless charging and put it back in one click."',
-      },
-    ],
-  },
-  {
-    id: 'cables',
-    category: 'Cables & Accessories',
-    items: [
-      {
-        name: 'Belkin USB-C to USB-C Cable (6ft)',
-        price: '$20-30',
-        worksWith: ['Samsung', 'Pixel', 'any'],
-        outcomes: ['Power it'],
-        why: 'Braided USB-C cable — 6ft gives enough reach for bedside charging without the tangles.',
-        pitch: '"Six feet is the sweet spot — you can charge and use the phone from across the bed. Braided so it doesn\'t tangle."',
-      },
-      {
-        name: 'Belkin USB-C to Lightning Cable',
-        price: '$20-30',
-        worksWith: ['iPhone'],
-        outcomes: ['Power it'],
-        why: 'MFi-certified Lightning cable — for anyone with older accessories or older iPhone models.',
-        pitch: '"If you have older chargers or an older iPhone, this is the cable. Apple-certified so it won\'t damage the battery."',
-      },
-      {
-        name: 'GoTo (T-Mobile) USB-C Cable 3-Pack',
-        price: '$20',
-        worksWith: ['any'],
-        outcomes: ['Power it'],
-        why: 'Three cables for the price of one — one for home, car, and office. Great value pitch and a natural bundle item.',
-        pitch: '"Three cables for twenty bucks — one for the house, one for the car, one for work. You\'ll never be caught without a charger."',
-      },
-    ],
-  },
+const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
+  { category: 'Cases', id: 'cases', items: [
+    {
+      name: 'Tech21 EvoLite w/ MagSafe',
+      price: '$39.99', bundle: '~$30.00',
+      why: '12ft drop protection using FlexShock material that absorbs and distributes impact. Slim profile — doesn\'t add bulk. Built-in MagSafe magnets for snap-on chargers and car mounts. Antimicrobial coating kills 99.99% of surface bacteria. Best value MagSafe case we carry.',
+      pitch: '"This one\'s our best seller — 12-foot drop protection, super slim, and it snaps right onto MagSafe chargers."',
+      worksWith: ['iPhone'],
+      bonus: '$3',
+      outcomes: ['Protect it'],
+      shopperTags: ['Commuters', 'Daily Drops', 'MagSafe Users'],
+    },
+    {
+      name: 'Tech21 EvoClear w/ MagSafe',
+      price: '$49.99', bundle: '~$37.50',
+      why: 'Same 12ft FlexShock drop protection as EvoLite but fully clear — shows off the phone color. UV-yellowing resistance keeps it clear for the life of the case. MagSafe built in. Slightly more premium feel with polished edges.',
+      pitch: '"If they want to show off the phone color — this one stays crystal clear and won\'t yellow over time."',
+      worksWith: ['iPhone'],
+      bonus: '$4',
+      outcomes: ['Protect it', 'Show personality'],
+      shopperTags: ['Style-First', 'Young Adults', 'iPhone Upgraders'],
+    },
+    {
+      name: 'ZAGG Crystal Palace Snap w/ Kickstand',
+      price: '$54.99', bundle: '~$41.25',
+      why: 'Clear case with D3O impact material — military-grade 13ft drop protection. Built-in kickstand pops out for hands-free video calls and streaming. MagSafe compatible via Snap magnets. Graphene coating for heat dissipation during gaming/charging.',
+      pitch: '"This has a kickstand built right in — great for video calls or watching stuff hands-free. Plus 13-foot drop protection."',
+      worksWith: ['iPhone', 'Samsung'],
+      bonus: '$4',
+      outcomes: ['Protect it'],
+      shopperTags: ['Parents', 'Video Calls', 'Busy Households'],
+    },
+    {
+      name: 'ZAGG Rainier Snap w/ Kickstand',
+      price: '$69.99', bundle: '~$52.50',
+      why: 'ZAGG\'s premium rugged case — 16ft drop protection with D3O Bio material. Textured grip sides reduce drops in the first place. Multi-angle kickstand for landscape and portrait. MagSafe Snap compatible. Best case for people who are hard on phones.',
+      pitch: '"This is the tank — 16-foot drop rated, textured grip so it doesn\'t slip, and a kickstand. If they\'re rough on phones, this is the one."',
+      worksWith: ['iPhone', 'Samsung'],
+      bonus: '$5',
+      outcomes: ['Protect it'],
+      shopperTags: ['Adventure', 'Rough on Phones', 'Parents'],
+    },
+    {
+      name: 'GoTo Flex Case (Galaxy A16)',
+      price: '$9.97', originalPrice: '$19.99', bundle: null,
+      why: 'T-Mobile\'s house brand budget case. Flexible TPU material, basic 6ft drop protection. Raised edges protect screen and camera from flat-surface drops. Good enough for budget-conscious customers on the A16.',
+      pitch: '"It\'s on sale for under $10 — basic protection, gets the job done for the A16."',
+      worksWith: ['Samsung'],
+      bonus: '$1',
+      outcomes: ['Protect it'],
+      shopperTags: ['Budget', 'Teen Lines', 'First Smartphone'],
+    },
+  ]},
+  { category: 'Screen Protectors', id: 'screen', items: [
+    {
+      name: 'ZAGG Glass Elite (standard)',
+      price: '$44.99', bundle: '~$33.75',
+      why: 'Ion-exchange tempered glass — same hardening process as Gorilla Glass. Edge-to-edge coverage with precise cutouts. Anti-smudge Clearprint coating reduces fingerprints. Reinforced edges resist chipping. ZAGG lifetime warranty: if it cracks, they replace it free (customer just pays shipping). P360 replaces it in-store for free.',
+      pitch: '"This is tempered glass, edge to edge. If it ever cracks, ZAGG replaces it free — and with P360 we\'ll do it right here in store."',
+      worksWith: ['All'],
+      bonus: '$4',
+      outcomes: ['Protect it'],
+      shopperTags: ['Older Adults', 'Parents', 'Everyday Use'],
+    },
+    {
+      name: 'ZAGG Glass Elite Privacy 360 (iPhone)',
+      price: '$59.99', bundle: '~$45.00',
+      why: 'Same tempered glass as standard Glass Elite but adds a 4-way privacy filter — blocks viewing from all side angles, not just left/right. Screen looks normal to the user head-on. Huge seller for younger customers who use their phones on transit and in public. Also popular with professionals who handle sensitive info on their phones.',
+      pitch: '"This one blocks the screen from side angles — nobody can read their texts or see what they\'re doing. Huge with younger customers."',
+      worksWith: ['iPhone'],
+      bonus: '$5',
+      outcomes: ['Protect it'],
+      shopperTags: ['Students', 'Commuters', 'Privacy-Minded'],
+    },
+  ]},
+  { category: 'Chargers + Cables', id: 'chargers', items: [
+    {
+      name: 'Samsung 25W Power Adapter',
+      price: '$19.99', bundle: '~$15.00',
+      why: 'USB-C PD fast charger — takes a Galaxy S26 from 0 to 50% in about 30 minutes. Works with any USB-C phone (iPhone 15+, Pixel, etc.) at up to 25W. Compact single-port wall charger. New phones don\'t come with a charger in the box — this is the entry-level must-have.',
+      pitch: '"New phones don\'t come with a charger anymore. This gets you to 50% in 30 minutes — it\'s the easiest add."',
+      worksWith: ['All'],
+      bonus: '$2',
+      outcomes: ['Power it'],
+      shopperTags: ['Older Adults', 'Budget', 'New Phone Setup'],
+    },
+    {
+      name: 'Samsung 45W Power Adapter',
+      price: '$39.99', bundle: '~$30.00',
+      why: 'The fastest wall charger Samsung makes — 45W USB-C PD 3.0 with PPS. Takes the S26 Ultra from 0 to 65% in 30 minutes (vs ~50% on 25W). Noticeably faster for Galaxy flagship users. Diminishing returns on iPhone (caps at ~27W) but still works fine.',
+      pitch: '"If they want the fastest charge possible — this is 45 watts, noticeably faster than the 25W. Best for Galaxy flagship owners."',
+      worksWith: ['All'],
+      bonus: '$3',
+      outcomes: ['Power it'],
+      shopperTags: ['Power Users', 'Galaxy Flagships', 'Heavy Streaming'],
+    },
+    {
+      name: 'Samsung USB-C Cable (1m)',
+      price: '$19.99', bundle: '~$15.00',
+      why: '3A USB-C to USB-C cable. Supports 25W fast charging. 1 meter (3.3ft) length — good for nightstand or desk charging. Braided nylon exterior resists fraying. Every current phone uses USB-C now (iPhone 15+, all Android).',
+      pitch: '"Short cable for the nightstand — braided so it won\'t fray. Supports full fast charging speed."',
+      worksWith: ['All'],
+      bonus: '$2',
+      outcomes: ['Power it'],
+      shopperTags: ['Desk Setup', 'Basic Need', 'Daily Charging'],
+    },
+    {
+      name: 'Samsung USB-C Cable (1.8m)',
+      price: '$24.99', bundle: '~$18.75',
+      why: '5A USB-C to USB-C cable — supports up to 45W super fast charging. 1.8 meters (6ft) length gives you reach from a wall outlet to the couch. Required for the 45W charger to hit full speed (3A cables cap at 25W).',
+      pitch: '"This is the longer cable — 6 feet, so you can actually use the phone while it charges. And it supports the full 45W speed."',
+      worksWith: ['All'],
+      bonus: '$2',
+      outcomes: ['Power it'],
+      shopperTags: ['Travelers', 'Parents', 'Couch Charging'],
+    },
+    {
+      name: 'Samsung Ultimate Charging Bundle',
+      price: '$69.99', bundle: '~$52.50',
+      why: 'All-in-one kit: 25W wall charger + 40W dual-port car charger + USB-C cables for both. Covers home and car charging in one purchase. Better value than buying the wall charger + car charger separately. The car charger has two ports — charge the phone and a passenger\'s device simultaneously.',
+      pitch: '"This bundle covers home AND car — wall charger, car charger with two ports, and the cables. Better deal than buying them separately."',
+      worksWith: ['All'],
+      bonus: '$5',
+      outcomes: ['Power it', 'Travel easier'],
+      shopperTags: ['Commuters', 'Road Trips', 'Families'],
+    },
+  ]},
+  { category: 'Wireless Chargers', id: 'wireless', items: [
+    {
+      name: 'mophie 15W Wireless Charging Pad',
+      price: '$39.99', bundle: '~$30.00',
+      why: '15W Qi2 certified — fastest standard wireless charging speed. Flat pad design works on nightstands, desks, and kitchen counters. No magnets — works with any Qi-compatible phone (iPhone, Samsung, Pixel). LED indicator shows charging status. Simple: just set the phone down.',
+      pitch: '"Just set the phone down and it charges — no cables, no fiddling. Works with any phone that does wireless charging."',
+      worksWith: ['All'],
+      bonus: '$3',
+      outcomes: ['Power it'],
+      shopperTags: ['Older Adults', 'Nightstand', 'Simple Setup'],
+    },
+    {
+      name: 'Apple MagSafe Charger (2m)',
+      price: '$49.99', bundle: '~$37.50',
+      why: 'Apple\'s official magnetic wireless charger — snaps onto iPhone 12+ with perfect alignment every time. 15W charging speed (vs 7.5W on generic Qi pads). 2-meter cable gives plenty of reach. Also works with Qi2-compatible Pixels. Does NOT work with Samsung Galaxy (no MagSafe/Qi2 support).',
+      pitch: '"This snaps right onto the back of the iPhone magnetically — charges at double the speed of a regular wireless pad. The long cable is nice too."',
+      worksWith: ['iPhone', 'Pixel'],
+      bonus: '$4',
+      outcomes: ['Power it'],
+      shopperTags: ['iPhone Users', 'Desk Setup', 'Giftable'],
+    },
+  ]},
+  { category: 'Camera Protectors', id: 'camera', items: [
+    {
+      name: 'ZAGG Camera Protector (S26 Ultra)',
+      price: '$24.99', bundle: '~$18.75',
+      why: 'Tempered glass cover for the S26 Ultra\'s camera bump. The Ultra has a 200MP main sensor + 4 lenses that protrude significantly — very prone to scratches when set on tables face-up. Precise fit doesn\'t interfere with photo quality. Cheap insurance for a $1,300 phone\'s best feature.',
+      pitch: '"The camera lenses stick out — this protects them from scratches when you set it down. Cheap insurance for a $1,300 phone."',
+      worksWith: ['Samsung'],
+      bonus: '$2',
+      outcomes: ['Protect it'],
+      shopperTags: ['Adventure', 'Creators', 'Premium Buyers'],
+    },
+    {
+      name: 'ZAGG Camera Protector (S26+)',
+      price: '$24.99', bundle: '~$18.75',
+      why: 'Same tempered glass camera protection sized for the S26+ lens layout. The S26+ camera bump is still significant and vulnerable to micro-scratches from keys, coins, and surfaces. Doesn\'t affect photo or video quality.',
+      pitch: '"Same deal — protects those camera lenses from scratches. Doesn\'t affect picture quality at all."',
+      worksWith: ['Samsung'],
+      bonus: '$2',
+      outcomes: ['Protect it'],
+      shopperTags: ['Travelers', 'Daily Carry', 'Samsung Upgraders'],
+    },
+  ]},
+  { category: 'Other Essentials', id: 'other', items: [
+    {
+      name: 'iOttie Qi2 Mini Wireless Charging Car Mount',
+      price: '$54.95', bundle: '~$41.21',
+      why: 'Qi2 magnetic car mount — phone snaps on and charges at 15W while acting as your GPS. One-hand mount and dismount. Adjustable arm fits any car vent. Works with iPhone 12+ and Qi2 Pixels natively; Samsung needs a MagSafe-compatible case. iOttie is the #1 car mount brand.',
+      pitch: '"If they use their phone for maps — this mounts magnetically on the vent and charges while they drive. One hand to snap it on."',
+      worksWith: ['iPhone', 'Pixel'],
+      bonus: '$4',
+      outcomes: ['Travel easier', 'Power it'],
+      shopperTags: ['Commuters', 'Road Trips', 'Parents'],
+    },
+    {
+      name: 'PopSockets PopGrip for MagSafe',
+      price: '$29.99', bundle: '~$22.50',
+      why: 'Magnetic PopGrip — snaps on via MagSafe, pops off for wireless charging (old glue-on PopSockets blocked wireless charging). Works as a grip, stand, and fidget toy. Swappable tops in dozens of designs. Huge with 18-24 demographic — it\'s basically a phone personality accessory.',
+      pitch: '"This pops on magnetically so it doesn\'t block wireless charging. Great grip, doubles as a stand, and they can swap the designs."',
+      worksWith: ['iPhone', 'Pixel'],
+      bonus: '$2',
+      outcomes: ['Show personality', 'Everyday add-on'],
+      shopperTags: ['Young Adults', 'Creators', 'Text-All-Day'],
+    },
+    {
+      name: 'Samsung Magnetic Battery',
+      price: '$64.99', bundle: '~$48.75',
+      why: 'Samsung\'s answer to MagSafe battery packs — magnetically attaches to the back of Galaxy S26 series. 5,000mAh capacity adds roughly 50-70% extra battery life. Qi wireless out so it can charge a second device. Samsung\'s own ecosystem play — doesn\'t work with iPhone MagSafe. Great for heavy users and travelers.',
+      pitch: '"If their battery ever dies on the go — this snaps on the back magnetically and adds another 50-70% battery. No cables needed."',
+      worksWith: ['Samsung'],
+      bonus: '$5',
+      outcomes: ['Power it', 'Travel easier'],
+      shopperTags: ['Travelers', 'Power Users', 'Festival Days'],
+    },
+  ]},
 ];
 
-// ---------------------------------------------------------------------------
-// BIG ADDS — premium items, no bundle discount, higher individual value
-// ---------------------------------------------------------------------------
-
-export const BIG_ADDS: BigAddItem[] = [
-  {
-    name: 'AirPods Pro 2',
-    note: 'Premium audio',
-    price: '$249',
-    outcomes: ['Hear better'],
-    why: 'Industry-leading ANC, spatial audio, transparency mode — and now FDA-cleared as a hearing aid. Pairs instantly with iPhone.',
-    pitch: '"AirPods Pro 2 are the best wireless earbuds for iPhone — noise canceling, spatial audio, and they actually double as hearing aids now. If you\'re getting a new iPhone, these pair in two seconds."',
-  },
+const RAW_BIG_ADDS: BigAddItem[] = [
   {
     name: 'AirPods 4',
-    note: 'Everyday audio',
-    price: '$129-179',
+    price: '$129.99',
+    note: 'No bundle discount',
+    why: 'Apple\'s entry-level wireless earbuds — H2 chip with personalized Spatial Audio, adaptive EQ, and USB-C charging. Open-ear design (no silicone tips) is comfortable for all-day wear. Auto-pairs instantly with any iPhone. 30-hour total battery with the case. The "w/ ANC" version ($179) adds active noise cancellation and transparency mode.',
+    pitch: '"These pair instantly with iPhone — just open the case. Great sound, 30 hours battery. Easiest audio add we have."',
+    bestFor: ['18-24', '25-34'],
+    bonus: '$7',
     outcomes: ['Hear better'],
-    why: 'Open-ear design with optional ANC — lighter and more comfortable for all-day wear than Pro.',
-    pitch: '"If you want AirPods but don\'t need all the Pro features, the 4s are lighter and more comfortable for all-day use."',
+    shopperTags: ['Students', 'Young Adults', 'Daily Calls'],
   },
   {
-    name: 'Galaxy Buds4 Pro',
-    note: 'Premium audio',
-    price: '$229',
-    bonus: '$40 off with Galaxy purchase',
+    name: 'Galaxy Buds4',
+    price: '$179.99',
+    note: 'No bundle discount',
+    why: 'Samsung\'s latest earbuds — 2-way speakers with ANC, 360 Audio, and auto-switch between Galaxy devices (phone, watch, tablet). IPX7 water resistant — survived in the washing machine per reviews. Comfortable fit with three ear tip sizes. 6.5 hours per charge, 30 hours total with case. Voice detect pauses music when you talk.',
+    pitch: '"These auto-switch between their Galaxy phone and watch. Noise canceling, waterproof, and they pause when you start talking."',
+    bestFor: ['18-24', '25-34'],
+    bonus: '$10',
     outcomes: ['Hear better'],
-    why: 'Galaxy AI sound — auto-switches between phone and watch. $40 instant promo with S26 purchase.',
-    pitch: '"$40 off when you\'re buying a Galaxy today. They auto-switch between your phone and watch — you don\'t have to do anything."',
+    shopperTags: ['Gym', 'Commuters', 'Galaxy Users'],
   },
   {
-    name: 'Pixel Buds Pro 2',
-    note: 'Premium audio',
-    price: '$229',
+    name: 'AirPods Pro 3',
+    price: '$249.99',
+    note: 'No bundle discount',
+    why: 'Apple\'s premium earbuds — H3 chip with 2x better ANC than Pro 2. Clinical-grade hearing test and hearing aid functionality (FDA-cleared). Adaptive transparency lets outside sound through naturally. Conversation awareness lowers volume when you speak. Personalized spatial audio with head tracking. USB-C, IP54 dust/water resistant, 6 hours per charge.',
+    pitch: '"These double as FDA-cleared hearing aids now — plus the best noise canceling Apple\'s ever made. Big deal for the 35+ crowd."',
+    bestFor: ['25-34', '35-54'],
+    bonus: '$13',
     outcomes: ['Hear better'],
-    why: 'Lightest premium earbuds on the market with Google\'s best ANC — pairs instantly with Pixel.',
-    pitch: '"Lightest premium buds out there and they pair instantly with Pixel. Google tuned the ANC specifically for their hardware."',
-  },
-  {
-    name: 'Beats Solo 4',
-    note: 'Over-ear headphones',
-    price: '$199',
-    outcomes: ['Hear better'],
-    why: '50 hours of battery, works with both iPhone and Android, folds flat for travel.',
-    pitch: '"50-hour battery and they fold flat — great for commuters or anyone who doesn\'t want to charge earbuds every day."',
-  },
-  {
-    name: 'JBL Flip 6',
-    note: 'Portable speaker',
-    price: '$130',
-    outcomes: ['Just have fun'],
-    why: 'Waterproof Bluetooth speaker — PartyBoost for linking multiple speakers. Great pitch for outdoor and social buyers.',
-    pitch: '"Waterproof, floats in the pool, 12-hour battery. If they like music at the beach, cookouts, or just around the house — JBL is the move."',
+    shopperTags: ['Older Adults', 'Travelers', 'Work Calls'],
   },
   {
     name: 'Backbone One Controller',
-    note: 'Mobile gaming',
-    price: '$100',
+    price: '$99.99',
+    note: 'Gen Z / gamers',
+    why: 'Turns any phone into a handheld gaming console — console-quality thumbsticks, triggers, and bumpers. USB-C passthrough charging so battery doesn\'t drain during sessions. Works with Xbox Game Pass, PS Remote Play, Apple Arcade, and hundreds of mobile games. iPhone and Android versions available. Backbone app includes game discovery and screen recording.',
+    pitch: '"If they\'re a gamer — this turns their phone into a Switch-like setup. Works with Xbox Game Pass, PlayStation Remote Play, everything."',
+    bestFor: ['18-24'],
+    bonus: '$5',
     outcomes: ['Just have fun'],
-    why: 'Console-quality mobile gaming controller — turns your iPhone or Android into a gaming handheld.',
-    pitch: '"If they play games on their phone at all, Backbone turns it into a real controller experience. Plugs right in, no batteries needed."',
+    shopperTags: ['Gamers', 'Teens', 'Road Trips'],
   },
   {
-    name: 'Chipolo CARD Spot',
-    note: 'Item tracker',
-    price: '$35',
-    outcomes: ['Travel easier'],
-    why: 'Apple Find My compatible tracker — credit card size, goes in the wallet. Great pitch for anyone who loses things.',
-    pitch: '"Goes in the wallet, works with Find My. If they lose their wallet more than once a year, it pays for itself."',
-  },
-  {
-    name: 'Apple Watch SE 2',
-    note: 'Smartwatch',
-    price: '$249',
-    bonus: 'Paired line add-on opportunity',
-    outcomes: ['Travel easier', 'Power it'],
-    why: 'Entry-level Apple Watch with all the health essentials — heart rate, crash detection, emergency SOS. Great line add pitch.',
-    pitch: '"For the price of a couple accessories, they could have a Watch that tracks their health, handles calls without the phone, and calls 911 automatically in a crash."',
-  },
-  {
-    name: 'Samsung Galaxy Watch 7',
-    note: 'Smartwatch',
-    price: '$299',
-    bonus: 'Paired line add-on opportunity',
-    outcomes: ['Travel easier'],
-    why: 'Best Samsung smartwatch for health tracking — 100+ workouts, 3-day battery, works with S26.',
-    pitch: '"Pairs perfectly with the Galaxy. Health tracking, GPS, answers calls from your wrist. Great line add if they want to stay connected without pulling out the phone."',
+    name: 'Ray-Ban Meta Wayfarer (Transitions)',
+    price: '$379.99',
+    note: 'Tech-forward / social media',
+    why: 'Smart glasses with built-in camera (12MP), speakers, and Meta AI assistant. Livestream to Instagram/Facebook hands-free. Transitions lenses auto-darken in sunlight — no need for prescription swap. Take calls, listen to music, and get AI answers without pulling out the phone. 4 hours continuous use. Looks like regular Ray-Bans — not dorky tech glasses.',
+    pitch: '"These look like regular Ray-Bans but they take photos, play music, and have Meta AI built in. The Transitions lenses darken automatically outside."',
+    bestFor: ['25-34', '35-54'],
+    bonus: '$15',
+    outcomes: ['Show personality', 'Just have fun'],
+    shopperTags: ['Creators', 'Adventure', 'Style-First'],
   },
 ];
 
-// ---------------------------------------------------------------------------
-// RECOMMENDATION LOGIC
-// ---------------------------------------------------------------------------
+export const ESSENTIALS_TABLE: EssentialCategory[] = RAW_ESSENTIALS_TABLE.map((category) => ({
+  ...category,
+  items: category.items.map((item) => ({
+    ...item,
+    imageUrl: item.imageUrl ?? getAccessoryImageUrl(item.name),
+  })),
+}));
 
-/** Category IDs to prioritize based on purchase intent and age */
+export const BIG_ADDS: BigAddItem[] = RAW_BIG_ADDS.map((item) => ({
+  ...item,
+  imageUrl: item.imageUrl ?? getAccessoryImageUrl(item.name),
+}));
+
+// Which categories to auto-expand based on intent
+export type Intent = 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
+
 export function getRecommendedCategories(intent: Intent, age?: string): string[] {
-  const isYoung = age && ['18-24', '25-34'].includes(age);
-  const isOlder = age && ['55-64', '65+'].includes(age);
+  // Always recommend cases + screen protectors for sales intents
+  const recs = ['cases', 'screen'];
 
-  if (intent === 'exploring' || intent === 'ready to buy') {
-    // Classic phone sale — lead with protection, then charging, then personality
-    if (isYoung) return ['cases', 'mounts', 'protection'];
-    if (isOlder) return ['protection', 'charging', 'cables'];
-    return ['protection', 'cases', 'charging'];
+  if (intent === 'ready to buy') {
+    // They're buying — push the full protection suite + charging
+    recs.push('chargers');
+  } else if (intent === 'upgrade / add a line') {
+    // New device — camera protection + charging essentials
+    recs.push('camera', 'chargers');
   }
 
-  if (intent === 'upgrade / add a line') {
-    // Upgrader likely has some accessories — focus on what's new/compatible
-    return ['charging', 'protection', 'cases'];
+  // Age-based additions
+  if (age === '18-24') {
+    // Younger — grips, battery packs (on the go)
+    if (!recs.includes('other')) recs.push('other');
+  } else if (age === '35-54' || age === '55+') {
+    // Older — wireless chargers (convenience)
+    if (!recs.includes('wireless')) recs.push('wireless');
   }
 
-  if (intent === 'tech support') {
-    // Low-pressure add — if they mention a pain point, pivot to an accessory
-    return ['charging', 'mounts'];
-  }
-
-  // Support calls — don't lead with accessories
-  return ['charging'];
+  return recs;
 }

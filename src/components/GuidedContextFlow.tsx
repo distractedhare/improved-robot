@@ -211,9 +211,9 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         </div>
         <div className="grid grid-cols-1 gap-3">
           {[
-            { id: 'Yes', label: 'Yes, they qualify!', color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
-            { id: 'No', label: 'No, not available.', color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
-            { id: 'Wait', label: 'Checking it right now...', color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
+            { id: 'Yes', label: 'Yes, they qualify!', hintAvailable: true, color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
+            { id: 'No', label: 'No, not available.', hintAvailable: false, color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
+            { id: 'Wait', label: 'Checking it right now...', hintAvailable: undefined, color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
           ].map((opt) => (
             <motion.button
               key={opt.id}
@@ -221,7 +221,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
               animate={selectedId === opt.id ? "selected" : "show"}
               whileHover={selectedId ? {} : { scale: 1.02, y: -2 }}
               whileTap={selectedId ? {} : "tap"}
-              onClick={() => handleOptionSelect(opt.id, { hintQualified: opt.id as any }, nextStep)}
+              onClick={() => handleOptionSelect(
+                opt.id,
+                opt.hintAvailable === undefined ? {} : { hintAvailable: opt.hintAvailable },
+                nextStep,
+              )}
               className={`p-4 rounded-2xl border-2 transition-all text-center font-black uppercase tracking-widest text-[11px] shadow-sm ${opt.color}`}
               style={{ transformStyle: 'preserve-3d' }}
             >
@@ -383,7 +387,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === opt.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(opt.id, { currentDeviceBrand: opt.id, currentPlatform: (opt.id === 'iPhone' ? 'iOS' : 'Android') as any }, 'lines')}
+            onClick={() => handleOptionSelect(
+              opt.id,
+              { currentPlatform: (opt.id === 'Other' ? 'Other' : opt.id === 'iPhone' ? 'iOS' : 'Android') as any },
+              'lines',
+            )}
             className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group shadow-sm hover:shadow-md"
             style={{ transformStyle: 'preserve-3d' }}
           >

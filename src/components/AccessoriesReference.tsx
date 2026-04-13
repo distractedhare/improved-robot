@@ -1,8 +1,10 @@
 import { useState, useCallback, useMemo, type ReactNode } from 'react';
-import { ShoppingBag, ChevronDown, Shield, BatteryCharging, Headphones, CarFront, Sparkles, Gamepad2, DollarSign } from 'lucide-react';
+import { ShoppingBag, ChevronDown, Shield, BatteryCharging, Headphones, CarFront, Sparkles, Gamepad2, DollarSign, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BIG_ADDS, ESSENTIALS_TABLE, EssentialItem, BigAddItem } from '../data/essentialAccessories';
 import { EcosystemMatrix } from '../types/ecosystem';
+import AccessoryImageSlot from './AccessoryImageSlot';
+import { learnCopy } from './learn/learnCopy';
 import {
   getAccessoryOutcomeLabel,
   getAppealTypeLabel,
@@ -34,11 +36,18 @@ function matchesOutcome(item: EssentialItem | BigAddItem, category: string, filt
   return getItemOutcomes(item, category).includes(filter);
 }
 
+function matchesSearchText(itemName: string, searchQuery: string): boolean {
+  const normalized = searchQuery.trim().toLowerCase();
+  return normalized.length === 0 || itemName.toLowerCase().includes(normalized);
+}
+
 export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesReferenceProps) {
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(ESSENTIALS_TABLE.map(category => category.id))
   );
   const [outcomeFilter, setOutcomeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const hasActiveControls = outcomeFilter !== 'all' || searchQuery.trim().length > 0;
 
   const toggle = useCallback((id: string) => {
     setExpanded(prev => {
@@ -58,19 +67,28 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
         item,
         outcomeLabel: getAccessoryOutcomeLabel(item.name, category.category),
         summary: getReferenceAccessoryPositioningSummary(item, category.category, ecosystemMatrix),
-        matches: matchesOutcome(item, category.category, outcomeFilter),
+        matches: matchesOutcome(item, category.category, outcomeFilter) && matchesSearchText(item.name, searchQuery),
       })),
     }));
-  }, [ecosystemMatrix, outcomeFilter]);
+  }, [ecosystemMatrix, outcomeFilter, searchQuery]);
 
   const bigAddSummaries = useMemo(() => {
     return BIG_ADDS.map(item => ({
       item,
       outcomeLabel: getAccessoryOutcomeLabel(item.name, item.note),
       summary: getReferenceAccessoryPositioningSummary(item, item.note, ecosystemMatrix),
-      matches: matchesOutcome(item, item.note, outcomeFilter),
+      matches: matchesOutcome(item, item.note, outcomeFilter) && matchesSearchText(item.name, searchQuery),
     }));
-  }, [ecosystemMatrix, outcomeFilter]);
+  }, [ecosystemMatrix, outcomeFilter, searchQuery]);
+
+  const allVisibleAccessories = useMemo(() => {
+    const essentialMatches = essentialSections.flatMap(category => category.items.filter(item => item.matches));
+    const bigAddMatches = bigAddSummaries.filter(item => item.matches);
+    return {
+      total: essentialMatches.length + bigAddMatches.length,
+      hasAny: essentialMatches.length + bigAddMatches.length > 0,
+    };
+  }, [bigAddSummaries, essentialSections]);
 
   const outcomeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -81,14 +99,17 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
 
     for (const filter of OUTCOME_FILTERS) {
       if (filter.id === 'all') {
-        counts.all = allItems.length;
+        counts.all = allItems.filter(({ item }) => matchesSearchText(item.name, searchQuery)).length;
       } else {
-        counts[filter.id] = allItems.filter(({ item, category }) => matchesOutcome(item, category, filter.id)).length;
+        counts[filter.id] = allItems
+          .filter(({ item }) => matchesSearchText(item.name, searchQuery))
+          .filter(({ item, category }) => matchesOutcome(item, category, filter.id))
+          .length;
       }
     }
 
     return counts;
-  }, []);
+  }, [searchQuery]);
 
   return (
     <motion.div
@@ -99,15 +120,68 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       <div className="rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-4 text-white">
         <div className="mb-1 flex items-center gap-2">
           <ShoppingBag className="h-4 w-4" />
-          <p className="text-xs font-black uppercase tracking-wider">Accessories Quick Reference</p>
+          <p className="text-xs font-black uppercase tracking-wider">{learnCopy.accessoryQuickReference.title}</p>
         </div>
         <p className="text-[11px] font-medium opacity-90">
-          Fast lookup for phone reps. Find the outcome, use one line, give one proof, then stop talking.
+          {learnCopy.accessoryQuickReference.helper}
         </p>
       </div>
 
       <div className="space-y-2">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">Filter by outcome</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.searchLabel}</p>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
+          <input
+            type="text"
+            aria-label={learnCopy.accessoryQuickReference.searchLabel}
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={learnCopy.accessoryQuickReference.searchLabel}
+            className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-xl py-2.5 pl-9 pr-9 text-[11px] font-medium text-t-dark-gray placeholder:text-t-muted"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="focus-ring absolute right-2 top-1/2 -translate-y-1/2 text-t-muted hover:text-t-magenta"
+              aria-label={learnCopy.accessoryQuickReference.clearLabel}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+        </div>
+
+        <p className="text-[10px] font-bold text-t-muted">
+          {allVisibleAccessories.hasAny
+            ? `${allVisibleAccessories.total} accessories match${allVisibleAccessories.total === 1 ? '' : 'es'}`
+            : 'No accessories match'}
+          {searchQuery ? ` for "${searchQuery.trim()}"` : ''}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+            {outcomeFilter === 'all' ? 'All outcomes' : outcomeFilter}
+          </span>
+          {searchQuery ? (
+            <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
+              Search active
+            </span>
+          ) : null}
+          {hasActiveControls ? (
+            <button
+              type="button"
+              onClick={() => {
+                setOutcomeFilter('all');
+                setSearchQuery('');
+              }}
+              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+            >
+              Reset filters
+            </button>
+          ) : null}
+        </div>
+
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.filtersLabel}</p>
         <div className="flex flex-wrap gap-1.5">
           {OUTCOME_FILTERS.map(filter => {
             const isActive = outcomeFilter === filter.id;
@@ -164,7 +238,8 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
           {essentialSections.map(category => {
             const isOpen = expanded.has(category.id);
             const matchCount = category.items.filter(item => item.matches).length;
-            const hasMatches = outcomeFilter === 'all' || matchCount > 0;
+            const hasMatches = matchCount > 0;
+            const visibleItems = category.items.filter(item => item.matches);
 
             return (
               <div key={category.id} className={!hasMatches ? 'opacity-40' : ''}>
@@ -189,68 +264,74 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
 
                 <AnimatePresence initial={false}>
                   {isOpen && (
-                    <motion.div
+                  <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.15 }}
                       className="overflow-hidden"
-                    >
-                      <div className="space-y-1.5 px-4 pb-3">
-                        {category.items.map(({ item, summary, outcomeLabel, matches }) => (
-                          <AccessoryReferenceCard
-                            key={item.name}
-                            name={item.name}
-                            summary={summary}
-                            outcomeLabel={outcomeLabel}
-                            highlighted={outcomeFilter !== 'all' && matches}
-                            dimmed={outcomeFilter !== 'all' && !matches}
-                            header={(
-                              <div className="flex items-center justify-between text-[10px]">
-                                <span className="font-bold text-t-dark-gray">{item.name}</span>
-                                <div className="flex shrink-0 items-center gap-3">
-                                  {'originalPrice' in item && item.originalPrice ? (
-                                    <>
-                                      <span className="line-through text-t-muted">{item.originalPrice}</span>
-                                      <span className="font-bold text-success-accent">{item.price}</span>
-                                    </>
-                                  ) : item.bundle ? (
-                                    <span className="font-bold text-t-dark-gray">{item.price}</span>
-                                  ) : (
-                                    <span className="font-bold text-t-dark-gray">{item.price}</span>
-                                  )}
-                                  {item.bundle && (
-                                    <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[8px] font-black uppercase text-success-foreground">
-                                      {item.bundle} bundle
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            meta={(
-                              <div className="mt-1 flex flex-wrap items-center gap-2">
-                                {item.worksWith && (
-                                  <div className="flex flex-wrap gap-1">
-                                    {item.worksWith.map(eco => (
-                                      <span
-                                        key={eco}
-                                        className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-dark-gray"
-                                      >
-                                        {eco}
-                                      </span>
-                                    ))}
-                                  </div>
+                  >
+                    <div className="space-y-1.5 px-4 pb-3">
+                      {visibleItems.map(({ item, summary, outcomeLabel, matches }) => (
+                        <AccessoryReferenceCard
+                          key={item.name}
+                          name={item.name}
+                          imageUrl={item.imageUrl}
+                          summary={summary}
+                          outcomeLabel={outcomeLabel}
+                          highlighted={outcomeFilter !== 'all' && matches}
+                          dimmed={outcomeFilter !== 'all' && !matches}
+                          header={(
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="font-bold text-t-dark-gray">{item.name}</span>
+                              <div className="flex shrink-0 items-center gap-3">
+                                {'originalPrice' in item && item.originalPrice ? (
+                                  <>
+                                    <span className="line-through text-t-muted">{item.originalPrice}</span>
+                                    <span className="font-bold text-success-accent">{item.price}</span>
+                                  </>
+                                ) : item.bundle ? (
+                                  <span className="font-bold text-t-dark-gray">{item.price}</span>
+                                ) : (
+                                  <span className="font-bold text-t-dark-gray">{item.price}</span>
                                 )}
-                                {item.bonus && (
-                                  <span className="flex items-center gap-0.5 rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black text-t-magenta">
-                                    <DollarSign className="h-2.5 w-2.5" />
-                                    {item.bonus} bonus
+                                {item.bundle && (
+                                  <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[8px] font-black uppercase text-success-foreground">
+                                    {item.bundle} bundle
                                   </span>
                                 )}
                               </div>
-                            )}
-                          />
-                        ))}
+                            </div>
+                          )}
+                          meta={(
+                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                              {item.worksWith && (
+                                <div className="flex flex-wrap gap-1">
+                                  {item.worksWith.map(eco => (
+                                    <span
+                                      key={eco}
+                                      className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-dark-gray"
+                                    >
+                                      {eco}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {item.bonus && (
+                                <span className="flex items-center gap-0.5 rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black text-t-magenta">
+                                  <DollarSign className="h-2.5 w-2.5" />
+                                  {item.bonus} bonus
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        />
+                      ))}
+                      {matchCount === 0 ? (
+                        <p className="rounded border border-dashed border-t-light-gray bg-surface text-center text-[10px] font-black uppercase tracking-wider text-t-muted px-3 py-2">
+                          No matches in this group
+                        </p>
+                        ) : null}
                       </div>
                     </motion.div>
                   )}
@@ -266,10 +347,13 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
           Premium add-ons (no bundle discount)
         </p>
         <div className="space-y-2">
-          {bigAddSummaries.map(({ item, summary, outcomeLabel, matches }) => (
+          {bigAddSummaries
+            .filter(({ matches }) => matches)
+            .map(({ item, summary, outcomeLabel, matches }) => (
             <AccessoryReferenceCard
               key={item.name}
               name={item.name}
+              imageUrl={item.imageUrl}
               summary={summary}
               outcomeLabel={outcomeLabel}
               highlighted={outcomeFilter !== 'all' && matches}
@@ -293,6 +377,11 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
               )}
             />
           ))}
+          {bigAddSummaries.every(({ matches }) => !matches) ? (
+            <p className="rounded border border-dashed border-t-light-gray bg-surface p-2.5 text-center text-[10px] font-black uppercase tracking-wider text-t-muted">
+              No premium add-ons match this filter
+            </p>
+          ) : null}
         </div>
       </div>
     </motion.div>
@@ -307,6 +396,7 @@ function AccessoryReferenceCard({
   header,
   meta,
   name,
+  imageUrl,
 }: {
   summary: PositioningSummary;
   outcomeLabel: string;
@@ -315,6 +405,7 @@ function AccessoryReferenceCard({
   header: ReactNode;
   meta?: ReactNode;
   name: string;
+  imageUrl?: string;
 }) {
   const callCue = summary.listenFor.slice(0, 2).join(' • ');
 
@@ -328,14 +419,12 @@ function AccessoryReferenceCard({
     }`}>
       <div className="flex gap-3">
         {/* Accessory Thumbnail */}
-        <div className="w-12 h-12 rounded-lg overflow-hidden bg-t-light-gray/20 shrink-0 border border-t-light-gray/50">
-          <img
-            src={`https://picsum.photos/seed/${name.replace(/\s+/g, '-').toLowerCase()}/100/100`}
-            alt={name}
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </div>
+        <AccessoryImageSlot
+          name={name}
+          imageUrl={imageUrl}
+          className="h-12 w-12 shrink-0 rounded-lg border border-t-light-gray/50 bg-t-light-gray/20 p-1.5"
+          imageClassName="h-full w-full object-contain"
+        />
         <div className="flex-1 min-w-0">
           {header}
           {meta}

@@ -11,35 +11,35 @@ const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: strin
     tagColor: 'bg-t-magenta text-white',
     bestFor: 'Power users, streamers, travelers, families who want everything. Customers who hate limits.',
     repInsight: 'Highest margin, lowest churn. These customers stay because they never hit a wall — no throttling, no "you used too much." They get Netflix + Hulu + Apple TV+, 250GB hotspot, yearly upgrades, and satellite. When they call back, it\'s to ADD lines, not complain. This is the plan you want every customer on.',
-    image: 'https://picsum.photos/seed/beyond/800/400',
+    image: '/images/ui/plan-experience-beyond.png',
   },
   'Experience More': {
     tag: 'BETTER',
     tagColor: 'bg-t-berry text-white',
     bestFor: 'Most customers. Great balance of premium features and price. The sweet spot.',
     repInsight: 'Your bread and butter. Same unlimited premium data as Beyond, Netflix + Apple TV+ included, 60GB hotspot, in-flight Wi-Fi. Covers 90% of what customers actually need. When someone says "I don\'t need ALL that" about Beyond, this is where you land them. Still a premium plan, still great metrics for you.',
-    image: 'https://picsum.photos/seed/more/800/400',
+    image: '/images/ui/plan-experience-more.png',
   },
   'Better Value': {
     tag: 'BEST VALUE',
     tagColor: 'bg-success-accent text-white',
     bestFor: 'Families with 3+ lines who qualify — switchers or long-tenure customers.',
     repInsight: 'This is your secret weapon for switchers. Beyond-level features at $46.67/line for 3 lines. The catch: they need 3+ lines AND either 2 port-ins (new) or 5+ years tenure (existing). If they qualify, it\'s an easy close — show the math vs what they\'re paying at AT&T/Verizon.',
-    image: 'https://picsum.photos/seed/value/800/400',
+    image: '/images/ui/plan-better-value.png',
   },
   'Essentials': {
     tag: 'GOOD',
     tagColor: 'bg-t-dark-gray/60 text-white',
     bestFor: 'Price-sensitive customers, light users, seniors on a budget. Use as a last resort.',
     repInsight: 'Don\'t lead with this. It has deprioritized data (slow during congestion), 480p video, no hotspot worth using, and no in-flight Wi-Fi. If you put someone here who streams or hotspots, they\'ll call back frustrated. Only use when the customer truly can\'t afford More/Beyond and you\'d lose the sale entirely.',
-    image: 'https://picsum.photos/seed/essentials/800/400',
+    image: '/images/ui/plan-essentials.png',
   },
   'Essentials Saver': {
     tag: 'BUDGET',
     tagColor: 'bg-t-dark-gray/40 text-white',
     bestFor: 'Absolute bottom dollar. Not eligible for most promos.',
     repInsight: 'Last resort only. Most device promos don\'t apply, data is heavily deprioritized, no perks. If a customer is on this plan, you\'re leaving money on the table AND they\'ll have a worse experience. Always try to move them up to at least Essentials.',
-    image: 'https://picsum.photos/seed/budget/800/400',
+    image: '/images/ui/plan-essentials-saver.png',
   },
 };
 
@@ -103,8 +103,8 @@ export default function PlansSection() {
           </div>
           <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Plans Breakdown</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            Know the tiers, know the value, know <span className="text-white font-black underline decoration-white/40 underline-offset-4">WHY</span> premium plans are better for the customer AND for you.
-            Every plan upgrade means happier customers and better metrics.
+            Know the tiers, know the value, and know <span className="text-white font-black underline decoration-white/40 underline-offset-4">why</span> premium plans are better for both the customer and you.
+            The goal is a cleaner recommendation, happier customers, and stronger metrics.
           </p>
           <div className="flex flex-wrap gap-2.5 mt-6">
             <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
@@ -126,7 +126,7 @@ export default function PlansSection() {
       {/* Quick facts */}
       <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
         <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
-          <Zap className="w-3 h-3" /> Why Push Premium — Know These Cold
+          <Zap className="w-3 h-3" /> Why premium wins
         </p>
         <div className="space-y-2">
           {QUICK_FACTS.map((fact, i) => (
@@ -223,7 +223,7 @@ export default function PlansSection() {
 
           {/* The script */}
           <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it on a live call</p>
             <div className="space-y-3">
               {[
                 '"I want to make sure you\'re getting the most out of T-Mobile. The plan you\'re on — your data can get slowed down when the network\'s busy. On Experience More, that never happens."',
@@ -342,17 +342,21 @@ export default function PlansSection() {
 
 function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof PLAN_TIERS[string] }) {
   const [expanded, setExpanded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const imageSource = hasError ? '/images/ui/company-logo-fallback.png' : tier.image;
   const isBest = tier.tag === 'BEST';
   const isBetter = tier.tag === 'BETTER' || tier.tag === 'BEST VALUE';
+  const imageLabel = `${plan.name} plan image`;
 
   return (
     <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
       {/* Plan Image */}
       <div className="relative h-40 overflow-hidden">
         <img
-          src={tier.image}
-          alt={plan.name}
+          src={imageSource}
+          alt={imageLabel}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          onError={() => setHasError(true)}
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

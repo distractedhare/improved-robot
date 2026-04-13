@@ -53,6 +53,7 @@ export const ESSENTIAL_BUNDLE_DEAL = {
 };
 
 import { SalesContext, AccessoryRecommendation } from '../types';
+import { getAccessoryImageUrl } from './accessoryImagePaths';
 
 /** Build personalized accessory recommendations based on customer context */
 export function buildAccessoryRecommendations(context: SalesContext): AccessoryRecommendation[] {
@@ -375,5 +376,8 @@ export function buildAccessoryRecommendations(context: SalesContext): AccessoryR
     });
   }
 
-  return recs;
+  return recs.map((rec) => ({
+    ...rec,
+    imageUrl: rec.imageUrl ?? getAccessoryImageUrl(rec.name),
+  }));
 }
