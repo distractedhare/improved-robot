@@ -274,9 +274,13 @@ export default function MagentaRunner() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameState !== 'playing') return;
       if (e.key === 'ArrowLeft' || e.key === 'a') {
-        playerLane.current = Math.max(0, playerLane.current - 1);
+        const next = Math.max(0, playerLane.current - 1);
+        playerLane.current = next;
+        setDisplayLane(next);
       } else if (e.key === 'ArrowRight' || e.key === 'd') {
-        playerLane.current = Math.min(LANES - 1, playerLane.current + 1);
+        const next = Math.min(LANES - 1, playerLane.current + 1);
+        playerLane.current = next;
+        setDisplayLane(next);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -294,11 +298,13 @@ export default function MagentaRunner() {
     const diff = touchEndX - touchStartX.current;
 
     if (diff > 30) {
-      // Swipe Right
-      playerLane.current = Math.min(LANES - 1, playerLane.current + 1);
+      const next = Math.min(LANES - 1, playerLane.current + 1);
+      playerLane.current = next;
+      setDisplayLane(next);
     } else if (diff < -30) {
-      // Swipe Left
-      playerLane.current = Math.max(0, playerLane.current - 1);
+      const next = Math.max(0, playerLane.current - 1);
+      playerLane.current = next;
+      setDisplayLane(next);
     }
   };
 
