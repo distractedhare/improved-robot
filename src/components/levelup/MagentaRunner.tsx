@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, RotateCcw, ShieldAlert, Zap, Trophy, CheckCircle2, XCircle } from 'lucide-react';
+import { RotateCcw, ShieldAlert, Zap, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getRandomQuestions, QuizQuestion } from '../../constants/quizQuestions';
 import { recordQuizScore } from '../../services/prizeService';
 
@@ -25,6 +25,7 @@ export default function MagentaRunner() {
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [displayLane, setDisplayLane] = useState(1);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
@@ -50,8 +51,23 @@ export default function MagentaRunner() {
     isInvincible.current = 0;
     setScore(0);
     setFeedback(null);
+    setDisplayLane(1);
     setGameState('playing');
   }, []);
+
+  const moveLeft = useCallback(() => {
+    if (gameState !== 'playing') return;
+    const next = Math.max(0, playerLane.current - 1);
+    playerLane.current = next;
+    setDisplayLane(next);
+  }, [gameState]);
+
+  const moveRight = useCallback(() => {
+    if (gameState !== 'playing') return;
+    const next = Math.min(LANES - 1, playerLane.current + 1);
+    playerLane.current = next;
+    setDisplayLane(next);
+  }, [gameState]);
 
   const triggerQuestion = useCallback(() => {
     setGameState('question');
@@ -287,29 +303,32 @@ export default function MagentaRunner() {
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-[450px] rounded-3xl overflow-hidden shadow-2xl border-4 border-t-dark-gray bg-[#1A1A1A]">
-      
-      {/* The Game Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={400}
-        height={450}
-        className="w-full h-full block"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      />
+    <div className="w-full max-w-md mx-auto">
 
-      {/* HTML Score HUD — pixel-crisp on all DPR */}
-      {gameState === 'playing' && (
-        <div className="pointer-events-none absolute right-3 top-3 z-10">
-          <div className="flex items-baseline gap-1 rounded-xl bg-black/50 px-3 py-1.5 backdrop-blur-sm">
-            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Score</span>
-            <span className="text-lg font-black tabular-nums text-white">{score}</span>
+      {/* Canvas container — top half of the cabinet */}
+      <div className="relative h-[420px] w-full overflow-hidden rounded-t-3xl border-4 border-b-0 border-t-dark-gray bg-[#1A1A1A] shadow-2xl">
+
+        {/* The Game Canvas */}
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={420}
+          className="w-full h-full block"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        />
+
+        {/* HTML Score HUD — pixel-crisp on all DPR */}
+        {gameState === 'playing' && (
+          <div className="pointer-events-none absolute right-3 top-3 z-10">
+            <div className="flex items-baseline gap-1 rounded-xl bg-black/50 px-3 py-1.5 backdrop-blur-sm">
+              <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Score</span>
+              <span className="text-lg font-black tabular-nums text-white">{score}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Overlays */}
+        {/* Overlays */}
       <AnimatePresence mode="wait">
         
         {/* Start Screen */}
@@ -442,6 +461,74 @@ export default function MagentaRunner() {
         )}
 
       </AnimatePresence>
+      </div>{/* end canvas container */}
+
+      {/* Retro Arcade Control Panel */}
+      <div className="w-full rounded-b-3xl border-4 border-t-2 border-t-dark-gray bg-[#0f0f0f] px-6 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+        {/* Decorative top groove line */}
+        <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+        <div className="flex items-center justify-between">
+          {/* LEFT button */}
+          <button
+            onPointerDown={moveLeft}
+            disabled={gameState !== 'playing'}
+            aria-label="Move left"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl
+                       border-4 border-[#2e2e2e] bg-[#1c1c1c] text-white/60
+                       shadow-[0_5px_0_rgba(0,0,0,0.9)]
+                       transition-all duration-75
+                       hover:enabled:border-t-magenta/60 hover:enabled:text-t-magenta
+                       hover:enabled:shadow-[0_5px_0_rgba(0,0,0,0.9),0_0_18px_rgba(226,0,116,0.25)]
+                       active:enabled:translate-y-[4px] active:enabled:shadow-[0_1px_0_rgba(0,0,0,0.9)]
+                       active:enabled:border-t-magenta active:enabled:text-t-magenta
+                       disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="h-9 w-9" />
+          </button>
+
+          {/* Center: lane indicator + label */}
+          <div className="flex flex-col items-center gap-2.5">
+            <div className="flex gap-3">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`h-2.5 w-2.5 rounded-full transition-all duration-150 ${
+                    i === displayLane && gameState === 'playing'
+                      ? 'bg-t-magenta shadow-[0_0_8px_rgba(226,0,116,0.9),0_0_16px_rgba(226,0,116,0.5)]'
+                      : 'bg-white/15'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-[0.22em] text-white/25">
+              Controls
+            </span>
+          </div>
+
+          {/* RIGHT button */}
+          <button
+            onPointerDown={moveRight}
+            disabled={gameState !== 'playing'}
+            aria-label="Move right"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl
+                       border-4 border-[#2e2e2e] bg-[#1c1c1c] text-white/60
+                       shadow-[0_5px_0_rgba(0,0,0,0.9)]
+                       transition-all duration-75
+                       hover:enabled:border-t-magenta/60 hover:enabled:text-t-magenta
+                       hover:enabled:shadow-[0_5px_0_rgba(0,0,0,0.9),0_0_18px_rgba(226,0,116,0.25)]
+                       active:enabled:translate-y-[4px] active:enabled:shadow-[0_1px_0_rgba(0,0,0,0.9)]
+                       active:enabled:border-t-magenta active:enabled:text-t-magenta
+                       disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="h-9 w-9" />
+          </button>
+        </div>
+
+        {/* Decorative bottom groove line */}
+        <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
+
     </div>
   );
 }
