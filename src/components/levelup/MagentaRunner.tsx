@@ -240,12 +240,6 @@ export default function MagentaRunner() {
 
     ctx.restore();
 
-    // Draw Score on Canvas (Top Right)
-    ctx.fillStyle = '#FFF';
-    ctx.font = 'black 20px Inter';
-    ctx.textAlign = 'right';
-    ctx.fillText(`SCORE: ${scoreRef.current}`, width - 15, 30);
-
     requestRef.current = requestAnimationFrame(updateGame);
   }, [gameState, triggerQuestion]);
 
@@ -305,6 +299,16 @@ export default function MagentaRunner() {
         onTouchEnd={handleTouchEnd}
       />
 
+      {/* HTML Score HUD — pixel-crisp on all DPR */}
+      {gameState === 'playing' && (
+        <div className="pointer-events-none absolute right-3 top-3 z-10">
+          <div className="flex items-baseline gap-1 rounded-xl bg-black/50 px-3 py-1.5 backdrop-blur-sm">
+            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Score</span>
+            <span className="text-lg font-black tabular-nums text-white">{score}</span>
+          </div>
+        </div>
+      )}
+
       {/* Overlays */}
       <AnimatePresence mode="wait">
         
@@ -317,16 +321,45 @@ export default function MagentaRunner() {
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
           >
-            <div className="w-20 h-20 bg-t-magenta/20 rounded-3xl flex items-center justify-center mb-4 border-2 border-t-magenta">
-              <Zap className="w-10 h-10 text-t-magenta" />
+            <div className="w-16 h-16 bg-t-magenta/20 rounded-3xl flex items-center justify-center mb-4 border-2 border-t-magenta">
+              <Zap className="w-8 h-8 text-t-magenta" />
             </div>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">Magenta Runner</h2>
-            <p className="text-sm font-medium text-white/70 mb-8 max-w-[250px]">
-              Swipe left/right or use arrow keys to dodge objections and collect 5G nodes.
+            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-1">Magenta Runner</h2>
+            <p className="text-xs font-medium text-white/60 mb-5">
+              Dodge obstacles. Collect 5G nodes. Answer quiz questions to survive.
             </p>
+
+            {/* Lane diagram */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex flex-col items-center gap-1 opacity-60">
+                <span className="text-white/80 text-lg">←</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">swipe</span>
+              </div>
+              {[0, 1, 2].map((lane) => (
+                <div
+                  key={lane}
+                  className={`h-20 w-14 rounded-xl border-2 flex items-end justify-center pb-2 ${
+                    lane === 1
+                      ? 'border-t-magenta bg-t-magenta/20'
+                      : 'border-white/20 bg-white/5'
+                  }`}
+                >
+                  {lane === 1 && (
+                    <div className="w-6 h-6 rounded-full bg-t-magenta flex items-center justify-center">
+                      <Zap className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="flex flex-col items-center gap-1 opacity-60">
+                <span className="text-white/80 text-lg">→</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">swipe</span>
+              </div>
+            </div>
+
             <button
               onClick={startGame}
-              className="w-full max-w-[200px] py-4 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
+              className="w-full max-w-[200px] py-3.5 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
             >
               Play Now
             </button>
@@ -394,7 +427,7 @@ export default function MagentaRunner() {
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
           >
-            <Trophy className="w-16 h-16 text-t-magenta mb-4" />
+            <XCircle className="w-16 h-16 text-error-accent mb-4" />
             <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">Run Ended</h2>
             <p className="text-lg font-medium text-white/70 mb-8">
               Final Score: <span className="text-t-magenta font-black text-2xl">{score}</span>
