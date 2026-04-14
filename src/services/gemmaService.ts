@@ -74,7 +74,7 @@ export function isWebGPUSupported(): boolean {
 }
 
 export function getGemmaStatusLabel(): string {
-  return loadingState === 'ready' ? 'Gemma 4' : 'AI Ready';
+  return loadingState === 'ready' ? 'Gemma 2' : 'AI Ready';
 }
 
 export async function initializeGemma(force = false): Promise<void> {

@@ -1,6 +1,6 @@
 import { Rocket, Code2, Calendar, Lightbulb, MessageSquare } from 'lucide-react';
 
-type RoadmapStatus = 'In Development' | 'Planned' | 'Under Consideration';
+type RoadmapStatus = 'IN DEVELOPMENT' | 'PLANNED' | 'UNDER CONSIDERATION';
 
 interface RoadmapItem {
   id: string;
@@ -14,78 +14,78 @@ const ROADMAP_ITEMS: RoadmapItem[] = [
     id: 'ios-app',
     title: 'Native iOS App',
     description: 'Full offline support, home screen install, push notifications for promo updates.',
-    status: 'In Development',
+    status: 'IN DEVELOPMENT',
   },
   {
     id: 'android-app',
     title: 'Native Android App',
-    description: 'Same core features as iOS, tuned for T-Mobile-issued Android devices.',
-    status: 'In Development',
+    description: 'Same features as iOS. Designed for T-Mobile-issued Android devices.',
+    status: 'IN DEVELOPMENT',
   },
   {
     id: 'live-promo-sync',
     title: 'Live Promo Sync',
-    description: 'Direct connection to T-Mobile promo data, with less manual monthly upkeep.',
-    status: 'Planned',
+    description: 'Direct connection to T-Mobile promo data — no more manual monthly updates.',
+    status: 'PLANNED',
   },
   {
     id: 'team-leaderboard',
     title: 'Team Leaderboard',
-    description: 'Optional shared bingo board so the team can see how the week is going.',
-    status: 'Planned',
+    description: 'Optional shared bingo board — see how your squad is performing this week.',
+    status: 'PLANNED',
   },
   {
     id: 'social-stories',
     title: 'Social Media Stories',
     description: 'Auto-generate shareable story cards with your wins, streaks, and promo highlights — ready to post on Instagram, TikTok, or the team chat.',
-    status: 'Planned',
+    status: 'PLANNED',
   },
   {
     id: 'promo-countdown',
     title: 'Promo Countdown Timers',
     description: 'Visual countdowns showing days left on active promos — create urgency and never miss an expiring deal.',
-    status: 'Planned',
+    status: 'PLANNED',
   },
   {
     id: 'shift-recap',
     title: 'Shift Recap',
     description: 'End-of-shift summary of plays used, objections handled, and skills practiced — no customer data, just your growth.',
-    status: 'Under Consideration',
+    status: 'UNDER CONSIDERATION',
   },
   {
     id: 'peer-tips',
     title: 'Rep Tips Feed',
     description: 'Anonymous crowd-sourced tips from other reps — "this line crushed it on switchers this week."',
-    status: 'Under Consideration',
+    status: 'UNDER CONSIDERATION',
   },
   {
     id: 'quick-compare',
     title: 'Quick Compare Cards',
     description: 'Tap two plans or devices, get a clean side-by-side to reference mid-call.',
-    status: 'Under Consideration',
+    status: 'UNDER CONSIDERATION',
   },
   {
     id: 'win-tracker',
     title: 'Win Tracker',
     description: 'Log your closes by category — new line, switcher, accessory, HINT. Just counts, no customer info.',
-    status: 'Under Consideration',
+    status: 'UNDER CONSIDERATION',
   },
 ];
 
 const STATUS_CONFIG: Record<RoadmapStatus, { className: string; dotClass: string; textClass: string; icon: typeof Code2 }> = {
-  'In Development': {
+  'IN DEVELOPMENT': {
     className: 'border-t-magenta/20 bg-t-magenta/5',
     dotClass: 'bg-t-magenta/10',
     textClass: 'text-t-magenta',
     icon: Code2,
   },
-  'Planned': {
+  'PLANNED': {
     className: 'border-t-berry/20 bg-t-berry/5',
     dotClass: 'bg-t-berry/10',
     textClass: 'text-t-berry',
     icon: Calendar,
   },
-  'Under Consideration': {
+  'UNDER CONSIDERATION': {
     className: 'border-t-light-gray bg-t-light-gray/30',
     dotClass: 'bg-t-light-gray',
     textClass: 'text-t-dark-gray',

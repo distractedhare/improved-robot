@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Tag, CheckCircle2, Plus, X, Sparkles, MessageSquare, Info, ChevronRight, ShoppingCart } from 'lucide-react';
 import { AccessoryRecommendation } from '../types';
 import { ESSENTIAL_BUNDLE_DEAL } from '../data/accessories';
-import AccessoryImageSlot from './AccessoryImageSlot';
 
 interface DynamicAccessoryFlowProps {
   recommendations: AccessoryRecommendation[];
@@ -148,25 +147,15 @@ function AccessoryFlipCard({ rec, isFlipped, isSelected, onFlip, onSelect }: {
         {/* FRONT */}
         <div className={`absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-between border-2 transition-colors ${isSelected ? 'border-t-magenta bg-t-magenta/5' : 'border-transparent'}`}>
           <div>
-            <div className="flex items-start justify-between mb-2 gap-3">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <ShoppingBag className={`w-4 h-4 ${isSelected ? 'text-t-magenta' : 'text-t-muted'}`} />
                 <span className="text-[10px] font-black text-t-muted uppercase tracking-widest">{rec.bundleEligible ? 'Essential' : 'Premium'}</span>
               </div>
               {isSelected && <CheckCircle2 className="w-4 h-4 text-t-magenta" />}
             </div>
-            <div className="flex items-start gap-3">
-              <AccessoryImageSlot
-                name={rec.name}
-                imageUrl={rec.imageUrl}
-                className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
-                imageClassName="h-full w-full object-contain"
-              />
-              <div className="min-w-0">
-                <h4 className="text-sm font-black text-t-dark-gray leading-tight">{rec.name}</h4>
-                <p className="text-[10px] font-medium text-t-dark-gray/60 mt-1">{rec.priceRange}</p>
-              </div>
-            </div>
+            <h4 className="text-sm font-black text-t-dark-gray leading-tight">{rec.name}</h4>
+            <p className="text-[10px] font-medium text-t-dark-gray/60 mt-1">{rec.priceRange}</p>
           </div>
 
           <div className="flex items-center justify-between">

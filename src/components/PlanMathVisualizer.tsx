@@ -33,7 +33,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
 
   return (
     <div className="rounded-3xl glass-card p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-black tracking-tight text-t-dark-gray flex items-center gap-2">
             <Calculator className="w-5 h-5 text-t-magenta" />
@@ -43,7 +43,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
             The "Hidden" Value of Premium
           </p>
         </div>
-        <div className="flex bg-t-light-gray/20 rounded-xl p-1">
+        <div className="flex bg-t-light-gray/20 rounded-xl p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
           {[1, 2, 3, 4].map(num => (
             <button
               key={num}

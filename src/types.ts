@@ -9,9 +9,10 @@ export interface SalesContext {
   totalLines?: number;
   familyCount?: number;
   currentPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
+  currentDeviceBrand?: string;
   desiredPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
   hintAvailable?: boolean;
-  orderSupportType?: 'track_status' | 'modify_order' | 'return_exchange' | 'cancel_order' | 'payment_issue' | 'missing_damaged';
+  hintQualified?: 'Yes' | 'No' | 'Wait';
 }
 
 export interface StoreInfo {
@@ -32,7 +33,6 @@ export interface AccessoryRecommendation {
   name: string;
   why: string;
   priceRange: string;
-  imageUrl?: string;
   /** Specific verified prices from t-mobile.com for key items */
   verifiedPrices?: { item: string; fullPrice: string; salePrice?: string }[];
   brands: string[];

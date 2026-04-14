@@ -19,7 +19,7 @@ export default function EdgeSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20 glass-prismatic">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <ShieldCheck className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
@@ -30,7 +30,7 @@ export default function EdgeSection() {
           </div>
           <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The T-Mobile Edge</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            What makes T-Mobile different, and how to explain it quickly when a customer asks why we win.
+            What makes T-Mobile different. Memorize these and you'll win more conversations.
           </p>
           <div className="flex flex-wrap gap-2.5 mt-6">
             <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
@@ -95,7 +95,7 @@ export default function EdgeSection() {
 
                   {diff.competitorComparison && (
                     <div className="p-3 rounded-xl bg-t-berry/10 border border-t-berry/20">
-                      <p className="text-[9px] font-black uppercase tracking-wider text-t-berry mb-1">vs. The competition</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-t-berry mb-1">vs. the competition</p>
                       <p className="text-[11px] text-t-dark-gray font-medium">{diff.competitorComparison}</p>
                     </div>
                   )}

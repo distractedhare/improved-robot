@@ -17,7 +17,7 @@ export default function OfflineCoach() {
     {
       id: '1',
       role: 'assistant',
-      content: "I'm your offline Gemma coach. I run entirely on your device, so I work instantly even in dead zones. What objection are you stuck on?",
+      content: "I'm your offline Gemma 2 coach. I run entirely on your device, so I work instantly even in dead zones. What objection are you stuck on?",
     }
   ]);
   const [input, setInput] = useState('');
@@ -92,7 +92,7 @@ export default function OfflineCoach() {
         </div>
         <h2 className="mb-2 text-lg font-extrabold tracking-tight">Offline AI Not Ready</h2>
         <p className="mb-6 text-sm text-t-dark-gray">
-          The Gemma AI model needs to be downloaded before you can use the Dead-Zone Coach.
+          The Gemma 2 model needs to be downloaded before you can use the Dead-Zone Coach.
         </p>
         
         <div className="p-4 rounded-2xl border border-t-light-gray bg-t-light-gray/5 mb-6">
@@ -136,7 +136,7 @@ export default function OfflineCoach() {
           </div>
         </div>
         <div className="rounded-full bg-t-light-gray/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-t-dark-gray">
-          Powered by Gemma
+          Powered by Gemma 2
         </div>
       </div>
 
@@ -157,7 +157,7 @@ export default function OfflineCoach() {
               {msg.role === 'assistant' && (
                 <div className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-t-magenta">
                   <Bot className="h-3 w-3" />
-                  <span>Gemma Coach</span>
+                  <span>Gemma 2 Coach</span>
                 </div>
               )}
               <p className="leading-relaxed">{msg.content}</p>
@@ -169,7 +169,7 @@ export default function OfflineCoach() {
             <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-t-light-gray bg-t-light-gray/30 px-4 py-3">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-t-magenta" />
-                <span className="text-xs font-medium text-t-dark-gray">Gemma is thinking...</span>
+                <span className="text-xs font-medium text-t-dark-gray">Gemma 2 is thinking...</span>
               </div>
             </div>
           </div>
