@@ -29,17 +29,23 @@ interface GuidedContextFlowProps {
   onComplete: () => void;
 }
 
-type Step = 'intent' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'age';
+type Step = 'intent' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'plan' | 'age';
+
+const STEPS: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
 
 export default function GuidedContextFlow({ context, setContext, onComplete }: GuidedContextFlowProps) {
   const [currentStep, setCurrentStep] = useState<Step>('intent');
   const [direction, setDirection] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [flippedPlans, setFlippedPlans] = useState<Record<string, boolean>>({});
+
+  const togglePlanFlip = (id: string) => {
+    setFlippedPlans(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const goToStep = (step: Step) => {
-    const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
-    const currentIndex = steps.indexOf(currentStep);
-    const nextIndex = steps.indexOf(step);
+    const currentIndex = STEPS.indexOf(currentStep);
+    const nextIndex = STEPS.indexOf(step);
     setDirection(nextIndex > currentIndex ? 1 : -1);
     setCurrentStep(step);
   };
@@ -415,7 +421,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === p.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(p.id, { desiredPlatform: p.id as any }, p.id === 'iOS' ? 'age' : 'brand')}
+            onClick={() => handleOptionSelect(p.id, { desiredPlatform: p.id as any }, p.id === 'iOS' ? 'plan' : 'brand')}
             className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left group shadow-sm hover:shadow-md ${
               selectedId === p.id 
                 ? 'border-t-magenta bg-t-magenta/10' 
@@ -466,7 +472,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === b.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(b.id, {}, 'age')}
+            onClick={() => handleOptionSelect(b.id, {}, 'plan')}
             className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
               selectedId === b.id 
                 ? 'border-t-magenta bg-t-magenta/10' 
@@ -480,6 +486,112 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             <p className="text-xs font-black uppercase tracking-widest text-t-dark-gray">{b.label}</p>
           </motion.button>
         ))}
+      </div>
+      <button 
+        onClick={() => goToStep('age')}
+        className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
+      >
+        Skip / Not Sure
+      </button>
+    </motion.div>
+  );
+
+  const renderPlan = () => (
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Compare Plans</h2>
+        <p className="text-sm font-medium text-t-dark-gray">Tap a card to flip and see details.</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { 
+            id: 'Go5G Next', 
+            name: 'Go5G Next', 
+            price: '$100/mo', 
+            feature: 'Upgrade Every Year',
+            points: ['Yearly upgrades', 'Apple TV+ included', 'Hulu included'],
+            math: '$100 (1 line) with AutoPay'
+          },
+          { 
+            id: 'Go5G Plus', 
+            name: 'Go5G Plus', 
+            price: '$90/mo', 
+            feature: 'New in Two',
+            points: ['Upgrade every 2 yrs', 'Apple TV+ included', 'Netflix included'],
+            math: '$90 (1 line) with AutoPay'
+          },
+          { 
+            id: 'Essentials', 
+            name: 'Essentials', 
+            price: '$60/mo', 
+            feature: 'Best Value',
+            points: ['5G access', 'Unlimited talk & text', 'T-Mobile Tuesdays'],
+            math: '$60 (1 line) with AutoPay + Taxes'
+          },
+        ].map((plan) => {
+          const isFlipped = flippedPlans[plan.id];
+          return (
+            <div key={plan.id} className="relative h-56 w-full cursor-pointer group" style={{ perspective: 1000 }} onClick={() => togglePlanFlip(plan.id)}>
+              <motion.div
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="w-full h-full relative"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                {/* Front Face */}
+                <div 
+                  className="absolute inset-0 w-full h-full rounded-2xl border-2 border-t-light-gray bg-surface p-5 flex flex-col justify-between shadow-sm group-hover:border-t-magenta/50 transition-colors"
+                  style={{ backfaceVisibility: "hidden" }}
+                >
+                  <div>
+                    <h3 className="text-lg font-black uppercase tracking-tight text-t-dark-gray">{plan.name}</h3>
+                    <p className="text-2xl font-black text-t-magenta mt-2">{plan.price}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-t-muted">
+                    <Sparkles className="w-4 h-4 text-t-magenta" />
+                    <p className="text-xs font-bold uppercase tracking-widest">{plan.feature}</p>
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-t-muted text-center mt-2 opacity-50">Tap to flip</p>
+                </div>
+
+                {/* Back Face */}
+                <div 
+                  className="absolute inset-0 w-full h-full rounded-2xl bg-t-magenta text-white p-5 flex flex-col justify-between shadow-md"
+                  style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                >
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-tight mb-3">{plan.name} Details</h3>
+                    <ul className="space-y-2">
+                      {plan.points.map((pt, i) => (
+                        <li key={i} className="text-[11px] font-medium flex items-start gap-2 leading-tight">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-80" />
+                          {pt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold opacity-80 mb-3">{plan.math}</p>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOptionSelect(plan.id, { plan: plan.id }, 'age');
+                      }}
+                      className="w-full py-2 bg-white text-t-magenta text-xs font-black uppercase tracking-widest rounded-xl hover:bg-white/90 transition-colors"
+                    >
+                      Select Plan
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })}
       </div>
       <button 
         onClick={() => goToStep('age')}
@@ -532,17 +644,18 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
 
   const variants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 50 : -50,
-      opacity: 0
+      rotateY: direction > 0 ? -180 : 180,
+      opacity: 0,
+      zIndex: 0
     }),
     center: {
       zIndex: 1,
-      x: 0,
+      rotateY: 0,
       opacity: 1
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? 50 : -50,
+      rotateY: direction > 0 ? 180 : -180,
       opacity: 0
     })
   };
@@ -551,9 +664,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     <div className="max-w-md mx-auto min-h-[500px] flex flex-col">
       {/* Progress Bar */}
       <div className="flex gap-1.5 mb-8 px-2">
-        {['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'].map((step, i) => {
-          const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
-          const currentIndex = steps.indexOf(currentStep);
+        {STEPS.map((step, i) => {
+          const currentIndex = STEPS.indexOf(currentStep);
           
           // Hide currentDevice if not upgrade
           if (step === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') return null;
@@ -572,8 +684,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         })}
       </div>
 
-      <div className="flex-1 relative overflow-hidden">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
+      <div className="flex-1 relative" style={{ perspective: 1200 }}>
+        <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={currentStep}
             custom={direction}
@@ -582,10 +694,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
+              rotateY: { type: "spring", stiffness: 260, damping: 25 },
               opacity: { duration: 0.2 }
             }}
-            className="w-full"
+            className="w-full absolute top-0 left-0"
+            style={{ backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
           >
             {currentStep === 'intent' && renderIntent()}
             {currentStep === 'hintCheck' && renderHintCheck()}
@@ -595,6 +708,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             {currentStep === 'lines' && renderLines()}
             {currentStep === 'platform' && renderPlatform()}
             {currentStep === 'brand' && renderBrand()}
+            {currentStep === 'plan' && renderPlan()}
             {currentStep === 'age' && renderAge()}
           </motion.div>
         </AnimatePresence>
@@ -604,24 +718,23 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       {currentStep !== 'intent' && (
         <button
           onClick={() => {
-            const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
-            const currentIndex = steps.indexOf(currentStep);
+            const currentIndex = STEPS.indexOf(currentStep);
             let prevIndex = currentIndex - 1;
             
             // Skip currentDevice if not upgrade
-            if (steps[prevIndex] === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') {
+            if (STEPS[prevIndex] === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') {
               prevIndex--;
             }
             // Skip carrier if intent is upgrade
-            if (steps[prevIndex] === 'carrier' && context.purchaseIntent === 'upgrade / add a line') {
+            if (STEPS[prevIndex] === 'carrier' && context.purchaseIntent === 'upgrade / add a line') {
               prevIndex--;
             }
             // Skip brand if iOS
-            if (steps[prevIndex] === 'brand' && context.desiredPlatform === 'iOS') {
+            if (STEPS[prevIndex] === 'brand' && context.desiredPlatform === 'iOS') {
               prevIndex--;
             }
 
-            goToStep(steps[prevIndex]);
+            goToStep(STEPS[prevIndex]);
           }}
           className="mt-8 flex items-center gap-2 text-t-muted hover:text-t-magenta transition-colors text-[10px] font-black uppercase tracking-widest"
         >

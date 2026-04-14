@@ -27,7 +27,7 @@ export default function MagentaRunner() {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number>(null);
   
   // Mutable game state (refs to avoid re-renders during the animation loop)
   const playerLane = useRef(1);

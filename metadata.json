@@ -1,5 +1,6 @@
 {
-  "name": "CustomerConnect AI + GitHub",
-  "description": "AI-powered customer purchase guide for T-Mobile products, now with GitHub integration to personalize the experience with your own data.",
-  "requestFramePermissions": []
+  "name": "CustomerConnect AI",
+  "description": "A T-Mobile virtual retail sales assistant for live customer calls, featuring guided setup, credit-sensitive plays, gamification, and offline AI coaching.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }
