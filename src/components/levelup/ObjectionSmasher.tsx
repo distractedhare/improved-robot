@@ -182,11 +182,10 @@ export default function ObjectionSmasher() {
   const nextScenario = () => {
     if (currentScenarioIndex + 1 >= SCENARIOS.length) {
       setGameState('end');
-      // Record score if they got at least 60%
-      const maxScore = SCENARIOS.length * 100;
-      const percentage = Math.round((score / maxScore) * 100);
-      if (percentage >= 60) {
-        recordQuizScore(percentage);
+      // Use correct-answer count for accuracy, not bonus-inflated score
+      const accuracy = Math.round((resultsByScenario.filter(Boolean).length / SCENARIOS.length) * 100);
+      if (accuracy >= 60) {
+        recordQuizScore(accuracy);
       }
     } else {
       setCurrentScenarioIndex(i => i + 1);
@@ -229,10 +228,9 @@ export default function ObjectionSmasher() {
   }
 
   if (gameState === 'end') {
-    const maxScore = SCENARIOS.length * 100;
-    const percentage = Math.round((score / maxScore) * 100);
-    const isWin = percentage >= 60;
     const correctCount = resultsByScenario.filter(Boolean).length;
+    const percentage = Math.round((correctCount / SCENARIOS.length) * 100);
+    const isWin = percentage >= 60;
 
     return (
       <div className="space-y-5 py-2">
