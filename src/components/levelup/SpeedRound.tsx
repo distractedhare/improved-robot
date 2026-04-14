@@ -58,7 +58,7 @@ function AnimatedScore({ target }: { target: number }) {
 
   useEffect(() => {
     const controls = animate(count, target, { duration: 0.8, ease: 'easeOut' });
-    return controls.stop;
+    return () => controls.stop();
   }, [target]);
 
   return <motion.span>{rounded}</motion.span>;
