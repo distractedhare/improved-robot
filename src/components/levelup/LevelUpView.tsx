@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { AlertTriangle, Award, MessageSquare, Rocket, Trophy, Users, Zap, ShieldAlert, Play } from 'lucide-react';
 import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService';
 import BingoBoard from './BingoBoard';
@@ -112,7 +113,7 @@ export default function LevelUpView() {
                 aria-selected={isActive}
                 aria-controls={`level-up-panel-${item.id}`}
                 onClick={() => setTab(item.id)}
-                className={`focus-ring min-h-[44px] min-w-[140px] sm:min-w-0 shrink-0 snap-start rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
+                className={`focus-ring relative min-h-[44px] min-w-[140px] sm:min-w-0 shrink-0 snap-start rounded-xl px-3 py-2.5 text-left transition-colors active:scale-[0.985] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_18px_rgba(226,0,116,0.22)]'
                     : 'glass-tab text-t-dark-gray hover:text-foreground'
@@ -125,6 +126,13 @@ export default function LevelUpView() {
                 <span className={`mt-0.5 block text-[9px] font-medium ${isActive ? 'text-white/75' : 'text-t-dark-gray'}`}>
                   {item.helper}
                 </span>
+                {isActive && (
+                  <motion.div
+                    layoutId="active-tab-indicator"
+                    className="absolute bottom-1.5 left-3 right-3 h-0.5 rounded-full bg-white/60"
+                    transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+                  />
+                )}
               </button>
             );
           })}

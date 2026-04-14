@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, RotateCcw, ShieldAlert, Zap, Trophy, CheckCircle2, XCircle } from 'lucide-react';
+import { RotateCcw, ShieldAlert, Zap, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getRandomQuestions, QuizQuestion } from '../../constants/quizQuestions';
 import { recordQuizScore } from '../../services/prizeService';
 
@@ -25,6 +25,7 @@ export default function MagentaRunner() {
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [displayLane, setDisplayLane] = useState(1);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
@@ -50,8 +51,23 @@ export default function MagentaRunner() {
     isInvincible.current = 0;
     setScore(0);
     setFeedback(null);
+    setDisplayLane(1);
     setGameState('playing');
   }, []);
+
+  const moveLeft = useCallback(() => {
+    if (gameState !== 'playing') return;
+    const next = Math.max(0, playerLane.current - 1);
+    playerLane.current = next;
+    setDisplayLane(next);
+  }, [gameState]);
+
+  const moveRight = useCallback(() => {
+    if (gameState !== 'playing') return;
+    const next = Math.min(LANES - 1, playerLane.current + 1);
+    playerLane.current = next;
+    setDisplayLane(next);
+  }, [gameState]);
 
   const triggerQuestion = useCallback(() => {
     setGameState('question');
@@ -240,12 +256,6 @@ export default function MagentaRunner() {
 
     ctx.restore();
 
-    // Draw Score on Canvas (Top Right)
-    ctx.fillStyle = '#FFF';
-    ctx.font = 'black 20px Inter';
-    ctx.textAlign = 'right';
-    ctx.fillText(`SCORE: ${scoreRef.current}`, width - 15, 30);
-
     requestRef.current = requestAnimationFrame(updateGame);
   }, [gameState, triggerQuestion]);
 
@@ -264,9 +274,13 @@ export default function MagentaRunner() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameState !== 'playing') return;
       if (e.key === 'ArrowLeft' || e.key === 'a') {
-        playerLane.current = Math.max(0, playerLane.current - 1);
+        const next = Math.max(0, playerLane.current - 1);
+        playerLane.current = next;
+        setDisplayLane(next);
       } else if (e.key === 'ArrowRight' || e.key === 'd') {
-        playerLane.current = Math.min(LANES - 1, playerLane.current + 1);
+        const next = Math.min(LANES - 1, playerLane.current + 1);
+        playerLane.current = next;
+        setDisplayLane(next);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -284,28 +298,43 @@ export default function MagentaRunner() {
     const diff = touchEndX - touchStartX.current;
 
     if (diff > 30) {
-      // Swipe Right
-      playerLane.current = Math.min(LANES - 1, playerLane.current + 1);
+      const next = Math.min(LANES - 1, playerLane.current + 1);
+      playerLane.current = next;
+      setDisplayLane(next);
     } else if (diff < -30) {
-      // Swipe Left
-      playerLane.current = Math.max(0, playerLane.current - 1);
+      const next = Math.max(0, playerLane.current - 1);
+      playerLane.current = next;
+      setDisplayLane(next);
     }
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-[450px] rounded-3xl overflow-hidden shadow-2xl border-4 border-t-dark-gray bg-[#1A1A1A]">
-      
-      {/* The Game Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={400}
-        height={450}
-        className="w-full h-full block"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      />
+    <div className="w-full max-w-md mx-auto">
 
-      {/* Overlays */}
+      {/* Canvas container — top half of the cabinet */}
+      <div className="relative h-[420px] w-full overflow-hidden rounded-t-3xl border-4 border-b-0 border-t-dark-gray bg-[#1A1A1A] shadow-2xl">
+
+        {/* The Game Canvas */}
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={420}
+          className="w-full h-full block"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        />
+
+        {/* HTML Score HUD — pixel-crisp on all DPR */}
+        {gameState === 'playing' && (
+          <div className="pointer-events-none absolute right-3 top-3 z-10">
+            <div className="flex items-baseline gap-1 rounded-xl bg-black/50 px-3 py-1.5 backdrop-blur-sm">
+              <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Score</span>
+              <span className="text-lg font-black tabular-nums text-white">{score}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Overlays */}
       <AnimatePresence mode="wait">
         
         {/* Start Screen */}
@@ -317,16 +346,45 @@ export default function MagentaRunner() {
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
           >
-            <div className="w-20 h-20 bg-t-magenta/20 rounded-3xl flex items-center justify-center mb-4 border-2 border-t-magenta">
-              <Zap className="w-10 h-10 text-t-magenta" />
+            <div className="w-16 h-16 bg-t-magenta/20 rounded-3xl flex items-center justify-center mb-4 border-2 border-t-magenta">
+              <Zap className="w-8 h-8 text-t-magenta" />
             </div>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">Magenta Runner</h2>
-            <p className="text-sm font-medium text-white/70 mb-8 max-w-[250px]">
-              Swipe left/right or use arrow keys to dodge objections and collect 5G nodes.
+            <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-1">Magenta Runner</h2>
+            <p className="text-xs font-medium text-white/60 mb-5">
+              Dodge obstacles. Collect 5G nodes. Answer quiz questions to survive.
             </p>
+
+            {/* Lane diagram */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex flex-col items-center gap-1 opacity-60">
+                <span className="text-white/80 text-lg">←</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">swipe</span>
+              </div>
+              {[0, 1, 2].map((lane) => (
+                <div
+                  key={lane}
+                  className={`h-20 w-14 rounded-xl border-2 flex items-end justify-center pb-2 ${
+                    lane === 1
+                      ? 'border-t-magenta bg-t-magenta/20'
+                      : 'border-white/20 bg-white/5'
+                  }`}
+                >
+                  {lane === 1 && (
+                    <div className="w-6 h-6 rounded-full bg-t-magenta flex items-center justify-center">
+                      <Zap className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="flex flex-col items-center gap-1 opacity-60">
+                <span className="text-white/80 text-lg">→</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">swipe</span>
+              </div>
+            </div>
+
             <button
               onClick={startGame}
-              className="w-full max-w-[200px] py-4 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
+              className="w-full max-w-[200px] py-3.5 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
             >
               Play Now
             </button>
@@ -394,7 +452,7 @@ export default function MagentaRunner() {
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
           >
-            <Trophy className="w-16 h-16 text-t-magenta mb-4" />
+            <XCircle className="w-16 h-16 text-error-accent mb-4" />
             <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-2">Run Ended</h2>
             <p className="text-lg font-medium text-white/70 mb-8">
               Final Score: <span className="text-t-magenta font-black text-2xl">{score}</span>
@@ -409,6 +467,74 @@ export default function MagentaRunner() {
         )}
 
       </AnimatePresence>
+      </div>{/* end canvas container */}
+
+      {/* Retro Arcade Control Panel */}
+      <div className="w-full rounded-b-3xl border-4 border-t-2 border-t-dark-gray bg-[#0f0f0f] px-6 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
+        {/* Decorative top groove line */}
+        <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+        <div className="flex items-center justify-between">
+          {/* LEFT button */}
+          <button
+            onPointerDown={moveLeft}
+            disabled={gameState !== 'playing'}
+            aria-label="Move left"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl
+                       border-4 border-[#2e2e2e] bg-[#1c1c1c] text-white/60
+                       shadow-[0_5px_0_rgba(0,0,0,0.9)]
+                       transition-all duration-75
+                       hover:enabled:border-t-magenta/60 hover:enabled:text-t-magenta
+                       hover:enabled:shadow-[0_5px_0_rgba(0,0,0,0.9),0_0_18px_rgba(226,0,116,0.25)]
+                       active:enabled:translate-y-[4px] active:enabled:shadow-[0_1px_0_rgba(0,0,0,0.9)]
+                       active:enabled:border-t-magenta active:enabled:text-t-magenta
+                       disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="h-9 w-9" />
+          </button>
+
+          {/* Center: lane indicator + label */}
+          <div className="flex flex-col items-center gap-2.5">
+            <div className="flex gap-3">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`h-2.5 w-2.5 rounded-full transition-all duration-150 ${
+                    i === displayLane && gameState === 'playing'
+                      ? 'bg-t-magenta shadow-[0_0_8px_rgba(226,0,116,0.9),0_0_16px_rgba(226,0,116,0.5)]'
+                      : 'bg-white/15'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-[0.22em] text-white/25">
+              Controls
+            </span>
+          </div>
+
+          {/* RIGHT button */}
+          <button
+            onPointerDown={moveRight}
+            disabled={gameState !== 'playing'}
+            aria-label="Move right"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl
+                       border-4 border-[#2e2e2e] bg-[#1c1c1c] text-white/60
+                       shadow-[0_5px_0_rgba(0,0,0,0.9)]
+                       transition-all duration-75
+                       hover:enabled:border-t-magenta/60 hover:enabled:text-t-magenta
+                       hover:enabled:shadow-[0_5px_0_rgba(0,0,0,0.9),0_0_18px_rgba(226,0,116,0.25)]
+                       active:enabled:translate-y-[4px] active:enabled:shadow-[0_1px_0_rgba(0,0,0,0.9)]
+                       active:enabled:border-t-magenta active:enabled:text-t-magenta
+                       disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="h-9 w-9" />
+          </button>
+        </div>
+
+        {/* Decorative bottom groove line */}
+        <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
+
     </div>
   );
 }

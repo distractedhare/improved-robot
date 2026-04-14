@@ -1,7 +1,42 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldAlert, Zap, CheckCircle2, XCircle, Trophy, RotateCcw, Flame } from 'lucide-react';
 import { recordQuizScore } from '../../services/prizeService';
+
+// --- Arc Timer ---
+interface ArcTimerProps { timeLeft: number; totalTime: number; size?: number; }
+
+function ArcTimer({ timeLeft, totalTime, size = 56 }: ArcTimerProps) {
+  const r = 22;
+  const circumference = 2 * Math.PI * r;
+  const progress = totalTime > 0 ? timeLeft / totalTime : 0;
+  const offset = circumference * (1 - progress);
+  const stroke =
+    timeLeft > totalTime * 0.4 ? '#E20074'
+    : timeLeft > totalTime * 0.15 ? 'var(--sem-warning-accent)'
+    : 'var(--sem-error-accent)';
+  const textColor =
+    timeLeft > totalTime * 0.4 ? 'text-foreground'
+    : timeLeft > totalTime * 0.15 ? 'text-warning-foreground'
+    : 'text-error-foreground';
+
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox="0 0 52 52" className="-rotate-90" aria-hidden="true">
+        <circle cx="26" cy="26" r={r} fill="none" stroke="currentColor" strokeWidth="3.5" className="text-t-light-gray/40" />
+        <circle cx="26" cy="26" r={r} fill="none" stroke={stroke} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 0.9s linear, stroke 0.4s ease' }} />
+      </svg>
+      <span
+        className={`absolute inset-0 flex items-center justify-center text-sm font-black tabular-nums ${textColor}`}
+        aria-label={`${timeLeft} seconds remaining`}
+      >
+        {timeLeft}
+      </span>
+    </div>
+  );
+}
 
 // --- Game Data ---
 interface ObjectionScenario {
@@ -9,12 +44,16 @@ interface ObjectionScenario {
   customer: string;
   objection: string;
   options: { text: string; isCorrect: boolean; feedback: string }[];
+  emoji: string;
+  avatarBg: string;
 }
 
 const SCENARIOS: ObjectionScenario[] = [
   {
     id: '1',
     customer: 'Budget-Conscious Bob',
+    emoji: '💸',
+    avatarBg: 'rgba(226,0,116,0.12)',
     objection: "I don't need Go5G Next, Essentials is cheaper and I just need basic service.",
     options: [
       { text: "Essentials is fine, but you won't get free Netflix.", isCorrect: false, feedback: "Too weak. Focus on the long-term value and upgrade cycle." },
@@ -25,6 +64,8 @@ const SCENARIOS: ObjectionScenario[] = [
   {
     id: '2',
     customer: 'Skeptical Sarah',
+    emoji: '🤔',
+    avatarBg: 'rgba(134,27,84,0.12)',
     objection: "I'm not switching from Verizon. Your coverage is terrible where I live.",
     options: [
       { text: "We actually have the largest 5G network now, way bigger than Verizon.", isCorrect: true, feedback: "Strong fact-based pivot. T-Mobile's 5G leadership is the best counter here." },
@@ -35,6 +76,8 @@ const SCENARIOS: ObjectionScenario[] = [
   {
     id: '3',
     customer: 'Tech-Savvy Tom',
+    emoji: '🤖',
+    avatarBg: 'rgba(0,100,200,0.10)',
     objection: "I don't need a smartwatch. My phone already tells time and tracks my steps.",
     options: [
       { text: "It's only $10 a month to add it to your plan.", isCorrect: false, feedback: "Price isn't the issue, value is. Build value first." },
@@ -45,6 +88,8 @@ const SCENARIOS: ObjectionScenario[] = [
   {
     id: '4',
     customer: 'Hesitant Hannah',
+    emoji: '😬',
+    avatarBg: 'rgba(212,160,23,0.12)',
     objection: "I'll just buy a cheap case on Amazon later.",
     options: [
       { text: "Our cases are better quality than Amazon.", isCorrect: false, feedback: "Vague claim. Be specific about the immediate benefit." },
@@ -55,6 +100,8 @@ const SCENARIOS: ObjectionScenario[] = [
   {
     id: '5',
     customer: 'Loyal Larry',
+    emoji: '📱',
+    avatarBg: 'rgba(0,165,80,0.10)',
     objection: "I've had this iPhone 11 for 4 years, it works fine. Why upgrade?",
     options: [
       { text: "The battery on the new one is much better.", isCorrect: false, feedback: "True, but not compelling enough on its own." },
@@ -73,7 +120,8 @@ export default function ObjectionSmasher() {
   const [streak, setStreak] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(15);
-  
+  const [resultsByScenario, setResultsByScenario] = useState<boolean[]>([]);
+
   const timerRef = useRef<number | null>(null);
 
   const currentScenario = SCENARIOS[currentScenarioIndex];
@@ -84,6 +132,7 @@ export default function ObjectionSmasher() {
     setCurrentScenarioIndex(0);
     setGameState('playing');
     setTimeLeft(15);
+    setResultsByScenario([]);
   };
 
   // Timer logic for playing state
@@ -108,34 +157,35 @@ export default function ObjectionSmasher() {
     if (timerRef.current) clearInterval(timerRef.current);
     setSelectedOptionIndex(-1); // -1 indicates timeout
     setStreak(0);
+    setResultsByScenario((prev) => [...prev, false]);
     setGameState('feedback');
   };
 
   const handleSelectOption = (index: number) => {
     if (gameState !== 'playing') return;
     if (timerRef.current) clearInterval(timerRef.current);
-    
+
     setSelectedOptionIndex(index);
     const isCorrect = SCENARIOS[currentScenarioIndex].options[index].isCorrect;
-    
+
     if (isCorrect) {
       setScore(s => s + 100 + (streak * 20)); // Bonus for streaks
       setStreak(s => s + 1);
     } else {
       setStreak(0);
     }
-    
+
+    setResultsByScenario((prev) => [...prev, isCorrect]);
     setGameState('feedback');
   };
 
   const nextScenario = () => {
     if (currentScenarioIndex + 1 >= SCENARIOS.length) {
       setGameState('end');
-      // Record score if they got at least 60%
-      const maxScore = SCENARIOS.length * 100;
-      const percentage = Math.round((score / maxScore) * 100);
-      if (percentage >= 60) {
-        recordQuizScore(percentage);
+      // Use correct-answer count for accuracy, not bonus-inflated score
+      const accuracy = Math.round((resultsByScenario.filter(Boolean).length / SCENARIOS.length) * 100);
+      if (accuracy >= 60) {
+        recordQuizScore(accuracy);
       }
     } else {
       setCurrentScenarioIndex(i => i + 1);
@@ -157,7 +207,7 @@ export default function ObjectionSmasher() {
             Customers throw curveballs. You have 15 seconds to pick the perfect pivot. Build your streak for bonus points!
           </p>
         </div>
-        
+
         <div className="glass-card rounded-2xl p-4 max-w-sm mx-auto text-left">
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-muted mb-3">Rules of Engagement</p>
           <ul className="space-y-2 text-xs font-medium text-t-dark-gray">
@@ -178,27 +228,65 @@ export default function ObjectionSmasher() {
   }
 
   if (gameState === 'end') {
-    const maxScore = SCENARIOS.length * 100;
-    const percentage = Math.round((score / maxScore) * 100);
+    const correctCount = resultsByScenario.filter(Boolean).length;
+    const percentage = Math.round((correctCount / SCENARIOS.length) * 100);
     const isWin = percentage >= 60;
 
     return (
-      <div className="space-y-6 text-center py-4">
-        <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-3xl text-white shadow-lg ${isWin ? 'bg-t-magenta' : 'bg-t-dark-gray'}`}>
-          {isWin ? <Trophy className="h-10 w-10" /> : <RotateCcw className="h-10 w-10" />}
-        </div>
-        <div>
+      <div className="space-y-5 py-2">
+        {/* Header */}
+        <div className="text-center">
+          <div className={`mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg ${isWin ? 'bg-t-magenta' : 'bg-t-dark-gray'}`}>
+            {isWin ? <Trophy className="h-8 w-8" /> : <RotateCcw className="h-8 w-8" />}
+          </div>
           <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
             {isWin ? 'Objections Smashed!' : 'Needs Practice'}
           </h3>
           <p className="mt-1 text-sm font-medium text-t-dark-gray">
-            You scored <span className="font-black text-t-magenta">{score}</span> points.
+            {correctCount} of {SCENARIOS.length} correct &mdash;{' '}
+            <span className="font-black text-t-magenta">{percentage}%</span>
           </p>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="glass-stat rounded-xl p-3 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Points</p>
+            <p className="mt-1 text-lg font-black text-foreground">{score}</p>
+          </div>
+          <div className="glass-stat rounded-xl p-3 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Accuracy</p>
+            <p className="mt-1 text-lg font-black text-foreground">{percentage}%</p>
+          </div>
+        </div>
+
+        {/* Per-scenario breakdown */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">Scenario Breakdown</p>
+          {SCENARIOS.map((s, i) => {
+            const wasCorrect = resultsByScenario[i];
+            const attempted = i < resultsByScenario.length;
+            return (
+              <div key={s.id} className="glass-card flex items-center gap-3 rounded-xl px-3 py-2.5">
+                <span className="text-lg shrink-0" aria-hidden="true">{s.emoji}</span>
+                <p className="flex-1 text-xs font-medium text-t-dark-gray truncate">{s.customer}</p>
+                {attempted ? (
+                  wasCorrect ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-success-accent" />
+                  ) : (
+                    <XCircle className="h-4 w-4 shrink-0 text-error-accent" />
+                  )
+                ) : (
+                  <span className="text-[10px] text-t-muted">—</span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <button
           onClick={startGame}
-          className="focus-ring w-full max-w-sm mx-auto rounded-xl bg-t-magenta py-4 text-sm font-black uppercase tracking-wider text-white shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="focus-ring w-full rounded-xl bg-t-magenta py-3.5 text-sm font-black uppercase tracking-wider text-white shadow-md transition-transform hover:scale-[1.01] active:scale-[0.98]"
         >
           Play Again
         </button>
@@ -228,11 +316,7 @@ export default function ObjectionSmasher() {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-lg font-black tabular-nums ${timeLeft <= 5 ? 'text-error-accent animate-pulse' : 'text-foreground'}`}>
-            {timeLeft}s
-          </span>
-        </div>
+        <ArcTimer timeLeft={timeLeft} totalTime={15} size={44} />
       </div>
 
       {/* Progress */}
@@ -251,8 +335,19 @@ export default function ObjectionSmasher() {
           exit={{ opacity: 0, y: -20 }}
           className="glass-elevated rounded-2xl p-5 border-2 border-t-magenta/20 bg-t-magenta/5"
         >
-          <div className="inline-block px-2 py-1 bg-t-magenta/10 rounded-md text-[10px] font-black uppercase tracking-widest text-t-magenta mb-3">
-            {currentScenario.customer} says:
+          {/* Persona avatar */}
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-xl"
+              style={{ background: currentScenario.avatarBg }}
+              aria-hidden="true"
+            >
+              {currentScenario.emoji}
+            </div>
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-t-muted">Customer</p>
+              <p className="text-sm font-black text-foreground">{currentScenario.customer}</p>
+            </div>
           </div>
           <p className="text-lg font-black text-t-dark-gray leading-snug">
             "{currentScenario.objection}"
@@ -264,14 +359,14 @@ export default function ObjectionSmasher() {
       <div className="space-y-3 pt-2">
         {currentScenario.options.map((opt, i) => {
           let btnClass = "glass-button text-t-dark-gray hover:border-t-magenta/40 hover:bg-t-magenta/5";
-          
+
           if (isFeedback) {
             if (opt.isCorrect) {
-              btnClass = "border-success-accent bg-success-surface text-success-foreground"; // Highlight the right answer
+              btnClass = "border-success-accent bg-success-surface text-success-foreground";
             } else if (selectedOptionIndex === i) {
-              btnClass = "border-error-accent bg-error-surface text-error-foreground"; // Highlight their wrong answer
+              btnClass = "border-error-accent bg-error-surface text-error-foreground";
             } else {
-              btnClass = "opacity-50 glass-button text-t-muted"; // Fade others
+              btnClass = "opacity-50 glass-button text-t-muted";
             }
           }
 
@@ -312,7 +407,7 @@ export default function ObjectionSmasher() {
                   </p>
                 </div>
               </div>
-              
+
               <button
                 onClick={nextScenario}
                 className={`mt-4 w-full py-3 rounded-lg text-xs font-black uppercase tracking-widest text-white transition-transform hover:scale-[1.02] active:scale-[0.98] ${
