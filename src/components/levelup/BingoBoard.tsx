@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { Flame, Sparkles, Trophy, Zap, Clock, Target, Lightbulb } from 'lucide-react';
-import { BINGO_BOARDS, BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
+import { BingoCell as BingoCellType, getBoardLayout, getBoardById } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
@@ -52,15 +52,16 @@ function celebrateBoard(): void {
   }, 160);
 }
 
+const BOARD_ID = 'sales-fundamentals';
+
 export default function BingoBoard() {
-  const [activeBoardId, setActiveBoardId] = useState(() => getFeaturedBoardId());
-  const [progress, setProgress] = useState(() => getBoardProgress(getFeaturedBoardId()));
+  const [progress, setProgress] = useState(() => getBoardProgress(BOARD_ID));
   const [rowToast, setRowToast] = useState<{ count: number } | null>(null);
   const [boardCelebration, setBoardCelebration] = useState(false);
 
-  const activeBoard = useMemo(() => getBoardById(activeBoardId), [activeBoardId]);
-  const board = useMemo(() => getBoardLayout(activeBoardId), [activeBoardId]);
-  const stats = useMemo(() => getBingoStats(activeBoardId), [activeBoardId, progress]);
+  const activeBoard = useMemo(() => getBoardById(BOARD_ID), []);
+  const board = useMemo(() => getBoardLayout(BOARD_ID), []);
+  const stats = useMemo(() => getBingoStats(BOARD_ID), [progress]);
 
   const completedIds = useMemo(() => new Set(progress.completedCellIds), [progress.completedCellIds]);
   const { winningLines } = useMemo(() => getWinningLines(completedIds, board), [board, completedIds]);
@@ -68,8 +69,8 @@ export default function BingoBoard() {
   const durationLabel = useMemo(() => formatBingoDuration(progress.startedAt, progress.completedAt), [progress.completedAt, progress.startedAt]);
 
   useEffect(() => {
-    setProgress(getBoardProgress(activeBoardId));
-  }, [activeBoardId]);
+    setProgress(getBoardProgress(BOARD_ID));
+  }, [BOARD_ID]);
 
   useEffect(() => {
     if (!rowToast) return undefined;
@@ -78,7 +79,7 @@ export default function BingoBoard() {
   }, [rowToast]);
 
   const handleToggle = useCallback((cell: BingoCellType, reflection?: string) => {
-    const result = toggleBingoCell(activeBoardId, cell.id, reflection);
+    const result = toggleBingoCell(BOARD_ID, cell.id, reflection);
     setProgress(result.progress);
 
     if (!completedIds.has(cell.id)) {
@@ -94,7 +95,7 @@ export default function BingoBoard() {
       celebrateBoard();
       setBoardCelebration(true);
     }
-  }, [activeBoardId, completedIds]);
+  }, [BOARD_ID, completedIds]);
 
   return (
     <div className="space-y-5">
@@ -113,32 +114,6 @@ export default function BingoBoard() {
           </div>
         </div>
 
-        {/* Board selector */}
-        <div className="flex overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 gap-2 scrollbar-hide" role="tablist" aria-label="Weekly challenge boards">
-          {BINGO_BOARDS.map((boardOption) => {
-            const isActive = boardOption.id === activeBoardId;
-            return (
-              <button
-                key={boardOption.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`bingo-board-panel-${boardOption.id}`}
-                onClick={() => setActiveBoardId(boardOption.id)}
-                className={`focus-ring min-w-[200px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-3 text-left transition-all active:scale-[0.97] ${
-                  isActive
-                    ? 'bg-t-magenta text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)]'
-                    : 'glass-card text-t-dark-gray hover:border-t-magenta/30'
-                }`}
-              >
-                <p className="text-[10px] font-black uppercase tracking-[0.18em]">{boardOption.name}</p>
-                <p className={`mt-1 text-[11px] font-medium leading-relaxed ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
-                  {boardOption.subtitle}
-                </p>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Mini Lesson Callout */}
@@ -160,7 +135,7 @@ export default function BingoBoard() {
 
       {/* Bingo grid */}
       <div
-        id={`bingo-board-panel-${activeBoardId}`}
+        id={`bingo-board-panel-${BOARD_ID}`}
         role="tabpanel"
         aria-label={`${activeBoard.name} board`}
         className="glass-elevated rounded-[1.4rem] p-4"
@@ -185,7 +160,7 @@ export default function BingoBoard() {
         <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
           {board.map((cell, index) => (
             <BingoCell
-              key={`${activeBoardId}-${cell.id}`}
+              key={`${BOARD_ID}-${cell.id}`}
               cell={cell}
               completed={completedIds.has(cell.id)}
               isWinning={winningIndices.has(index)}
