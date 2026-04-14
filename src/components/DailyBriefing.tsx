@@ -426,7 +426,7 @@ function BriefingCard({
   warning?: boolean;
 }) {
   return (
-    <div className={`rounded-2xl border-2 overflow-hidden transition-all ${
+    <div className={`rounded-2xl border-2 overflow-hidden transition-all glass-specular ${
       accent ? 'border-t-magenta/30 bg-t-magenta/5' :
       warning ? 'border-warning-border bg-warning-surface/70' :
       'border-t-light-gray bg-surface-elevated'
@@ -467,7 +467,7 @@ function BriefingCard({
 
 function StatCard({ label, value, subtext }: { label: string; value: string; subtext: string }) {
   return (
-    <div className="rounded-xl glass-card p-3 text-center">
+    <div className="rounded-xl glass-card glass-specular p-3 text-center">
       <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">{label}</p>
       <p className="text-lg font-black text-t-magenta">{value}</p>
       <p className="text-[9px] font-bold text-t-dark-gray">{subtext}</p>

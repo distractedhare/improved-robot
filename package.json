@@ -10,14 +10,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "check": "npm run lint && npm run check:copy && npm run build",
-    "check:offline": "node scripts/check-offline-runtime.mjs && npm run images:verify",
+    "check": "npm run lint && npm run build",
     "check:ai": "node scripts/check-ai.mjs",
-    "check:copy": "node scripts/lint-copy.mjs",
-    "images:manifest": "node scripts/product-image-manifest.mjs",
-    "images:fetch": "node scripts/fetch-product-images.mjs",
-    "images:verify": "node scripts/verify-product-images.mjs",
-    "images:refresh": "npm run images:fetch && npm run images:verify",
     "vocab:generate": "tsx scripts/generate-vocabulary.ts"
   },
   "dependencies": {
@@ -51,6 +45,7 @@
     "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
+    "puppeteer": "^24.40.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

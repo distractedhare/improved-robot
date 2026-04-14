@@ -50,7 +50,7 @@ export default function CustomerContextForm({
           <legend className="text-xs font-bold text-t-dark-gray">
             Age range
           </legend>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {(['18-24', '25-34', '35-54', '55+', 'Not Specified'] as const).map((a) => (
               <button
                 key={a}
@@ -159,7 +159,7 @@ export default function CustomerContextForm({
           <legend className="text-xs font-bold text-t-dark-gray">
             Their current carrier
           </legend>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             {(['AT&T', 'Verizon', 'Spectrum', 'Xfinity', 'US Cellular', 'Prepaid (Mint, Boost, etc.)', 'Other', 'Not Specified'] as const).map((c) => (
               <button
                 key={c}

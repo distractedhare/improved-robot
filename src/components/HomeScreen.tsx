@@ -19,6 +19,7 @@ import { AppMode } from './Header';
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
   onNavigate: (mode: AppMode) => void;
+  onReset: () => void;
 }
 
 const MODE_ICONS: Record<string, React.ElementType> = {
@@ -54,7 +55,7 @@ function formatDate(): string {
   });
 }
 
-export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) {
+export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScreenProps) {
   const [role, setRole] = useState<RoleConfig>(getActiveRole);
   const enabledRoles = getEnabledRoles();
   const showRoleSelector = enabledRoles.length > 1;
@@ -112,7 +113,7 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.3 }}
-          className="flex justify-center gap-2"
+          className="flex justify-center gap-2 flex-wrap"
         >
           {enabledRoles.map(r => (
             <button
@@ -190,7 +191,12 @@ export default function HomeScreen({ weeklyData, onNavigate }: HomeScreenProps) 
             <button
               key={tier}
               type="button"
-              onClick={() => onNavigate(card.mode as AppMode)}
+              onClick={() => {
+                if (card.mode === 'live') {
+                  onReset();
+                }
+                onNavigate(card.mode as AppMode);
+              }}
               className={`focus-ring w-full text-left rounded-2xl p-5 transition-all group ${
                 isPrimary
                   ? 'magenta-glow'

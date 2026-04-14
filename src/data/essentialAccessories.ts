@@ -1,12 +1,10 @@
 // Essential accessories pricing data — shared between Live (InstantPlays) and Learn (AccessoriesReference)
-import { getAccessoryImageUrl } from './accessoryImagePaths';
 
 export interface EssentialItem {
   name: string;
   price: string;
   bundle: string | null;
   originalPrice?: string;
-  imageUrl?: string;
   /** What makes this product good — specs, differentiators, review highlights */
   why: string;
   /** One-liner the rep can say out loud to the customer */
@@ -17,8 +15,6 @@ export interface EssentialItem {
   bonus?: string;
   /** Outcome bucket(s): Protect it, Power it, etc. */
   outcomes?: string[];
-  /** Sales shorthand for who this lands with first */
-  shopperTags?: string[];
 }
 
 export interface EssentialCategory {
@@ -31,7 +27,6 @@ export interface BigAddItem {
   name: string;
   price: string;
   note: string;
-  imageUrl?: string;
   /** What makes this product worth the price — specs, differentiators, standout features */
   why: string;
   /** One-liner the rep can say to pitch it */
@@ -42,11 +37,9 @@ export interface BigAddItem {
   bonus?: string;
   /** Outcome bucket(s) */
   outcomes?: string[];
-  /** Sales shorthand for who this lands with first */
-  shopperTags?: string[];
 }
 
-const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
+export const ESSENTIALS_TABLE: EssentialCategory[] = [
   { category: 'Cases', id: 'cases', items: [
     {
       name: 'Tech21 EvoLite w/ MagSafe',
@@ -56,7 +49,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone'],
       bonus: '$3',
       outcomes: ['Protect it'],
-      shopperTags: ['Commuters', 'Daily Drops', 'MagSafe Users'],
     },
     {
       name: 'Tech21 EvoClear w/ MagSafe',
@@ -66,7 +58,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone'],
       bonus: '$4',
       outcomes: ['Protect it', 'Show personality'],
-      shopperTags: ['Style-First', 'Young Adults', 'iPhone Upgraders'],
     },
     {
       name: 'ZAGG Crystal Palace Snap w/ Kickstand',
@@ -76,7 +67,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone', 'Samsung'],
       bonus: '$4',
       outcomes: ['Protect it'],
-      shopperTags: ['Parents', 'Video Calls', 'Busy Households'],
     },
     {
       name: 'ZAGG Rainier Snap w/ Kickstand',
@@ -86,7 +76,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone', 'Samsung'],
       bonus: '$5',
       outcomes: ['Protect it'],
-      shopperTags: ['Adventure', 'Rough on Phones', 'Parents'],
     },
     {
       name: 'GoTo Flex Case (Galaxy A16)',
@@ -96,7 +85,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['Samsung'],
       bonus: '$1',
       outcomes: ['Protect it'],
-      shopperTags: ['Budget', 'Teen Lines', 'First Smartphone'],
     },
   ]},
   { category: 'Screen Protectors', id: 'screen', items: [
@@ -108,7 +96,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$4',
       outcomes: ['Protect it'],
-      shopperTags: ['Older Adults', 'Parents', 'Everyday Use'],
     },
     {
       name: 'ZAGG Glass Elite Privacy 360 (iPhone)',
@@ -118,7 +105,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone'],
       bonus: '$5',
       outcomes: ['Protect it'],
-      shopperTags: ['Students', 'Commuters', 'Privacy-Minded'],
     },
   ]},
   { category: 'Chargers + Cables', id: 'chargers', items: [
@@ -130,7 +116,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$2',
       outcomes: ['Power it'],
-      shopperTags: ['Older Adults', 'Budget', 'New Phone Setup'],
     },
     {
       name: 'Samsung 45W Power Adapter',
@@ -140,7 +125,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$3',
       outcomes: ['Power it'],
-      shopperTags: ['Power Users', 'Galaxy Flagships', 'Heavy Streaming'],
     },
     {
       name: 'Samsung USB-C Cable (1m)',
@@ -150,7 +134,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$2',
       outcomes: ['Power it'],
-      shopperTags: ['Desk Setup', 'Basic Need', 'Daily Charging'],
     },
     {
       name: 'Samsung USB-C Cable (1.8m)',
@@ -160,7 +143,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$2',
       outcomes: ['Power it'],
-      shopperTags: ['Travelers', 'Parents', 'Couch Charging'],
     },
     {
       name: 'Samsung Ultimate Charging Bundle',
@@ -170,7 +152,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$5',
       outcomes: ['Power it', 'Travel easier'],
-      shopperTags: ['Commuters', 'Road Trips', 'Families'],
     },
   ]},
   { category: 'Wireless Chargers', id: 'wireless', items: [
@@ -182,7 +163,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['All'],
       bonus: '$3',
       outcomes: ['Power it'],
-      shopperTags: ['Older Adults', 'Nightstand', 'Simple Setup'],
     },
     {
       name: 'Apple MagSafe Charger (2m)',
@@ -192,7 +172,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone', 'Pixel'],
       bonus: '$4',
       outcomes: ['Power it'],
-      shopperTags: ['iPhone Users', 'Desk Setup', 'Giftable'],
     },
   ]},
   { category: 'Camera Protectors', id: 'camera', items: [
@@ -204,7 +183,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['Samsung'],
       bonus: '$2',
       outcomes: ['Protect it'],
-      shopperTags: ['Adventure', 'Creators', 'Premium Buyers'],
     },
     {
       name: 'ZAGG Camera Protector (S26+)',
@@ -214,7 +192,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['Samsung'],
       bonus: '$2',
       outcomes: ['Protect it'],
-      shopperTags: ['Travelers', 'Daily Carry', 'Samsung Upgraders'],
     },
   ]},
   { category: 'Other Essentials', id: 'other', items: [
@@ -226,7 +203,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone', 'Pixel'],
       bonus: '$4',
       outcomes: ['Travel easier', 'Power it'],
-      shopperTags: ['Commuters', 'Road Trips', 'Parents'],
     },
     {
       name: 'PopSockets PopGrip for MagSafe',
@@ -236,7 +212,6 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['iPhone', 'Pixel'],
       bonus: '$2',
       outcomes: ['Show personality', 'Everyday add-on'],
-      shopperTags: ['Young Adults', 'Creators', 'Text-All-Day'],
     },
     {
       name: 'Samsung Magnetic Battery',
@@ -246,12 +221,11 @@ const RAW_ESSENTIALS_TABLE: EssentialCategory[] = [
       worksWith: ['Samsung'],
       bonus: '$5',
       outcomes: ['Power it', 'Travel easier'],
-      shopperTags: ['Travelers', 'Power Users', 'Festival Days'],
     },
   ]},
 ];
 
-const RAW_BIG_ADDS: BigAddItem[] = [
+export const BIG_ADDS: BigAddItem[] = [
   {
     name: 'AirPods 4',
     price: '$129.99',
@@ -261,7 +235,6 @@ const RAW_BIG_ADDS: BigAddItem[] = [
     bestFor: ['18-24', '25-34'],
     bonus: '$7',
     outcomes: ['Hear better'],
-    shopperTags: ['Students', 'Young Adults', 'Daily Calls'],
   },
   {
     name: 'Galaxy Buds4',
@@ -272,7 +245,6 @@ const RAW_BIG_ADDS: BigAddItem[] = [
     bestFor: ['18-24', '25-34'],
     bonus: '$10',
     outcomes: ['Hear better'],
-    shopperTags: ['Gym', 'Commuters', 'Galaxy Users'],
   },
   {
     name: 'AirPods Pro 3',
@@ -283,7 +255,6 @@ const RAW_BIG_ADDS: BigAddItem[] = [
     bestFor: ['25-34', '35-54'],
     bonus: '$13',
     outcomes: ['Hear better'],
-    shopperTags: ['Older Adults', 'Travelers', 'Work Calls'],
   },
   {
     name: 'Backbone One Controller',
@@ -294,7 +265,6 @@ const RAW_BIG_ADDS: BigAddItem[] = [
     bestFor: ['18-24'],
     bonus: '$5',
     outcomes: ['Just have fun'],
-    shopperTags: ['Gamers', 'Teens', 'Road Trips'],
   },
   {
     name: 'Ray-Ban Meta Wayfarer (Transitions)',
@@ -305,22 +275,8 @@ const RAW_BIG_ADDS: BigAddItem[] = [
     bestFor: ['25-34', '35-54'],
     bonus: '$15',
     outcomes: ['Show personality', 'Just have fun'],
-    shopperTags: ['Creators', 'Adventure', 'Style-First'],
   },
 ];
-
-export const ESSENTIALS_TABLE: EssentialCategory[] = RAW_ESSENTIALS_TABLE.map((category) => ({
-  ...category,
-  items: category.items.map((item) => ({
-    ...item,
-    imageUrl: item.imageUrl ?? getAccessoryImageUrl(item.name),
-  })),
-}));
-
-export const BIG_ADDS: BigAddItem[] = RAW_BIG_ADDS.map((item) => ({
-  ...item,
-  imageUrl: item.imageUrl ?? getAccessoryImageUrl(item.name),
-}));
 
 // Which categories to auto-expand based on intent
 export type Intent = 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';

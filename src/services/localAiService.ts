@@ -14,9 +14,9 @@ class LocalAiService {
     if (this.engine || this.isInitializing) return;
     this.isInitializing = true;
     try {
-      // Using Gemma 2B Instruct quantized for WebGPU
+      // Using Gemma 2 2B Instruct quantized for WebGPU
       this.engine = await CreateMLCEngine(
-        "gemma-2b-it-q4f32_1-MLC",
+        "gemma-2-2b-it-q4f16_1-MLC",
         { 
           initProgressCallback: (progress) => {
             this.lastProgress = progress;

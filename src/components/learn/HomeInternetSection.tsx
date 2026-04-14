@@ -3,13 +3,6 @@ import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote,
 import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, HINT_QUICK_FACTS, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
 
 type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
-const PLAN_IMAGES: Record<string, string> = {
-  Rely: '/images/ui/hint-rely.png',
-  Amplified: '/images/ui/hint-amplified.png',
-  'All-In': '/images/ui/hint-all-in.png',
-};
-
-const PRODUCT_IMAGE_FALLBACK = '/images/ui/company-logo-fallback.png';
 
 export default function HomeInternetSection() {
   const [activeSection, setActiveSection] = useState<Section>('plans');
@@ -17,7 +10,7 @@ export default function HomeInternetSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20 glass-prismatic">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <Wifi className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
@@ -28,8 +21,8 @@ export default function HomeInternetSection() {
           </div>
           <h3 className="text-4xl font-black text-white mb-3 tracking-tight">T-Mobile Home Internet</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            Check every address on every call. No data caps, no contracts, and no equipment fees.
-            <span className="text-white font-black"> Up to a $300 rebate plus the "Month On Us" promo is active now.</span>
+            Check every address, every call. No data caps, no contracts, no equipment fees.
+            <span className="text-white font-black"> Up to $300 rebate + "Month On Us" promo active now.</span>
           </p>
           <div className="flex flex-wrap gap-2.5 mt-6">
             <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
@@ -49,17 +42,22 @@ export default function HomeInternetSection() {
       </div>
 
       {/* Quick facts ticker */}
-      <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
-          <Zap className="w-3 h-3" /> Quick facts to keep ready
-        </p>
-        <div className="space-y-2">
-          {HINT_QUICK_FACTS.map((fact, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
-              <p className="text-[11px] text-info-foreground font-medium leading-snug">{fact}</p>
-            </div>
-          ))}
+      <div className="bg-info-surface rounded-2xl border-2 border-info-border p-5 glass-specular flex items-start gap-4">
+        <div className="w-10 h-10 rounded-full bg-info-accent/10 flex items-center justify-center shrink-0">
+          <Zap className="w-5 h-5 text-info-accent" />
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground mb-3">
+            Quick Facts — Know These Cold
+          </p>
+          <div className="space-y-2">
+            {HINT_QUICK_FACTS.map((fact, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
+                <p className="text-[11px] text-info-foreground font-medium leading-snug">{fact}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -108,15 +106,9 @@ export default function HomeInternetSection() {
                 {/* Plan Image */}
                 <div className="relative h-44 overflow-hidden">
                   <img
-                    src={PLAN_IMAGES[plan.name] ?? PRODUCT_IMAGE_FALLBACK}
+                    src={`https://picsum.photos/seed/hint-${idx}/800/400`}
                     alt={plan.name}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    onError={(event) => {
-                      const image = event.currentTarget;
-                      if (image.dataset.fallback === 'true') return;
-                      image.dataset.fallback = 'true';
-                      image.src = PRODUCT_IMAGE_FALLBACK;
-                    }}
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -263,7 +255,7 @@ export default function HomeInternetSection() {
 
           {/* The pitch flow */}
           <div className="rounded-2xl border-2 glass-card p-5">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">The 30-second pitch</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">The 30-Second Pitch</p>
             <div className="space-y-3">
               {[
                 { step: '1', title: 'Check the Address', desc: '"Let me see if Home Internet is available at your address — takes two seconds."' },
@@ -288,7 +280,7 @@ export default function HomeInternetSection() {
           {/* Reminder */}
           <div className="bg-warning-surface rounded-2xl border-2 border-warning-border p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-2 flex items-center gap-1.5">
-              <AlertTriangle className="w-3 h-3" /> Don't forget
+              <AlertTriangle className="w-3 h-3" /> Don't Forget
             </p>
             <p className="text-sm text-warning-foreground font-bold">{HINT_SELLING_FRAMEWORK.everyCallReminder}</p>
           </div>

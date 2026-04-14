@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import {
-  ArrowRight,
-  CheckCircle2,
-  Smartphone,
-  Wifi,
-  Watch,
-  Tablet,
-  Users,
-  User,
-  MapPin,
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  Smartphone, 
+  Wifi, 
+  Watch, 
+  Tablet, 
+  Users, 
+  User, 
+  MapPin, 
   ArrowLeft,
   Sparkles,
   ChevronRight,
@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext } from '../types';
-import OrderSupportSelector, { OrderSupportType } from './OrderSupportSelector';
 
 interface GuidedContextFlowProps {
   context: SalesContext;
@@ -30,22 +29,17 @@ interface GuidedContextFlowProps {
   onComplete: () => void;
 }
 
-type Step = 'intent' | 'hintCheck' | 'orderSupport' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'age';
-
-const SUPPORT_INTENTS = ['order support', 'tech support', 'account support'];
-const ALL_STEPS: Step[] = ['intent', 'hintCheck', 'orderSupport', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
+type Step = 'intent' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'age';
 
 export default function GuidedContextFlow({ context, setContext, onComplete }: GuidedContextFlowProps) {
   const [currentStep, setCurrentStep] = useState<Step>('intent');
   const [direction, setDirection] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-
-  const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent || '');
 
   const goToStep = (step: Step) => {
-    const currentIndex = ALL_STEPS.indexOf(currentStep);
-    const nextIndex = ALL_STEPS.indexOf(step);
+    const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
+    const currentIndex = steps.indexOf(currentStep);
+    const nextIndex = steps.indexOf(step);
     setDirection(nextIndex > currentIndex ? 1 : -1);
     setCurrentStep(step);
   };
@@ -53,22 +47,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   const handleOptionSelect = (id: string, update: Partial<SalesContext>, nextStep: Step | 'complete') => {
     setSelectedId(id);
     setContext(prev => ({ ...prev, ...update }));
-
+    
+    // Conditional logic
     let finalNextStep = nextStep;
-
-    // Support intents after hintCheck → order support gets sub-type step, others complete
-    if (currentStep === 'hintCheck') {
-      const intent = context.purchaseIntent || '';
-      if (intent === 'order support') {
-        finalNextStep = 'orderSupport';
-      } else if (SUPPORT_INTENTS.includes(intent)) {
-        finalNextStep = 'complete';
-      } else {
-        finalNextStep = 'product';
-      }
-    }
-
-    // If we just picked product (safety fallback)
+    
+    // If we just picked product, decide where to go next
     if (currentStep === 'product') {
       if (context.purchaseIntent === 'upgrade / add a line') {
         finalNextStep = 'currentDevice';
@@ -76,34 +59,21 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         finalNextStep = 'carrier';
       }
     }
-
+    
     // If we just picked currentDevice, go to lines
     if (currentStep === 'currentDevice') {
       finalNextStep = 'lines';
     }
 
+    // Delay to allow the user to read the card's advice before transitioning
     setTimeout(() => {
       if (finalNextStep === 'complete') {
         onComplete();
       } else {
-        goToStep(finalNextStep as Step);
+        goToStep(finalNextStep);
       }
       setSelectedId(null);
-    }, 400);
-  };
-
-  // Multi-select handler for product step
-  const toggleProduct = (id: string) => {
-    setSelectedProducts(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-    );
-  };
-
-  const confirmProducts = () => {
-    if (selectedProducts.length === 0) return;
-    setContext(prev => ({ ...prev, product: selectedProducts as any[] }));
-    const nextStep = context.purchaseIntent === 'upgrade / add a line' ? 'currentDevice' : 'carrier';
-    goToStep(nextStep);
+    }, 1000);
   };
 
   const containerVariants = {
@@ -118,9 +88,9 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20, rotateX: -15, perspective: 1000 },
-    show: {
-      opacity: 1,
-      y: 0,
+    show: { 
+      opacity: 1, 
+      y: 0, 
       rotateX: 0,
       transition: {
         type: "spring" as const,
@@ -129,22 +99,20 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       }
     },
     selected: {
-      rotateY: 180,
-      scale: 0.8,
-      opacity: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeInOut" as const
+      scale: 1.02,
+      transition: { 
+        duration: 0.2,
+        ease: "easeOut" as const
       }
     },
-    tap: {
+    tap: { 
       scale: 0.98,
       transition: { duration: 0.1 }
     }
   };
 
   const renderIntent = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -152,11 +120,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     >
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">What's the vibe?</h2>
-        <p className="text-sm font-medium text-t-dark-gray">What's the customer calling in about?</p>
+        <p className="text-sm font-medium text-t-dark-gray">Select the customer's primary reason for the call.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
-          { id: 'exploring', label: 'Exploring', icon: Search, desc: 'Shopping around, not sure yet' },
+          { id: 'exploring', label: 'Exploring', icon: Search, desc: 'What is the customer wanting to get?' },
           { id: 'ready to buy', label: 'Ready to Buy', icon: ShoppingBag, desc: 'Knows what they want' },
           { id: 'upgrade / add a line', label: 'Upgrade', icon: ArrowUpCircle, desc: 'Existing customer' },
           { id: 'order support', label: 'Order Support', icon: Package, desc: 'Status, tracking, etc.' },
@@ -170,7 +138,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(opt.id, { purchaseIntent: opt.id as any }, 'hintCheck')}
-            className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-center group shadow-sm hover:shadow-md relative overflow-hidden"
+            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all text-center group shadow-sm hover:shadow-md relative overflow-hidden ${
+              selectedId === opt.id 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="w-12 h-12 rounded-xl bg-t-magenta/10 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
@@ -183,7 +155,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('hintCheck')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -192,95 +164,53 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     </motion.div>
   );
 
-  const renderHintCheck = () => {
-    const nextStep = isSupport ? 'complete' : 'product';
-
-    return (
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="space-y-6"
-      >
-        <div className="text-center space-y-2">
-          <div className="inline-block bg-t-magenta text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 animate-pulse shadow-lg shadow-t-magenta/20">
-            Mandatory Check
-          </div>
-          <h2 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Check HINT Address?</h2>
-          <p className="text-sm font-medium text-t-muted">You know the metric. Enter their address in the tool now.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-3">
-          {[
-            { id: 'Yes', label: 'Yes, they qualify!', hintAvailable: true, color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
-            { id: 'No', label: 'No, not available.', hintAvailable: false, color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
-            { id: 'Wait', label: 'Checking it right now...', hintAvailable: undefined, color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
-          ].map((opt) => (
-            <motion.button
-              key={opt.id}
-              variants={cardVariants}
-              animate={selectedId === opt.id ? "selected" : "show"}
-              whileHover={selectedId ? {} : { scale: 1.02, y: -2 }}
-              whileTap={selectedId ? {} : "tap"}
-              onClick={() => handleOptionSelect(
-                opt.id,
-                opt.hintAvailable === undefined ? {} : { hintAvailable: opt.hintAvailable },
-                nextStep,
-              )}
-              className={`p-4 rounded-2xl border-2 transition-all text-center font-black uppercase tracking-widest text-[11px] shadow-sm ${opt.color}`}
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {opt.label}
-            </motion.button>
-          ))}
-        </div>
-        {isSupport ? (
-          <button
-            onClick={() => onComplete()}
-            className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
-          >
-            Skip → Get Support Playbook
-          </button>
-        ) : (
-          <button
-            onClick={() => goToStep('product')}
-            className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
-          >
-            Skip
-          </button>
-        )}
-      </motion.div>
-    );
-  };
-
-  const renderOrderSupport = () => (
-    <motion.div
+  const renderHintCheck = () => (
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
       className="space-y-6"
     >
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Order Issue</h2>
-        <p className="text-sm font-medium text-t-dark-gray">What kind of order support is needed?</p>
+        <div className="inline-block bg-t-magenta text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 animate-pulse shadow-lg shadow-t-magenta/20">
+          Mandatory Check
+        </div>
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Check HINT Address?</h2>
+        <p className="text-sm font-medium text-t-muted">You know the metric. Enter their address in the tool now.</p>
       </div>
-      <OrderSupportSelector
-        value={context.orderSupportType ?? null}
-        onChange={(type: OrderSupportType) => {
-          setContext(prev => ({ ...prev, orderSupportType: type }));
-          setTimeout(() => onComplete(), 400);
-        }}
-      />
-      <button
-        onClick={() => onComplete()}
+      <div className="grid grid-cols-1 gap-3">
+        {[
+          { id: 'Yes', label: 'Yes, they qualify!', color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
+          { id: 'No', label: 'No, not available.', color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
+          { id: 'Wait', label: 'Checking it right now...', color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
+        ].map((opt) => (
+          <motion.button
+            key={opt.id}
+            variants={cardVariants}
+            animate={selectedId === opt.id ? "selected" : "show"}
+            whileHover={selectedId ? {} : { scale: 1.02, y: -2 }}
+            whileTap={selectedId ? {} : "tap"}
+            onClick={() => handleOptionSelect(opt.id, { hintQualified: opt.id as any }, 'product')}
+            className={`p-4 rounded-2xl border-2 transition-all text-center font-black uppercase tracking-widest text-[11px] shadow-sm ${
+              selectedId === opt.id ? 'ring-2 ring-offset-2 ring-t-magenta/50 scale-[1.02]' : ''
+            } ${opt.color}`}
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {opt.label}
+          </motion.button>
+        ))}
+      </div>
+      <button 
+        onClick={() => goToStep('product')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
-        Skip / Not Sure
+        Skip
       </button>
     </motion.div>
   );
 
   const renderProduct = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -288,67 +218,37 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     >
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">What's the target?</h2>
-        <p className="text-sm font-medium text-t-dark-gray">Select all products on the table — can be more than one.</p>
+        <p className="text-sm font-medium text-t-dark-gray">What products are we discussing today?</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { id: 'Phone', label: 'Phone', icon: Smartphone },
           { id: 'Home Internet', label: 'HINT', icon: Wifi },
-          { id: 'BTS', label: 'Tablet / Watch', icon: Tablet },
-          { id: 'IOT', label: 'SyncUp / IOT', icon: Watch },
-        ].map((opt) => {
-          const isSelected = selectedProducts.includes(opt.id);
-          return (
-            <motion.button
-              key={opt.id}
-              variants={cardVariants}
-              initial="hidden"
-              animate="show"
-              whileHover={{ scale: 1.02, y: -4, rotateX: 5 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => toggleProduct(opt.id)}
-              className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md relative ${
-                isSelected
-                  ? 'border-t-magenta bg-t-magenta/10 shadow-t-magenta/20 shadow-md'
-                  : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
-              }`}
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <CheckCircle2 className="w-4 h-4 text-t-magenta" />
-                </div>
-              )}
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
-                isSelected ? 'bg-t-magenta text-white' : 'bg-t-magenta/10 group-hover:bg-t-magenta group-hover:text-white'
-              }`}>
-                <opt.icon className={`w-7 h-7 ${isSelected ? 'text-white' : 'text-t-magenta group-hover:text-white'}`} />
-              </div>
-              <p className={`text-xs font-black uppercase tracking-widest ${isSelected ? 'text-t-magenta' : 'text-t-dark-gray'}`}>
-                {opt.label}
-              </p>
-            </motion.button>
-          );
-        })}
-      </div>
-
-      <AnimatePresence>
-        {selectedProducts.length > 0 && (
+          { id: 'BTS', label: 'Tablet/Watch', icon: Tablet },
+          { id: 'IOT', label: 'SyncUp/IOT', icon: Watch },
+        ].map((opt) => (
           <motion.button
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            onClick={confirmProducts}
-            className="w-full py-4 bg-t-magenta text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-t-magenta/30 hover:bg-t-magenta/90 transition-all flex items-center justify-center gap-2"
+            key={opt.id}
+            variants={cardVariants}
+            animate={selectedId === opt.id ? "selected" : "show"}
+            whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
+            whileTap={selectedId ? {} : "tap"}
+            onClick={() => handleOptionSelect(opt.id, { product: [opt.id as any] }, 'carrier')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
+              selectedId === opt.id 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
+            style={{ transformStyle: 'preserve-3d' }}
           >
-            Next
-            <ArrowRight className="w-4 h-4" />
+            <div className="w-14 h-14 rounded-full bg-t-magenta/10 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
+              <opt.icon className="w-7 h-7 text-t-magenta group-hover:text-white" />
+            </div>
+            <p className="text-xs font-black uppercase tracking-widest text-t-dark-gray">{opt.label}</p>
           </motion.button>
-        )}
-      </AnimatePresence>
-
-      <button
+        ))}
+      </div>
+      <button 
         onClick={() => {
           if (context.purchaseIntent === 'upgrade / add a line') {
             goToStep('currentDevice');
@@ -364,7 +264,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderCurrentDevice = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -374,7 +274,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Current Device</h2>
         <p className="text-sm font-medium text-t-dark-gray">What are they using right now?</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { id: 'iPhone', label: 'iPhone', icon: Smartphone },
           { id: 'Samsung', label: 'Samsung', icon: Smartphone },
@@ -387,12 +287,12 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === opt.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(
-              opt.id,
-              { currentPlatform: (opt.id === 'Other' ? 'Other' : opt.id === 'iPhone' ? 'iOS' : 'Android') as any },
-              'lines',
-            )}
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group shadow-sm hover:shadow-md"
+            onClick={() => handleOptionSelect(opt.id, { currentDeviceBrand: opt.id, currentPlatform: (opt.id === 'iPhone' ? 'iOS' : 'Android') as any }, 'lines')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
+              selectedId === opt.id 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="w-14 h-14 rounded-full bg-t-magenta/10 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
@@ -402,7 +302,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('lines')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -412,7 +312,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderCarrier = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -422,7 +322,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Who's the rival?</h2>
         <p className="text-sm font-medium text-t-dark-gray">Which carrier are they currently with?</p>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {['AT&T', 'Verizon', 'Spectrum', 'Xfinity', 'US Cellular', 'Prepaid', 'Other', 'Not Specified'].map((c) => (
           <motion.button
             key={c}
@@ -431,14 +331,18 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -2, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(c, { currentCarrier: (c === 'Prepaid' ? 'Prepaid (Mint, Boost, etc.)' : c) as any }, 'lines')}
-            className="p-4 rounded-xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-xs font-black uppercase tracking-tight text-t-dark-gray shadow-sm hover:shadow-md"
+            className={`p-4 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-tight text-t-dark-gray shadow-sm hover:shadow-md ${
+              selectedId === c 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {c}
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('lines')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -448,7 +352,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderLines = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -467,7 +371,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.05, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(String(n), { totalLines: typeof n === 'number' ? n : 6 }, 'platform')}
-            className="aspect-square flex flex-col items-center justify-center rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group shadow-sm hover:shadow-md"
+            className={`aspect-square flex flex-col items-center justify-center rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
+              selectedId === String(n) 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             <span className="text-2xl font-black text-t-magenta group-hover:scale-110 transition-transform">{n}</span>
@@ -475,7 +383,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('platform')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -485,7 +393,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderPlatform = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -508,7 +416,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(p.id, { desiredPlatform: p.id as any }, p.id === 'iOS' ? 'age' : 'brand')}
-            className="flex items-center gap-4 p-5 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-left group shadow-sm hover:shadow-md"
+            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left group shadow-sm hover:shadow-md ${
+              selectedId === p.id 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className={`w-12 h-12 rounded-xl ${p.color} flex items-center justify-center text-white`}>
@@ -521,7 +433,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('age')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -531,7 +443,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderBrand = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -541,7 +453,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Which Brand?</h2>
         <p className="text-sm font-medium text-t-dark-gray">Select the preferred Android brand.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { id: 'Samsung', label: 'Samsung', icon: Smartphone },
           { id: 'Pixel', label: 'Google Pixel', icon: Smartphone },
@@ -555,7 +467,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(b.id, {}, 'age')}
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all group shadow-sm hover:shadow-md"
+            className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
+              selectedId === b.id 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="w-14 h-14 rounded-full bg-t-magenta/10 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
@@ -565,7 +481,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => goToStep('age')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -575,7 +491,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   );
 
   const renderAge = () => (
-    <motion.div
+    <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -585,7 +501,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Demographics</h2>
         <p className="text-sm font-medium text-t-dark-gray">Select the customer's age range for tailored talk tracks.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {['18-24', '25-34', '35-54', '55+', 'Not Specified'].map((a) => (
           <motion.button
             key={a}
@@ -594,14 +510,18 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -2, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => handleOptionSelect(a, { age: a as any }, 'complete')}
-            className="p-4 rounded-xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-xs font-black uppercase tracking-tight text-t-dark-gray shadow-sm hover:shadow-md"
+            className={`p-4 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-tight text-t-dark-gray shadow-sm hover:shadow-md ${
+              selectedId === a 
+                ? 'border-t-magenta bg-t-magenta/10' 
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {a}
           </motion.button>
         ))}
       </div>
-      <button
+      <button 
         onClick={() => onComplete()}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
@@ -610,7 +530,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     </motion.div>
   );
 
-  const pageVariants = {
+  const variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 50 : -50,
       opacity: 0
@@ -627,35 +547,26 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     })
   };
 
-  // Build the visible steps for progress bar (filter out irrelevant steps)
-  const getVisibleSteps = (): Step[] => {
-    if (context.purchaseIntent === 'order support') return ['intent', 'hintCheck', 'orderSupport'];
-    if (isSupport) return ['intent', 'hintCheck'];
-    const steps: Step[] = ['intent', 'hintCheck', 'product'];
-    if (context.purchaseIntent === 'upgrade / add a line') steps.push('currentDevice');
-    else steps.push('carrier');
-    steps.push('lines', 'platform');
-    if (context.desiredPlatform !== 'iOS') steps.push('brand');
-    steps.push('age');
-    return steps;
-  };
-
-  const visibleSteps = getVisibleSteps();
-
   return (
     <div className="max-w-md mx-auto min-h-[500px] flex flex-col">
       {/* Progress Bar */}
       <div className="flex gap-1.5 mb-8 px-2">
-        {visibleSteps.map((step) => {
-          const currentIndex = visibleSteps.indexOf(currentStep);
-          const stepIndex = visibleSteps.indexOf(step);
-          const isActive = stepIndex <= currentIndex;
+        {['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'].map((step, i) => {
+          const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
+          const currentIndex = steps.indexOf(currentStep);
+          
+          // Hide currentDevice if not upgrade
+          if (step === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') return null;
+          // Hide carrier if upgrade
+          if (step === 'carrier' && context.purchaseIntent === 'upgrade / add a line') return null;
+          
+          const isActive = i <= currentIndex;
           return (
-            <div
-              key={step}
+            <div 
+              key={step} 
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
                 isActive ? 'bg-t-magenta' : 'bg-t-light-gray'
-              }`}
+              }`} 
             />
           );
         })}
@@ -666,7 +577,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           <motion.div
             key={currentStep}
             custom={direction}
-            variants={pageVariants}
+            variants={variants}
             initial="enter"
             animate="center"
             exit="exit"
@@ -678,7 +589,6 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
           >
             {currentStep === 'intent' && renderIntent()}
             {currentStep === 'hintCheck' && renderHintCheck()}
-            {currentStep === 'orderSupport' && renderOrderSupport()}
             {currentStep === 'product' && renderProduct()}
             {currentStep === 'currentDevice' && renderCurrentDevice()}
             {currentStep === 'carrier' && renderCarrier()}
@@ -694,10 +604,24 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       {currentStep !== 'intent' && (
         <button
           onClick={() => {
-            const currentIndex = visibleSteps.indexOf(currentStep);
-            if (currentIndex > 0) {
-              goToStep(visibleSteps[currentIndex - 1]);
+            const steps: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'age'];
+            const currentIndex = steps.indexOf(currentStep);
+            let prevIndex = currentIndex - 1;
+            
+            // Skip currentDevice if not upgrade
+            if (steps[prevIndex] === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') {
+              prevIndex--;
             }
+            // Skip carrier if intent is upgrade
+            if (steps[prevIndex] === 'carrier' && context.purchaseIntent === 'upgrade / add a line') {
+              prevIndex--;
+            }
+            // Skip brand if iOS
+            if (steps[prevIndex] === 'brand' && context.desiredPlatform === 'iOS') {
+              prevIndex--;
+            }
+
+            goToStep(steps[prevIndex]);
           }}
           className="mt-8 flex items-center gap-2 text-t-muted hover:text-t-magenta transition-colors text-[10px] font-black uppercase tracking-widest"
         >

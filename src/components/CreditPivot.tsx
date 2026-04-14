@@ -83,7 +83,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
       </div>
 
       {!targetDevice ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {PHONES.filter(p => Number(p.startingPrice) > 900).slice(0, 4).map(p => (
             <button
               key={p.name}

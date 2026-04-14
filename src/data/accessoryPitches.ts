@@ -1,5 +1,4 @@
 /** Device-to-accessory mappings with transition scripts for reps */
-import { getAccessoryImageUrl } from './accessoryImagePaths';
 
 export interface AccessoryPitch {
   name: string;
@@ -7,7 +6,6 @@ export interface AccessoryPitch {
   price: string;
   margin: 'high' | 'medium' | 'low';
   transitionScript: string;
-  imageUrl?: string;
 }
 
 export interface DeviceAccessoryMap {
@@ -16,7 +14,7 @@ export interface DeviceAccessoryMap {
   accessories: AccessoryPitch[];
 }
 
-const RAW_DEVICE_ACCESSORY_MAP: DeviceAccessoryMap[] = [
+export const DEVICE_ACCESSORY_MAP: DeviceAccessoryMap[] = [
   {
     devicePattern: 'iPhone',
     ecosystem: 'apple',
@@ -73,14 +71,6 @@ const RAW_DEVICE_ACCESSORY_MAP: DeviceAccessoryMap[] = [
     ],
   },
 ];
-
-export const DEVICE_ACCESSORY_MAP: DeviceAccessoryMap[] = RAW_DEVICE_ACCESSORY_MAP.map((mapping) => ({
-  ...mapping,
-  accessories: mapping.accessories.map((accessory) => ({
-    ...accessory,
-    imageUrl: accessory.imageUrl ?? getAccessoryImageUrl(accessory.name),
-  })),
-}));
 
 /** Get accessories for a specific device */
 export function getAccessoriesForDevice(deviceName: string): AccessoryPitch[] {

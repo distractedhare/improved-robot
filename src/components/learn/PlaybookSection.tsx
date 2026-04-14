@@ -12,7 +12,7 @@ export default function PlaybookSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20 glass-prismatic">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <BookOpen className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
@@ -42,15 +42,20 @@ export default function PlaybookSection() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-info-border bg-info-surface p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
-          Phone-Sales Logic
-        </p>
-        <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
-          <p><span className="font-black">1.</span> Start with what they will feel or save, not the spec sheet.</p>
-          <p><span className="font-black">2.</span> Tie the offer to a real fit driver like value, convenience, safety, productivity, or cool-factor.</p>
-          <p><span className="font-black">3.</span> Use one proof point to back it up, then stop talking.</p>
-          <p><span className="font-black">4.</span> Match the language to the caller instead of pitching the same way to everyone.</p>
+      <div className="rounded-2xl border border-info-border bg-info-surface p-5 glass-specular flex items-start gap-4">
+        <div className="w-10 h-10 rounded-full bg-info-accent/10 flex items-center justify-center shrink-0">
+          <Target className="w-5 h-5 text-info-accent" />
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground mb-2">
+            Phone-Sales Logic
+          </p>
+          <div className="space-y-2 text-xs font-medium text-info-foreground/90">
+            <p className="flex items-start gap-2"><span className="font-black text-info-accent">1.</span> Start with what they will feel or save, not the spec sheet.</p>
+            <p className="flex items-start gap-2"><span className="font-black text-info-accent">2.</span> Tie the offer to a real fit driver like value, convenience, safety, productivity, or cool-factor.</p>
+            <p className="flex items-start gap-2"><span className="font-black text-info-accent">3.</span> Use one proof point to back it up, then stop talking.</p>
+            <p className="flex items-start gap-2"><span className="font-black text-info-accent">4.</span> Match the language to the caller instead of pitching the same way to everyone.</p>
+          </div>
         </div>
       </div>
 

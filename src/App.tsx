@@ -28,6 +28,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import CustomerContextForm from './components/CustomerContextForm';
+import GuidedContextFlow from './components/GuidedContextFlow';
 import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
@@ -38,7 +39,6 @@ const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 import TroubleshootingPivot from './components/TroubleshootingPivot';
-import GuidedCallModal from './components/GuidedCallModal';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -120,7 +120,7 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('home');
+  const [mode, setMode] = useState<AppMode>('live');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
@@ -128,12 +128,12 @@ export default function App() {
   const [enhancingPlan, setEnhancingPlan] = useState(false);
   const [enhancingObjection, setEnhancingObjection] = useState(false);
   const [showHintPrompt, setShowHintPrompt] = useState(false);
+  const [showGuidedFlow, setShowGuidedFlow] = useState(true);
+  const [isEasyMode, setIsEasyMode] = useState(true);
+  const [resetCount, setResetCount] = useState(0);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
-
-  const [showGuidedModal, setShowGuidedModal] = useState(false);
-  const [guidedModalKey, setGuidedModalKey] = useState(0);
 
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -265,7 +265,7 @@ export default function App() {
     setObjectionResult(null);
     setSelectedObjections([]);
     setSelectedGamePlanItems([]);
-    if (intent === 'tech support') {
+    if (intent === 'tech support' || intent === 'order support' || intent === 'account support') {
       setActiveTab('troubleshoot');
     } else {
       setActiveTab('gameplan');
@@ -294,14 +294,25 @@ export default function App() {
     setSelectedGamePlanItems([]);
     setActiveTab('gameplan');
     setIntentTapped(true);
+    setShowGuidedFlow(false);
     setError(null);
   }, [cancelInFlightRequests]);
+
+  const handleGuidedContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
+    setContext(value);
+    setScript(null);
+    setObjectionResult(null);
+    setSelectedObjections([]);
+    setSelectedGamePlanItems([]);
+    setError(null);
+  }, []);
 
   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
 
+    setShowGuidedFlow(false);
     cancelPlanRequest();
     const controller = new AbortController();
     planRequestAbortRef.current = controller;
@@ -487,10 +498,13 @@ export default function App() {
       hintAvailable: true
     });
     setIntentTapped(true);
+    setShowGuidedFlow(true);
+    setIsEasyMode(true);
+    setActiveTab('gameplan');
+    setResetCount(c => c + 1);
     setError(null);
     resetRotation();
-    setGuidedModalKey(k => k + 1);
-    setShowGuidedModal(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [cancelInFlightRequests]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
@@ -577,8 +591,6 @@ export default function App() {
       setAnalyzing(false);
       setEnhancingPlan(false);
       setEnhancingObjection(false);
-    } else {
-      setShowGuidedModal(true);
     }
 
     setMode(nextMode);
@@ -600,7 +612,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-24 sm:pb-6 md:px-10">
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
@@ -617,7 +629,7 @@ export default function App() {
                 title="Home view needs a refresh"
                 message="The dashboard tripped over something. Reload to get the demo back on track."
               >
-                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} />
+                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} onReset={reset} />
               </ErrorBoundary>
             </motion.section>
           ) : mode === 'level-up' ? (
@@ -738,14 +750,54 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
-            {/* INTENT + PRODUCT SELECTOR */}
-            <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
-              <div>
-                <label className="text-xs font-bold mb-3 block text-t-dark-gray">
-                  Why are they calling?
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {INTENTS.map((intent) => {
+            {showGuidedFlow && !script && !loading ? (
+              <section className="rounded-3xl p-6 glass-card glass-shine glass-specular">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-sm font-black uppercase tracking-widest text-t-magenta flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> Guided Setup
+                  </h2>
+                  <button 
+                    onClick={() => {
+                      setShowGuidedFlow(false);
+                      setIsEasyMode(false);
+                    }}
+                    className="text-[10px] font-black uppercase tracking-widest text-t-muted hover:text-t-magenta transition-colors"
+                  >
+                    Advanced Mode
+                  </button>
+                </div>
+                <GuidedContextFlow 
+                  key={resetCount}
+                  context={context} 
+                  setContext={handleGuidedContextUpdate} 
+                  onComplete={() => {
+                    setIsEasyMode(true);
+                    handleGenerate();
+                  }} 
+                />
+              </section>
+            ) : (
+              <>
+                {/* INTENT + PRODUCT SELECTOR */}
+                <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-t-dark-gray">
+                      Why are they calling?
+                    </label>
+                    {!script && (
+                      <button 
+                        onClick={() => {
+                          setShowGuidedFlow(true);
+                          setIsEasyMode(true);
+                        }}
+                        className="text-[9px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full"
+                      >
+                        Switch to Guided
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {INTENTS.map((intent) => {
                     const isActive = context.purchaseIntent === intent.id;
                     return (
                       <button
@@ -782,9 +834,8 @@ export default function App() {
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Product type — always visible */}
+                {/* Product type — always visible */}
               <div>
                 <label className="text-xs font-bold mb-2 block text-t-dark-gray">
                   What product?
@@ -929,8 +980,10 @@ export default function App() {
               onRunDemoScenario={handleRunDemoScenario}
               lastDemoScenarioName={lastDemoScenarioName}
             />
+          </>
+        )}
 
-            <SessionStats stats={sessionStats} />
+        <SessionStats stats={sessionStats} />
             <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
               <span>CPNI compliant. No PII. Fully offline.</span>
@@ -1001,34 +1054,53 @@ export default function App() {
             <AnimatePresence mode="wait">
               {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
               {activeTab === 'gameplan' && intentTapped && !script && !loading && (
-                <InstantPlays
-                  intent={context.purchaseIntent}
-                  age={context.age}
-                  product={context.product}
-                  ecosystemMatrix={ecosystemMatrix}
-                  orderSupportType={context.orderSupportType}
-                  onOrderSupportTypeChange={(type) => setContext(prev => ({ ...prev, orderSupportType: type }))}
-                />
+                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
               )}
 
               {/* Loading state */}
-	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
-	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-	                  className="min-h-[400px] rounded-3xl glass-card p-6"
-	                >
-	                  <div className="animate-pulse space-y-4">
-	                    <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
-	                    <div className="h-12 rounded-2xl bg-t-light-gray/80" />
-	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
-	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
-	                    <div className="h-16 rounded-2xl bg-t-light-gray/60" />
-	                  </div>
-	                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
-	                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-	                    {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
-	                  </div>
-	                </motion.div>
-	              )}
+              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className={isEasyMode && activeTab === 'gameplan' 
+                    ? "fixed inset-0 z-[100] bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4" 
+                    : "min-h-[400px] rounded-3xl glass-card p-6 flex flex-col items-center justify-center text-center"}
+                >
+                  {isEasyMode && activeTab === 'gameplan' ? (
+                    <div className="space-y-6 w-full max-w-xs text-center">
+                      <div className="relative w-24 h-24 mx-auto">
+                        <div className="absolute inset-0 rounded-full border-4 border-t-magenta/10" />
+                        <div className="absolute inset-0 rounded-full border-4 border-t-magenta border-t-transparent animate-spin" />
+                        <Sparkles className="absolute inset-0 m-auto w-10 h-10 text-t-magenta animate-pulse" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Building Your Path</h3>
+                        <p className="text-sm font-medium text-t-muted">Finding the singular best suggestion for this call...</p>
+                      </div>
+                      <div className="h-2 w-full bg-t-light-gray rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: "0%" }}
+                          animate={{ width: "100%" }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="h-full bg-t-magenta"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="animate-pulse space-y-4 w-full">
+                        <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
+                        <div className="h-12 rounded-2xl bg-t-light-gray/80" />
+                        <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+                        <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+                        <div className="h-16 rounded-2xl bg-t-light-gray/60" />
+                      </div>
+                      <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              )}
 
               {/* Objection results */}
               {activeTab === 'objections' && objectionResult && !analyzing && (
@@ -1045,6 +1117,8 @@ export default function App() {
                   onReset={reset}
                   onSwitchToObjections={() => setActiveTab('objections')}
                   ecosystemMatrix={ecosystemMatrix}
+                  isEasyMode={isEasyMode}
+                  onSwitchToAdvanced={() => setIsEasyMode(false)}
 	                />
 	              )}
 	            </AnimatePresence>
@@ -1185,14 +1259,6 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
-
-      <GuidedCallModal
-        key={guidedModalKey}
-        open={showGuidedModal}
-        onClose={() => setShowGuidedModal(false)}
-        context={context}
-        setContext={setContext}
-      />
     </div>
     </ErrorBoundary>
   );

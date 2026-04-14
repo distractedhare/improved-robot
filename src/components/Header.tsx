@@ -137,53 +137,96 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
         </div>
 
         {mode !== 'home' && (
-          <nav
-            aria-label="App mode"
-            role="tablist"
-            className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
-          >
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
-              {MODES.map((item) => {
-                const isActive = mode === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    id={`mode-tab-${item.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls={`mode-panel-${item.id}`}
-                    onClick={() => onModeChange(item.id)}
-                    className={`focus-ring relative min-h-[62px] overflow-hidden rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
-                      isActive
-                        ? 'text-white shadow-[0_14px_24px_rgba(226,0,116,0.22)]'
-                        : 'border border-transparent text-t-dark-gray hover:border-t-light-gray hover:bg-t-light-gray/30'
-                    }`}
-                    style={{ touchAction: 'manipulation' }}
-                  >
-                    {isActive && (
-                      <motion.span
-                        layoutId="mode-pill"
-                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-t-magenta to-t-berry"
-                        transition={{ type: 'spring', stiffness: 360, damping: 30 }}
-                      />
-                    )}
-                    <span className="relative z-[1] flex h-full items-center justify-between gap-3">
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] sm:text-xs">
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          {item.label}
-                        </span>
-                        <span className={`mt-1 block text-[9px] font-bold tracking-wide sm:text-[10px] ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
-                          {item.helper}
+          <>
+            {/* Desktop Mode Navigation */}
+            <nav
+              aria-label="App mode"
+              role="tablist"
+              className="hidden sm:block rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
+            >
+              <div className="grid grid-cols-3 lg:grid-cols-5 gap-1.5">
+                {MODES.map((item) => {
+                  const isActive = mode === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      id={`mode-tab-${item.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`mode-panel-${item.id}`}
+                      onClick={() => onModeChange(item.id)}
+                      className={`focus-ring relative min-h-[62px] overflow-hidden rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
+                        isActive
+                          ? 'text-white shadow-[0_14px_24px_rgba(226,0,116,0.22)]'
+                          : 'border border-transparent text-t-dark-gray hover:border-t-light-gray hover:bg-t-light-gray/30'
+                      }`}
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="mode-pill-desktop"
+                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-t-magenta to-t-berry"
+                          transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-[1] flex h-full items-center justify-between gap-3">
+                        <span className="min-w-0">
+                          <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em]">
+                            <item.icon className="h-4 w-4 shrink-0" />
+                            {item.label}
+                          </span>
+                          <span className={`mt-1 block text-[10px] font-bold tracking-wide ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                            {item.helper}
+                          </span>
                         </span>
                       </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+
+            {/* Mobile Bottom Navigation */}
+            <nav
+              aria-label="Mobile app mode"
+              role="tablist"
+              className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-t border-t-light-gray pb-[env(safe-area-inset-bottom,1rem)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]"
+            >
+              <div className="flex justify-around items-center px-2 py-2">
+                {MODES.map((item) => {
+                  const isActive = mode === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => onModeChange(item.id)}
+                      className={`focus-ring relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all ${
+                        isActive ? 'text-t-magenta' : 'text-t-muted hover:text-t-dark-gray'
+                      }`}
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="mode-pill-mobile"
+                          className="absolute inset-0 rounded-xl bg-t-magenta/10"
+                          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex flex-col items-center gap-1">
+                        <item.icon className={`h-5 w-5 ${isActive ? 'text-t-magenta' : ''}`} />
+                        <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
+                          {item.label.replace(' ', '\n')}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+          </>
         )}
       </div>
     </header>

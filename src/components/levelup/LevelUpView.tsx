@@ -1,15 +1,19 @@
 import { useState, useMemo } from 'react';
-import { AlertTriangle, Award, MessageSquare, Rocket, Trophy, Users, Zap } from 'lucide-react';
+import { AlertTriangle, Award, MessageSquare, Rocket, Trophy, Users, Zap, ShieldAlert, Play } from 'lucide-react';
 import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService';
 import BingoBoard from './BingoBoard';
 import SpeedRound from './SpeedRound';
 import PrizeHub from './PrizeHub';
+import ObjectionSmasher from './ObjectionSmasher';
+import MagentaRunner from './MagentaRunner';
 
-type LevelUpTab = 'bingo' | 'speed' | 'prizes';
+type LevelUpTab = 'bingo' | 'speed' | 'objection' | 'runner' | 'prizes';
 
 const LEVEL_UP_TABS = [
   { id: 'bingo' as const, icon: Trophy, label: 'Bingo', helper: 'Weekly challenge boards' },
   { id: 'speed' as const, icon: Zap, label: 'Speed Round', helper: 'Timed knowledge quiz' },
+  { id: 'objection' as const, icon: ShieldAlert, label: 'Objection Smasher', helper: 'Rapid fire pivots' },
+  { id: 'runner' as const, icon: Play, label: 'Magenta Runner', helper: 'Endless runner game' },
   { id: 'prizes' as const, icon: Award, label: 'Prizes', helper: 'Daily, weekly, monthly rewards' },
 ];
 
@@ -80,9 +84,9 @@ export default function LevelUpView() {
             description="Sales fundamentals, product mastery, and closing — each with its own challenge."
           />
           <HighlightCard
-            icon={<Zap className="h-4 w-4 text-t-berry" />}
-            title="Speed Round"
-            description="10 questions, 60 seconds. Test what you know. Score 70%+ to earn rewards."
+            icon={<ShieldAlert className="h-4 w-4 text-t-berry" />}
+            title="Objection Smasher"
+            description="Rapid-fire objection handling. 15 seconds to pick the perfect pivot."
           />
           <HighlightCard
             icon={<Award className="h-4 w-4 text-t-magenta" />}
@@ -95,7 +99,7 @@ export default function LevelUpView() {
         <nav
           aria-label="Level Up sections"
           role="tablist"
-          className="glass grid gap-2 rounded-2xl p-2 sm:grid-cols-3"
+          className="glass flex overflow-x-auto scrollbar-hide gap-2 rounded-2xl p-2 sm:grid sm:grid-cols-5 snap-x snap-mandatory"
         >
           {LEVEL_UP_TABS.map((item) => {
             const isActive = tab === item.id;
@@ -108,7 +112,7 @@ export default function LevelUpView() {
                 aria-selected={isActive}
                 aria-controls={`level-up-panel-${item.id}`}
                 onClick={() => setTab(item.id)}
-                className={`focus-ring min-h-[44px] rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
+                className={`focus-ring min-h-[44px] min-w-[140px] sm:min-w-0 shrink-0 snap-start rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_18px_rgba(226,0,116,0.22)]'
                     : 'glass-tab text-t-dark-gray hover:text-foreground'
@@ -138,6 +142,10 @@ export default function LevelUpView() {
           <BingoBoard />
         ) : tab === 'speed' ? (
           <SpeedRound />
+        ) : tab === 'objection' ? (
+          <ObjectionSmasher />
+        ) : tab === 'runner' ? (
+          <MagentaRunner />
         ) : (
           <PrizeHub />
         )}

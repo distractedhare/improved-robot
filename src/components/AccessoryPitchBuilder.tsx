@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
 import { EcosystemMatrix } from '../types/ecosystem';
-import AccessoryImageSlot from './AccessoryImageSlot';
 import {
   getAccessoryOutcomeLabel,
   getAccessoryPitchPositioningSummary,
@@ -124,14 +123,8 @@ function AccessoryCard({
 
   return (
     <div className="rounded-xl glass-card p-4 transition-all hover:border-t-magenta/30">
-      <div className="mb-2 flex items-start gap-3">
-        <AccessoryImageSlot
-          name={accessory.name}
-          imageUrl={accessory.imageUrl}
-          className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
-          imageClassName="h-full w-full object-contain"
-        />
-        <div className="min-w-0 flex-1">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <div>
           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-black text-t-magenta">{accessory.price}</span>
@@ -147,7 +140,7 @@ function AccessoryCard({
           </div>
         </div>
         <DollarSign
-          className={`mt-1 h-4 w-4 shrink-0 ${
+          className={`h-4 w-4 shrink-0 ${
             accessory.margin === 'high'
               ? 'text-success-accent'
               : accessory.margin === 'medium'

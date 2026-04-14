@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle, Sparkles } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
@@ -21,7 +21,6 @@ import EdgeSection from './EdgeSection';
 import PracticeScenarios from '../levelup/PracticeScenarios';
 import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
-import { learnCopy } from './learnCopy';
 
 type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
@@ -44,42 +43,11 @@ const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
   { id: 'practice', icon: Play, label: 'Practice' },
 ];
 
-const LEARN_HIDDEN_PHONE_NAMES = new Set(['Samsung Galaxy XCover7 Pro']);
-const LEARN_PHONE_POOL = PHONES.filter((device) => !LEARN_HIDDEN_PHONE_NAMES.has(device.name));
-
-const DEVICE_CATEGORIES: { id: DeviceCategory; icon: typeof Smartphone; label: string; helper: string; shellTitle: string; shellDescription: string }[] = [
-  {
-    id: 'phones',
-    icon: Smartphone,
-    label: 'Phones',
-    helper: 'Flagships, value picks, and switcher-ready phones.',
-    shellTitle: 'Phone Selector',
-    shellDescription: 'Keep the shortlist tight, compare the strongest fits, and move into the story fast.',
-  },
-  {
-    id: 'tablets',
-    icon: Tablet,
-    label: 'Tablets',
-    helper: 'Screen size, battery life, and family-fit tablets.',
-    shellTitle: 'Tablet Selector',
-    shellDescription: 'Use this lane for iPad and Galaxy Tab conversations without burying the customer in specs.',
-  },
-  {
-    id: 'wearables',
-    icon: Watch,
-    label: 'Watches + IoT',
-    helper: 'Watches, rings, hotspots, trackers, and kids\' wearables.',
-    shellTitle: 'Wearables + Connected Selector',
-    shellDescription: 'This view covers watches and connected add-ons, including trackers, hotspots, and kids\' devices.',
-  },
-  {
-    id: 'accessories',
-    icon: Headphones,
-    label: 'Accessories',
-    helper: 'Fast attach-ready add-ons by outcome or name.',
-    shellTitle: 'Accessory Reference',
-    shellDescription: 'Search by accessory name or outcome, then grab one clean bundle story instead of listing options.',
-  },
+const DEVICE_CATEGORIES: { id: DeviceCategory; icon: typeof Smartphone; label: string }[] = [
+  { id: 'phones', icon: Smartphone, label: 'Phones' },
+  { id: 'tablets', icon: Tablet, label: 'Tablets' },
+  { id: 'wearables', icon: Watch, label: 'Wearables' },
+  { id: 'accessories', icon: Headphones, label: 'Accessories' },
 ];
 
 const PHONE_FILTERS = [
@@ -87,22 +55,6 @@ const PHONE_FILTERS = [
   { id: 'iphone', label: 'iPhone' },
   { id: 'samsung', label: 'Samsung' },
   { id: 'pixel', label: 'Pixel' },
-  { id: 'other', label: 'Other' },
-];
-
-const TABLET_FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'apple', label: 'Apple' },
-  { id: 'samsung', label: 'Samsung' },
-  { id: 'other', label: 'Other' },
-];
-
-const WEARABLE_FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'apple', label: 'Apple' },
-  { id: 'samsung', label: 'Samsung' },
-  { id: 'google', label: 'Google' },
-  { id: 'connected', label: 'Connected' },
   { id: 'other', label: 'Other' },
 ];
 
@@ -140,12 +92,7 @@ const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
 export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate, onSelectScenario }: LearnViewProps) {
   const [tab, setTab] = useState<LearnTab>('briefing');
   const [deviceCategory, setDeviceCategory] = useState<DeviceCategory>('phones');
-  const [selectedDevicesByCategory, setSelectedDevicesByCategory] = useState<Record<DeviceCategory, Device[]>>({
-    phones: [],
-    tablets: [],
-    wearables: [],
-    accessories: [],
-  });
+  const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
   const comparisonRef = useRef<HTMLDivElement>(null);
 
   const scrollToComparison = useCallback(() => {
@@ -155,102 +102,37 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   }, []);
 
   const toggleDevice = useCallback((device: Device) => {
-    setSelectedDevicesByCategory(prev => {
-      const selectedForCategory = prev[deviceCategory];
-      const exists = selectedForCategory.some(d => d.name === device.name);
-
-      if (exists) {
-        return {
-          ...prev,
-          [deviceCategory]: selectedForCategory.filter(d => d.name !== device.name),
-        };
-      }
-
-      return {
-        ...prev,
-        [deviceCategory]: [...selectedForCategory, device],
-      };
+    setSelectedDevices(prev => {
+      const exists = prev.some(d => d.name === device.name);
+      if (exists) return prev.filter(d => d.name !== device.name);
+      return [...prev, device];
     });
     scrollToComparison();
-  }, [deviceCategory, scrollToComparison]);
+  }, [scrollToComparison]);
 
-  const clearDevices = useCallback(() => {
-    setSelectedDevicesByCategory(prev => ({
-      ...prev,
-      [deviceCategory]: [],
-    }));
-  }, [deviceCategory]);
+  const clearDevices = useCallback(() => setSelectedDevices([]), []);
 
   const handleFlagshipShowdown = useCallback(() => {
-    if (deviceCategory === 'phones') {
-      setSelectedDevicesByCategory(prev => ({
-        ...prev,
-        phones: getDevicesByNames(FLAGSHIP_PHONES).filter((device) => !LEARN_HIDDEN_PHONE_NAMES.has(device.name)),
-      }));
-    }
+    setSelectedDevices(getDevicesByNames(FLAGSHIP_PHONES));
     scrollToComparison();
-  }, [deviceCategory, scrollToComparison]);
+  }, [scrollToComparison]);
 
   // Switch device pool/presets/filters based on sub-category
+  const NO_FILTERS: { id: string; label: string }[] = [];
   const getDeviceConfig = () => {
-    const filterBy = (device: Device, filter: string) => {
-      const name = device.name.toLowerCase();
-
-      if (filter === 'all') {
-        return true;
-      }
-
-      switch (deviceCategory) {
-        case 'tablets':
-          if (filter === 'apple') return name.includes('ipad') || name.includes('air') || name.includes('apple');
-          if (filter === 'samsung') return name.includes('samsung');
-          if (filter === 'other') return !name.includes('ipad') && !name.includes('samsung') && !name.includes('apple');
-          return false;
-        case 'wearables':
-          if (filter === 'apple') return name.includes('apple');
-          if (filter === 'samsung') return name.includes('samsung');
-          if (filter === 'google') return name.includes('pixel') || name.includes('google');
-          if (filter === 'connected') {
-            return device.category === 'hotspot' || name.includes('syncup') || name.includes('franklin') || name.includes('tcl');
-          }
-          if (filter === 'other') {
-            return !name.includes('apple') && !name.includes('samsung') && !name.includes('pixel') && !name.includes('google') && device.category !== 'hotspot' && !name.includes('syncup') && !name.includes('franklin') && !name.includes('tcl');
-          }
-          return false;
-        default:
-          return true;
-      }
-    };
-
     switch (deviceCategory) {
       case 'phones':
-        return { pool: LEARN_PHONE_POOL, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
+        return { pool: PHONES, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
       case 'tablets':
-        return { pool: TABLETS, presets: TABLET_PRESETS, filters: TABLET_FILTERS, filterBy };
+        return { pool: TABLETS, presets: TABLET_PRESETS, filters: NO_FILTERS };
       case 'wearables':
-        return { pool: [...WATCHES, ...HOTSPOTS], presets: WATCH_PRESETS, filters: WEARABLE_FILTERS, filterBy, defaultSort: 'price' as const };
+        return { pool: [...WATCHES, ...HOTSPOTS], presets: WATCH_PRESETS, filters: NO_FILTERS };
       default:
-        return { pool: LEARN_PHONE_POOL, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
+        return { pool: PHONES, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
     }
   };
 
   const deviceConfig = getDeviceConfig();
-  const selectedDevices = selectedDevicesByCategory[deviceCategory];
-  const activeCategoryMeta = useMemo(
-    () => DEVICE_CATEGORIES.find((category) => category.id === deviceCategory) ?? DEVICE_CATEGORIES[0],
-    [deviceCategory]
-  );
-
-  const handlePresetSelect = useCallback((devices: Device[]) => {
-    const allowedNames = new Set(deviceConfig.pool.map((device) => device.name));
-    const nextDevices = devices.filter((device) => allowedNames.has(device.name));
-
-    setSelectedDevicesByCategory((prev) => ({
-      ...prev,
-      [deviceCategory]: nextDevices,
-    }));
-    scrollToComparison();
-  }, [deviceCategory, deviceConfig.pool, scrollToComparison]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -258,58 +140,59 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
-            {learnCopy.onClockPanel.title}
+            On-the-clock only
           </p>
           <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
-            {learnCopy.onClockPanel.description}
+            Learn mode is built for scheduled work hours only: shift-start prep, between-call coaching, and live-call support while you are working.
           </p>
         </div>
       </div>
 
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-10 shadow-2xl shadow-t-dark-gray/20">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-t-magenta to-t-berry p-10 shadow-2xl shadow-t-magenta/20 glass-prismatic">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <BookOpen className="w-80 h-80 -mt-16 -mr-16 text-white" />
         </div>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
-            <Sparkles className="w-3 h-3 text-t-magenta" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{learnCopy.hero.badge}</p>
+            <Sparkles className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Knowledge Center</p>
           </div>
           <h2 className="text-5xl font-black text-white mb-4 tracking-tight leading-none">
-            {learnCopy.hero.title}
+            Know Your <span className="text-white/80">Stuff</span>
           </h2>
-          <p className="text-lg text-white/80 font-medium leading-relaxed max-w-2xl">
-            {learnCopy.hero.subtitle}
+          <p className="text-lg text-white/90 font-medium leading-relaxed max-w-2xl">
+            On-the-clock coaching for live calls, quick resets, and the T-Mobile story without the data dump.
+            Stay sharp, stay fast, and win every conversation.
           </p>
           <div className="flex flex-wrap gap-3 mt-8">
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
-              <Newspaper className="w-4 h-4 text-t-magenta" />
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
+              <Newspaper className="w-4 h-4 text-white" />
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-wider">Daily Briefing</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[0].subtitle}</p>
+                <p className="text-[9px] text-white/70 font-medium">Today's Promos</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
-              <Smartphone className="w-4 h-4 text-t-magenta" />
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
+              <Smartphone className="w-4 h-4 text-white" />
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-wider">Device Lab</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[1].subtitle}</p>
+                <p className="text-[9px] text-white/70 font-medium">Compare & Pitch</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
-              <Crown className="w-4 h-4 text-t-magenta" />
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
+              <Crown className="w-4 h-4 text-white" />
               <div>
-                <p className="text-[10px] font-black text-white uppercase tracking-wider">{learnCopy.hero.cards[2].title}</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[2].subtitle}</p>
+                <p className="text-[10px] font-black text-white uppercase tracking-wider">Plan Master</p>
+                <p className="text-[9px] text-white/70 font-medium">Value Stacking</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sub-tab toggle — wraps on desktop */}
-      <div className="flex flex-wrap justify-center rounded-3xl p-1 gap-1 glass-tab">
+      {/* Sub-tab toggle */}
+      <div className="flex overflow-x-auto scrollbar-hide justify-start sm:justify-center rounded-3xl p-1.5 gap-1 glass-tab max-w-full snap-x snap-mandatory">
         {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
@@ -318,10 +201,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 type="button"
                 onClick={() => setTab(t.id)}
                 aria-pressed={isActive}
-                className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
+                className={`focus-ring flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider py-2.5 rounded-full transition-all whitespace-nowrap shrink-0 snap-start ${
                   isActive
-                    ? 'bg-t-magenta text-white shadow-sm px-4'
-                    : 'text-t-dark-gray hover:text-t-dark-gray px-2'
+                    ? 'bg-t-magenta text-white shadow-sm px-5'
+                    : 'text-t-dark-gray hover:text-t-magenta hover:bg-t-magenta/5 px-4'
                 }`}
               >
                 <t.icon className="w-3 h-3 shrink-0" />
@@ -331,13 +214,18 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           })}
       </div>
 
-      <div className="rounded-2xl px-4 py-3 glass-card glass-specular">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
-          {TAB_MOMENT_GUIDANCE[tab].moment}
-        </p>
-        <p className="text-[11px] font-medium text-t-dark-gray leading-relaxed">
-          {TAB_MOMENT_GUIDANCE[tab].tip}
-        </p>
+      <div className="rounded-2xl px-5 py-4 glass-card glass-specular flex items-start gap-4">
+        <div className="w-8 h-8 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0 mt-0.5">
+          <BookOpen className="w-4 h-4 text-t-magenta" />
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">
+            {TAB_MOMENT_GUIDANCE[tab].moment}
+          </p>
+          <p className="text-xs font-medium text-t-dark-gray leading-relaxed">
+            {TAB_MOMENT_GUIDANCE[tab].tip}
+          </p>
+        </div>
       </div>
 
       {/* Content */}
@@ -349,91 +237,43 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
       {tab === 'devices' && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-info-border bg-info-surface p-4 glass-specular">
-            <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
-              {learnCopy.devices.sectionTitle}
-            </p>
-            <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
-              {learnCopy.devices.fastCallRules.map((rule, index) => (
-                <p key={rule}>
-                  <span className="font-black">{index + 1}.</span> {rule}
-                </p>
-              ))}
+          <div className="rounded-2xl border border-info-border bg-info-surface p-5 glass-specular flex items-start gap-4">
+            <div className="w-10 h-10 rounded-full bg-info-accent/10 flex items-center justify-center shrink-0">
+              <Smartphone className="w-5 h-5 text-info-accent" />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-            {DEVICE_CATEGORIES.map((category) => {
-              const isActive = deviceCategory === category.id;
-              const selectionCount = selectedDevicesByCategory[category.id].length;
-
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => {
-                    setDeviceCategory(category.id);
-                  }}
-                  aria-pressed={isActive}
-                  className={`focus-ring rounded-2xl border p-3 text-left transition-all ${
-                    isActive
-                      ? 'border-t-magenta bg-surface-elevated shadow-sm'
-                      : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${isActive ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'}`}>
-                        <category.icon className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray">{category.label}</p>
-                        <p className="mt-1 text-[10px] font-medium leading-snug text-t-muted">{category.helper}</p>
-                      </div>
-                    </div>
-                    <span className={`rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
-                      selectionCount > 0
-                        ? 'bg-t-magenta/10 text-t-magenta'
-                        : 'bg-t-light-gray/40 text-t-muted'
-                    }`}>
-                      {selectionCount}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">{activeCategoryMeta.shellTitle}</p>
-                <p className="mt-1 text-sm font-black text-t-dark-gray">{activeCategoryMeta.label}</p>
-                <p className="mt-1 max-w-2xl text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                  {activeCategoryMeta.shellDescription}
-                </p>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground mb-2">
+                Fast Call Rule
+              </p>
+              <div className="space-y-2 text-xs font-medium text-info-foreground/90">
+                <p className="flex items-start gap-2"><span className="font-black text-info-accent">1.</span> Open with one angle, not three.</p>
+                <p className="flex items-start gap-2"><span className="font-black text-info-accent">2.</span> Back it up with one proof point.</p>
+                <p className="flex items-start gap-2"><span className="font-black text-info-accent">3.</span> Only open the backup angle if the caller needs a different reason to say yes.</p>
               </div>
-              {deviceCategory !== 'accessories' ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
-                    {selectedDevices.length > 0 ? `${selectedDevices.length} selected` : 'Nothing selected yet'}
-                  </span>
-                  {selectedDevices.length > 0 ? (
-                    <button
-                      type="button"
-                      onClick={clearDevices}
-                      className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
-                    >
-                      Clear this category
-                    </button>
-                  ) : null}
-                </div>
-              ) : (
-                <div className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
-                  Search + filter ready
-                </div>
-              )}
             </div>
+          </div>
+
+          {/* Device category sub-tabs */}
+          <div className="flex overflow-x-auto scrollbar-hide rounded-2xl p-1.5 max-w-md mx-auto gap-1 glass-tab snap-x snap-mandatory">
+            {DEVICE_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setDeviceCategory(cat.id);
+                  setSelectedDevices([]);
+                }}
+                aria-pressed={deviceCategory === cat.id}
+                className={`focus-ring flex-1 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-xl transition-all whitespace-nowrap shrink-0 snap-start ${
+                  deviceCategory === cat.id
+                    ? 'bg-t-magenta text-white shadow-sm'
+                    : 'text-t-dark-gray hover:text-t-magenta hover:bg-t-magenta/5'
+                }`}
+              >
+                <cat.icon className="w-3 h-3" />
+                {cat.label}
+              </button>
+            ))}
           </div>
 
           {/* Accessories — standalone reference */}
@@ -447,7 +287,6 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               <div className="lg:col-span-5">
                 <div className="rounded-3xl p-5 glass-card glass-specular">
                   <DeviceLookup
-                    key={deviceCategory}
                     selectedDevices={selectedDevices}
                     onToggleDevice={toggleDevice}
                     onClearDevices={clearDevices}
@@ -455,9 +294,6 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     devicePool={deviceConfig.pool}
                     presets={deviceConfig.presets}
                     filters={deviceConfig.filters}
-                    filterBy={deviceConfig.filterBy}
-                    defaultSort={deviceConfig.defaultSort}
-                    onPresetSelect={handlePresetSelect}
                   />
                 </div>
               </div>
@@ -468,32 +304,24 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular border-dashed">
-                    <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
-                      {deviceCategory === 'phones' && <Smartphone className="w-8 h-8 text-t-magenta" />}
-                      {deviceCategory === 'tablets' && <Tablet className="w-8 h-8 text-t-magenta" />}
-                      {deviceCategory === 'wearables' && <Watch className="w-8 h-8 text-t-magenta" />}
+                  <div className="flex flex-col items-center justify-center text-center p-12 rounded-3xl glass-card glass-specular border-2 border-dashed border-t-light-gray/50">
+                    <div className="w-20 h-20 bg-t-magenta/10 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                      {deviceCategory === 'phones' && <Smartphone className="w-10 h-10 text-t-magenta" />}
+                      {deviceCategory === 'tablets' && <Tablet className="w-10 h-10 text-t-magenta" />}
+                      {deviceCategory === 'wearables' && <Watch className="w-10 h-10 text-t-magenta" />}
                     </div>
-                    <h3 className="text-xl font-black uppercase tracking-tight mb-2">
-                      {deviceCategory === 'phones'
-                        ? learnCopy.devices.fallbackHeading.phones
-                        : deviceCategory === 'tablets'
-                          ? learnCopy.devices.fallbackHeading.tablets
-                          : learnCopy.devices.fallbackHeading.wearables}
+                    <h3 className="text-2xl font-black uppercase tracking-tight mb-3">
+                      {deviceCategory === 'phones' ? 'The Lineup' : deviceCategory === 'tablets' ? 'Tablets' : 'Wearables & IoT'}
                     </h3>
-                    <p className="text-t-dark-gray max-w-xs mx-auto text-sm font-medium">
-                      {deviceCategory === 'phones'
-                        ? learnCopy.devices.fallbackCopy.phones
-                        : deviceCategory === 'tablets'
-                          ? learnCopy.devices.fallbackCopy.tablets
-                          : learnCopy.devices.fallbackCopy.wearables}
+                    <p className="text-t-dark-gray max-w-sm mx-auto text-sm font-medium leading-relaxed">
+                      Pick devices to compare specs, selling points, and accessory plays.
                     </p>
-                    <p className="text-[10px] text-t-magenta font-bold mt-3">
+                    <p className="text-[11px] text-t-magenta font-black uppercase tracking-widest mt-6 bg-t-magenta/10 px-4 py-2 rounded-full">
                       {deviceCategory === 'phones'
-                        ? learnCopy.devices.starterPrompts.phones
+                        ? 'Try "Flagship Showdown" or "Quirky Cousins" to get started'
                         : deviceCategory === 'tablets'
-                          ? learnCopy.devices.starterPrompts.tablets
-                          : learnCopy.devices.starterPrompts.wearables}
+                        ? 'Try "Head to Head" — iPad vs Galaxy Tab'
+                        : 'Try "The Big Three" — Apple vs Samsung vs Pixel'}
                     </p>
                   </div>
                 )}
