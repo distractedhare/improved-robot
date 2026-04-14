@@ -15,9 +15,9 @@ interface GameObject {
 }
 
 const LANES = 3;
-const BASE_SPEED = 4;
+const BASE_SPEED = 2;
 const MAX_SPEED = 12;
-const SPEED_INCREMENT = 0.002;
+const SPEED_INCREMENT = 0.003;
 const SPAWN_RATE = 60; // frames
 
 export default function MagentaRunner() {
