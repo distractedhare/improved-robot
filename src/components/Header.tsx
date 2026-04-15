@@ -203,7 +203,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                       role="tab"
                       aria-selected={isActive}
                       onClick={() => onModeChange(item.id)}
-                      className={`focus-ring relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all ${
+                      className={`focus-ring relative flex flex-col items-center justify-center flex-1 min-w-0 h-14 rounded-xl transition-all ${
                         isActive ? 'text-t-magenta' : 'text-t-muted hover:text-t-dark-gray'
                       }`}
                       style={{ touchAction: 'manipulation' }}
@@ -217,8 +217,8 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                       )}
                       <span className="relative z-10 flex flex-col items-center gap-1">
                         <item.icon className={`h-5 w-5 ${isActive ? 'text-t-magenta' : ''}`} />
-                        <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
-                          {item.label.replace(' ', '\n')}
+                        <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight w-full truncate px-0.5">
+                          {item.label}
                         </span>
                       </span>
                     </button>

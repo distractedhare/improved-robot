@@ -307,6 +307,8 @@ body {
   font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 button,

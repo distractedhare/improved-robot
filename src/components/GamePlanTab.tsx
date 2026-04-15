@@ -46,7 +46,7 @@ export default function GamePlanTab({
         <div className="w-20 h-20 bg-t-magenta/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
           <Sparkles className="w-10 h-10 text-t-magenta" />
         </div>
-        <h2 className="text-3xl font-black uppercase tracking-tight text-t-dark-gray">Mission Briefing</h2>
+        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-t-dark-gray">Mission Briefing</h2>
         <p className="text-sm font-medium text-t-muted max-w-xs mx-auto">
           Context gathered. Ready to generate a personalized game plan for this customer.
         </p>
@@ -167,7 +167,7 @@ export function GamePlanResults({
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black uppercase tracking-tight text-t-dark-gray">Easy Mode Path</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-t-dark-gray">Easy Mode Path</h2>
                   <p className="text-t-magenta font-black tracking-widest uppercase text-xs">Singular Best Suggestion</p>
                 </div>
               </div>
@@ -193,7 +193,7 @@ export function GamePlanResults({
               <div className="p-8 space-y-8">
                 <div>
                   <span className="text-t-magenta text-xs font-black uppercase tracking-widest">The Perfect Pitch For:</span>
-                  <h2 className="text-4xl font-black text-t-dark-gray capitalize mt-1">{context.age} calling for {context.purchaseIntent}</h2>
+                  <h2 className="text-2xl sm:text-4xl font-black text-t-dark-gray capitalize mt-1 break-words">{context.age} calling for {context.purchaseIntent}</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -272,7 +272,7 @@ export function GamePlanResults({
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-5 rounded-3xl border border-t-light-gray shadow-sm">
         <div>
-          <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-t-dark-gray">
+          <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-t-dark-gray">
             <Target className="w-6 h-6 text-t-magenta" /> The Playbook
           </h2>
           <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -378,8 +378,8 @@ export function GamePlanResults({
               {demoRecs.map((rec, i) => (
                 <div key={i} className="p-4 rounded-2xl bg-t-light-gray/10 border border-t-light-gray/50 hover:border-t-magenta/30 transition-colors group">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-black text-t-dark-gray group-hover:text-t-magenta transition-colors">{rec.name}</span>
-                    <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                    <span className="text-sm font-black text-t-dark-gray group-hover:text-t-magenta transition-colors min-w-0 break-words mr-2">{rec.name}</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-1 rounded-full whitespace-nowrap shrink-0">
                       {CATEGORY_LABELS[rec.category] || rec.category}
                     </span>
                   </div>

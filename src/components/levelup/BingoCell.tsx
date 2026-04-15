@@ -87,7 +87,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
         aria-pressed={completed}
         aria-label={`${cell.label}: ${cell.description}`}
         whileTap={isFree ? undefined : { scale: 0.93 }}
-        className={`focus-ring glass-cell relative aspect-square overflow-hidden rounded-2xl p-1 sm:p-1.5 text-center ${
+        className={`focus-ring glass-cell relative aspect-square min-h-[48px] overflow-hidden rounded-2xl p-0.5 sm:p-1 text-center ${
           isFree ? 'cursor-default' : 'cursor-pointer'
         }`}
         style={{
@@ -138,30 +138,20 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
           </span>
         )}
 
-        {/* Category label on idle */}
-        {!completed && !isFree && (
-          <span
-            className="absolute bottom-1 left-1/2 z-[1] -translate-x-1/2 text-[6px] font-bold uppercase tracking-wider opacity-40"
-            style={{ color: style.accent }}
-          >
-            {style.label}
-          </span>
-        )}
-
-        <div className="relative z-[2] flex h-full flex-col items-center justify-center gap-0.5">
+        <div className="relative z-[2] flex h-full flex-col items-center justify-center gap-0.5 px-0.5">
           {(completed || isFree) && (
             <motion.span
               initial={completed ? { scale: 0 } : false}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/25"
+              className="inline-flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-white/25 shrink-0"
             >
-              <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+              <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white" strokeWidth={3} />
             </motion.span>
           )}
 
           <span
-            className={`block text-[9px] font-black uppercase tracking-[0.06em] leading-tight sm:text-[10px] ${
+            className={`block text-[8px] sm:text-[10px] font-black uppercase tracking-[0.04em] leading-tight break-words hyphens-auto w-full text-center ${
               completed ? 'text-white' : 'text-foreground'
             }`}
           >

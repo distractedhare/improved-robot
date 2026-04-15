@@ -138,35 +138,40 @@ export default function BingoBoard() {
         id={`bingo-board-panel-${BOARD_ID}`}
         role="tabpanel"
         aria-label={`${activeBoard.name} board`}
-        className="glass-elevated rounded-[1.4rem] p-4"
+        className="glass-elevated rounded-[1.4rem] p-2 sm:p-4"
       >
-        {/* BINGO header letters */}
-        <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
-          {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
-            <div
-              key={letter}
-              className="rounded-xl py-2 text-sm font-black uppercase tracking-[0.18em] text-white"
-              style={{
-                background: `linear-gradient(135deg, #E20074 ${i * 10}%, #861B54 ${100 - i * 10}%)`,
-                boxShadow: '0 4px 12px rgba(226, 0, 116, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              {letter}
+        {/* Horizontal scroll wrapper — keeps cells at least 56px on tiny phones */}
+        <div className="overflow-x-auto scrollbar-hide -mx-0.5 px-0.5">
+          <div style={{ minWidth: '300px' }}>
+            {/* BINGO header letters */}
+            <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
+              {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
+                <div
+                  key={letter}
+                  className="rounded-xl py-1.5 sm:py-2 text-sm font-black uppercase tracking-[0.18em] text-white"
+                  style={{
+                    background: `linear-gradient(135deg, #E20074 ${i * 10}%, #861B54 ${100 - i * 10}%)`,
+                    boxShadow: '0 4px 12px rgba(226, 0, 116, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                  }}
+                >
+                  {letter}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Grid */}
-        <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
-          {board.map((cell, index) => (
-            <BingoCell
-              key={`${BOARD_ID}-${cell.id}`}
-              cell={cell}
-              completed={completedIds.has(cell.id)}
-              isWinning={winningIndices.has(index)}
-              onToggle={(reflection) => handleToggle(cell, reflection)}
-            />
-          ))}
+            {/* Grid */}
+            <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+              {board.map((cell, index) => (
+                <BingoCell
+                  key={`${BOARD_ID}-${cell.id}`}
+                  cell={cell}
+                  completed={completedIds.has(cell.id)}
+                  isWinning={winningIndices.has(index)}
+                  onToggle={(reflection) => handleToggle(cell, reflection)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

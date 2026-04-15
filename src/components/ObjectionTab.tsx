@@ -319,7 +319,7 @@ export default function ObjectionTab({
     >
       {/* Header */}
       <div className="rounded-3xl glass-card p-5 shadow-sm">
-        <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
+        <h2 className="text-lg sm:text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
           <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
         </h2>
         <p className="text-xs text-t-dark-gray font-medium">
@@ -357,7 +357,7 @@ export default function ObjectionTab({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="sticky bottom-4 z-10"
+          className="sticky bottom-20 sm:bottom-4 z-10 px-0"
         >
 	          <button
 	            type="button"
@@ -393,7 +393,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       className="space-y-6"
     >
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+        <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
           <Zap className="w-6 h-6 text-t-magenta" /> Objection Strategy
         </h2>
         <button

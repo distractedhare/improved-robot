@@ -172,7 +172,7 @@ export default function CustomerContextForm({
                     : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
                 }`}
               >
-                <span className="leading-tight">{c}</span>
+                <span className="leading-snug break-words min-w-0">{c}</span>
                 {context.currentCarrier === c && <CheckCircle2 className="w-3 h-3 shrink-0 ml-1" />}
               </button>
             ))}

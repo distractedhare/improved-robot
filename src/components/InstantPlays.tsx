@@ -354,7 +354,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                   </div>
                   <p className="text-[10px] text-white/80 leading-snug ml-5">{tip.description}</p>
                   <div className="bg-white/10 rounded-lg p-2 ml-5 border border-white/10">
-                    <p className="text-[10px] font-bold text-white leading-snug">{tip.talkTrack}</p>
+                    <p className="text-[10px] font-bold text-white leading-snug break-words">{tip.talkTrack}</p>
                   </div>
                 </div>
               ))}
@@ -384,7 +384,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
               <p className="text-[11px] text-t-dark-gray font-medium leading-snug ml-8">{play.description}</p>
               <div className="bg-t-magenta/5 rounded-xl p-3 ml-8 border border-t-magenta/10 relative group">
                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-t-magenta rounded-full opacity-50" />
-                <p className="text-xs font-bold text-t-magenta leading-relaxed">
+                <p className="text-xs font-bold text-t-magenta leading-relaxed break-words">
                   {play.talkTrack}
                 </p>
               </div>
@@ -549,8 +549,8 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                     <div className="px-4 pb-3 space-y-1.5">
                       {cat.items.slice(0, 2).map((item, i) => (
                         <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="font-bold text-t-dark-gray">{item.name}</span>
+                          <div className="flex items-center justify-between gap-2 text-[10px]">
+                            <span className="font-bold text-t-dark-gray min-w-0 break-words">{item.name}</span>
                             <div className="flex items-center gap-3 shrink-0">
                               {'originalPrice' in item && item.originalPrice ? (
                                 <>
@@ -616,12 +616,12 @@ function BigAddsSection({ age }: { age?: string }) {
           const highlighted = ageKey && item.bestFor?.includes(ageKey);
           return (
             <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-t-dark-gray">{item.name}</span>
-                  <span className="text-t-muted">{item.note}</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-black text-t-dark-gray min-w-0 break-words">{item.name}</span>
+                  <span className="text-t-muted shrink-0">{item.note}</span>
                   {highlighted && (
-                    <Star className="w-2.5 h-2.5 text-t-magenta fill-t-magenta" />
+                    <Star className="w-2.5 h-2.5 text-t-magenta fill-t-magenta shrink-0" />
                   )}
                 </div>
                 <span className="font-black text-t-dark-gray shrink-0">{item.price}</span>
