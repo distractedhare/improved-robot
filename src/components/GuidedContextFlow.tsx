@@ -143,7 +143,15 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === opt.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(opt.id, { purchaseIntent: opt.id as any }, 'hintCheck')}
+            onClick={() => {
+                const supportIntents = ['order support', 'tech support', 'account support'];
+                const next: Step = supportIntents.includes(opt.id)
+                  ? 'age'
+                  : opt.id === 'upgrade / add a line'
+                  ? 'product'
+                  : 'hintCheck';
+                handleOptionSelect(opt.id, { purchaseIntent: opt.id as any }, next);
+              }}
             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all text-center group shadow-sm hover:shadow-md relative overflow-hidden ${
               selectedId === opt.id 
                 ? 'border-t-magenta bg-t-magenta/10' 
@@ -421,7 +429,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === p.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(p.id, { desiredPlatform: p.id as any }, p.id === 'iOS' ? 'plan' : 'brand')}
+            onClick={() => {
+                const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
+                const next: Step = isUpgrade ? 'age' : p.id === 'iOS' ? 'plan' : 'brand';
+                handleOptionSelect(p.id, { desiredPlatform: p.id as any }, next);
+              }}
             className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left group shadow-sm hover:shadow-md ${
               selectedId === p.id 
                 ? 'border-t-magenta bg-t-magenta/10' 
@@ -666,12 +678,17 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       <div className="flex gap-1.5 mb-8 px-2">
         {STEPS.map((step, i) => {
           const currentIndex = STEPS.indexOf(currentStep);
-          
-          // Hide currentDevice if not upgrade
-          if (step === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') return null;
-          // Hide carrier if upgrade
-          if (step === 'carrier' && context.purchaseIntent === 'upgrade / add a line') return null;
-          
+          const supportIntents = ['order support', 'tech support', 'account support'];
+          const isSupport = supportIntents.includes(context.purchaseIntent);
+          const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
+
+          // Support: only intent + age
+          if (isSupport && !['intent', 'age'].includes(step)) return null;
+          // Upgrade: skip hintCheck, carrier, brand, plan; keep currentDevice
+          if (isUpgrade && ['hintCheck', 'carrier', 'brand', 'plan'].includes(step)) return null;
+          // Standard: hide currentDevice
+          if (!isSupport && !isUpgrade && step === 'currentDevice') return null;
+
           const isActive = i <= currentIndex;
           return (
             <div 
@@ -718,23 +735,36 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       {currentStep !== 'intent' && (
         <button
           onClick={() => {
-            const currentIndex = STEPS.indexOf(currentStep);
-            let prevIndex = currentIndex - 1;
-            
-            // Skip currentDevice if not upgrade
-            if (STEPS[prevIndex] === 'currentDevice' && context.purchaseIntent !== 'upgrade / add a line') {
-              prevIndex--;
-            }
-            // Skip carrier if intent is upgrade
-            if (STEPS[prevIndex] === 'carrier' && context.purchaseIntent === 'upgrade / add a line') {
-              prevIndex--;
-            }
-            // Skip brand if iOS
-            if (STEPS[prevIndex] === 'brand' && context.desiredPlatform === 'iOS') {
-              prevIndex--;
-            }
+            const supportIntents = ['order support', 'tech support', 'account support'];
+            const isSupport = supportIntents.includes(context.purchaseIntent);
+            const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
 
-            goToStep(STEPS[prevIndex]);
+            let prevStep: Step;
+            if (isSupport) {
+              prevStep = 'intent';
+            } else if (isUpgrade) {
+              const upgradeMap: Partial<Record<Step, Step>> = {
+                product: 'intent',
+                currentDevice: 'product',
+                lines: 'currentDevice',
+                platform: 'lines',
+                age: 'platform',
+              };
+              prevStep = upgradeMap[currentStep] ?? 'intent';
+            } else {
+              const standardMap: Partial<Record<Step, Step>> = {
+                hintCheck: 'intent',
+                product: 'hintCheck',
+                carrier: 'product',
+                lines: 'carrier',
+                platform: 'lines',
+                brand: 'platform',
+                plan: context.desiredPlatform === 'iOS' ? 'platform' : 'brand',
+                age: 'plan',
+              };
+              prevStep = standardMap[currentStep] ?? 'intent';
+            }
+            goToStep(prevStep);
           }}
           className="mt-8 flex items-center gap-2 text-t-muted hover:text-t-magenta transition-colors text-[10px] font-black uppercase tracking-widest"
         >

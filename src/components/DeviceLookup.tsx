@@ -161,9 +161,9 @@ export default function DeviceLookup({
 
   const heroDevice = selectedDevices[selectedDevices.length - 1] || pool[0];
   const p360Price = heroDevice ? getP360Price(heroDevice.startingPrice) : 0;
-  const bundleCost = 120;
-  const bundleDiscount = bundleCost * 0.25;
-  const monthsCovered = p360Price ? (bundleDiscount / p360Price).toFixed(1) : 0;
+  const accessoryCost = 120;
+  const accessorySavings = accessoryCost * 0.25;
+  const monthsCovered = p360Price ? (accessorySavings / p360Price).toFixed(1) : 0;
 
   return (
     <div className="space-y-6">
@@ -202,13 +202,13 @@ export default function DeviceLookup({
               </p>
             </div>
 
-            {/* 🛡️ P360 Auto-Quoter & Bundle Pitch 🛡️ */}
+            {/* 🛡️ P360 Auto-Quoter & Accessory Pitch 🛡️ */}
             <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 mt-4">
               <h4 className="text-blue-600 font-black text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" /> The P360 "Buy 3" Close
               </h4>
               <p className="text-blue-900/80 text-xs font-medium italic leading-relaxed">
-                "I'm adding Protection 360 to cover the device for ${p360Price}/mo. To help offset that, if you grab your case, screen protector, and charging block today, I can knock 25% off the whole bundle. That ${bundleDiscount} in savings basically pays for your first {monthsCovered} months of insurance."
+                "I'm adding Protection 360 to cover the device for ${p360Price}/mo. To help offset that, if you grab your case, screen protector, and charging block today, I can knock 25% off the whole setup. That ${accessorySavings} in savings basically pays for your first {monthsCovered} months of insurance."
               </p>
             </div>
           </div>

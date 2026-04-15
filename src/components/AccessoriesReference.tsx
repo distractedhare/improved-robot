@@ -139,7 +139,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="rounded-2xl border border-info-border bg-info-surface p-4">
-        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-info-foreground">Fast Bundle Formula</p>
+        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-info-foreground">Fast Setup Formula</p>
         <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
           <p><span className="font-black">1.</span> Protect it first: case, glass, or camera protection.</p>
           <p><span className="font-black">2.</span> Remove friction next: charger, battery, or car-mount story.</p>
@@ -150,7 +150,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       <div className="overflow-hidden rounded-2xl glass-card shadow-sm">
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
-            Essentials — bundle-eligible (25% off with 3+)
+            Essentials — qualifying items (save more w/ 3+)
           </p>
           <button
             type="button"
@@ -221,7 +221,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                                   )}
                                   {item.bundle && (
                                     <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[8px] font-black uppercase text-success-foreground">
-                                      {item.bundle} bundle
+                                      {item.bundle} w/ setup
                                     </span>
                                   )}
                                 </div>
@@ -263,7 +263,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
 
       <div className="rounded-2xl glass-card p-4 shadow-sm">
         <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
-          Premium add-ons (no bundle discount)
+          Premium add-ons
         </p>
         <div className="space-y-2">
           {bigAddSummaries.map(({ item, summary, outcomeLabel, matches }) => (

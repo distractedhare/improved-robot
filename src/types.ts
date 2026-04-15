@@ -76,3 +76,145 @@ export interface ObjectionAnalysis {
   complianceNotes: string;
   groundingSources?: GroundingSource[];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OFFER ENGINE TYPES — context-aware, workflow-driven offer system
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type OfferWorkflow =
+  | 'explore'
+  | 'ready'
+  | 'upgrade'
+  | 'order-support'
+  | 'tech-support'
+  | 'account-support';
+
+export type PivotReason =
+  | 'too_expensive'
+  | 'already_has_one'
+  | 'different_style'
+  | 'keep_it_simple'
+  | 'keep_setup_intact'
+  | 'show_secondary';
+
+export type OfferItemKind = 'accessory' | 'protection' | 'wearable' | 'tracker' | 'service';
+
+export type CustomerSignalTag =
+  | 'storm-ready'
+  | 'commuter'
+  | 'outdoorsy'
+  | 'gym'
+  | 'parent'
+  | 'kids-safe'
+  | 'older-adult'
+  | 'privacy-minded'
+  | 'travel'
+  | 'battery-anxiety'
+  | 'simplicity-first'
+  | 'budget-sensitive'
+  | 'premium-leaning'
+  | 'family-coordination';
+
+export interface CustomerSignal {
+  tag: CustomerSignalTag;
+  strength: number; // 0–1
+  source: string;
+}
+
+export interface CatalogItem {
+  id: string;
+  sku?: string;
+  name: string;
+  kind: OfferItemKind;
+  category: 'p360' | 'case' | 'screen' | 'charger' | 'battery' | 'mount' | 'audio' | 'watch' | 'kids-watch' | 'tracker' | 'plan' | 'other';
+  role: 'protection' | 'power' | 'privacy' | 'convenience' | 'fitness' | 'family-safety' | 'secondary' | 'service';
+  ecosystem: 'apple' | 'samsung' | 'pixel' | 'android' | 'all';
+  compatibleDevices?: string[];
+  compatibleBrands?: string[];
+  /** IDs of qualifying promo sets this item counts toward */
+  qualifyingSetIds: string[];
+  /** Items in the same group are swappable pivots */
+  replacementGroup: string;
+  price?: number;
+  priceLabel?: string;
+  salePriceLabel?: string;
+  imageKey?: string;
+  styleTags: string[];
+  lifestyleTags: string[];
+  signalTags: string[];
+  workflowWeights: Partial<Record<OfferWorkflow, number>>;
+  backupIds?: string[];
+  cheaperAltIds?: string[];
+  premiumAltIds?: string[];
+  pitch: string;
+  why: string;
+}
+
+export interface PromoRule {
+  id: string;
+  label: string;
+  channel: 'vr' | 'store' | 'web';
+  qualifyingSetId: string;
+  requiredQty: number;
+  discountPct: number;
+  subtleLabel: string;
+  hardPromoLabel?: string;
+  combinable?: boolean;
+}
+
+export interface OfferSlot {
+  id: string;
+  role: 'anchor' | 'essential-a' | 'essential-b' | 'secondary';
+  item: CatalogItem | null;
+  backups: Partial<Record<PivotReason, CatalogItem[]>>;
+}
+
+export interface OfferSet {
+  id: string;
+  workflow: OfferWorkflow;
+  headline: string;
+  subhead: string;
+  contextTags: string[];
+  slots: OfferSlot[];
+  serviceNudges?: Array<{
+    id: string;
+    title: string;
+    why: string;
+    talkTrack: string;
+  }>;
+  qualifyingStatus: {
+    activeRuleId?: string;
+    qualifiesNow: boolean;
+    subtleLabel: string;
+    nextBestItemIds?: string[];
+  };
+}
+
+export interface OfferCardModel {
+  id: string;
+  headline: string;
+  frontTitle: string;
+  frontItems: CatalogItem[];
+  frontPitch: string;
+  backTitle: string;
+  backItems: CatalogItem[];
+  backPitch: string;
+  contextTags: string[];
+  quickPivots: PivotReason[];
+  qualifiesLabel?: string;
+}
+
+export interface OfferSessionState {
+  rejectedItemIds: string[];
+  rejectedGroups: string[];
+  acceptedItemIds: string[];
+  pivotHistory: Array<{ cardId: string; reason: PivotReason }>;
+}
+
+export interface ServiceNudge {
+  id: string;
+  title: string;
+  why: string;
+  talkTrack: string;
+  signalTags: string[];
+}

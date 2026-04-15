@@ -235,7 +235,7 @@ export function GamePlanResults({
                       <span className="text-3xl">🎧</span>
                       <h3 className="font-black text-t-dark-gray text-base uppercase tracking-widest">Accessories</h3>
                     </div>
-                    <p className="text-t-magenta font-black text-lg mb-2">The Triple Play Bundle</p>
+                    <p className="text-t-magenta font-black text-lg mb-2">Day-One Essentials</p>
                     <p className="text-t-dark-gray text-sm font-medium leading-relaxed">
                       Assume the sale: "I'll grab the MagSafe case, the tempered glass, and the fast charger so you're fully protected before you leave."
                     </p>
@@ -443,7 +443,12 @@ export function GamePlanResults({
                 {activeTool === 'credit' && <CreditPivot targetDevice={PHONES.find(p => context.product.some(prod => p.name.includes(prod))) || null} onClose={() => setActiveTool('none')} />}
                 {activeTool === 'persona' && <PersonaTranslator baseText={script.valuePropositions[0] || "This device features the latest 5G technology."} deviceName={context.product.join(', ')} />}
                 {activeTool === 'math' && <PlanMathVisualizer lineCount={3} />}
-                {activeTool === 'accessories' && <DynamicAccessoryFlow recommendations={script.accessoryRecommendations || []} />}
+                {activeTool === 'accessories' && (
+                  <DynamicAccessoryFlow
+                    context={context}
+                    recommendations={script.accessoryRecommendations || []}
+                  />
+                )}
               </div>
             </motion.div>
           )}

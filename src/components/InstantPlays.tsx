@@ -56,9 +56,9 @@ const INTENT_PLAYS: Record<Intent, { subtitle: string; plays: Play[] }> = {
         talkTrack: '"Since we\'re getting you a brand new device, I\'m going to include P360. It covers theft, loss, and screen breaks for $0. It\'s the best way to protect your investment."'
       },
       {
-        title: 'The Accessory Bundle Save',
-        description: 'Use the 25% discount to drive multi-item sales.',
-        talkTrack: '"Since you\'re getting the phone, if we grab a case and a screen protector, we can add a third item like a charger or audio and get 25% off all of them."'
+        title: 'Day-One Essentials',
+        description: 'Assume the sale: lock in protection and power before they leave.',
+        talkTrack: '"Since you\'re getting the phone, I\'ll grab a case and a screen protector so you\'re protected from day one. We can add a charger and save on the whole setup."'
       },
     ],
   },
@@ -166,7 +166,7 @@ const PRODUCT_CONTEXT: Record<string, { label: string; color: string; tips: Reco
       ],
       'ready to buy': [
         {
-          title: 'The All-In Upsell',
+          title: 'The All-In Move',
           description: 'The $55 All-In tier is the best value with streaming perks.',
           talkTrack: '"Since you\'re ready, I highly recommend the All-In tier. It includes Hulu and Paramount+, so it basically pays for itself."'
         },
@@ -509,7 +509,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
     <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
       <div className="px-4 pt-4 pb-2">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
-          Top Essentials — Bundle-eligible (25% off w/ 3+)
+          Top Essentials — qualifying items (save more w/ 3+)
         </p>
       </div>
       <div className="divide-y divide-t-light-gray/50">
@@ -565,7 +565,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                               {item.bundle && (
                                 <>
                                   <span className="font-bold text-t-magenta">{item.bundle}</span>
-                                  <span className="text-[10px] font-semibold text-t-dark-gray">w/ bundle</span>
+                                  <span className="text-[10px] font-semibold text-t-dark-gray">w/ setup</span>
                                 </>
                               )}
                             </div>
