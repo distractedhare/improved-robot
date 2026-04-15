@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ShoppingBag, X, ChevronLeft, ChevronRight,
+  ShoppingBag, X,
   CheckCircle2, Plus, MessageSquare,
 } from 'lucide-react';
 import {
@@ -24,7 +24,6 @@ export default function DynamicAccessoryFlow({
   recommendations = [],
 }: DynamicAccessoryFlowProps) {
   const [session, setSession] = useState<OfferSessionState>(EMPTY_SESSION);
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [flippedId, setFlippedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -32,10 +31,6 @@ export default function DynamicAccessoryFlow({
     if (!context) return null;
     return buildOfferCards(context, session);
   }, [context, session]);
-
-  const safeIndex = offerCards
-    ? Math.min(activeCardIndex, Math.max(0, offerCards.length - 1))
-    : 0;
 
   const selectedItems = useMemo(
     () => CATALOG.filter(c => selectedIds.includes(c.id)),
@@ -55,11 +50,6 @@ export default function DynamicAccessoryFlow({
     setFlippedId(null);
   };
 
-  const goTo = (index: number) => {
-    setActiveCardIndex(index);
-    setFlippedId(null);
-  };
-
   // ── New engine mode ──────────────────────────────────────────────────────────
   if (context && offerCards) {
     if (offerCards.length === 0) {
@@ -70,7 +60,7 @@ export default function DynamicAccessoryFlow({
       );
     }
 
-    const contextChips = offerCards[safeIndex]?.contextTags ?? [];
+    const contextChips = offerCards[0]?.contextTags ?? [];
 
     return (
       <div className="space-y-4">
@@ -88,61 +78,8 @@ export default function DynamicAccessoryFlow({
           </div>
         )}
 
-        {/* Mobile — one card at a time */}
-        <div className="block sm:hidden space-y-3">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={safeIndex}
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.2 }}
-            >
-              <OfferFlipCard
-                card={offerCards[safeIndex]}
-                flippedId={flippedId}
-                selectedIds={selectedIds}
-                onFlip={setFlippedId}
-                onSelect={toggleSelect}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {offerCards.length > 1 && (
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => goTo(Math.max(0, safeIndex - 1))}
-                disabled={safeIndex === 0}
-                className="w-10 h-10 rounded-full border border-t-light-gray flex items-center justify-center disabled:opacity-30 hover:border-t-magenta/50 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 text-t-dark-gray" />
-              </button>
-              <div className="flex gap-1.5">
-                {offerCards.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      i === safeIndex ? 'bg-t-magenta' : 'bg-t-light-gray'
-                    }`}
-                  />
-                ))}
-              </div>
-              <button
-                onClick={() => goTo(Math.min(offerCards.length - 1, safeIndex + 1))}
-                disabled={safeIndex === offerCards.length - 1}
-                className="w-10 h-10 rounded-full border border-t-light-gray flex items-center justify-center disabled:opacity-30 hover:border-t-magenta/50 transition-colors"
-              >
-                <ChevronRight className="w-4 h-4 text-t-dark-gray" />
-              </button>
-            </div>
-          )}
-
-          <PivotChipsRow card={offerCards[safeIndex]} onPivot={handlePivot} />
-        </div>
-
-        {/* Desktop — 2-col grid */}
-        <div className="hidden sm:grid grid-cols-2 gap-4">
+        {/* All screen sizes — single col in portrait, 2-col grid in landscape/desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {offerCards.map(card => (
             <div key={card.id} className="space-y-3">
               <OfferFlipCard
