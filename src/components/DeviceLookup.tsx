@@ -269,10 +269,10 @@ export default function DeviceLookup({
           <input
             type="text"
             aria-label="Search devices"
-            placeholder="Search devices..."
+            placeholder="Search Devices..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="focus-ring w-full bg-surface border-2 border-t-light-gray rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
+            className="focus-ring w-full bg-surface border border-t-light-gray rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-foreground transition-all placeholder:text-t-dark-gray/30 hover:border-t-magenta/40"
           />
         </div>
         
@@ -346,12 +346,12 @@ export default function DeviceLookup({
           })}
         </AnimatePresence>
         {filteredDevices.length === 0 && (
-          <div className="col-span-full py-12 text-center">
-            <div className="w-12 h-12 bg-t-light-gray/50 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Search className="w-5 h-5 text-t-muted" />
+          <div className="col-span-full py-14 text-center">
+            <div className="w-14 h-14 bg-t-magenta/8 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Search className="w-6 h-6 text-t-magenta/50" />
             </div>
-            <p className="text-sm font-black text-t-dark-gray">No devices found</p>
-            <p className="text-xs font-medium text-t-muted mt-1">Try adjusting your search or filters.</p>
+            <p className="text-sm font-black text-foreground">Nothing matched that search</p>
+            <p className="text-xs font-medium text-t-muted mt-1.5 max-w-[200px] mx-auto leading-relaxed">Try a different name or clear the filters above.</p>
           </div>
         )}
       </div>

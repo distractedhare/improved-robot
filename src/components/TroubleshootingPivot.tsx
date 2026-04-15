@@ -54,7 +54,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               className={`focus-ring flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 transition-all sm:flex-col sm:px-2 sm:py-3 ${
                 isActive 
                   ? 'border-t-magenta bg-t-magenta/5 text-t-magenta shadow-sm' 
-                  : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/30 hover:bg-t-light-gray/20'
+                  : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5'
               }`}
             >
               <CatIcon className={`h-4 w-4 ${isActive ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
@@ -89,7 +89,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                 className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-all ${
                   completedSteps.includes(step.id)
                     ? 'border-success-accent/30 bg-success-surface/30'
-                    : 'border-t-light-gray bg-t-light-gray/5 hover:border-t-magenta/20'
+                    : 'border-t-light-gray bg-t-light-gray/5 hover:border-t-magenta/50 hover:bg-t-magenta/5'
                 }`}
               >
                 <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
@@ -100,7 +100,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                   {completedSteps.includes(step.id) && <CheckCircle2 className="h-2.5 w-2.5" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-bold ${completedSteps.includes(step.id) ? 'text-success-accent line-through opacity-70' : 'text-foreground'}`}>
+                  <p className={`text-xs font-bold ${completedSteps.includes(step.id) ? 'text-success-accent opacity-80' : 'text-foreground'}`}>
                     {step.label}
                   </p>
                   <p className="mt-0.5 text-[10px] text-t-dark-gray leading-relaxed">
@@ -130,7 +130,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-t-magenta text-white">
               <Lightbulb className="h-4 w-4" />
             </div>
-            <h2 className="text-sm font-extrabold tracking-tight">Sales Pivots</h2>
+            <h2 className="text-sm font-extrabold tracking-tight">Turn It Around</h2>
           </div>
 
           <div className="space-y-3">

@@ -40,7 +40,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
             Plan Math Visualizer
           </h3>
           <p className="text-[10px] font-medium text-t-dark-gray/60 uppercase tracking-widest">
-            The "Hidden" Value of Premium
+            Uncover the True Value
           </p>
         </div>
         <div className="flex bg-t-light-gray/20 rounded-xl p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
@@ -61,7 +61,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Essentials Card */}
         <div className="p-4 rounded-2xl border border-t-light-gray bg-surface relative overflow-hidden">
-          <p className="text-[10px] font-black text-t-muted uppercase mb-1">Entry Level</p>
+          <p className="text-[10px] font-black text-t-muted uppercase mb-1">Value Pick</p>
           <p className="text-sm font-black text-t-dark-gray mb-4">Essentials</p>
           
           <div className="space-y-2 mb-6">
@@ -85,7 +85,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
                 <p className="text-[9px] font-black text-t-muted uppercase">Effective Cost</p>
                 <p className="text-xl font-black text-t-dark-gray">${essentialsPricing.monthlyTotal}</p>
               </div>
-              <XCircle className="w-5 h-5 text-t-muted" />
+              <Info className="w-5 h-5 text-t-muted/60" />
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
           <div className="absolute top-0 right-0 p-2">
             <Zap className="w-10 h-10 text-t-magenta/10" />
           </div>
-          <p className="text-[10px] font-black text-t-magenta uppercase mb-1">Best Value</p>
+          <p className="text-[10px] font-black text-t-magenta uppercase mb-1">Premium Plan</p>
           <p className="text-sm font-black text-t-dark-gray mb-4">Experience Beyond</p>
           
           <div className="space-y-2 mb-6">

@@ -125,7 +125,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       className="space-y-6"
     >
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">What's the vibe?</h2>
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">What brings them in?</h2>
         <p className="text-sm font-medium text-t-dark-gray">Select the customer's primary reason for the call.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -178,11 +178,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       className="space-y-6"
     >
       <div className="text-center space-y-2">
-        <div className="inline-block bg-t-magenta text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 animate-pulse shadow-lg shadow-t-magenta/20">
-          Mandatory Check
+        <div className="inline-block bg-t-magenta text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 shadow-lg shadow-t-magenta/30">
+          Required Step
         </div>
-        <h2 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Check HINT Address?</h2>
-        <p className="text-sm font-medium text-t-muted">You know the metric. Enter their address in the tool now.</p>
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Verify HINT Eligibility</h2>
+        <p className="text-sm font-medium text-t-muted">Enter their address in the HINT tool before continuing.</p>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {[

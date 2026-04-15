@@ -61,7 +61,7 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
           Persona Translator
         </h3>
         <p className="text-[10px] font-medium text-t-dark-gray/60 uppercase tracking-widest">
-          Tech specs → Real life use cases
+          Turn tech specs into real-life pitches
         </p>
       </div>
 
@@ -85,8 +85,8 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
       </div>
 
       <div className="p-4 rounded-2xl bg-t-light-gray/20 border border-t-light-gray">
-        <p className="text-[9px] font-black text-t-muted uppercase mb-2">Original Tech Point</p>
-        <p className="text-xs font-medium text-t-dark-gray leading-relaxed">
+        <p className="text-[9px] font-black text-t-muted uppercase mb-2">What You're Pitching</p>
+        <p className="text-sm font-medium text-t-dark-gray leading-relaxed">
           "{baseText}"
         </p>
       </div>
@@ -109,7 +109,17 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
               "{translatedText}"
             </p>
           </motion.div>
-        ) : null}
+        ) : (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-t-light-gray p-6 text-center"
+          >
+            <Sparkles className="w-6 h-6 text-t-magenta/40" />
+            <p className="text-xs font-bold text-t-dark-gray/60">Pick a persona and hit Translate to generate the pitch.</p>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <button
