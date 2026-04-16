@@ -29,7 +29,7 @@ import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import CustomerContextForm from './components/CustomerContextForm';
 import GuidedContextFlow from './components/GuidedContextFlow';
-import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
+import GamePlanTab from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
 import SessionStats from './components/SessionStats';
@@ -680,7 +680,6 @@ export default function App() {
                     weeklySource={weeklySource}
                     ecosystemMatrix={ecosystemMatrix}
                     onDataUpdate={handleWeeklyDataRefresh}
-                    onSelectScenario={handlePracticeScenario}
                   />
                 </Suspense>
               </ErrorBoundary>
@@ -1001,13 +1000,7 @@ export default function App() {
             </section>
 
             {/* GENERATE BUTTON */}
-            <GamePlanTab
-              context={context}
-              loading={loading}
-              onGenerate={handleGenerate}
-              onRunDemoScenario={handleRunDemoScenario}
-              lastDemoScenarioName={lastDemoScenarioName}
-            />
+            <GamePlanTab />
           </>
         )}
 
@@ -1135,20 +1128,7 @@ export default function App() {
                 <ObjectionResults result={objectionResult} onClear={() => setObjectionResult(null)} />
               )}
 
-              {/* Full generated game plan replaces instant plays */}
-              {activeTab === 'gameplan' && script && !loading && (
-                <GamePlanResults
-                  context={context}
-                  script={script}
-                  selectedGamePlanItems={selectedGamePlanItems}
-                  onToggleItem={toggleGamePlanItem}
-                  onReset={reset}
-                  onSwitchToObjections={() => setActiveTab('objections')}
-                  ecosystemMatrix={ecosystemMatrix}
-                  isEasyMode={isEasyMode}
-                  onSwitchToAdvanced={() => setIsEasyMode(false)}
-	                />
-	              )}
+              {/* Full generated game plan removed during redesign — GamePlanTab now handles its own flow */}
 	            </AnimatePresence>
 	            </div>
 	            </ErrorBoundary>
