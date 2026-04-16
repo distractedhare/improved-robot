@@ -38,6 +38,7 @@ const LearnView = lazy(() => import('./components/learn/LearnView'));
 const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
+const LeaderboardView = lazy(() => import('./components/levelup/LeaderboardView'));
 import TroubleshootingPivot from './components/TroubleshootingPivot';
 
 function LazySectionFallback({ label }: { label: string }) {
@@ -694,7 +695,27 @@ export default function App() {
                 message="The settings panel encountered an error."
               >
                 <Suspense fallback={<LazySectionFallback label="Settings" />}>
-                  <SettingsView />
+                  <SettingsView onOpenLeaderboard={() => handleModeChange('leaderboard')} />
+                </Suspense>
+              </ErrorBoundary>
+            </motion.section>
+          ) : mode === 'leaderboard' ? (
+            <motion.section
+              id="mode-panel-leaderboard"
+              key="mode-leaderboard"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <ErrorBoundary
+                compact
+                resetKey="mode-leaderboard"
+                title="Leaderboard needs a refresh"
+                message="The leaderboard encountered an error."
+              >
+                <Suspense fallback={<LazySectionFallback label="Leaderboard" />}>
+                  <LeaderboardView onExit={() => handleModeChange('settings')} />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>

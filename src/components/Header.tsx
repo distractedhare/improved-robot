@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BookOpen, Monitor, Moon, Settings, Sun, Trophy, UserPlus, Zap, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings' | 'leaderboard';
 
 type ThemePref = 'light' | 'dark' | 'auto';
 
