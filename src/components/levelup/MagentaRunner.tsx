@@ -4,6 +4,7 @@ import { Pause, RotateCcw, ShieldAlert, Zap, CheckCircle2, XCircle, ChevronLeft,
 import { getRandomQuestions, QuizQuestion } from '../../constants/quizQuestions';
 import { recordQuizScore } from '../../services/prizeService';
 import { usePageVisibility } from '../../hooks/usePageVisibility';
+import { heavyCrash } from '../../utils/haptics';
 
 type GameState = 'start' | 'playing' | 'paused' | 'question' | 'gameover';
 
@@ -204,6 +205,7 @@ export default function MagentaRunner() {
           } else {
             // Hit obstacle! Pause game, ask question
             obj.markedForDeletion = true; // remove it so we don't hit it again
+            heavyCrash();
             triggerQuestion();
             return; // Stop updating this frame
           }

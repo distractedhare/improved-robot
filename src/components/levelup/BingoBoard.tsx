@@ -6,6 +6,7 @@ import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, 
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
 import { celebrate } from './celebrate';
+import { lightTap, successBuzz } from '../../utils/haptics';
 
 const BOARD_ID = 'sales-fundamentals';
 
@@ -38,15 +39,17 @@ export default function BingoBoard() {
     setProgress(result.progress);
 
     if (!completedIds.has(cell.id)) {
-      navigator.vibrate?.(50);
+      lightTap();
     }
 
     if (result.newRowKeys.length > 0) {
+      successBuzz();
       celebrate({ intensity: 'light' });
       setRowToast({ count: result.newRowKeys.length });
     }
 
     if (result.boardCompletedNow) {
+      successBuzz();
       celebrate({ intensity: 'heavy' });
       setBoardCelebration(true);
     }

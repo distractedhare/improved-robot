@@ -38,7 +38,9 @@ const LearnView = lazy(() => import('./components/learn/LearnView'));
 const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
+const LeaderboardView = lazy(() => import('./components/levelup/LeaderboardView'));
 import TroubleshootingPivot from './components/TroubleshootingPivot';
+import PwaUpdater from './components/PwaUpdater';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -608,6 +610,7 @@ export default function App() {
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
 
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
+      <PwaUpdater />
 
       {isDataExpired && (
         <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"
@@ -698,7 +701,27 @@ export default function App() {
                 message="The settings panel encountered an error."
               >
                 <Suspense fallback={<LazySectionFallback label="Settings" />}>
-                  <SettingsView />
+                  <SettingsView onOpenLeaderboard={() => handleModeChange('leaderboard')} />
+                </Suspense>
+              </ErrorBoundary>
+            </motion.section>
+          ) : mode === 'leaderboard' ? (
+            <motion.section
+              id="mode-panel-leaderboard"
+              key="mode-leaderboard"
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, scale: 0.99 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <ErrorBoundary
+                compact
+                resetKey="mode-leaderboard"
+                title="Leaderboard needs a refresh"
+                message="The leaderboard encountered an error."
+              >
+                <Suspense fallback={<LazySectionFallback label="Leaderboard" />}>
+                  <LeaderboardView onExit={() => handleModeChange('settings')} />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>

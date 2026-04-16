@@ -46,25 +46,16 @@ export default function OfflineCoach() {
     setInput('');
     setIsGenerating(true);
 
-    try {
-      const systemPrompt = `You are a T-Mobile retail sales coach. Provide short, punchy, 1-2 sentence pivots or reframes for customer objections. Be confident, empathetic, and focus on value.`;
-      const response = await localAiService.generateResponse(userMsg.content, systemPrompt);
-      
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response
-      }]);
-    } catch (err) {
-      console.error("Generation error:", err);
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: "Sorry, I encountered an error generating a response."
-      }]);
-    } finally {
-      setIsGenerating(false);
-    }
+    const systemPrompt = `You are a T-Mobile retail sales coach. Provide short, punchy, 1-2 sentence pivots or reframes for customer objections. Be confident, empathetic, and focus on value.`;
+    const baseline = "Pivot to value: T-Mobile leads the 5G network and the bundle perks usually outpace any promo discount. Ask what matters most — reliability, coverage, or savings — then match it to one proof point.";
+    const response = await localAiService.generateResponse(userMsg.content, systemPrompt, baseline);
+
+    setMessages(prev => [...prev, {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: response || baseline,
+    }]);
+    setIsGenerating(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

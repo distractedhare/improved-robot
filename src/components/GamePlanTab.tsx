@@ -15,6 +15,7 @@ import DynamicAccessoryFlow from './DynamicAccessoryFlow';
 import { PHONES, Device } from '../data/devices';
 import { localAiService } from '../services/localAiService';
 import { buildTacticalPitchPrompt, TacticalPitchPayload } from '../services/aiEnhancementService';
+import { lightTap } from '../utils/haptics';
 
 function findDeviceBySku(sku: string): Device | undefined {
   const needle = sku.trim().toLowerCase();
@@ -75,6 +76,7 @@ export default function GamePlanTab({
   const [pitchError, setPitchError] = useState<string | null>(null);
 
   const handleGeneratePitch = async () => {
+    lightTap();
     setIsGenerating(true);
     setPitchError(null);
     setTacticalPitch(null);
@@ -172,7 +174,10 @@ export default function GamePlanTab({
 
         <button
           type="button"
-          onClick={() => onGenerate()}
+          onClick={() => {
+            lightTap();
+            onGenerate();
+          }}
           disabled={loading || isGenerating}
           className="focus-ring w-full btn-magenta-shimmer rounded-2xl py-5 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl"
         >

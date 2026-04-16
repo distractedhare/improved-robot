@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { 
-  Settings, Users, MessageSquare, Rocket, Download, 
+import { useState, useEffect, useRef } from 'react';
+import {
+  Settings, Users, MessageSquare, Rocket, Download,
   Wifi, ShieldCheck, Loader2, CheckCircle2, AlertCircle,
-  Bug, Info
+  Bug, Info, Lock, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import TeamConfig from './levelup/TeamConfig';
+import TeamJoin from './levelup/TeamJoin';
 import FeedbackForm from './levelup/FeedbackForm';
 import Roadmap from './levelup/Roadmap';
 import { localAiService } from '../services/localAiService';
@@ -15,13 +15,23 @@ type SettingsTab = 'team' | 'feedback' | 'roadmap' | 'offline-ai';
 
 const VERSION = "1.2.4-stable";
 const BUILD_ID = "CC-AI-2026-04-08";
+const ADMIN_PASSCODE = 'manager';
 
-export default function SettingsView() {
+interface SettingsViewProps {
+  onOpenLeaderboard?: () => void;
+}
+
+export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = {}) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('team');
   const [isAiReady, setIsAiReady] = useState(localAiService.isReady());
   const [aiProgress, setAiProgress] = useState<InitProgressReport | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminInput, setAdminInput] = useState('');
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [adminShake, setAdminShake] = useState(0);
+  const adminInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const unsubscribeProgress = localAiService.onProgress((p) => setAiProgress(p));
@@ -35,6 +45,31 @@ export default function SettingsView() {
       unsubscribeReady();
     };
   }, []);
+
+  useEffect(() => {
+    if (adminOpen) {
+      const id = requestAnimationFrame(() => adminInputRef.current?.focus());
+      return () => cancelAnimationFrame(id);
+    }
+  }, [adminOpen]);
+
+  const closeAdmin = () => {
+    setAdminOpen(false);
+    setAdminInput('');
+    setAdminError(null);
+  };
+
+  const submitAdmin = () => {
+    if (adminInput.trim().toLowerCase() === ADMIN_PASSCODE) {
+      closeAdmin();
+      onOpenLeaderboard?.();
+      return;
+    }
+    setAdminError('Access Denied');
+    setAdminShake((n) => n + 1);
+    setAdminInput('');
+    adminInputRef.current?.focus();
+  };
 
   const handleDownloadAi = async () => {
     if (isAiReady || isDownloading) return;
@@ -131,7 +166,7 @@ export default function SettingsView() {
               transition={{ duration: 0.2 }}
               className="glass-card rounded-3xl p-6 min-h-[400px]"
             >
-              {activeTab === 'team' && <TeamConfig />}
+              {activeTab === 'team' && <TeamJoin />}
               {activeTab === 'feedback' && <FeedbackForm />}
               {activeTab === 'roadmap' && <Roadmap onSwitchToFeedback={() => setActiveTab('feedback')} />}
               
@@ -232,6 +267,104 @@ export default function SettingsView() {
           </AnimatePresence>
         </div>
       </div>
+
+      <div className="pt-6 text-center">
+        <button
+          type="button"
+          onClick={() => setAdminOpen(true)}
+          className="text-[10px] font-medium tracking-wide text-t-muted/70 underline-offset-4 hover:text-t-muted hover:underline"
+        >
+          Admin Access
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {adminOpen && (
+          <motion.div
+            key="admin-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
+            onClick={closeAdmin}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-modal-title"
+          >
+            <motion.div
+              key="admin-card"
+              initial={{ opacity: 0, y: 12, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm rounded-3xl glass-card p-6 shadow-2xl"
+            >
+              <button
+                type="button"
+                onClick={closeAdmin}
+                aria-label="Close admin dialog"
+                className="focus-ring absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-t-muted hover:bg-t-light-gray/30 hover:text-t-dark-gray"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-t-magenta/10">
+                  <Lock className="h-5 w-5 text-t-magenta" />
+                </div>
+                <h2 id="admin-modal-title" className="mt-3 text-lg font-black uppercase tracking-tight">
+                  Admin Access
+                </h2>
+                <p className="mt-1 text-xs font-medium text-t-dark-gray">
+                  Enter the manager passcode to view the leaderboard.
+                </p>
+              </div>
+
+              <motion.input
+                ref={adminInputRef}
+                type="password"
+                value={adminInput}
+                onChange={(e) => {
+                  setAdminInput(e.target.value);
+                  if (adminError) setAdminError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitAdmin();
+                  if (e.key === 'Escape') closeAdmin();
+                }}
+                placeholder="Passcode"
+                aria-label="Admin passcode"
+                aria-invalid={Boolean(adminError)}
+                key={adminShake}
+                animate={adminError ? { x: [0, -8, 8, -8, 8, 0] } : { x: 0 }}
+                transition={{ duration: 0.4 }}
+                className={`focus-ring mt-5 w-full rounded-xl border bg-surface px-4 py-3 text-center font-mono text-sm tracking-widest placeholder:text-t-muted focus:border-t-magenta ${
+                  adminError ? 'border-error-border' : 'border-t-light-gray'
+                }`}
+              />
+
+              <div className="mt-2 h-4 text-center">
+                {adminError && (
+                  <p className="text-[11px] font-black uppercase tracking-widest text-error-accent">
+                    {adminError}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={submitAdmin}
+                disabled={!adminInput.trim()}
+                className="focus-ring mt-3 w-full rounded-2xl bg-t-magenta py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-t-magenta/25 transition-transform hover:scale-[1.01] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                Unlock
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
