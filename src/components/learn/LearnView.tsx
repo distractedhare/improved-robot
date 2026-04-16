@@ -21,6 +21,7 @@ import EdgeSection from './EdgeSection';
 import PracticeScenarios from '../levelup/PracticeScenarios';
 import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
+import ProductHeroCard, { HeroEcosystem } from './ProductHeroCard';
 
 type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
@@ -88,6 +89,49 @@ const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
     tip: 'Run a quick scenario while the phones are quiet so the live-call flow feels automatic later in the same shift.',
   },
 };
+
+const CATEGORY_TO_ECOSYSTEM: Partial<Record<Device['category'], HeroEcosystem>> = {
+  iphone: 'apple',
+  samsung: 'samsung',
+  pixel: 'google',
+};
+
+const deviceImagePath = (name: string) =>
+  `/images/devices/${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}.png`;
+
+const FEATURED_PHONE_NAMES = [
+  'iPhone 17 Pro Max',
+  'iPhone 17',
+  'Galaxy S26 Ultra',
+  'Galaxy Z Fold7',
+  'Pixel 10 Pro XL',
+  'Pixel 10',
+];
+
+interface HeroProduct {
+  name: string;
+  imageUrl: string;
+  ecosystem: HeroEcosystem;
+  subtitle: string;
+}
+
+function buildFeaturedHeroes(pool: Device[], names: string[]): HeroProduct[] {
+  return names
+    .map((n) => pool.find((d) => d.name === n))
+    .filter((d): d is Device => Boolean(d))
+    .map((d) => {
+      const ecosystem = CATEGORY_TO_ECOSYSTEM[d.category];
+      if (!ecosystem) return null;
+      const price = typeof d.startingPrice === 'number' ? `$${d.startingPrice}` : d.startingPrice;
+      return {
+        name: d.name,
+        imageUrl: deviceImagePath(d.name),
+        ecosystem,
+        subtitle: `From ${price} · ${d.released}`,
+      };
+    })
+    .filter((h): h is HeroProduct => Boolean(h));
+}
 
 export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate, onSelectScenario }: LearnViewProps) {
   const [tab, setTab] = useState<LearnTab>('briefing');
@@ -275,6 +319,41 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </button>
             ))}
           </div>
+
+          {/* Featured hero lineup — ecosystem-tagged premium cards (phones only) */}
+          {deviceCategory === 'phones' && (() => {
+            const heroes = buildFeaturedHeroes(deviceConfig.pool, FEATURED_PHONE_NAMES);
+            if (heroes.length === 0) return null;
+            return (
+              <div className="rounded-3xl p-5 glass-card glass-specular">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
+                      Featured Lineup
+                    </p>
+                    <p className="text-xs font-medium text-t-dark-gray">
+                      Tap a flagship to drop it into your comparison.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {heroes.map((hero) => {
+                    const device = deviceConfig.pool.find((d) => d.name === hero.name);
+                    return (
+                      <ProductHeroCard
+                        key={hero.name}
+                        productName={hero.name}
+                        imageUrl={hero.imageUrl}
+                        ecosystem={hero.ecosystem}
+                        subtitle={hero.subtitle}
+                        onClick={device ? () => toggleDevice(device) : undefined}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Accessories — standalone reference */}
           {deviceCategory === 'accessories' ? (
