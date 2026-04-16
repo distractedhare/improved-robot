@@ -6,6 +6,7 @@ import { BingoCell as BingoCellType, getBoardLayout, getBoardById } from '../../
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
+import { lightTap, successBuzz } from '../../utils/haptics';
 
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -83,15 +84,17 @@ export default function BingoBoard() {
     setProgress(result.progress);
 
     if (!completedIds.has(cell.id)) {
-      navigator.vibrate?.(50);
+      lightTap();
     }
 
     if (result.newRowKeys.length > 0) {
+      successBuzz();
       celebrateRow();
       setRowToast({ count: result.newRowKeys.length });
     }
 
     if (result.boardCompletedNow) {
+      successBuzz();
       celebrateBoard();
       setBoardCelebration(true);
     }

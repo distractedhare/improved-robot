@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, X } from 'lucide-react';
 import { BingoCell as BingoCellType } from '../../constants/bingoBoard';
+import { lightTap } from '../../utils/haptics';
 
 interface BingoCellProps {
   cell: BingoCellType;
@@ -59,6 +60,8 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
   const handleTap = () => {
     if (isFree) return;
 
+    lightTap();
+
     // If unchecking, just toggle
     if (completed) {
       onToggle();
@@ -69,6 +72,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
   };
 
   const handleQuickReflection = (option: { text: string; marks: boolean }) => {
+    lightTap();
     setShowReflection(false);
     if (option.marks) {
       onToggle(option.text);

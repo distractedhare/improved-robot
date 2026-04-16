@@ -40,6 +40,7 @@ const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 const LeaderboardView = lazy(() => import('./components/levelup/LeaderboardView'));
 import TroubleshootingPivot from './components/TroubleshootingPivot';
+import PwaUpdater from './components/PwaUpdater';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -605,6 +606,7 @@ export default function App() {
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
 
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
+      <PwaUpdater />
 
       {isDataExpired && (
         <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"

@@ -13,6 +13,7 @@ import PersonaTranslator from './PersonaTranslator';
 import PlanMathVisualizer from './PlanMathVisualizer';
 import DynamicAccessoryFlow from './DynamicAccessoryFlow';
 import { PHONES } from '../data/devices';
+import { lightTap } from '../utils/haptics';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -55,7 +56,10 @@ export default function GamePlanTab({
       <div className="space-y-4">
         <button
           type="button"
-          onClick={() => onGenerate()}
+          onClick={() => {
+            lightTap();
+            onGenerate();
+          }}
           disabled={loading}
           className="focus-ring w-full btn-magenta-shimmer rounded-2xl py-5 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl"
         >
