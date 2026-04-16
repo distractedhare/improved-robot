@@ -12,7 +12,42 @@ import CreditPivot from './CreditPivot';
 import PersonaTranslator from './PersonaTranslator';
 import PlanMathVisualizer from './PlanMathVisualizer';
 import DynamicAccessoryFlow from './DynamicAccessoryFlow';
-import { PHONES } from '../data/devices';
+import { PHONES, Device } from '../data/devices';
+import { localAiService } from '../services/localAiService';
+import { buildTacticalPitchPrompt, TacticalPitchPayload } from '../services/aiEnhancementService';
+
+function findDeviceBySku(sku: string): Device | undefined {
+  const needle = sku.trim().toLowerCase();
+  if (!needle) return undefined;
+  return (
+    PHONES.find(p => p.name.toLowerCase() === needle)
+    ?? PHONES.find(p => p.name.toLowerCase().includes(needle))
+    ?? PHONES.find(p => needle.includes(p.name.toLowerCase()))
+  );
+}
+
+function getMonthlyPrice(device: Device): string {
+  const raw = typeof device.startingPrice === 'number'
+    ? device.startingPrice
+    : parseFloat(String(device.startingPrice));
+  if (!Number.isFinite(raw)) return '—';
+  // 24-month EIP (standard T-Mobile device financing term)
+  const monthly = raw / 24;
+  return `$${monthly.toFixed(2)}/mo`;
+}
+
+function parseTacticalJson(raw: string): TacticalPitchPayload {
+  const first = raw.indexOf('{');
+  const last = raw.lastIndexOf('}');
+  if (first === -1 || last === -1 || last <= first) {
+    throw new Error('Model response did not contain JSON.');
+  }
+  const parsed = JSON.parse(raw.slice(first, last + 1));
+  return {
+    recommended_sku: String(parsed.recommended_sku ?? '').trim(),
+    conversational_pitch: String(parsed.conversational_pitch ?? '').trim(),
+  };
+}
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -29,11 +64,40 @@ interface GamePlanTabProps {
 }
 
 export default function GamePlanTab({
+  context,
   loading,
   onGenerate,
   onRunDemoScenario,
   lastDemoScenarioName,
-}: Pick<GamePlanTabProps, 'loading' | 'onGenerate' | 'onRunDemoScenario' | 'lastDemoScenarioName'>) {
+}: Pick<GamePlanTabProps, 'context' | 'loading' | 'onGenerate' | 'onRunDemoScenario' | 'lastDemoScenarioName'>) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [tacticalPitch, setTacticalPitch] = useState<TacticalPitchPayload | null>(null);
+  const [pitchError, setPitchError] = useState<string | null>(null);
+
+  const handleGeneratePitch = async () => {
+    setIsGenerating(true);
+    setPitchError(null);
+    setTacticalPitch(null);
+    try {
+      if (!localAiService.isReady()) {
+        await localAiService.initialize();
+      }
+      const { system, user } = buildTacticalPitchPrompt(context);
+      const raw = await localAiService.generateResponse(user, system);
+      const parsed = parseTacticalJson(raw);
+      if (!parsed.recommended_sku || !parsed.conversational_pitch) {
+        throw new Error('Model returned an incomplete pitch.');
+      }
+      setTacticalPitch(parsed);
+    } catch (err) {
+      setPitchError(err instanceof Error ? err.message : 'Failed to generate pitch.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const matchedDevice = tacticalPitch ? findDeviceBySku(tacticalPitch.recommended_sku) : undefined;
+
   return (
     <motion.section
       key="gameplan"
@@ -42,28 +106,81 @@ export default function GamePlanTab({
       exit={{ opacity: 0, y: -10 }}
       className="space-y-6"
     >
-      <div className="text-center space-y-3 py-8">
-        <div className="w-20 h-20 bg-t-magenta/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+      <div className="text-center space-y-3 py-6">
+        <div className="w-20 h-20 bg-t-magenta/10 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
           <Sparkles className="w-10 h-10 text-t-magenta" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-t-dark-gray">Mission Briefing</h2>
         <p className="text-sm font-medium text-t-muted max-w-xs mx-auto">
-          Context gathered. Ready to generate a personalized game plan for this customer.
+          Context gathered. Generate a tactical pitch for this customer — fully on-device.
         </p>
       </div>
 
       <div className="space-y-4">
         <button
           type="button"
+          onClick={handleGeneratePitch}
+          disabled={isGenerating}
+          className="w-full bg-[#E20074] text-white font-black text-xl py-4 rounded-xl shadow-lg hover:bg-pink-600 active:scale-95 transition-all disabled:cursor-not-allowed"
+        >
+          {isGenerating ? (
+            <span className="animate-pulse">Analyzing Context...</span>
+          ) : (
+            'Generate Tactical Pitch'
+          )}
+        </button>
+
+        {pitchError && (
+          <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-bold text-red-700">
+            {pitchError}
+          </div>
+        )}
+
+        {tacticalPitch && (
+          <div className="rounded-2xl border-2 border-[#E20074] bg-surface p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#E20074]">
+                Tactical Output
+              </span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-t-muted bg-t-light-gray/30 px-2 py-1 rounded-full">
+                On-Device AI
+              </span>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-t-dark-gray leading-tight break-words">
+                {matchedDevice?.name ?? tacticalPitch.recommended_sku}
+              </p>
+              <p className="text-4xl font-black text-[#E20074] mt-2 tracking-tight">
+                {matchedDevice ? getMonthlyPrice(matchedDevice) : 'Price unavailable'}
+              </p>
+              {matchedDevice && (
+                <p className="text-[11px] font-bold uppercase tracking-widest text-t-muted mt-1">
+                  24-mo EIP · ${typeof matchedDevice.startingPrice === 'number' ? matchedDevice.startingPrice.toFixed(2) : matchedDevice.startingPrice} full retail
+                </p>
+              )}
+              {!matchedDevice && (
+                <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 mt-1">
+                  SKU not found in local catalog
+                </p>
+              )}
+            </div>
+            <p className="text-base font-medium text-t-dark-gray leading-relaxed border-t border-t-light-gray pt-4">
+              {tacticalPitch.conversational_pitch}
+            </p>
+          </div>
+        )}
+
+        <button
+          type="button"
           onClick={() => onGenerate()}
-          disabled={loading}
+          disabled={loading || isGenerating}
           className="focus-ring w-full btn-magenta-shimmer rounded-2xl py-5 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl"
         >
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />
           ) : (
             <>
-              Build My Game Plan
+              Build Full Game Plan
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </>
           )}
@@ -72,7 +189,7 @@ export default function GamePlanTab({
         <button
           type="button"
           onClick={onRunDemoScenario}
-          disabled={loading}
+          disabled={loading || isGenerating}
           className="focus-ring w-full rounded-2xl border-2 border-t-magenta/20 bg-surface px-5 py-5 text-left transition-all hover:border-t-magenta/50 hover:bg-t-magenta/5 disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           <div className="flex items-start gap-4">

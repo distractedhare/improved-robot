@@ -1,6 +1,17 @@
+import { useState, useEffect } from 'react';
 import { Award, Calendar, Gift, Star, Ticket, Trophy } from 'lucide-react';
+import {
+  getMascotEmoji,
+  getTeamConfig,
+  subscribeTeamConfig,
+  TeamConfig,
+} from '../../services/teamConfigService';
 
 export default function PrizeHub() {
+  const [teamConfig, setTeamConfig] = useState<TeamConfig>(() => getTeamConfig());
+  useEffect(() => subscribeTeamConfig(setTeamConfig), []);
+  const hasTeam = teamConfig.teamName.trim().length > 0;
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -11,6 +22,12 @@ export default function PrizeHub() {
         <p className="mt-1 text-sm font-medium text-t-dark-gray">
           Current team incentives. Hit the metrics, get the tickets, win the draw.
         </p>
+        {hasTeam && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-t-magenta">
+            <span className="text-base leading-none">{getMascotEmoji(teamConfig.mascotId)}</span>
+            <span>{teamConfig.teamName}</span>
+          </div>
+        )}
       </div>
 
       {/* Daily Incentives */}
