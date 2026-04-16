@@ -501,6 +501,10 @@ export default function App() {
     setShowGuidedFlow(true);
     setIsEasyMode(true);
     setActiveTab('gameplan');
+    setContextExpanded(false);
+    setLastDemoScenarioName(null);
+    setShowHintPrompt(false);
+    setMode('live');
     setResetCount(c => c + 1);
     setError(null);
     resetRotation();

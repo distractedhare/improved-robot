@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { Check, Download, Settings, Upload, Users } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Check, Copy, RefreshCw, Ticket, Users } from 'lucide-react';
 import {
   getTeamConfig,
   saveTeamConfig,
@@ -7,8 +7,7 @@ import {
   MASCOT_OPTIONS,
   MascotId,
   TeamConfig as TeamConfigType,
-  exportTeamConfigJSON,
-  importTeamConfigJSON,
+  encodeArcadeToken,
 } from '../../services/teamConfigService';
 
 const FOCUS_OPTIONS = [
@@ -25,12 +24,14 @@ const FOCUS_OPTIONS = [
 export default function TeamConfig() {
   const [config, setConfig] = useState<TeamConfigType>(getTeamConfig);
   const [saved, setSaved] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const updateField = useCallback(<K extends keyof TeamConfigType>(key: K, value: TeamConfigType[K]) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
+    setToken(null);
   }, []);
 
   const handleSave = () => {
@@ -39,40 +40,36 @@ export default function TeamConfig() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleExport = () => {
-    const json = exportTeamConfigJSON();
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `team-config-${config.teamName || 'default'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleGenerateToken = () => {
+    setTokenError(null);
+    setCopied(false);
+    try {
+      setToken(encodeArcadeToken(config));
+    } catch (err) {
+      setTokenError(err instanceof Error ? err.message : 'Could not generate token.');
+    }
   };
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result;
-      if (typeof text !== 'string') return;
-
-      const imported = importTeamConfigJSON(text);
-      if (imported) {
-        setConfig(imported);
-        setImportError(null);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
+  const handleCopyToken = async () => {
+    if (!token) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(token);
       } else {
-        setImportError('Invalid config file. Make sure it includes a team name.');
+        const textarea = document.createElement('textarea');
+        textarea.value = token;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
       }
-    };
-    reader.readAsText(file);
-
-    // Reset the input so the same file can be re-imported
-    event.target.value = '';
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setTokenError('Copy failed. Tap the token and copy manually.');
+    }
   };
 
   const hasTeam = config.teamName.trim().length > 0;
@@ -234,45 +231,68 @@ export default function TeamConfig() {
         </button>
       </div>
 
-      {/* Import / Export */}
-      <div className="glass-card rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Settings className="h-3.5 w-3.5 text-t-muted" />
+      {/* Arcade Token */}
+      <div className="glass-card rounded-xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Ticket className="h-3.5 w-3.5 text-t-magenta" />
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-muted">
-            Import / Export Config
+            Arcade Token
           </p>
         </div>
-        <p className="text-[11px] font-medium text-t-dark-gray mb-3">
-          Share a single JSON file across the team. Upload once, everyone gets the same setup.
+        <p className="text-[11px] font-medium text-t-dark-gray">
+          Share this token with your squad — they'll paste it under "Join Squad" on their device. No files, no network.
         </p>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={!hasTeam}
-            className="focus-ring flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-t-light-gray px-3 py-2 text-[10px] font-bold text-t-dark-gray transition-all hover:border-t-magenta/30 disabled:opacity-40"
-          >
-            <Download className="h-3 w-3" /> Export
-          </button>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="focus-ring flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-t-light-gray px-3 py-2 text-[10px] font-bold text-t-dark-gray transition-all hover:border-t-magenta/30"
-          >
-            <Upload className="h-3 w-3" /> Import
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={handleGenerateToken}
+          disabled={!hasTeam}
+          className="focus-ring w-full inline-flex items-center justify-center gap-2 rounded-lg bg-t-magenta px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {token ? (
+            <>
+              <RefreshCw className="h-3.5 w-3.5" /> Regenerate Arcade Token
+            </>
+          ) : (
+            <>
+              <Ticket className="h-3.5 w-3.5" /> Generate Arcade Token
+            </>
+          )}
+        </button>
 
-        {importError && (
-          <p className="mt-2 text-[10px] font-bold text-error-accent">{importError}</p>
+        {tokenError && (
+          <p className="text-[10px] font-bold text-error-accent">{tokenError}</p>
+        )}
+
+        {token && (
+          <div className="space-y-2">
+            <textarea
+              readOnly
+              value={token}
+              onFocus={(e) => e.currentTarget.select()}
+              className="w-full min-h-[88px] resize-none rounded-lg border border-t-magenta/40 bg-background px-3 py-2 font-mono text-[11px] text-t-dark-gray shadow-inner focus:outline-none focus:ring-2 focus:ring-t-magenta/30"
+              aria-label="Arcade Token"
+            />
+            <button
+              type="button"
+              onClick={handleCopyToken}
+              className={`focus-ring w-full inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                copied
+                  ? 'bg-success-accent text-white'
+                  : 'border border-t-light-gray text-t-dark-gray hover:border-t-magenta/30'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" /> Copy to Clipboard
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
     </div>

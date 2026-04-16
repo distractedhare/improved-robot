@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, ShieldAlert, Zap, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Pause, RotateCcw, ShieldAlert, Zap, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getRandomQuestions, QuizQuestion } from '../../constants/quizQuestions';
 import { recordQuizScore } from '../../services/prizeService';
+import { usePageVisibility } from '../../hooks/usePageVisibility';
 
-type GameState = 'start' | 'playing' | 'question' | 'gameover';
+type GameState = 'start' | 'playing' | 'paused' | 'question' | 'gameover';
 
 interface GameObject {
   id: number;
@@ -19,6 +20,23 @@ const BASE_SPEED = 2;
 const MAX_SPEED = 12;
 const SPEED_INCREMENT = 0.003;
 const SPAWN_RATE = 60; // frames
+
+const COLORS = {
+  background: '#1A1A1A',
+  gridLine: 'rgba(226, 0, 116, 0.2)',
+  player: '#E20074',
+  playerOutline: '#FFFFFF',
+  thruster: '#FF00FF',
+  coin: '#FFD700',
+  coinOutline: '#FFA500',
+  obstacle: '#E10000',
+  obstacleOutline: '#8B0000',
+} as const;
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 export default function MagentaRunner() {
   const [gameState, setGameState] = useState<GameState>('start');
@@ -41,6 +59,8 @@ export default function MagentaRunner() {
 
   // Touch handling
   const touchStartX = useRef(0);
+  const reducedMotion = useRef(prefersReducedMotion());
+  const isVisible = usePageVisibility();
 
   const startGame = useCallback(() => {
     playerLane.current = 1;
@@ -115,12 +135,14 @@ export default function MagentaRunner() {
     const playerY = height - 80;
     const playerRadius = 20;
 
+    const neonEnabled = !reducedMotion.current;
+
     // Clear canvas
-    ctx.fillStyle = '#1A1A1A'; // Dark background
+    ctx.fillStyle = COLORS.background;
     ctx.fillRect(0, 0, width, height);
 
     // Draw Synthwave Grid
-    ctx.strokeStyle = 'rgba(226, 0, 116, 0.2)'; // Faint magenta
+    ctx.strokeStyle = COLORS.gridLine;
     ctx.lineWidth = 2;
     
     // Vertical lane dividers
@@ -196,42 +218,58 @@ export default function MagentaRunner() {
 
       // Draw Object
       if (obj.type === 'coin') {
+        ctx.save();
+        if (neonEnabled) {
+          ctx.shadowColor = COLORS.coin;
+          ctx.shadowBlur = 16;
+        }
         ctx.beginPath();
         ctx.arc(objX, obj.y, 15, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFD700'; // Gold
+        ctx.fillStyle = COLORS.coin;
         ctx.fill();
-        ctx.strokeStyle = '#FFA500';
+        ctx.strokeStyle = COLORS.coinOutline;
         ctx.lineWidth = 3;
         ctx.stroke();
-        // Draw '5G' text
+        // Draw '5G' text (no glow on text for legibility)
+        ctx.shadowBlur = 0;
         ctx.fillStyle = '#000';
         ctx.font = 'bold 12px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('5G', objX, obj.y);
+        ctx.restore();
       } else {
-        // Obstacle (Red Box)
-        ctx.fillStyle = '#E10000'; // Error red
+        ctx.save();
+        if (neonEnabled) {
+          ctx.shadowColor = COLORS.obstacle;
+          ctx.shadowBlur = 14;
+        }
+        ctx.fillStyle = COLORS.obstacle;
         ctx.fillRect(objX - 20, obj.y - 20, 40, 40);
-        ctx.strokeStyle = '#8B0000';
+        ctx.strokeStyle = COLORS.obstacleOutline;
         ctx.lineWidth = 3;
         ctx.strokeRect(objX - 20, obj.y - 20, 40, 40);
-        // Draw '!' text
+        ctx.shadowBlur = 0;
         ctx.fillStyle = '#FFF';
         ctx.font = 'bold 20px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('!', objX, obj.y);
+        ctx.restore();
       }
     }
 
     // Draw Player
     const playerX = playerLane.current * laneWidth + laneWidth / 2;
-    
+
     ctx.save();
     if (isInvincible.current > 0) {
       isInvincible.current--;
       ctx.globalAlpha = isInvincible.current % 10 < 5 ? 0.5 : 1; // Blink effect
+    }
+    if (neonEnabled) {
+      ctx.shadowColor = COLORS.player;
+      ctx.shadowBlur = 18;
     }
 
     // Draw a sleek magenta triangle/ship
@@ -240,18 +278,18 @@ export default function MagentaRunner() {
     ctx.lineTo(playerX + 20, playerY + 15);
     ctx.lineTo(playerX - 20, playerY + 15);
     ctx.closePath();
-    ctx.fillStyle = '#E20074'; // T-Mobile Magenta
+    ctx.fillStyle = COLORS.player;
     ctx.fill();
-    ctx.strokeStyle = '#FFF';
+    ctx.strokeStyle = COLORS.playerOutline;
     ctx.lineWidth = 2;
     ctx.stroke();
-    
+
     // Thruster flame
     ctx.beginPath();
     ctx.moveTo(playerX - 10, playerY + 15);
     ctx.lineTo(playerX, playerY + 25 + Math.random() * 10);
     ctx.lineTo(playerX + 10, playerY + 15);
-    ctx.fillStyle = '#FF00FF';
+    ctx.fillStyle = COLORS.thruster;
     ctx.fill();
 
     ctx.restore();
@@ -268,6 +306,18 @@ export default function MagentaRunner() {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
   }, [gameState, updateGame]);
+
+  // Auto-pause when the tab is hidden mid-run.
+  useEffect(() => {
+    if (!isVisible && gameState === 'playing') {
+      setGameState('paused');
+    }
+  }, [isVisible, gameState]);
+
+  const resumeFromPause = useCallback(() => {
+    if (gameState !== 'paused') return;
+    setGameState('playing');
+  }, [gameState]);
 
   // Keyboard Controls
   useEffect(() => {
@@ -325,7 +375,7 @@ export default function MagentaRunner() {
         />
 
         {/* HTML Score HUD — pixel-crisp on all DPR */}
-        {gameState === 'playing' && (
+        {(gameState === 'playing' || gameState === 'paused') && (
           <div className="pointer-events-none absolute right-3 top-3 z-10">
             <div className="flex items-baseline gap-1 rounded-xl bg-black/50 px-3 py-1.5 backdrop-blur-sm">
               <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Score</span>
@@ -387,6 +437,31 @@ export default function MagentaRunner() {
               className="w-full max-w-[200px] py-3.5 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
             >
               Play Now
+            </button>
+          </motion.div>
+        )}
+
+        {/* Paused Overlay */}
+        {gameState === 'paused' && (
+          <motion.div
+            key="paused"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
+          >
+            <div className="w-16 h-16 bg-t-magenta/20 rounded-3xl flex items-center justify-center mb-4 border-2 border-t-magenta">
+              <Pause className="w-8 h-8 text-t-magenta" />
+            </div>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-1">Paused</h2>
+            <p className="text-xs font-medium text-white/60 mb-5">
+              Run held while you were away. Tap resume to jump back in.
+            </p>
+            <button
+              onClick={resumeFromPause}
+              className="w-full max-w-[200px] py-3.5 rounded-2xl bg-t-magenta text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(226,0,116,0.5)]"
+            >
+              Resume
             </button>
           </motion.div>
         )}

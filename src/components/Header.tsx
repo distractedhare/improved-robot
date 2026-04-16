@@ -71,7 +71,6 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
   const handleNewCall = () => {
     onReset();
-    if (mode !== 'live') onModeChange('live');
   };
 
   return (

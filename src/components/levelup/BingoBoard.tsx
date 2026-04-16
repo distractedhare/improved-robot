@@ -1,56 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import confetti from 'canvas-confetti';
 import { Flame, Sparkles, Trophy, Zap, Clock, Target, Lightbulb } from 'lucide-react';
 import { BingoCell as BingoCellType, getBoardLayout, getBoardById } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
-
-const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-function celebrateRow(): void {
-  if (prefersReducedMotion()) return;
-  void confetti({
-    particleCount: 90,
-    spread: 68,
-    startVelocity: 28,
-    scalar: 0.9,
-    colors: ['#E20074', '#FFFFFF', '#861B54'],
-    origin: { y: 0.72 },
-  });
-}
-
-function celebrateBoard(): void {
-  if (prefersReducedMotion()) return;
-  void confetti({
-    particleCount: 160,
-    spread: 82,
-    startVelocity: 34,
-    scalar: 1,
-    colors: ['#E20074', '#FFFFFF', '#861B54'],
-    origin: { y: 0.62 },
-  });
-
-  window.setTimeout(() => {
-    void confetti({
-      particleCount: 120,
-      spread: 120,
-      startVelocity: 26,
-      scalar: 0.95,
-      colors: ['#E20074', '#FFFFFF', '#861B54'],
-      origin: { x: 0.22, y: 0.66 },
-    });
-    void confetti({
-      particleCount: 120,
-      spread: 120,
-      startVelocity: 26,
-      scalar: 0.95,
-      colors: ['#E20074', '#FFFFFF', '#861B54'],
-      origin: { x: 0.78, y: 0.66 },
-    });
-  }, 160);
-}
+import { celebrate } from './celebrate';
 
 const BOARD_ID = 'sales-fundamentals';
 
@@ -87,12 +42,12 @@ export default function BingoBoard() {
     }
 
     if (result.newRowKeys.length > 0) {
-      celebrateRow();
+      celebrate({ intensity: 'light' });
       setRowToast({ count: result.newRowKeys.length });
     }
 
     if (result.boardCompletedNow) {
-      celebrateBoard();
+      celebrate({ intensity: 'heavy' });
       setBoardCelebration(true);
     }
   }, [BOARD_ID, completedIds]);

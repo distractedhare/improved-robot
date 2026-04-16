@@ -1,15 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { AlertTriangle, Award, ArrowLeft, Trophy, Zap, ShieldAlert, Play, Gamepad2 } from 'lucide-react';
-import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService';
+import { AlertTriangle, Award, ArrowLeft, Trophy, ShieldAlert, Play, Gamepad2, ShoppingBag } from 'lucide-react';
+import { getTeamConfig, getMascotEmoji, subscribeTeamConfig, TeamConfig } from '../../services/teamConfigService';
 import BingoBoard from './BingoBoard';
-import SpeedRound from './SpeedRound';
+import BundleBuilder from './BundleBuilder';
 import PrizeHub from './PrizeHub';
 import ObjectionSmasher from './ObjectionSmasher';
 import MagentaRunner from './MagentaRunner';
+import TeamJoin from './TeamJoin';
 
 type TopTab = 'games' | 'prizes';
-type GameId = 'bingo' | 'speed' | 'objection' | 'runner';
+type GameId = 'bingo' | 'bundle' | 'objection' | 'runner';
 
 const GAMES = [
   {
@@ -19,10 +20,10 @@ const GAMES = [
     description: '3 challenge boards — Sales, Product Mastery, and Closing. Complete rows to earn prizes.',
   },
   {
-    id: 'speed' as const,
-    icon: Zap,
-    label: 'Speed Round',
-    description: 'Timed knowledge quiz. Answer as many questions as you can before the clock runs out.',
+    id: 'bundle' as const,
+    icon: ShoppingBag,
+    label: 'Bundle Builder',
+    description: 'Match 3 accessories to the customer persona in 10 seconds. Build the perfect bundle.',
   },
   {
     id: 'objection' as const,
@@ -46,11 +47,29 @@ const TOP_TABS = [
 export default function LevelUpView() {
   const [topTab, setTopTab] = useState<TopTab>('games');
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
-  const teamConfig = useMemo(() => getTeamConfig(), []);
+  const [teamConfig, setTeamConfig] = useState<TeamConfig>(() => getTeamConfig());
+  useEffect(() => subscribeTeamConfig(setTeamConfig), []);
   const hasTeam = teamConfig.teamName.trim().length > 0;
 
   const handleGameSelect = (id: GameId) => setActiveGame(id);
   const handleBack = () => setActiveGame(null);
+
+  if (!hasTeam) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-5 pb-4">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 shadow-sm">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">On-the-clock only</p>
+            <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
+              This tool is designed for use during scheduled work hours only. Do not use outside of your shift.
+            </p>
+          </div>
+        </div>
+        <TeamJoin onJoined={setTeamConfig} />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 pb-4">
@@ -110,7 +129,7 @@ export default function LevelUpView() {
           <HighlightCard
             icon={<Gamepad2 className="h-4 w-4 text-t-magenta" />}
             title="4 Mini-Games"
-            description="Bingo boards, Speed Round, Objection Smasher & Magenta Runner — each built to sharpen real skills."
+            description="Bingo boards, Bundle Builder, Objection Smasher & Magenta Runner — each built to sharpen real skills."
           />
           <HighlightCard
             icon={<Award className="h-4 w-4 text-t-berry" />}
@@ -249,8 +268,8 @@ function GameView({ gameId, onBack }: { gameId: GameId; onBack: () => void }) {
       {/* Game component */}
       {gameId === 'bingo' ? (
         <BingoBoard />
-      ) : gameId === 'speed' ? (
-        <SpeedRound />
+      ) : gameId === 'bundle' ? (
+        <BundleBuilder />
       ) : gameId === 'objection' ? (
         <ObjectionSmasher />
       ) : (
