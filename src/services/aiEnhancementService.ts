@@ -524,6 +524,55 @@ export function mergeScriptEnhancement(base: SalesScript, enhancement: ScriptEnh
   };
 }
 
+export interface TacticalPitchPrompt {
+  system: string;
+  user: string;
+}
+
+export interface TacticalPitchPayload {
+  recommended_sku: string;
+  conversational_pitch: string;
+}
+
+export function buildTacticalPitchPrompt(context: SalesContext): TacticalPitchPrompt {
+  const callReason = context.purchaseIntent;
+  const persona = context.age;
+  const targetDevices = context.product.join(', ') || 'Unspecified';
+  const painPoints: string[] = [];
+  if (context.currentCarrier && context.currentCarrier !== 'Not Specified') {
+    painPoints.push(`currently on ${context.currentCarrier}`);
+  }
+  if (context.totalLines) painPoints.push(`${context.totalLines} lines on account`);
+  if (context.familyCount) painPoints.push(`${context.familyCount} people in household`);
+  if (context.currentPlatform && context.currentPlatform !== 'Not Specified') {
+    painPoints.push(`coming from ${context.currentPlatform}`);
+  }
+  if (context.hintQualified === 'No') painPoints.push('Home Internet unavailable at address');
+
+  const system = [
+    'You are a T-Mobile retail sales coach generating a live, tactical pitch for a rep on a call.',
+    'Return STRICT JSON ONLY. No markdown. No prose outside the JSON object.',
+    'The JSON must match exactly: {"recommended_sku": string, "conversational_pitch": string}.',
+    'recommended_sku must be the exact device name (e.g. "iPhone 17 Pro", "Galaxy S26 Ultra", "Pixel 10 Pro").',
+    'conversational_pitch must be 2-3 short sentences a rep can say out loud immediately.',
+    'Never invent promos, pricing, or policies that are not already known. Do not mention monthly pricing in the pitch — pricing is rendered separately.',
+  ].join(' ');
+
+  const user = [
+    'Generate a tactical pitch for this live customer call.',
+    '',
+    `Call Reason: ${callReason}`,
+    `Persona (age bracket): ${persona}`,
+    `Target Device category: ${targetDevices}`,
+    `Pain Points: ${painPoints.length ? painPoints.join('; ') : 'none specified'}`,
+    '',
+    'Respond with ONLY this JSON shape:',
+    '{"recommended_sku": "<exact device name>", "conversational_pitch": "<2-3 sentence rep script>"}',
+  ].join('\n');
+
+  return { system, user };
+}
+
 export function mergeObjectionEnhancement(base: ObjectionAnalysis, enhancement: ObjectionEnhancement): ObjectionAnalysis {
   return {
     ...base,

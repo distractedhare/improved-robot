@@ -975,6 +975,7 @@ export default function App() {
 
             {/* GENERATE BUTTON */}
             <GamePlanTab
+              context={context}
               loading={loading}
               onGenerate={handleGenerate}
               onRunDemoScenario={handleRunDemoScenario}
