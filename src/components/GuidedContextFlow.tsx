@@ -673,7 +673,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
   };
 
   return (
-    <div className="max-w-md mx-auto min-h-[500px] flex flex-col">
+    <div className="max-w-md mx-auto flex flex-col">
       {/* Progress Bar */}
       <div className="flex gap-1.5 mb-8 px-2">
         {STEPS.map((step, i) => {
@@ -691,18 +691,18 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
 
           const isActive = i <= currentIndex;
           return (
-            <div 
-              key={step} 
+            <div
+              key={step}
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
                 isActive ? 'bg-t-magenta' : 'bg-t-light-gray'
-              }`} 
+              }`}
             />
           );
         })}
       </div>
 
-      <div className="flex-1 relative" style={{ perspective: 1200 }}>
-        <AnimatePresence initial={false} custom={direction}>
+      <div className="relative" style={{ perspective: 1200 }}>
+        <AnimatePresence initial={false} mode="wait" custom={direction}>
           <motion.div
             key={currentStep}
             custom={direction}
@@ -714,7 +714,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
               rotateY: { type: "spring", stiffness: 260, damping: 25 },
               opacity: { duration: 0.2 }
             }}
-            className="w-full absolute top-0 left-0"
+            className="w-full"
             style={{ backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
           >
             {currentStep === 'intent' && renderIntent()}
