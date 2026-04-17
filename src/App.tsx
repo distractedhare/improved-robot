@@ -1082,7 +1082,7 @@ export default function App() {
               {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className={isEasyMode && activeTab === 'gameplan' 
-                    ? "fixed inset-0 z-[100] bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4" 
+                    ? "fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center p-4"
                     : "min-h-[400px] rounded-3xl glass-card p-6 flex flex-col items-center justify-center text-center"}
                 >
                   {isEasyMode && activeTab === 'gameplan' ? (

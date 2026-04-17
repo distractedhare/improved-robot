@@ -149,10 +149,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`relative flex flex-col items-center justify-center p-4 md:p-5 rounded-3xl transition-all duration-300 overflow-hidden ${
+              className={`focus-ring relative flex flex-col items-center justify-center p-4 md:p-5 rounded-3xl transition-all duration-300 overflow-hidden ${
                 isActive
-                  ? 'glass-card border border-t-magenta/60 shadow-[0_8px_32px_rgba(226,0,116,0.25)] scale-[1.02] bg-white/20 dark:bg-white/10'
-                  : 'glass-card border border-white/20 hover:bg-white/30 dark:border-white/10 opacity-80 hover:opacity-100'
+                  ? 'glass-card border-t-magenta/50 shadow-md scale-[1.02]'
+                  : 'glass-card opacity-80 hover:opacity-100'
               }`}
             >
               {isActive && <div className="absolute inset-0 bg-gradient-to-b from-t-magenta/10 to-transparent" />}
@@ -170,13 +170,13 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       </div>
 
       {/* Main Content Area with Liquid Glass Wrapper */}
-      <div className="glass-card rounded-[2rem] border border-white/30 dark:border-white/10 shadow-2xl p-4 md:p-8 bg-white/40 dark:bg-black/40 backdrop-blur-3xl">
+      <div className="glass-card rounded-[2rem] shadow-lg p-4 md:p-8">
         {tab === 'briefing' && <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />}
 
         {tab === 'devices' && (
           <div className="space-y-8">
             {/* Inner Sub-tab navigation */}
-            <div className="flex overflow-x-auto scrollbar-hide glass-card rounded-2xl p-1.5 max-w-xl mx-auto gap-1 border border-white/20">
+            <div className="flex overflow-x-auto scrollbar-hide glass-card rounded-2xl p-1.5 max-w-xl mx-auto gap-1">
               {DEVICE_CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
@@ -185,10 +185,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     setDeviceCategory(cat.id);
                     setSelectedDevices([]);
                   }}
-                  className={`flex-1 flex items-center justify-center gap-2 text-sm font-bold px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
+                  className={`focus-ring flex-1 flex items-center justify-center gap-2 text-sm font-bold px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
                     deviceCategory === cat.id
-                      ? 'bg-white shadow-md text-t-magenta dark:bg-gray-800'
-                      : 'text-t-dark-gray/80 hover:bg-white/40 dark:text-white/80'
+                      ? 'bg-t-magenta text-white shadow-sm'
+                      : 'text-t-dark-gray hover:text-t-magenta'
                   }`}
                 >
                   <cat.icon className="w-5 h-5" />

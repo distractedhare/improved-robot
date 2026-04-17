@@ -27,7 +27,7 @@ export default function GamePlanTab() {
     <div className="max-w-5xl mx-auto space-y-6">
 
       {/* ── Gorgeous Glass Toggle Switch ── */}
-      <div className="glass-card p-1.5 rounded-2xl flex max-w-sm mx-auto relative overflow-hidden backdrop-blur-2xl bg-white/20 dark:bg-black/20 border border-white/30 shadow-lg">
+      <div className="glass-card p-1.5 rounded-2xl flex max-w-sm mx-auto relative overflow-hidden shadow-sm">
         <div
           className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white dark:bg-gray-800 rounded-xl shadow-sm transition-transform duration-300 ease-out"
           style={{ transform: mode === 'guided' ? 'translateX(0)' : 'translateX(100%)' }}
@@ -65,7 +65,7 @@ export default function GamePlanTab() {
             </div>
 
             {/* The beautiful glass container for the flow */}
-            <div className="glass-card rounded-[2rem] border border-white/30 dark:border-white/10 shadow-2xl p-6 md:p-8 bg-white/40 dark:bg-black/40 backdrop-blur-3xl">
+            <div className="glass-card rounded-[2rem] shadow-lg p-6 md:p-8">
               <GuidedContextFlow context={context} setContext={setContext} onComplete={() => setMode('advanced')} />
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function GamePlanTab() {
             </div>
 
             {/* A slightly cleaner layout for the dense form */}
-            <div className="glass-card rounded-[2rem] border border-white/30 dark:border-white/10 shadow-xl p-6 bg-white/30 dark:bg-black/30 backdrop-blur-xl">
+            <div className="glass-card rounded-[2rem] shadow-md p-6">
               <CustomerContextForm context={context} setContext={setContext} />
             </div>
             <div className="mt-6">
