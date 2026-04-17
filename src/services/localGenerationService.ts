@@ -51,6 +51,10 @@ function warnDev(message: string): void {
   }
 }
 
+function sanitizeAuthoredCopy(text: string): string {
+  return text.replace(/\bbrowsers need space\b/gi, 'buyers need space');
+}
+
 function readUploadedWeeklyUpdate(): WeeklyUpdateLoadResult | null {
   if (typeof window === 'undefined') return null;
 
@@ -231,11 +235,11 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     : template.oneLiners || [];
 
   // Coach's corner: keep it short and actionable
-  const closingTip = playbook?.closingTips?.[0] || '';
-  const avoidNote = playbook?.avoidMoves?.[0] || '';
+  const closingTip = sanitizeAuthoredCopy(playbook?.closingTips?.[0] || '');
+  const avoidNote = sanitizeAuthoredCopy(playbook?.avoidMoves?.[0] || '');
   let coachsCorner = closingTip
     ? `${closingTip}${avoidNote ? ` Watch out: ${avoidNote}` : ''}`
-    : template.coachsCorner;
+    : sanitizeAuthoredCopy(template.coachsCorner);
 
   // Known issues relevant to this intent
   const matchingIssues = weekly.knownIssues
@@ -248,13 +252,6 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
         text: `${issue.issue} — ${issue.workaround}`
       }))
     : [{ category: 'Weekly Focus', text: weekly.weeklyFocus.headline }];
-
-  // HINT needs a real address check before the rep promises savings.
-  if (context.product.includes('Home Internet') && context.hintAvailable === undefined) {
-    valuePropositions.unshift('Check the address before positioning Home Internet as the savings move.');
-    oneLiners.push("Before I quote that, let me verify whether Home Internet is actually available at your address.");
-    coachsCorner += ' HINT status is not checked yet. Confirm availability before pitching rate relief, rebates, or replacing cable.';
-  }
 
   // HINT Unavailable Logic
   if (context.hintAvailable === false) {

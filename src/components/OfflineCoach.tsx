@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Send, Wifi, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Bot, Send, Wifi, Loader2, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { localAiService } from '../services/localAiService';
 import { InitProgressReport } from '@mlc-ai/web-llm';
 
@@ -9,12 +9,107 @@ interface Message {
   content: string;
 }
 
-export default function OfflineCoach() {
+interface OfflineCoachProps {
+  onOpenOfflineAiSettings?: () => void;
+}
+
+const GENERIC_COACH_PATTERNS = [
+  /unmatched/i,
+  /superior service/i,
+  /exceptional customer support/i,
+  /future-?proof/i,
+  /seamless integration/i,
+  /your satisfaction is our top priority/i,
+];
+
+function buildFallbackCoachReply(objection: string): string {
+  const lower = objection.toLowerCase();
+  const mentionsPrice = /(cheap|cheaper|price|pricing|expens|cost|bill|save|saving)/.test(lower);
+  const mentionsSwitch = /(switch|switching|port|porting|transfer|move everything|hassle|setup)/.test(lower);
+  const mentionsCoverage = /(coverage|signal|service|network|bars|reception)/.test(lower);
+
+  if (mentionsPrice && mentionsSwitch) {
+    return [
+      'Say: Totally fair. Nobody switches just to switch, so let’s put the real monthly total and perks side by side first.',
+      'Proof: If the math wins, we handle the port and setup with you so it does not turn into a project.',
+      'Ask: If the savings were real and the switch was guided, would you want to see it?'
+    ].join('\n');
+  }
+
+  if (mentionsPrice) {
+    return [
+      'Say: I get that. The fastest way to see if it is worth it is to compare the full bill, not just the sticker price.',
+      'Proof: Promos, streaming perks, and trade-in value usually change the math more than people expect.',
+      'Ask: What are you paying now, all in, so we can compare it cleanly?'
+    ].join('\n');
+  }
+
+  if (mentionsCoverage) {
+    return [
+      'Say: Fair pushback. Let’s check the places you actually use your phone most instead of guessing from old network stories.',
+      'Proof: A quick coverage check is more useful than a generic carrier reputation.',
+      'Ask: If the coverage looks good where you live and work, would you be open to the numbers?'
+    ].join('\n');
+  }
+
+  if (mentionsSwitch) {
+    return [
+      'Say: That makes sense. The switch feels bigger in your head than it usually is on the floor.',
+      'Proof: We walk the port, setup, and transfer with you so you are not stuck figuring it out alone.',
+      'Ask: If the setup was guided, what would still feel risky about moving?'
+    ].join('\n');
+  }
+
+  return [
+    'Say: That is fair. Let’s keep it simple and focus on the one thing that would make switching worth it for you.',
+    'Proof: Once we know the real blocker, we can show the exact promo or plan that solves it.',
+    'Ask: What would have to be true for you to feel good about making a change today?'
+  ].join('\n');
+}
+
+function normalizeCoachReply(raw: string, objection: string): string {
+  const cleaned = raw
+    .replace(/^gemma coach\s*[-:]\s*/i, '')
+    .replace(/[“”]/g, '"')
+    .replace(/\s+\n/g, '\n')
+    .replace(/\n\s+/g, '\n')
+    .trim();
+
+  if (!cleaned || cleaned.length > 420 || GENERIC_COACH_PATTERNS.some((pattern) => pattern.test(cleaned))) {
+    return buildFallbackCoachReply(objection);
+  }
+
+  const lineSource = cleaned
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean);
+
+  const lines = (lineSource.length >= 3
+    ? lineSource.slice(0, 3)
+    : cleaned
+        .split(/(?<=[.!?])\s+/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .slice(0, 3)
+  );
+
+  if (lines.length < 2) {
+    return buildFallbackCoachReply(objection);
+  }
+
+  return [
+    lines[0]?.startsWith('Say:') ? lines[0] : `Say: ${lines[0]}`,
+    lines[1]?.startsWith('Proof:') ? lines[1] : `Proof: ${lines[1]}`,
+    lines[2]
+      ? (lines[2].startsWith('Ask:') ? lines[2] : `Ask: ${lines[2]}`)
+      : buildFallbackCoachReply(objection).split('\n')[2],
+  ].join('\n');
+}
+
+export default function OfflineCoach({ onOpenOfflineAiSettings }: OfflineCoachProps) {
   const [isReady, setIsReady] = useState(localAiService.isReady());
   const [progress, setProgress] = useState<InitProgressReport | null>(null);
-  const [error, setError] = useState<string | null>(localAiService.getError());
-  const [errorCode, setErrorCode] = useState(localAiService.getErrorCode());
-  const [activeModelLabel, setActiveModelLabel] = useState(localAiService.getActiveModelLabel());
+  const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -28,19 +123,11 @@ export default function OfflineCoach() {
 
   useEffect(() => {
     const unsubscribeProgress = localAiService.onProgress((p) => setProgress(p));
-    const unsubscribeReady = localAiService.onReady((ready) => {
-      setIsReady(ready);
-      setActiveModelLabel(localAiService.getActiveModelLabel());
-    });
-    const unsubscribeError = localAiService.onError((nextError) => {
-      setError(nextError);
-      setErrorCode(localAiService.getErrorCode());
-    });
+    const unsubscribeReady = localAiService.onReady((ready) => setIsReady(ready));
 
     return () => {
       unsubscribeProgress();
       unsubscribeReady();
-      unsubscribeError();
     };
   }, []);
 
@@ -56,16 +143,38 @@ export default function OfflineCoach() {
     setInput('');
     setIsGenerating(true);
 
-    const systemPrompt = `You are a T-Mobile retail sales coach. Provide short, punchy, 1-2 sentence pivots or reframes for customer objections. Be confident, empathetic, and focus on value.`;
-    const baseline = "Pivot to value: T-Mobile leads the 5G network and the bundle perks usually outpace any promo discount. Ask what matters most — reliability, coverage, or savings — then match it to one proof point.";
-    const response = await localAiService.generateResponse(userMsg.content, systemPrompt, baseline);
-
-    setMessages(prev => [...prev, {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: response || baseline,
-    }]);
-    setIsGenerating(false);
+    try {
+      const systemPrompt = `You are a T-Mobile retail floor coach helping a rep handle one objection in the moment.
+Reply in exactly 3 short lines with these labels:
+Say:
+Proof:
+Ask:
+Rules:
+- sound like a real store rep, not a corporate ad
+- 55 words max total
+- plain spoken English
+- acknowledge the concern first
+- if price is mentioned, compare the total bill and value
+- if switching hassle is mentioned, mention guided setup or port help
+- never use phrases like unmatched, superior service, exceptional customer support, future-proof, or seamless integration`;
+      const response = await localAiService.generateResponse(userMsg.content, systemPrompt);
+      const normalized = normalizeCoachReply(response, userMsg.content);
+      
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: normalized
+      }]);
+    } catch (err) {
+      console.error("Generation error:", err);
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: buildFallbackCoachReply(userMsg.content)
+      }]);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -75,7 +184,7 @@ export default function OfflineCoach() {
     }
   };
 
-  if (error && isReady) {
+  if (error) {
     return (
       <div className="rounded-2xl border border-error-border bg-error-surface p-6 text-center">
         <AlertCircle className="mx-auto h-8 w-8 text-error-accent mb-3" />
@@ -91,31 +200,27 @@ export default function OfflineCoach() {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-t-magenta/10">
           <Wifi className="h-8 w-8 text-t-magenta" />
         </div>
-        <h2 className="mb-2 text-lg font-extrabold tracking-tight">Offline AI Not Ready</h2>
+        <h2 className="mb-2 text-lg font-extrabold tracking-tight">Gemma Offline Coach Not Ready</h2>
         <p className="mb-6 text-sm text-t-dark-gray">
-          The Gemma model needs to be downloaded before you can use the Dead-Zone Coach.
+          Download Gemma before the shift starts so the rep-safe coach is ready when service drops.
         </p>
         
         <div className="p-4 rounded-2xl border border-t-light-gray bg-t-light-gray/5 mb-6">
           <p className="text-xs font-medium text-t-dark-gray">
-            Go to <strong>Settings → Offline AI</strong> to download the model and keep that tab open while the first install finishes.
+            Open <strong>Settings → Offline AI</strong> to download the model and confirm the device is ready.
           </p>
         </div>
 
-        {error && (
-          <div className="mx-auto mb-4 max-w-lg rounded-2xl border border-error-border bg-error-surface p-4 text-left">
-            <div className="flex items-center gap-2 text-error-foreground">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <p className="text-[10px] font-black uppercase tracking-widest">Offline AI needs attention</p>
-            </div>
-            <p className="mt-2 text-xs font-medium leading-relaxed text-error-foreground/90">{error}</p>
-            {(errorCode === 'quota' || errorCode === 'cache') && (
-              <p className="mt-2 text-[11px] font-medium leading-relaxed text-error-foreground/80">
-                The local storage path failed mid-download. In Settings, tap <strong>Clear Gemma Files</strong>, free some space, and retry.
-              </p>
-            )}
-          </div>
-        )}
+        {onOpenOfflineAiSettings ? (
+          <button
+            type="button"
+            onClick={onOpenOfflineAiSettings}
+            className="focus-ring mb-4 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-t-magenta px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-[0_12px_24px_rgba(226,0,116,0.22)] transition-transform hover:scale-[1.01] active:scale-95"
+          >
+            Open Offline AI Settings
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        ) : null}
 
         {progress && (
           <div className="mx-auto max-w-sm text-left mb-4">
@@ -144,7 +249,7 @@ export default function OfflineCoach() {
             <Wifi className="h-5 w-5 text-t-magenta" />
           </div>
           <div>
-            <h2 className="text-sm font-extrabold tracking-tight">Dead-Zone Coach</h2>
+            <h2 className="text-sm font-extrabold tracking-tight">Gemma Coach</h2>
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-success-accent">
               <ShieldCheck className="h-3 w-3" />
               <span>100% Private & Offline</span>
@@ -152,7 +257,7 @@ export default function OfflineCoach() {
           </div>
         </div>
         <div className="rounded-full bg-t-light-gray/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-t-dark-gray">
-          Powered by {activeModelLabel}
+          Powered by Gemma
         </div>
       </div>
 
@@ -173,23 +278,23 @@ export default function OfflineCoach() {
               {msg.role === 'assistant' && (
                 <div className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-t-magenta">
                   <Bot className="h-3 w-3" />
-                  <span>{activeModelLabel} Coach</span>
+                  <span>Gemma Coach</span>
                 </div>
               )}
-              <p className="leading-relaxed">{msg.content}</p>
+              <p className="leading-relaxed whitespace-pre-line">{msg.content}</p>
             </div>
           </div>
         ))}
         {isGenerating && (
           <div className="flex justify-start">
             <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-t-light-gray bg-t-light-gray/30 px-4 py-3">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-t-magenta" />
-                <span className="text-xs font-medium text-t-dark-gray">Gemma 2 is thinking...</span>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-t-magenta" />
+                <span className="text-xs font-medium text-t-dark-gray">Gemma is thinking…</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -200,7 +305,7 @@ export default function OfflineCoach() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type an objection (e.g., 'Verizon is cheaper')..."
+            placeholder="Type an objection (e.g., 'Verizon is cheaper')…"
             className="focus-ring min-h-[52px] w-full resize-none rounded-xl border border-t-light-gray bg-surface px-4 py-3 text-sm placeholder:text-t-muted focus:border-t-magenta"
             rows={1}
           />

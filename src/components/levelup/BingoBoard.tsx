@@ -1,32 +1,91 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Flame, Sparkles, Trophy, Zap, Clock, Target, Lightbulb } from 'lucide-react';
-import { BingoCell as BingoCellType, getBoardLayout, getBoardById } from '../../constants/bingoBoard';
+import confetti from 'canvas-confetti';
+import { Flame, Sparkles, Trophy, Clock, Target, Lightbulb } from 'lucide-react';
+import { BINGO_BOARDS, BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
+import { recordBingoCellCompleted, recordBingoRows, recordStreak } from '../../services/prizeService';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
-import { celebrate } from './celebrate';
-import { lightTap, successBuzz } from '../../utils/haptics';
 
-const BOARD_ID = 'sales-fundamentals';
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function celebrateRow(): void {
+  if (prefersReducedMotion()) return;
+  void confetti({
+    particleCount: 90,
+    spread: 68,
+    startVelocity: 28,
+    scalar: 0.9,
+    colors: ['#E20074', '#FFFFFF', '#861B54'],
+    origin: { y: 0.72 },
+  });
+}
+
+function celebrateBoard(): void {
+  if (prefersReducedMotion()) return;
+  void confetti({
+    particleCount: 160,
+    spread: 82,
+    startVelocity: 34,
+    scalar: 1,
+    colors: ['#E20074', '#FFFFFF', '#861B54'],
+    origin: { y: 0.62 },
+  });
+
+  window.setTimeout(() => {
+    void confetti({
+      particleCount: 120,
+      spread: 120,
+      startVelocity: 26,
+      scalar: 0.95,
+      colors: ['#E20074', '#FFFFFF', '#861B54'],
+      origin: { x: 0.22, y: 0.66 },
+    });
+    void confetti({
+      particleCount: 120,
+      spread: 120,
+      startVelocity: 26,
+      scalar: 0.95,
+      colors: ['#E20074', '#FFFFFF', '#861B54'],
+      origin: { x: 0.78, y: 0.66 },
+    });
+  }, 160);
+}
+
+const LINE_META = [
+  { label: 'Top Row', indexes: [0, 1, 2, 3, 4] },
+  { label: 'Middle Row', indexes: [10, 11, 12, 13, 14] },
+  { label: 'Bottom Row', indexes: [20, 21, 22, 23, 24] },
+  { label: 'Diagonal', indexes: [0, 6, 12, 18, 24] },
+];
 
 export default function BingoBoard() {
-  const [progress, setProgress] = useState(() => getBoardProgress(BOARD_ID));
+  const [activeBoardId, setActiveBoardId] = useState(() => getFeaturedBoardId());
+  const [progress, setProgress] = useState(() => getBoardProgress(getFeaturedBoardId()));
   const [rowToast, setRowToast] = useState<{ count: number } | null>(null);
   const [boardCelebration, setBoardCelebration] = useState(false);
 
-  const activeBoard = useMemo(() => getBoardById(BOARD_ID), []);
-  const board = useMemo(() => getBoardLayout(BOARD_ID), []);
-  const stats = useMemo(() => getBingoStats(BOARD_ID), [progress]);
+  const activeBoard = useMemo(() => getBoardById(activeBoardId), [activeBoardId]);
+  const board = useMemo(() => getBoardLayout(activeBoardId), [activeBoardId]);
+  const stats = useMemo(() => getBingoStats(activeBoardId), [activeBoardId, progress]);
 
   const completedIds = useMemo(() => new Set(progress.completedCellIds), [progress.completedCellIds]);
   const { winningLines } = useMemo(() => getWinningLines(completedIds, board), [board, completedIds]);
   const winningIndices = useMemo(() => new Set(winningLines.flat()), [winningLines]);
   const durationLabel = useMemo(() => formatBingoDuration(progress.startedAt, progress.completedAt), [progress.completedAt, progress.startedAt]);
+  const lineProgress = useMemo(
+    () => LINE_META.map((line) => ({
+      ...line,
+      filled: line.indexes.filter((index) => completedIds.has(board[index].id)).length,
+    })),
+    [board, completedIds]
+  );
+  const nearCompleteLines = lineProgress.filter((line) => line.filled === 4);
 
   useEffect(() => {
-    setProgress(getBoardProgress(BOARD_ID));
-  }, [BOARD_ID]);
+    setProgress(getBoardProgress(activeBoardId));
+  }, [activeBoardId]);
 
   useEffect(() => {
     if (!rowToast) return undefined;
@@ -35,25 +94,27 @@ export default function BingoBoard() {
   }, [rowToast]);
 
   const handleToggle = useCallback((cell: BingoCellType, reflection?: string) => {
-    const result = toggleBingoCell(BOARD_ID, cell.id, reflection);
+    const wasCompleted = completedIds.has(cell.id);
+    const result = toggleBingoCell(activeBoardId, cell.id, reflection);
     setProgress(result.progress);
 
-    if (!completedIds.has(cell.id)) {
-      lightTap();
+    if (!wasCompleted) {
+      navigator.vibrate?.(50);
+      recordBingoCellCompleted();
+      recordStreak(result.stats.streak);
     }
 
     if (result.newRowKeys.length > 0) {
-      successBuzz();
-      celebrate({ intensity: 'light' });
+      celebrateRow();
       setRowToast({ count: result.newRowKeys.length });
+      recordBingoRows(result.stats.rowCount);
     }
 
     if (result.boardCompletedNow) {
-      successBuzz();
-      celebrate({ intensity: 'heavy' });
+      celebrateBoard();
       setBoardCelebration(true);
     }
-  }, [BOARD_ID, completedIds]);
+  }, [activeBoardId, completedIds]);
 
   return (
     <div className="space-y-5">
@@ -72,6 +133,32 @@ export default function BingoBoard() {
           </div>
         </div>
 
+        {/* Board selector */}
+        <div className="flex overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 gap-2 scrollbar-hide" role="tablist" aria-label="Weekly challenge boards">
+          {BINGO_BOARDS.map((boardOption) => {
+            const isActive = boardOption.id === activeBoardId;
+            return (
+              <button
+                key={boardOption.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`bingo-board-panel-${boardOption.id}`}
+                onClick={() => setActiveBoardId(boardOption.id)}
+                className={`focus-ring min-w-[200px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-3 text-left transition-all active:scale-[0.97] ${
+                  isActive
+                    ? 'bg-t-magenta text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)]'
+                    : 'glass-card text-t-dark-gray hover:border-t-magenta/30'
+                }`}
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.18em]">{boardOption.name}</p>
+                <p className={`mt-1 text-[11px] font-medium leading-relaxed ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                  {boardOption.subtitle}
+                </p>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Mini Lesson Callout */}
@@ -80,6 +167,33 @@ export default function BingoBoard() {
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">GAME PLAN</p>
           <p className="mt-0.5 text-xs font-medium text-t-dark-gray leading-relaxed">{activeBoard.miniLesson}</p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">Board pacing</p>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">
+              The center <strong>FREE</strong> square already counts. Chase the rows that are one move away instead of tapping random tiles.
+            </p>
+          </div>
+          {nearCompleteLines.length > 0 ? (
+            <div className="rounded-2xl border border-info-border/70 bg-white/60 px-3 py-2">
+              <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">Almost there</p>
+              <p className="mt-1 text-[10px] font-medium text-info-foreground">
+                {nearCompleteLines.map((line) => line.label).join(' • ')}
+              </p>
+            </div>
+          ) : null}
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {lineProgress.map((line) => (
+            <div key={line.label} className="rounded-2xl border border-info-border/70 bg-white/60 px-3 py-2">
+              <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">{line.label}</p>
+              <p className="mt-1 text-[10px] font-medium text-info-foreground">{line.filled}/5 squares cleared</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -93,43 +207,38 @@ export default function BingoBoard() {
 
       {/* Bingo grid */}
       <div
-        id={`bingo-board-panel-${BOARD_ID}`}
+        id={`bingo-board-panel-${activeBoardId}`}
         role="tabpanel"
         aria-label={`${activeBoard.name} board`}
-        className="glass-elevated rounded-[1.4rem] p-2 sm:p-4"
+        className="glass-elevated rounded-[1.4rem] p-4"
       >
-        {/* Horizontal scroll wrapper — keeps cells at least 56px on tiny phones */}
-        <div className="overflow-x-auto scrollbar-hide -mx-0.5 px-0.5">
-          <div style={{ minWidth: '300px' }}>
-            {/* BINGO header letters */}
-            <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
-              {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
-                <div
-                  key={letter}
-                  className="rounded-xl py-1.5 sm:py-2 text-sm font-black uppercase tracking-[0.18em] text-white"
-                  style={{
-                    background: `linear-gradient(135deg, #E20074 ${i * 10}%, #861B54 ${100 - i * 10}%)`,
-                    boxShadow: '0 4px 12px rgba(226, 0, 116, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
-                  }}
-                >
-                  {letter}
-                </div>
-              ))}
+        {/* BINGO header letters */}
+        <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
+          {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
+            <div
+              key={letter}
+              className="rounded-xl py-2 text-sm font-black uppercase tracking-[0.18em] text-white"
+              style={{
+                background: `linear-gradient(135deg, #E20074 ${i * 10}%, #861B54 ${100 - i * 10}%)`,
+                boxShadow: '0 4px 12px rgba(226, 0, 116, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+              }}
+            >
+              {letter}
             </div>
+          ))}
+        </div>
 
-            {/* Grid */}
-            <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
-              {board.map((cell, index) => (
-                <BingoCell
-                  key={`${BOARD_ID}-${cell.id}`}
-                  cell={cell}
-                  completed={completedIds.has(cell.id)}
-                  isWinning={winningIndices.has(index)}
-                  onToggle={(reflection) => handleToggle(cell, reflection)}
-                />
-              ))}
-            </div>
-          </div>
+        {/* Grid */}
+        <div className="grid gap-1 sm:gap-2" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+          {board.map((cell, index) => (
+            <BingoCell
+              key={`${activeBoardId}-${cell.id}`}
+              cell={cell}
+              completed={completedIds.has(cell.id)}
+              isWinning={winningIndices.has(index)}
+              onToggle={(reflection) => handleToggle(cell, reflection)}
+            />
+          ))}
         </div>
       </div>
 
@@ -144,13 +253,13 @@ export default function BingoBoard() {
           </div>
           <div className="glass-stat inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
             <Trophy className="h-3.5 w-3.5 text-t-magenta" />
-            {stats.rowCount > 0 ? `${stats.rowCount} row${stats.rowCount === 1 ? '' : 's'} complete` : 'First row still loading'}
+            {stats.rowCount > 0 ? `${stats.rowCount} row${stats.rowCount === 1 ? '' : 's'} complete` : 'No rows complete yet'}
           </div>
         </div>
       </div>
 
       <p className="text-center text-[10px] font-medium text-t-muted">
-        Tap a square to mark it. Reflect on your action to confirm. Progress saves automatically.
+        Tap a square to mark it. The FREE center square already counts. Progress saves automatically.
       </p>
 
       {/* Row completion toast */}

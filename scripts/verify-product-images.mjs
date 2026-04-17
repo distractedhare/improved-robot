@@ -54,7 +54,7 @@ async function main() {
     fallback: 0,
   };
   const seen = new Set();
-  const fallbackPath = resolvePublicPath('/images/ui/company-logo-fallback.png');
+  const fallbackPath = resolvePublicPath('/images/ui/product-card-fallback.svg');
   const fallbackBytes = await getFileBytesSafe(fallbackPath);
 
   for (const item of manifest) {
@@ -77,7 +77,7 @@ async function main() {
       empty.push(item.path);
     }
 
-    if (item.path !== '/images/ui/company-logo-fallback.png' && fallbackBytes && Buffer.compare(localBytes, fallbackBytes) === 0) {
+    if (item.path !== '/images/ui/product-card-fallback.svg' && fallbackBytes && Buffer.compare(localBytes, fallbackBytes) === 0) {
       fallbackHits.push(item.path);
     }
   }

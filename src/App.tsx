@@ -4,7 +4,7 @@
  */
 
 import React, { Suspense, lazy, startTransition, useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
 import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
@@ -28,19 +28,17 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import CustomerContextForm from './components/CustomerContextForm';
-import GuidedContextFlow from './components/GuidedContextFlow';
+import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
-import LivePlanResults from './components/LivePlanResults';
 import SessionStats from './components/SessionStats';
 
 const LearnView = lazy(() => import('./components/learn/LearnView'));
 const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
 const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
-const LeaderboardView = lazy(() => import('./components/levelup/LeaderboardView'));
+import type { SettingsTab } from './components/SettingsView';
 import TroubleshootingPivot from './components/TroubleshootingPivot';
-import PwaUpdater from './components/PwaUpdater';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -98,6 +96,30 @@ function logDevWarning(message: string, error?: unknown): void {
   }
 }
 
+function StatusPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: 'warning' | 'success' | 'magenta' | 'neutral';
+}) {
+  const toneClass = {
+    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
+    success: 'border-success-border bg-success-surface text-success-foreground',
+    magenta: 'border-t-magenta/20 bg-t-magenta/8 text-t-magenta',
+    neutral: 'border-t-light-gray bg-surface text-t-dark-gray',
+  }[tone];
+
+  return (
+    <div className={`rounded-full border px-3 py-2 ${toneClass}`}>
+      <p className="text-[8px] font-black uppercase tracking-[0.18em]">{label}</p>
+      <p className="mt-0.5 text-[10px] font-bold leading-none">{value}</p>
+    </div>
+  );
+}
+
 export default function App() {
   const [context, setContext] = useState<SalesContext>({
     age: 'Not Specified',
@@ -122,7 +144,8 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('live');
+  const [mode, setMode] = useState<AppMode>('home');
+  const [settingsSection, setSettingsSection] = useState<SettingsTab>('team');
   const [contextExpanded, setContextExpanded] = useState(false);
   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
@@ -130,9 +153,6 @@ export default function App() {
   const [enhancingPlan, setEnhancingPlan] = useState(false);
   const [enhancingObjection, setEnhancingObjection] = useState(false);
   const [showHintPrompt, setShowHintPrompt] = useState(false);
-  const [showGuidedFlow, setShowGuidedFlow] = useState(true);
-  const [isEasyMode, setIsEasyMode] = useState(true);
-  const [resetCount, setResetCount] = useState(0);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
@@ -296,25 +316,14 @@ export default function App() {
     setSelectedGamePlanItems([]);
     setActiveTab('gameplan');
     setIntentTapped(true);
-    setShowGuidedFlow(false);
     setError(null);
   }, [cancelInFlightRequests]);
-
-  const handleGuidedContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
-    setContext(value);
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
-    setError(null);
-  }, []);
 
   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
     if (now - lastGenerateTime.current < 1000) return;
     lastGenerateTime.current = now;
 
-    setShowGuidedFlow(false);
     cancelPlanRequest();
     const controller = new AbortController();
     planRequestAbortRef.current = controller;
@@ -500,17 +509,8 @@ export default function App() {
       hintAvailable: undefined
     });
     setIntentTapped(true);
-    setShowGuidedFlow(true);
-    setIsEasyMode(true);
-    setActiveTab('gameplan');
-    setContextExpanded(false);
-    setLastDemoScenarioName(null);
-    setShowHintPrompt(false);
-    setMode('live');
-    setResetCount(c => c + 1);
     setError(null);
     resetRotation();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [cancelInFlightRequests]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
@@ -589,6 +589,25 @@ export default function App() {
   const isDataExpired = weeklyLoaded && weeklyData?.metadata.validUntil
     ? new Date(weeklyData.metadata.validUntil) < new Date()
     : false;
+  const livePlanStatus = script
+    ? 'Plan Built'
+    : loading
+      ? 'Building Plan…'
+      : activeTab === 'gameplan'
+        ? 'Quick Play Ready'
+        : activeTab === 'objections'
+          ? 'Comeback Mode'
+          : 'Fix Toolkit';
+  const hintStatusLabel = context.hintAvailable === undefined
+    ? 'HINT Not Checked'
+    : context.hintAvailable
+      ? 'HINT Available'
+      : 'HINT Full';
+  const freshnessLabel = weeklyLoaded && weeklyData
+    ? isDataExpired
+      ? `Update Due • ${weeklyData.metadata.validUntil}`
+      : `Fresh Until • ${weeklyData.metadata.validUntil}`
+    : 'Briefing Warmup';
 
   const handleModeChange = useCallback((nextMode: AppMode) => {
     if (nextMode !== 'live') {
@@ -599,8 +618,12 @@ export default function App() {
       setEnhancingObjection(false);
     }
 
+    if (nextMode === 'settings' && mode !== 'offline-coach') {
+      setSettingsSection('team');
+    }
+
     setMode(nextMode);
-  }, [cancelInFlightRequests]);
+  }, [cancelInFlightRequests, mode]);
 
   return (
     <ErrorBoundary>
@@ -610,16 +633,29 @@ export default function App() {
       <div className="bg-orb bg-orb-3" aria-hidden="true" />
 
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
-      <PwaUpdater />
 
-      {isDataExpired && (
-        <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"
-        >
-          Weekly update expired — data may be stale. Upload a fresh update.
-        </div>
-      )}
-
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-24 sm:pb-6 md:px-10">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6">
+        {mode !== 'home' ? (
+          <div className="mb-3 flex flex-wrap gap-2 rounded-2xl border border-t-light-gray/60 bg-surface/85 p-2.5 backdrop-blur-md">
+            <StatusPill tone="warning" label="Shift Only" value="Use During Scheduled Hours" />
+            <StatusPill
+              tone={isDataExpired ? 'warning' : 'neutral'}
+              label="Data"
+              value={freshnessLabel}
+            />
+            <StatusPill tone="success" label="Privacy" value="No PII" />
+            {mode === 'live' ? (
+              <>
+                <StatusPill tone="magenta" label="Live" value={livePlanStatus} />
+                <StatusPill
+                  tone={context.hintAvailable === undefined ? 'neutral' : context.hintAvailable ? 'success' : 'warning'}
+                  label="Home Internet"
+                  value={hintStatusLabel}
+                />
+              </>
+            ) : null}
+          </div>
+        ) : null}
         <AnimatePresence mode="wait">
           {mode === 'home' ? (
             <motion.section
@@ -636,7 +672,7 @@ export default function App() {
                 title="Home view needs a refresh"
                 message="The dashboard tripped over something. Reload to get the demo back on track."
               >
-                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} onReset={reset} />
+                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} />
               </ErrorBoundary>
             </motion.section>
           ) : mode === 'level-up' ? (
@@ -655,7 +691,7 @@ export default function App() {
                 message="The practice tab can be reloaded without affecting the rest of the app."
               >
                 <Suspense fallback={<LazySectionFallback label="Level Up" />}>
-                  <LevelUpView />
+                  <LevelUpView onSelectScenario={handlePracticeScenario} />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>
@@ -680,7 +716,6 @@ export default function App() {
                     weeklySource={weeklySource}
                     ecosystemMatrix={ecosystemMatrix}
                     onDataUpdate={handleWeeklyDataRefresh}
-                    onSelectScenario={handlePracticeScenario}
                   />
                 </Suspense>
               </ErrorBoundary>
@@ -701,27 +736,7 @@ export default function App() {
                 message="The settings panel encountered an error."
               >
                 <Suspense fallback={<LazySectionFallback label="Settings" />}>
-                  <SettingsView onOpenLeaderboard={() => handleModeChange('leaderboard')} />
-                </Suspense>
-              </ErrorBoundary>
-            </motion.section>
-          ) : mode === 'leaderboard' ? (
-            <motion.section
-              id="mode-panel-leaderboard"
-              key="mode-leaderboard"
-              initial={{ opacity: 0, y: 18, scale: 0.985 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -14, scale: 0.99 }}
-              transition={{ duration: 0.24, ease: 'easeOut' }}
-            >
-              <ErrorBoundary
-                compact
-                resetKey="mode-leaderboard"
-                title="Leaderboard needs a refresh"
-                message="The leaderboard encountered an error."
-              >
-                <Suspense fallback={<LazySectionFallback label="Leaderboard" />}>
-                  <LeaderboardView onExit={() => handleModeChange('settings')} />
+                  <SettingsView initialTab={settingsSection} />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>
@@ -741,7 +756,12 @@ export default function App() {
                 message="The local AI engine encountered an error."
               >
                 <Suspense fallback={<LazySectionFallback label="Offline Coach" />}>
-                  <OfflineCoach />
+                  <OfflineCoach
+                    onOpenOfflineAiSettings={() => {
+                      setSettingsSection('offline-ai');
+                      setMode('settings');
+                    }}
+                  />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>
@@ -761,70 +781,17 @@ export default function App() {
           message="A live-call panel ran into trouble. Reloading this tab is safer than risking a white screen in the demo."
         >
         <>
-        {/* On-the-clock disclaimer */}
-        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-3">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
-              On-the-clock only
-            </p>
-            <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
-              This tool is for use during scheduled work hours only. Do not use outside of your shift.
-            </p>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
           {/* Input Section */}
           <div className="lg:col-span-5 space-y-4">
-            {showGuidedFlow && !script && !loading ? (
-              <section className="rounded-3xl p-6 glass-card glass-shine glass-specular">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-sm font-black uppercase tracking-widest text-t-magenta flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" /> Guided Setup
-                  </h2>
-                  <button 
-                    onClick={() => {
-                      setShowGuidedFlow(false);
-                      setIsEasyMode(false);
-                    }}
-                    className="text-[10px] font-black uppercase tracking-widest text-t-muted hover:text-t-magenta transition-colors"
-                  >
-                    Advanced Mode
-                  </button>
-                </div>
-                <GuidedContextFlow 
-                  key={resetCount}
-                  context={context} 
-                  setContext={handleGuidedContextUpdate} 
-                  onComplete={() => {
-                    setIsEasyMode(true);
-                    handleGenerate();
-                  }} 
-                />
-              </section>
-            ) : (
-              <>
-                {/* INTENT + PRODUCT SELECTOR */}
-                <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold text-t-dark-gray">
-                      Why are they calling?
-                    </label>
-                    {!script && (
-                      <button 
-                        onClick={() => {
-                          setShowGuidedFlow(true);
-                          setIsEasyMode(true);
-                        }}
-                        className="text-[9px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full"
-                      >
-                        Switch to Guided
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {INTENTS.map((intent) => {
+            {/* INTENT + PRODUCT SELECTOR */}
+            <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
+              <div>
+                <label className="text-xs font-bold mb-3 block text-t-dark-gray">
+                  Why are they calling?
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {INTENTS.map((intent) => {
                     const isActive = context.purchaseIntent === intent.id;
                     return (
                       <button
@@ -861,8 +828,9 @@ export default function App() {
                     );
                   })}
                 </div>
+              </div>
 
-                {/* Product type — always visible */}
+              {/* Product type — always visible */}
               <div>
                 <label className="text-xs font-bold mb-2 block text-t-dark-gray">
                   What product?
@@ -1000,80 +968,15 @@ export default function App() {
               </AnimatePresence>
             </section>
 
-            <section className="rounded-3xl p-4 glass-card glass-specular space-y-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-bold text-t-dark-gray">Build the live plan</p>
-                  <p className="mt-0.5 text-[10px] font-medium text-t-dark-gray">
-                    One action. Build the plan, then work the right-hand panel.
-                  </p>
-                </div>
-                <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
-                  loading
-                    ? 'bg-t-magenta/10 text-t-magenta'
-                    : script
-                      ? 'bg-success-surface text-success-foreground'
-                      : 'bg-t-light-gray/40 text-t-dark-gray'
-                }`}>
-                  {loading ? 'Building…' : script ? 'Plan Ready' : 'Ready to Build'}
-                </span>
-              </div>
+            {/* GENERATE BUTTON */}
+            <GamePlanTab
+              loading={loading}
+              onGenerate={handleGenerate}
+              onRunDemoScenario={handleRunDemoScenario}
+              lastDemoScenarioName={lastDemoScenarioName}
+            />
 
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
-                  {context.purchaseIntent.replace(' / ', ' ')}
-                </span>
-                <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
-                  {context.product.join(', ')}
-                </span>
-                <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
-                  context.hintAvailable === true
-                    ? 'bg-success-surface text-success-foreground'
-                    : context.hintAvailable === false
-                      ? 'bg-warning-surface text-warning-foreground'
-                      : 'bg-t-magenta/10 text-t-magenta'
-                }`}>
-                  {context.product.includes('Home Internet')
-                    ? context.hintAvailable === true
-                      ? 'HINT available'
-                      : context.hintAvailable === false
-                        ? 'HINT unavailable'
-                        : 'HINT not checked'
-                    : 'HINT optional'}
-                </span>
-              </div>
-
-              <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                {context.product.includes('Home Internet') && context.hintAvailable === undefined
-                  ? 'You can build now, but the plan will keep Home Internet in verify-first mode until the address check is done.'
-                  : script
-                    ? 'Refresh the plan anytime the caller gives you new info.'
-                    : 'Use this after the basic setup is in place so the right panel shows the actual call plan instead of only quick plays.'}
-              </p>
-
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => { void handleGenerate(); }}
-                  disabled={loading}
-                  className="focus-ring inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl bg-t-magenta px-4 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-t-magenta/20 transition-transform hover:scale-[1.01] active:scale-95 disabled:cursor-wait disabled:opacity-70"
-                >
-                  <Sparkles className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
-                  {script ? 'Refresh Live Plan' : 'Build Live Plan'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('gameplan')}
-                  className="focus-ring inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-t-light-gray bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta"
-                >
-                  Keep plan in view
-                </button>
-              </div>
-            </section>
-          </>
-        )}
-
-        <SessionStats stats={sessionStats} />
+            <SessionStats stats={sessionStats} />
             <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
               <span>CPNI compliant. No PII. Fully offline.</span>
@@ -1090,9 +993,9 @@ export default function App() {
               style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
             >
               {([
-                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
-                { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
-                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix' },
+                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Plan built' : loading ? 'Building…' : 'Quick play ready' },
+                { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : 'Quick comeback first' },
+                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT toolkit ready' : 'Repair, reassure, escalate' },
               ]).map(tab => (
                 <button
                   key={tab.id}
@@ -1102,10 +1005,17 @@ export default function App() {
                   aria-selected={activeTab === tab.id}
                   aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`focus-ring flex-1 min-h-[48px] min-w-[80px] px-1 py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                  className={`focus-ring flex-1 min-h-[56px] min-w-[80px] px-2 py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
                   style={{ touchAction: 'manipulation' }}
                 >
-                  <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
+                  <span className="flex flex-col items-center gap-1 leading-none">
+                    <span className="flex items-center justify-center gap-1 md:gap-2">
+                      <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
+                    </span>
+                    <span className={`text-[8px] font-bold normal-case tracking-normal ${activeTab === tab.id ? 'text-t-magenta/70' : 'text-t-muted'}`}>
+                      {tab.helper}
+                    </span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -1148,58 +1058,41 @@ export default function App() {
               )}
 
               {/* Loading state */}
-              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className={isEasyMode && activeTab === 'gameplan' 
-                    ? "fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center p-4"
-                    : "min-h-[400px] rounded-3xl glass-card p-6 flex flex-col items-center justify-center text-center"}
-                >
-                  {isEasyMode && activeTab === 'gameplan' ? (
-                    <div className="space-y-6 w-full max-w-xs text-center">
-                      <div className="relative w-24 h-24 mx-auto">
-                        <div className="absolute inset-0 rounded-full border-4 border-t-magenta/10" />
-                        <div className="absolute inset-0 rounded-full border-4 border-t-magenta border-t-transparent animate-spin" />
-                        <Sparkles className="absolute inset-0 m-auto w-10 h-10 text-t-magenta animate-pulse" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">Building Your Path</h3>
-                        <p className="text-sm font-medium text-t-muted">Finding the singular best suggestion for this call...</p>
-                      </div>
-                      <div className="h-2 w-full bg-t-light-gray rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: "0%" }}
-                          animate={{ width: "100%" }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="h-full bg-t-magenta"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="animate-pulse space-y-4 w-full">
-                        <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
-                        <div className="h-12 rounded-2xl bg-t-light-gray/80" />
-                        <div className="h-24 rounded-2xl bg-t-light-gray/70" />
-                        <div className="h-24 rounded-2xl bg-t-light-gray/70" />
-                        <div className="h-16 rounded-2xl bg-t-light-gray/60" />
-                      </div>
-                      <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-              )}
+	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
+	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+	                  className="min-h-[400px] rounded-3xl glass-card p-6"
+	                >
+	                  <div className="animate-pulse space-y-4">
+	                    <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
+	                    <div className="h-12 rounded-2xl bg-t-light-gray/80" />
+	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
+	                    <div className="h-16 rounded-2xl bg-t-light-gray/60" />
+	                  </div>
+	                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
+	                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+	                    {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
+	                  </div>
+	                </motion.div>
+	              )}
 
               {/* Objection results */}
               {activeTab === 'objections' && objectionResult && !analyzing && (
                 <ObjectionResults result={objectionResult} onClear={() => setObjectionResult(null)} />
               )}
 
+              {/* Full generated game plan replaces instant plays */}
               {activeTab === 'gameplan' && script && !loading && (
-                <LivePlanResults script={script} context={context} />
-              )}
+                <GamePlanResults
+                  context={context}
+                  script={script}
+                  selectedGamePlanItems={selectedGamePlanItems}
+                  onToggleItem={toggleGamePlanItem}
+                  onReset={reset}
+                  onSwitchToObjections={() => setActiveTab('objections')}
+                  ecosystemMatrix={ecosystemMatrix}
+	                />
+	              )}
 	            </AnimatePresence>
 	            </div>
 	            </ErrorBoundary>
@@ -1230,38 +1123,34 @@ export default function App() {
       </main>
 
 
-      <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center mt-10 space-y-4 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
-        {weeklyLoaded && weeklyData && (
-          <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-muted">
-            <Calendar className="w-3 h-3 text-t-magenta/50" />
-            <span>Data updated: {weeklyData.metadata.updatedDate}</span>
-            <span className="opacity-40">|</span>
-            <span>Valid until: {weeklyData.metadata.validUntil}</span>
-          </div>
-        )}
-        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card glass-specular" style={{ borderTop: '2px solid rgba(226, 0, 116, 0.3)' }}>
-          <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
-            <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
-          </p>
-          <p className="text-[11px] font-bold leading-relaxed text-t-dark-gray">
-            No real customer info. Everything here runs on generic context — CPNI compliant, always.
-          </p>
-        </div>
-        <div className="flex flex-col items-center gap-2">
+      <footer className="max-w-5xl mx-auto px-6 pb-8 pt-6 md:px-10 text-center mt-10 space-y-3 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] font-semibold text-t-dark-gray">
+          {weeklyLoaded && weeklyData ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="w-3 h-3 text-t-magenta/60" />
+              <span>
+                {weeklyData.metadata.updatedDate} → {weeklyData.metadata.validUntil}
+              </span>
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5">
+            <ShieldCheck className="w-3 h-3 text-t-magenta/60" />
+            <span>CPNI safe • no real customer info</span>
+          </span>
           <button
             type="button"
             onClick={() => { void handleRefreshApp(); }}
             disabled={refreshingApp}
-            className="focus-ring inline-flex items-center gap-2 rounded-full border border-t-light-gray bg-surface-elevated px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:opacity-60 disabled:cursor-wait"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray bg-surface-elevated px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
-            {refreshingApp ? 'Refreshing App...' : 'Refresh App'}
+            <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
+            {refreshingApp ? 'Refreshing…' : 'Refresh App'}
           </button>
-          <p className="text-[10px] font-medium text-t-dark-gray">
-            Use this if the app looks stale or a tester thinks they are seeing an older version.
-          </p>
         </div>
-        <p className="pt-4 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
+        <p className="text-[10px] font-medium text-t-muted">
+          If the app looks stale, refresh once and let the preview reload.
+        </p>
+        <p className="pt-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
           &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
         </p>
       </footer>
@@ -1300,7 +1189,7 @@ export default function App() {
                 <h3 className="text-lg font-black tracking-tight text-t-dark-gray">HINT Availability</h3>
               </div>
               <p className="text-sm text-t-dark-gray font-medium mb-6">
-                Did you check their address yet? Keep HINT in the plan even if you still need to verify availability.
+                Did you check their address? Is T-Mobile Home Internet currently available for them?
               </p>
               <div className="space-y-3">
                 <button
@@ -1332,21 +1221,6 @@ export default function App() {
                   className="w-full focus-ring bg-surface border-2 border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
                 >
                   <WifiOff className="w-4 h-4" /> No, Spots Full
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleContextUpdate(prev => ({
-                      ...prev,
-                      hintAvailable: undefined,
-                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
-                    }));
-                    setShowHintPrompt(false);
-                    void handleGenerate();
-                  }}
-                  className="w-full focus-ring bg-surface-elevated border border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
-                >
-                  <AlertCircle className="w-4 h-4" /> Not Yet Checked
                 </button>
               </div>
             </motion.div>

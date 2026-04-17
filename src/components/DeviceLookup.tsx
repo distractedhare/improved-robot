@@ -519,9 +519,6 @@ export default function DeviceLookup({
                     </div>
                     <span className="text-xs font-black text-t-dark-gray truncate leading-tight">{device.name}</span>
                   </div>
-                  <p className="text-[10px] text-t-dark-gray font-medium mt-1 ml-7 line-clamp-1">
-                    {device.keySpecs}
-                  </p>
                   <div className="ml-7 mt-2 flex flex-wrap gap-1.5">
                     {browseSummary?.bestFit.slice(0, 2).map((fit) => (
                       <span
@@ -535,7 +532,7 @@ export default function DeviceLookup({
                   <p className="ml-7 mt-2 text-[10px] font-bold leading-snug text-t-dark-gray">
                     {browseSummary?.shortHook || 'Use one clean angle, then back it up with one proof point.'}
                   </p>
-                  <div className="mt-1.5 ml-7 flex flex-wrap items-center gap-1.5">
+                  <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5">
                     <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
                       {device.category}
                     </span>
@@ -997,22 +994,23 @@ function DeviceImageSlot({
     () => [device.imageUrl, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
     [badge.fallbackAssetPath, device.imageUrl]
   );
-  const [fallbackIndex, setFallbackIndex] = useState(device.imageUrl ? 0 : 1);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
 
   useEffect(() => {
-    setFallbackIndex(device.imageUrl ? 0 : 1);
+    setFallbackIndex(0);
   }, [badge.fallbackAssetPath, device.imageUrl]);
 
   const currentSource = fallbackSources[fallbackIndex];
   const shouldShowImage = Boolean(currentSource);
+  const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {shouldShowImage ? (
         <img
           src={currentSource}
-          alt={fallbackIndex === 0 ? device.name : `${badge.label} placeholder for ${device.name}`}
-          className={`${imageClassName} ${fallbackIndex === 0 ? '' : 'opacity-80 saturate-75'}`}
+          alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
+          className={`${imageClassName} ${isPrimaryImage ? '' : 'opacity-80 saturate-75'}`}
           loading="lazy"
           width={160}
           height={160}
@@ -1038,11 +1036,6 @@ function DeviceImageSlot({
             width={20}
             height={20}
           />
-        </span>
-      ) : null}
-      {fallbackIndex > 0 ? (
-        <span className="pointer-events-none absolute left-1 top-1 rounded-full bg-white/90 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-t-muted">
-          Fallback
         </span>
       ) : null}
     </div>

@@ -266,12 +266,33 @@ async function requestAsBuffer(url, label, visitedPages, depth = 0) {
   return buffer;
 }
 
+// Minimum byte size for an image to be considered already downloaded (not a placeholder).
+// Placeholders in this project are ≤31KB. Real product photos start at ~100KB.
+const MIN_REAL_IMAGE_BYTES = 50_000;
+
+async function getFileSizeSafe(filePath) {
+  try {
+    const stat = await fs.stat(filePath);
+    return stat.size;
+  } catch {
+    return 0;
+  }
+}
+
+// Write via rename to work around filesystem locks on existing files.
+async function writeViaRename(outputPath, buffer) {
+  const tmpPath = outputPath + '.tmp.' + Date.now();
+  await fs.writeFile(tmpPath, buffer);
+  await fs.rename(tmpPath, outputPath);
+}
+
 async function copyFromFallback(outputPath, sourcePath) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   if (sourcePath === outputPath) {
     return;
   }
-  await fs.copyFile(sourcePath, outputPath);
+  const srcBuffer = await fs.readFile(sourcePath);
+  await writeViaRename(outputPath, srcBuffer);
 }
 
 async function writeImage(targetPath, source, kind, label) {
@@ -279,12 +300,12 @@ async function writeImage(targetPath, source, kind, label) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   if (!force) {
-    try {
-      await fs.access(outputPath);
+    const existingSize = await getFileSizeSafe(outputPath);
+    if (existingSize >= MIN_REAL_IMAGE_BYTES) {
+      // Already a real image — skip re-download.
       return { targetPath, status: 'skip' };
-    } catch {
-      // File missing, proceed with copy/download.
     }
+    // File is missing or a small placeholder — proceed with download.
   }
 
   if (!isBrowserUrl(source)) {
@@ -294,7 +315,12 @@ async function writeImage(targetPath, source, kind, label) {
   }
 
   const buffer = await requestAsBuffer(source, `${kind} ${label}`, new Set());
-  await fs.writeFile(outputPath, buffer);
+  // Reject images that are too small to be real product photos (probably icons or error page images).
+  const MIN_BUFFER_BYTES = (kind === 'learn' || kind === 'fallback') ? 1_000 : 20_000;
+  if (buffer.byteLength < MIN_BUFFER_BYTES) {
+    throw new Error(`Downloaded image too small for ${kind} ${label}: ${buffer.byteLength} bytes (min ${MIN_BUFFER_BYTES})`);
+  }
+  await writeViaRename(outputPath, buffer);
   return { targetPath, status: 'downloaded', kind, label };
 }
 

@@ -27,22 +27,23 @@ export default function AccessoryImageSlot({
     () => [imageUrl, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
     [badge.fallbackAssetPath, imageUrl]
   );
-  const [fallbackIndex, setFallbackIndex] = useState(imageUrl ? 0 : 1);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
 
   useEffect(() => {
-    setFallbackIndex(imageUrl ? 0 : 1);
+    setFallbackIndex(0);
   }, [badge.fallbackAssetPath, imageUrl]);
 
   const currentSource = fallbackSources[fallbackIndex];
   const shouldShowImage = Boolean(currentSource);
+  const isPrimaryImage = Boolean(imageUrl) && fallbackIndex === 0;
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {shouldShowImage ? (
         <img
           src={currentSource}
-          alt={fallbackIndex === 0 ? name : `${badge.label} placeholder for ${name}`}
-          className={`${imageClassName} ${fallbackIndex === 0 ? '' : 'opacity-80 saturate-75'}`}
+          alt={isPrimaryImage ? name : `${badge.label} placeholder for ${name}`}
+          className={`${imageClassName} ${isPrimaryImage ? '' : 'opacity-80 saturate-75'}`}
           loading="lazy"
           width={160}
           height={160}
@@ -70,11 +71,6 @@ export default function AccessoryImageSlot({
           />
         </span>
       )}
-      {fallbackIndex > 0 ? (
-        <span className="pointer-events-none absolute left-1 top-1 rounded-full bg-white/90 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-t-muted">
-          Fallback
-        </span>
-      ) : null}
     </div>
   );
 }

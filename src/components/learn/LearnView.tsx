@@ -1,9 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
-import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle, Sparkles } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { Newspaper, Smartphone, BookOpen, Shield, Watch, Tablet, Headphones, Wifi, Crown, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
-import { DemoScenario } from '../../constants/demoScenarios';
 import { EcosystemMatrix } from '../../types/ecosystem';
 import DailyBriefing from '../DailyBriefing';
 import DeviceLookup, {
@@ -18,12 +17,11 @@ import AccessoryPitchBuilder from '../AccessoryPitchBuilder';
 import AccessoriesReference from '../AccessoriesReference';
 import PlaybookSection from './PlaybookSection';
 import EdgeSection from './EdgeSection';
-import PracticeScenarios from '../levelup/PracticeScenarios';
 import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
 import { learnCopy } from './learnCopy';
 
-type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge' | 'practice';
+type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
 
 interface LearnViewProps {
@@ -31,7 +29,6 @@ interface LearnViewProps {
   weeklySource: WeeklyUpdateSource;
   ecosystemMatrix?: EcosystemMatrix | null;
   onDataUpdate: () => void;
-  onSelectScenario: (scenario: DemoScenario) => void;
 }
 
 const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
@@ -41,7 +38,6 @@ const TABS: { id: LearnTab; icon: typeof Newspaper; label: string }[] = [
   { id: 'homeinternet', icon: Wifi, label: 'HINT' },
   { id: 'playbook', icon: BookOpen, label: 'Playbook' },
   { id: 'edge', icon: Shield, label: 'Edge' },
-  { id: 'practice', icon: Play, label: 'Practice' },
 ];
 
 const LEARN_HIDDEN_PHONE_NAMES = new Set(['Samsung Galaxy XCover7 Pro']);
@@ -131,15 +127,12 @@ const TAB_MOMENT_GUIDANCE: Record<LearnTab, { moment: string; tip: string }> = {
     moment: 'Best for sharpening the T-Mobile story on demand',
     tip: 'Use this on shift when you need one simple reason T-Mobile wins without drifting into jargon or an overlong explanation.',
   },
-  practice: {
-    moment: 'Best for low-volume windows during scheduled work hours',
-    tip: 'Run a quick scenario while the phones are quiet so the live-call flow feels automatic later in the same shift.',
-  },
 };
 
-export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate, onSelectScenario }: LearnViewProps) {
+export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate }: LearnViewProps) {
   const [tab, setTab] = useState<LearnTab>('briefing');
   const [deviceCategory, setDeviceCategory] = useState<DeviceCategory>('phones');
+  const [showAccessoryPitch, setShowAccessoryPitch] = useState(false);
   const [compareOpenByCategory, setCompareOpenByCategory] = useState<Record<DeviceCategory, boolean>>({
     phones: false,
     tablets: false,
@@ -162,7 +155,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
     : compareOpen
       ? 'compare'
       : 'shortlist-active';
-  const showFocusedCompareMode = compareOpen && deviceCategory !== 'accessories';
+
+  useEffect(() => {
+    setShowAccessoryPitch(false);
+  }, [deviceCategory, compareOpen, selectedDevices.length]);
 
   const scrollToComparison = useCallback(() => {
     requestAnimationFrame(() => {
@@ -290,35 +286,23 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3">
-        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
-            {learnCopy.onClockPanel.title}
-          </p>
-          <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
-            {learnCopy.onClockPanel.description}
-          </p>
-        </div>
-      </div>
-
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-10 shadow-2xl shadow-t-dark-gray/20">
+      <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-8 shadow-2xl shadow-t-dark-gray/20">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <BookOpen className="w-80 h-80 -mt-16 -mr-16 text-white" />
         </div>
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4">
             <Sparkles className="w-3 h-3 text-t-magenta" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{learnCopy.hero.badge}</p>
           </div>
-          <h2 className="text-5xl font-black text-white mb-4 tracking-tight leading-none">
+          <h2 className="max-w-3xl text-4xl font-black text-white mb-3 tracking-tight leading-none sm:text-5xl">
             {learnCopy.hero.title}
           </h2>
-          <p className="text-lg text-white/80 font-medium leading-relaxed max-w-2xl">
+          <p className="text-base text-white/80 font-medium leading-relaxed max-w-2xl">
             {learnCopy.hero.subtitle}
           </p>
-          <div className="flex flex-wrap gap-3 mt-8">
+          <div className="flex flex-wrap gap-3 mt-6">
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
               <Newspaper className="w-4 h-4 text-t-magenta" />
               <div>
@@ -345,7 +329,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       </div>
 
       {/* Sub-tab toggle — wraps on desktop */}
-      <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar rounded-3xl p-1 glass-tab sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
+      <div className="flex flex-wrap justify-center rounded-3xl p-1 gap-1 glass-tab">
         {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
@@ -354,14 +338,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 type="button"
                 onClick={() => setTab(t.id)}
                 aria-pressed={isActive}
-                className={`focus-ring flex shrink-0 items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
+                className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-sm px-4'
-                    : 'text-t-dark-gray hover:text-t-dark-gray px-3'
+                    : 'text-t-dark-gray hover:text-t-dark-gray px-2'
                 }`}
               >
                 <t.icon className="w-3 h-3 shrink-0" />
-                <span>{t.label}</span>
+                {isActive ? t.label : <span className="sm:inline hidden">{t.label}</span>}
               </button>
             );
           })}
@@ -525,7 +509,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           ) : (
             /* Device lookup + comparison for phones/tablets/wearables */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className={showFocusedCompareMode ? 'hidden lg:block lg:col-span-5' : 'lg:col-span-5'}>
+              <div className="lg:col-span-5">
                 <div className="rounded-3xl p-5 glass-card glass-specular">
                   <DeviceLookup
                     key={deviceCategory}
@@ -544,10 +528,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   />
                 </div>
               </div>
-              <div
-                ref={comparisonRef}
-                className={`${showFocusedCompareMode ? 'lg:col-span-12' : 'lg:col-span-7'} space-y-6 scroll-mt-4`}
-              >
+              <div ref={comparisonRef} className="lg:col-span-7 space-y-6 scroll-mt-4">
                 {selectedDevices.length > 0 ? (
                   <>
                     <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">
@@ -583,10 +564,34 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         </div>
                       </div>
                     </div>
-                    {compareOpen ? (
-                      <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />
-                    ) : null}
-                    <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
+                      {compareOpen ? (
+                        <DeviceComparison devices={selectedDevices} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />
+                      ) : null}
+                    <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-3 glass-specular">
+                      <button
+                        type="button"
+                        onClick={() => setShowAccessoryPitch((current) => !current)}
+                        className="focus-ring flex w-full items-center justify-between gap-3 text-left"
+                        aria-expanded={showAccessoryPitch}
+                      >
+                        <div>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Attach story</p>
+                          <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                            {showAccessoryPitch
+                              ? 'Close this when you are done so the compare view stays focused on the device decision.'
+                              : 'Open this after the winner is clear so accessories do not bury the device choice.'}
+                          </p>
+                        </div>
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-t-light-gray bg-surface text-t-magenta">
+                          {showAccessoryPitch ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </span>
+                      </button>
+                      {showAccessoryPitch ? (
+                        <div className="mt-3">
+                          <AccessoryPitchBuilder device={selectedDevices[selectedDevices.length - 1]} ecosystemMatrix={ecosystemMatrix} />
+                        </div>
+                      ) : null}
+                    </div>
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular border-dashed">
@@ -645,20 +650,6 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       {tab === 'edge' && (
         <div className="rounded-3xl p-5 glass-card glass-specular">
           <EdgeSection />
-        </div>
-      )}
-
-      {tab === 'practice' && (
-        <div className="rounded-3xl p-5 glass-card glass-specular">
-          <div className="mb-4">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">
-              Practice Mode
-            </p>
-            <p className="text-xs text-t-dark-gray font-medium">
-              Pick a customer scenario below during a low-volume window on shift. It will load into Live mode with a full game plan so you can rehearse quickly and get back to the queue.
-            </p>
-          </div>
-          <PracticeScenarios onSelectScenario={onSelectScenario} />
         </div>
       )}
     </div>

@@ -148,6 +148,7 @@ export function productToCategories(products: string[]): ProductCategory[] {
 export interface DemoProductRec {
   name: string;
   pitch: string;
+  why: string;
   category: ProductCategory;
 }
 
@@ -188,7 +189,7 @@ export function getDemoProductRecs(
       const name = getEntryName(item);
       const pitchKey = `${age}-${name}`;
       const pitch = selectVariation(pitchKey, [...item.pitchVariations]);
-      recs.push({ name, pitch, category: cat });
+      recs.push({ name, pitch, why: item.why, category: cat });
     }
   }
 

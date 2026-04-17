@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BookOpen, Monitor, Moon, Settings, Sun, Trophy, UserPlus, Zap, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings' | 'leaderboard';
+export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings';
 
 type ThemePref = 'light' | 'dark' | 'auto';
 
@@ -71,6 +71,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
 
   const handleNewCall = () => {
     onReset();
+    if (mode !== 'live') onModeChange('live');
   };
 
   return (
@@ -79,7 +80,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap">
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <motion.button
               layout
@@ -100,7 +101,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                 <h1 className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
                   CustomerConnect AI
                 </h1>
-                <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.22em] text-white">
+                <span className="rounded-full bg-t-magenta px-2 py-1 text-[8px] font-black uppercase tracking-[0.2em] text-white sm:px-2.5 sm:text-[9px] sm:tracking-[0.22em]">
                   Demo Ready
                 </span>
               </div>
@@ -110,122 +111,81 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={cycleTheme}
-            aria-label={pref === 'auto' ? 'Theme: auto (follows system)' : pref === 'dark' ? 'Theme: dark' : 'Theme: light'}
-            title={pref === 'auto' ? 'Auto' : pref === 'dark' ? 'Dark' : 'Light'}
-            className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
-          >
-            {pref === 'auto' ? <Monitor className="h-4 w-4" /> : isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={cycleTheme}
+              aria-label={pref === 'auto' ? 'Theme: auto (follows system)' : pref === 'dark' ? 'Theme: dark' : 'Theme: light'}
+              title={pref === 'auto' ? 'Auto' : pref === 'dark' ? 'Dark' : 'Light'}
+              className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
+            >
+              {pref === 'auto' ? <Monitor className="h-4 w-4" /> : isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
 
-          <button
-            type="button"
-            onClick={handleNewCall}
-            aria-label="Start a new call"
-            className="focus-ring relative inline-flex min-h-[44px] items-center gap-2 overflow-hidden rounded-full px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5"
-            style={{ touchAction: 'manipulation' }}
-          >
-            <span className="btn-magenta-shimmer absolute inset-0 rounded-full" aria-hidden="true" />
-            <span className="relative z-[1] inline-flex items-center gap-2">
-              <UserPlus className="h-3.5 w-3.5 shrink-0" />
-              <span>New Call</span>
-            </span>
-          </button>
+            <button
+              type="button"
+              onClick={handleNewCall}
+              aria-label="Start a new call"
+              className="focus-ring relative inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5 sm:tracking-[0.18em]"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <span className="btn-magenta-shimmer absolute inset-0 rounded-full" aria-hidden="true" />
+              <span className="relative z-[1] inline-flex items-center gap-2">
+                <UserPlus className="h-3.5 w-3.5 shrink-0" />
+                <span className="hidden sm:inline">New Call</span>
+              </span>
+            </button>
+          </div>
         </div>
 
         {mode !== 'home' && (
-          <>
-            {/* Desktop Mode Navigation */}
-            <nav
-              aria-label="App mode"
-              role="tablist"
-              className="hidden sm:block rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
-            >
-              <div className="grid grid-cols-3 lg:grid-cols-5 gap-1.5">
-                {MODES.map((item) => {
-                  const isActive = mode === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      id={`mode-tab-${item.id}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-controls={`mode-panel-${item.id}`}
-                      onClick={() => onModeChange(item.id)}
-                      className={`focus-ring relative min-h-[62px] overflow-hidden rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
-                        isActive
-                          ? 'text-white shadow-[0_14px_24px_rgba(226,0,116,0.22)]'
-                          : 'border border-transparent text-t-dark-gray hover:border-t-light-gray hover:bg-t-light-gray/30'
-                      }`}
-                      style={{ touchAction: 'manipulation' }}
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="mode-pill-desktop"
-                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-t-magenta to-t-berry"
-                          transition={{ type: 'spring', stiffness: 360, damping: 30 }}
-                        />
-                      )}
-                      <span className="relative z-[1] flex h-full items-center justify-between gap-3">
-                        <span className="min-w-0">
-                          <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em]">
-                            <item.icon className="h-4 w-4 shrink-0" />
-                            {item.label}
-                          </span>
-                          <span className={`mt-1 block text-[10px] font-bold tracking-wide ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
-                            {item.helper}
-                          </span>
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-
-            {/* Mobile Bottom Navigation */}
-            <nav
-              aria-label="Mobile app mode"
-              role="tablist"
-              className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-t border-t-light-gray pb-[env(safe-area-inset-bottom,1rem)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]"
-            >
-              <div className="flex justify-around items-center px-2 py-2">
-                {MODES.map((item) => {
-                  const isActive = mode === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => onModeChange(item.id)}
-                      className={`focus-ring relative flex flex-col items-center justify-center flex-1 min-w-0 h-14 rounded-xl transition-all ${
-                        isActive ? 'text-t-magenta' : 'text-t-muted hover:text-t-dark-gray'
-                      }`}
-                      style={{ touchAction: 'manipulation' }}
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="mode-pill-mobile"
-                          className="absolute inset-0 rounded-xl bg-t-magenta/10"
-                          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex flex-col items-center gap-1">
-                        <item.icon className={`h-5 w-5 ${isActive ? 'text-t-magenta' : ''}`} />
-                        <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight w-full truncate px-0.5">
+          <nav
+            aria-label="App mode"
+            role="tablist"
+            className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
+              {MODES.map((item) => {
+                const isActive = mode === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    id={`mode-tab-${item.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`mode-panel-${item.id}`}
+                    onClick={() => onModeChange(item.id)}
+                    className={`focus-ring relative min-h-[62px] overflow-hidden rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
+                      isActive
+                        ? 'text-white shadow-[0_14px_24px_rgba(226,0,116,0.22)]'
+                        : 'border border-transparent text-t-dark-gray hover:border-t-light-gray hover:bg-t-light-gray/30'
+                    }`}
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="mode-pill"
+                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-t-magenta to-t-berry"
+                        transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-[1] flex h-full items-center justify-between gap-3">
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] sm:text-xs">
+                          <item.icon className="h-4 w-4 shrink-0" />
                           {item.label}
                         </span>
+                        <span className={`mt-1 block text-[9px] font-bold tracking-wide sm:text-[10px] ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                          {item.helper}
+                        </span>
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-          </>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
         )}
       </div>
     </header>

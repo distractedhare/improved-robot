@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from 'react';
 import { MessageCircle, Target, ArrowRightLeft, Users, PhoneForwarded, BookOpen } from 'lucide-react';
 import {
   DISCOVERY_QUESTIONS,
@@ -8,10 +9,21 @@ import {
   TRANSITIONS,
 } from '../../data/salesMethodology';
 
+type PlaybookMoment = 'discovery' | 'objections' | 'close' | 'rapport' | 'pivots';
+
+const MOMENTS: { id: PlaybookMoment; icon: typeof MessageCircle; label: string; helper: string }[] = [
+  { id: 'discovery', icon: MessageCircle, label: 'Discovery', helper: 'Open the call with one good question.' },
+  { id: 'objections', icon: Target, label: 'Objection', helper: 'Grab one comeback and one proof point.' },
+  { id: 'close', icon: ArrowRightLeft, label: 'Close', helper: 'Pick the cleanest next step and stop talking.' },
+  { id: 'rapport', icon: Users, label: 'Rapport', helper: 'Match tone to the caller instead of winging it.' },
+  { id: 'pivots', icon: PhoneForwarded, label: 'Pivot', helper: 'Turn solved support calls into real sales paths.' },
+];
+
 export default function PlaybookSection() {
+  const [activeMoment, setActiveMoment] = useState<PlaybookMoment>('discovery');
+
   return (
     <div className="space-y-5">
-      {/* Hero banner */}
       <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <BookOpen className="w-64 h-64 -mt-10 -mr-10 text-white" />
@@ -21,233 +33,220 @@ export default function PlaybookSection() {
             <Target className="w-3 h-3 text-white" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sales Playbook</p>
           </div>
-          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The Winning Playbook</h3>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Use it by call moment</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            Your cheat sheet. Discovery questions, objection comebacks, closing lines, and pivot techniques — all in one place.
+            This should feel like a tactical picker, not a giant script library. Start with the moment you are in, take one clean line, then get back to the call.
           </p>
-          <div className="flex flex-wrap gap-2.5 mt-6">
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <MessageCircle className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Discovery</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <ArrowRightLeft className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Pivots</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Users className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Rapport</span>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-info-border bg-info-surface p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
-          Phone-Sales Logic
-        </p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">Fast rule</p>
         <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
-          <p><span className="font-black">1.</span> Start with what they will feel or save, not the spec sheet.</p>
-          <p><span className="font-black">2.</span> Tie the offer to a real fit driver like value, convenience, safety, productivity, or cool-factor.</p>
-          <p><span className="font-black">3.</span> Use one proof point to back it up, then stop talking.</p>
-          <p><span className="font-black">4.</span> Match the language to the caller instead of pitching the same way to everyone.</p>
+          <p><span className="font-black">1.</span> Lead with fit, not product dumping.</p>
+          <p><span className="font-black">2.</span> Use one proof point, then stop.</p>
+          <p><span className="font-black">3.</span> Only open the deeper lane if the call still needs it.</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this by moment</p>
-        <div className="mt-2 grid gap-2 md:grid-cols-4">
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Discovery</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Open with one question that reveals the pain point fast.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Objection</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Grab one comeback and one proof point, not the whole script library.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Pivot</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use the service-to-sales moment only after you earn the right to shift gears.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Close</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Finish with the cleanest next step, not a paragraph of pressure.</p>
-          </div>
-        </div>
+      <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
+        {MOMENTS.map((moment) => {
+          const isActive = activeMoment === moment.id;
+          return (
+            <button
+              key={moment.id}
+              type="button"
+              onClick={() => setActiveMoment(moment.id)}
+              className={`focus-ring flex-1 min-w-[120px] rounded-xl px-3 py-3 text-left transition-all ${
+                isActive
+                  ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
+                  : 'text-t-muted hover:text-t-dark-gray'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <moment.icon className="h-3.5 w-3.5" />
+                <span className="text-[9px] font-black uppercase tracking-[0.18em]">{moment.label}</span>
+              </div>
+              <p className="mt-1 text-[10px] font-medium normal-case tracking-normal">{moment.helper}</p>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Discovery Questions */}
-      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
-            <MessageCircle className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-sm font-black uppercase tracking-tight">Discovery Questions</p>
-            <p className="text-[10px] font-medium text-t-dark-gray">By product category</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(DISCOVERY_QUESTIONS).map(([category, questions]) => (
-            <div key={category}>
-              <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta mb-2">{category}</p>
-              <ul className="space-y-1.5">
-                {questions.map((q, i) => (
-                  <li key={i} className="text-xs text-t-dark-gray font-medium flex gap-2">
-                    <span className="text-t-magenta/50 shrink-0">&bull;</span>
-                    <span>{q}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Objection Frameworks */}
-      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
-            <Target className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-sm font-black uppercase tracking-tight">Objection Comebacks</p>
-            <p className="text-[10px] font-medium text-t-dark-gray">{Object.keys(OBJECTION_TEMPLATES).length} common pushbacks</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(OBJECTION_TEMPLATES).map(([objection, data]) => (
-            <div key={objection} className="rounded-xl border border-t-light-gray bg-surface p-3">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-error-accent">
-                &ldquo;{objection}&rdquo;
-              </p>
-              <p className="mb-2 text-xs font-bold text-t-dark-gray">{data.rebuttal}</p>
-              <ul className="space-y-1">
-                {data.talkingPoints.map((tp, i) => (
-                  <li key={i} className="flex gap-2 text-[11px] font-medium text-t-dark-gray">
-                    <span className="shrink-0 text-t-magenta/50">&bull;</span>
-                    <span>{tp}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Closing Techniques */}
-      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
-            <ArrowRightLeft className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-sm font-black uppercase tracking-tight">Closing Lines</p>
-            <p className="text-[10px] font-medium text-t-dark-gray">By call type</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(CLOSING_TECHNIQUES).map(([intent, lines]) => (
-            <div key={intent}>
-              <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta mb-2">{intent}</p>
-              <ul className="space-y-1.5">
-                {lines.map((line, i) => (
-                  <li key={i} className="text-xs text-t-dark-gray font-medium flex gap-2">
-                    <span className="text-t-magenta/50 shrink-0">&bull;</span>
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {/* Transition phrases */}
-          <div className="border-t border-t-light-gray pt-3 mt-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-t-berry mb-2">Transition Phrases</p>
-            {Object.entries(TRANSITIONS).map(([phase, phrases]) => (
-              <div key={phase} className="mb-3">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-t-muted mb-1">
-                  {phase === 'discoveryToValue' ? 'Discovery → Value' : phase === 'valueToClose' ? 'Value → Close' : 'Objection → Pivot'}
-                </p>
-                <ul className="space-y-1">
-                  {phrases.map((p, i) => (
-                    <li key={i} className="text-[11px] text-t-dark-gray font-medium">{p}</li>
+      {activeMoment === 'discovery' ? (
+        <SectionShell
+          title="Discovery questions"
+          subtitle="Start with one useful question that reveals the pain fast."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            {Object.entries(DISCOVERY_QUESTIONS).map(([category, questions]) => (
+              <div key={category} className="rounded-2xl border border-t-light-gray bg-surface p-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{category}</p>
+                <ul className="mt-3 space-y-2">
+                  {questions.slice(0, 4).map((question) => (
+                    <li key={question} className="flex gap-2 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
+                      <span>{question}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        </SectionShell>
+      ) : null}
 
-      {/* Rapport by Age */}
-      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
-            <Users className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-sm font-black uppercase tracking-tight">Rapport by Age</p>
-            <p className="text-[10px] font-medium text-t-dark-gray">Tone, topics, and what to avoid</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(RAPPORT_BY_AGE)
-            .filter(([age]) => age !== 'Not Specified')
-            .map(([age, data]) => (
-            <div key={age} className="p-3 rounded-xl bg-surface border border-t-light-gray">
-              <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta mb-2">{age}</p>
-              <p className="text-xs text-t-dark-gray font-medium mb-2"><strong>Tone:</strong> {data.tone}</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-wider text-success-accent mb-1">Talk about</p>
-                  <ul className="space-y-0.5">
-                    {data.topics.map((t, i) => (
-                      <li key={i} className="text-[11px] text-t-dark-gray font-medium">{t}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-wider text-error-accent mb-1">Avoid</p>
-                  <ul className="space-y-0.5">
-                    {data.avoid.map((a, i) => (
-                      <li key={i} className="text-[11px] text-t-dark-gray font-medium">{a}</li>
+      {activeMoment === 'objections' ? (
+        <SectionShell
+          title="Objection comebacks"
+          subtitle="Take one comeback and one proof point. Do not read them a speech."
+        >
+          <div className="space-y-3">
+            {Object.entries(OBJECTION_TEMPLATES).map(([objection, data]) => (
+              <div key={objection} className="rounded-2xl border border-t-light-gray bg-surface p-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-error-accent">&ldquo;{objection}&rdquo;</p>
+                <p className="mt-2 text-sm font-bold text-foreground">{data.rebuttal}</p>
+                <div className="mt-3 rounded-xl bg-t-light-gray/20 p-3">
+                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Proof points</p>
+                  <ul className="mt-2 space-y-1.5">
+                    {data.talkingPoints.slice(0, 3).map((point) => (
+                      <li key={point} className="flex gap-2 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
+                        <span>{point}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </SectionShell>
+      ) : null}
 
-      {/* Service-to-Sales Pivots */}
-      <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-4">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
-            <PhoneForwarded className="w-4 h-4" />
+      {activeMoment === 'close' ? (
+        <SectionShell
+          title="Closing lines"
+          subtitle="Pick a close that fits the call, then keep the next step simple."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            {Object.entries(CLOSING_TECHNIQUES).map(([intent, lines]) => (
+              <div key={intent} className="rounded-2xl border border-t-light-gray bg-surface p-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{intent}</p>
+                <ul className="mt-3 space-y-2">
+                  {lines.slice(0, 3).map((line) => (
+                    <li key={line} className="flex gap-2 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          <div>
-            <p className="text-sm font-black uppercase tracking-tight">Support → Sales Pivots</p>
-            <p className="text-[10px] font-medium text-t-dark-gray">Turn every support call into revenue</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(SERVICE_TO_SALES).map(([intent, data]) => (
-            <div key={intent} className="p-3 rounded-xl bg-surface border border-t-light-gray">
-              <p className="text-[10px] font-black uppercase tracking-wider text-t-magenta mb-1">{intent}</p>
-              <p className="text-[10px] font-bold text-warning-foreground bg-warning-surface px-2 py-1 rounded-lg inline-block mb-2">
-                {data.timing}
-              </p>
-              <ul className="space-y-1.5">
-                {data.pivots.map((p, i) => (
-                  <li key={i} className="text-[11px] text-t-dark-gray font-medium">{p}</li>
-                ))}
-              </ul>
+
+          <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Transition phrases</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              {Object.entries(TRANSITIONS).map(([phase, phrases]) => (
+                <div key={phase} className="rounded-2xl bg-t-light-gray/20 p-3">
+                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-muted">
+                    {phase === 'discoveryToValue' ? 'Discovery → Value' : phase === 'valueToClose' ? 'Value → Close' : 'Objection → Pivot'}
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {phrases.slice(0, 3).map((phrase) => (
+                      <li key={phrase} className="text-[11px] font-medium leading-relaxed text-t-dark-gray">{phrase}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        </SectionShell>
+      ) : null}
+
+      {activeMoment === 'rapport' ? (
+        <SectionShell
+          title="Rapport by age"
+          subtitle="Use this only to shape tone and examples. Never stereotype the caller."
+        >
+          <div className="space-y-3">
+            {Object.entries(RAPPORT_BY_AGE)
+              .filter(([age]) => age !== 'Not Specified')
+              .map(([age, data]) => (
+                <div key={age} className="rounded-2xl border border-t-light-gray bg-surface p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{age}</p>
+                    <span className="rounded-full bg-t-light-gray/30 px-2.5 py-1 text-[9px] font-bold text-t-dark-gray">{data.tone}</span>
+                  </div>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <div className="rounded-2xl bg-success-surface p-3">
+                      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-success-foreground">Talk about</p>
+                      <ul className="mt-2 space-y-1.5">
+                        {data.topics.slice(0, 4).map((topic) => (
+                          <li key={topic} className="text-[11px] font-medium leading-relaxed text-success-foreground">{topic}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-2xl bg-error-surface p-3">
+                      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-error-foreground">Avoid</p>
+                      <ul className="mt-2 space-y-1.5">
+                        {data.avoid.slice(0, 4).map((item) => (
+                          <li key={item} className="text-[11px] font-medium leading-relaxed text-error-foreground">{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </SectionShell>
+      ) : null}
+
+      {activeMoment === 'pivots' ? (
+        <SectionShell
+          title="Support → sales pivots"
+          subtitle="Only use this after the original issue is handled well enough that the customer trusts you."
+        >
+          <div className="space-y-3">
+            {Object.entries(SERVICE_TO_SALES).map(([intent, data]) => (
+              <div key={intent} className="rounded-2xl border border-t-light-gray bg-surface p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{intent}</p>
+                  <span className="rounded-full bg-warning-surface px-2.5 py-1 text-[9px] font-bold text-warning-foreground">{data.timing}</span>
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {data.pivots.slice(0, 4).map((pivot) => (
+                    <li key={pivot} className="flex gap-2 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-t-magenta" />
+                      <span>{pivot}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </SectionShell>
+      ) : null}
+    </div>
+  );
+}
+
+function SectionShell({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-4 rounded-3xl p-5 glass-card glass-specular">
+      <div>
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
+        <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{subtitle}</p>
       </div>
+      {children}
     </div>
   );
 }

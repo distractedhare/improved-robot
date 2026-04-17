@@ -196,7 +196,7 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
                 {isSelected ? (
                   <><CheckCircle2 className="w-3 h-3" /> Selected for Deep Dive</>
                 ) : (
-                  <><Zap className="w-3 h-3" /> Add to Flip the Script</>
+                  <><Zap className="w-3 h-3" /> Queue Deep Strategy</>
                 )}
               </button>
             </div>
@@ -319,12 +319,27 @@ export default function ObjectionTab({
     >
       {/* Header */}
       <div className="rounded-3xl glass-card p-5 shadow-sm">
-        <h2 className="text-lg sm:text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
-          <AlertCircle className="w-5 h-5 text-t-magenta" /> Flip the Script
+        <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
+          <AlertCircle className="w-5 h-5 text-t-magenta" /> Objection Coach
         </h2>
         <p className="text-xs text-t-dark-gray font-medium">
-          Tap a category to see what you're dealing with. Tap a scenario for an <strong className="text-t-magenta">instant comeback</strong>. Select scenarios and hit <strong className="text-t-magenta">Flip the Script</strong> for the full deep-dive strategy.
+          Start with the fastest likely category, grab one <strong className="text-t-magenta">quick comeback</strong>, then queue only the blockers that need a deeper strategy.
         </p>
+      </div>
+
+      <div className="grid gap-2 md:grid-cols-3">
+        <TriageCard
+          title="1. Triage"
+          body="Open the most likely category first so the rep gets to a usable response in one tap."
+        />
+        <TriageCard
+          title="2. Quick Comeback"
+          body="Use the short response and coach note before you open the longer strategic lane."
+        />
+        <TriageCard
+          title="3. Deep Strategy"
+          body="Queue only the tricky scenarios you want the longer analysis to blend together."
+        />
       </div>
 
       {/* Context badge */}
@@ -357,14 +372,14 @@ export default function ObjectionTab({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="sticky bottom-20 sm:bottom-4 z-10 px-0"
+          className="sticky bottom-4 z-10"
         >
 	          <button
 	            type="button"
 	            onClick={onAnalyze}
 	            disabled={analyzing}
 	            aria-busy={analyzing}
-	            aria-label={`Flip the Script — analyze ${selectedObjections.length} selected scenarios`}
+	            aria-label={`Build deep response for ${selectedObjections.length} selected scenarios`}
 	            className="focus-ring w-full rounded-2xl bg-t-magenta py-4 font-black uppercase tracking-widest text-white shadow-[0_14px_28px_rgba(226,0,116,0.22)] transition-all hover:bg-t-berry disabled:cursor-not-allowed disabled:opacity-50"
 	          >
             {analyzing ? (
@@ -372,13 +387,22 @@ export default function ObjectionTab({
             ) : (
               <>
                 <Zap className="w-4 h-4 text-t-magenta" />
-                Flip the Script — {selectedObjections.length} Selected
+                Build Deep Response — {selectedObjections.length} Selected
               </>
             )}
           </button>
         </motion.div>
       )}
     </motion.section>
+  );
+}
+
+function TriageCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-t-light-gray bg-surface-elevated px-3 py-3">
+      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
+      <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{body}</p>
+    </div>
   );
 }
 
@@ -393,7 +417,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       className="space-y-6"
     >
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+        <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
           <Zap className="w-6 h-6 text-t-magenta" /> Objection Strategy
         </h2>
         <button

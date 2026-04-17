@@ -74,7 +74,7 @@ export function isWebGPUSupported(): boolean {
 }
 
 export function getGemmaStatusLabel(): string {
-  return loadingState === 'ready' ? 'Gemma 2' : 'AI Ready';
+  return loadingState === 'ready' ? 'Gemma' : 'AI Ready';
 }
 
 export async function initializeGemma(force = false): Promise<void> {
@@ -124,12 +124,6 @@ function buildWeeklySummary(weeklyData: WeeklyUpdate | null): string {
   ].filter(Boolean).join('\n\n');
 }
 
-function describeHintAvailability(hintAvailable: boolean | undefined): string {
-  if (hintAvailable === true) return 'AVAILABLE';
-  if (hintAvailable === false) return 'UNAVAILABLE (Spots full)';
-  return 'NOT CHECKED YET';
-}
-
 function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | null): ChatMessage[] {
   const products = context.product.join(', ');
   const carrier = context.currentCarrier || 'Unknown';
@@ -153,7 +147,7 @@ Customer context:
 - Family count: ${context.familyCount || 'Unknown'}
 - Current platform: ${context.currentPlatform || 'Unknown'}
 - Desired platform: ${context.desiredPlatform || 'Unknown'}
-- HINT Availability: ${describeHintAvailability(context.hintAvailable)}
+- HINT Availability: ${context.hintAvailable === false ? 'UNAVAILABLE (Spots full)' : context.hintAvailable === true ? 'Available' : 'Not checked yet'}
 
 Weekly context:
 ${buildWeeklySummary(weeklyData)}
@@ -199,7 +193,7 @@ Customer context:
 - Family count: ${context.familyCount || 'Unknown'}
 - Current platform: ${context.currentPlatform || 'Unknown'}
 - Desired platform: ${context.desiredPlatform || 'Unknown'}
-- HINT Availability: ${describeHintAvailability(context.hintAvailable)}
+- HINT Availability: ${context.hintAvailable === false ? 'UNAVAILABLE (Spots full)' : context.hintAvailable === true ? 'Available' : 'Not checked yet'}
 
 Objection: ${objection}
 Already used: ${selectedItems.length > 0 ? selectedItems.join(' | ') : 'none'}
