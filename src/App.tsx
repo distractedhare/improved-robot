@@ -672,7 +672,7 @@ export default function App() {
                 title="Home view needs a refresh"
                 message="The dashboard tripped over something. Reload to get the demo back on track."
               >
-                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} />
+                <HomeScreen weeklyData={weeklyData} onNavigate={handleModeChange} onReset={reset} />
               </ErrorBoundary>
             </motion.section>
           ) : mode === 'level-up' ? (
