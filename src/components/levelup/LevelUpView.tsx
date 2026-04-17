@@ -7,7 +7,6 @@ import BundleBuilder from './BundleBuilder';
 import PrizeHub from './PrizeHub';
 import ObjectionSmasher from './ObjectionSmasher';
 import MagentaRunner from './MagentaRunner';
-import TeamJoin from './TeamJoin';
 
 type TopTab = 'games' | 'prizes';
 type GameId = 'bingo' | 'bundle' | 'objection' | 'runner';
@@ -53,23 +52,6 @@ export default function LevelUpView() {
 
   const handleGameSelect = (id: GameId) => setActiveGame(id);
   const handleBack = () => setActiveGame(null);
-
-  if (!hasTeam) {
-    return (
-      <div className="mx-auto max-w-3xl space-y-5 pb-4">
-        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 shadow-sm">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">On-the-clock only</p>
-            <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
-              This tool is designed for use during scheduled work hours only. Do not use outside of your shift.
-            </p>
-          </div>
-        </div>
-        <TeamJoin onJoined={setTeamConfig} />
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 pb-4">
