@@ -249,6 +249,13 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
       }))
     : [{ category: 'Weekly Focus', text: weekly.weeklyFocus.headline }];
 
+  // HINT needs a real address check before the rep promises savings.
+  if (context.product.includes('Home Internet') && context.hintAvailable === undefined) {
+    valuePropositions.unshift('Check the address before positioning Home Internet as the savings move.');
+    oneLiners.push("Before I quote that, let me verify whether Home Internet is actually available at your address.");
+    coachsCorner += ' HINT status is not checked yet. Confirm availability before pitching rate relief, rebates, or replacing cable.';
+  }
+
   // HINT Unavailable Logic
   if (context.hintAvailable === false) {
     const isTMobile = context.currentCarrier === 'Not Specified';

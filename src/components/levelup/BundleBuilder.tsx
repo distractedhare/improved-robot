@@ -79,9 +79,9 @@ const PERSONAS: BundlePersona[] = [
 ];
 
 const ROUND_COUNT = 4;
-const ROUND_SECONDS = 10;
+const ROUND_SECONDS = 14;
 const MAX_PICKS = 3;
-const REVEAL_MS = 2500;
+const REVEAL_MS = 1800;
 const TAP_DEBOUNCE_MS = 120;
 
 type GameState = 'start' | 'playing' | 'reveal' | 'end';
@@ -293,7 +293,7 @@ export default function BundleBuilder() {
         <div>
           <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">Bundle Builder</h3>
           <p className="mt-2 text-sm font-medium text-t-dark-gray max-w-sm mx-auto">
-            Meet the customer. Pick 3 accessories that fit their life in 10 seconds. Perfect bundles unlock confetti.
+            Meet the customer. Pick 3 accessories that fit their life in 14 seconds. Perfect bundles unlock confetti and keep the round moving fast.
           </p>
         </div>
 
@@ -301,7 +301,7 @@ export default function BundleBuilder() {
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-muted mb-3">How it plays</p>
           <ul className="space-y-2 text-xs font-medium text-t-dark-gray">
             <li className="flex items-center gap-2"><Target className="w-4 h-4 text-t-magenta" /> 3 strong matches hidden in the 9-tile grid</li>
-            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-warning-accent" /> Speed bonus for early picks</li>
+            <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-warning-accent" /> Enough time to read the customer, then grab the obvious wins</li>
             <li className="flex items-center gap-2"><Trophy className="w-4 h-4 text-success-accent" /> 4 rounds — top reps earn Momentum badges</li>
           </ul>
         </div>
@@ -310,7 +310,7 @@ export default function BundleBuilder() {
           onClick={startGame}
           className="focus-ring w-full max-w-sm mx-auto rounded-xl bg-t-magenta py-4 text-sm font-black uppercase tracking-wider text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
-          Start Building
+          Start Round 1
         </button>
       </div>
     );

@@ -12,12 +12,14 @@ interface Message {
 export default function OfflineCoach() {
   const [isReady, setIsReady] = useState(localAiService.isReady());
   const [progress, setProgress] = useState<InitProgressReport | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(localAiService.getError());
+  const [errorCode, setErrorCode] = useState(localAiService.getErrorCode());
+  const [activeModelLabel, setActiveModelLabel] = useState(localAiService.getActiveModelLabel());
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "I'm your offline Gemma 2 coach. I run entirely on your device, so I work instantly even in dead zones. What objection are you stuck on?",
+      content: "I'm your offline Gemma coach. I run entirely on your device, so I work instantly even in dead zones. What objection are you stuck on?",
     }
   ]);
   const [input, setInput] = useState('');
@@ -26,11 +28,19 @@ export default function OfflineCoach() {
 
   useEffect(() => {
     const unsubscribeProgress = localAiService.onProgress((p) => setProgress(p));
-    const unsubscribeReady = localAiService.onReady((ready) => setIsReady(ready));
+    const unsubscribeReady = localAiService.onReady((ready) => {
+      setIsReady(ready);
+      setActiveModelLabel(localAiService.getActiveModelLabel());
+    });
+    const unsubscribeError = localAiService.onError((nextError) => {
+      setError(nextError);
+      setErrorCode(localAiService.getErrorCode());
+    });
 
     return () => {
       unsubscribeProgress();
       unsubscribeReady();
+      unsubscribeError();
     };
   }, []);
 
@@ -65,7 +75,7 @@ export default function OfflineCoach() {
     }
   };
 
-  if (error) {
+  if (error && isReady) {
     return (
       <div className="rounded-2xl border border-error-border bg-error-surface p-6 text-center">
         <AlertCircle className="mx-auto h-8 w-8 text-error-accent mb-3" />
@@ -83,14 +93,29 @@ export default function OfflineCoach() {
         </div>
         <h2 className="mb-2 text-lg font-extrabold tracking-tight">Offline AI Not Ready</h2>
         <p className="mb-6 text-sm text-t-dark-gray">
-          The Gemma 2 model needs to be downloaded before you can use the Dead-Zone Coach.
+          The Gemma model needs to be downloaded before you can use the Dead-Zone Coach.
         </p>
         
         <div className="p-4 rounded-2xl border border-t-light-gray bg-t-light-gray/5 mb-6">
           <p className="text-xs font-medium text-t-dark-gray">
-            Go to <strong>Settings → Offline AI</strong> to download the model (~1.5GB).
+            Go to <strong>Settings → Offline AI</strong> to download the model and keep that tab open while the first install finishes.
           </p>
         </div>
+
+        {error && (
+          <div className="mx-auto mb-4 max-w-lg rounded-2xl border border-error-border bg-error-surface p-4 text-left">
+            <div className="flex items-center gap-2 text-error-foreground">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <p className="text-[10px] font-black uppercase tracking-widest">Offline AI needs attention</p>
+            </div>
+            <p className="mt-2 text-xs font-medium leading-relaxed text-error-foreground/90">{error}</p>
+            {(errorCode === 'quota' || errorCode === 'cache') && (
+              <p className="mt-2 text-[11px] font-medium leading-relaxed text-error-foreground/80">
+                The local storage path failed mid-download. In Settings, tap <strong>Clear Gemma Files</strong>, free some space, and retry.
+              </p>
+            )}
+          </div>
+        )}
 
         {progress && (
           <div className="mx-auto max-w-sm text-left mb-4">
@@ -127,7 +152,7 @@ export default function OfflineCoach() {
           </div>
         </div>
         <div className="rounded-full bg-t-light-gray/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-t-dark-gray">
-          Powered by Gemma 2
+          Powered by {activeModelLabel}
         </div>
       </div>
 
@@ -148,7 +173,7 @@ export default function OfflineCoach() {
               {msg.role === 'assistant' && (
                 <div className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-t-magenta">
                   <Bot className="h-3 w-3" />
-                  <span>Gemma 2 Coach</span>
+                  <span>{activeModelLabel} Coach</span>
                 </div>
               )}
               <p className="leading-relaxed">{msg.content}</p>

@@ -16,7 +16,7 @@ const INITIAL_CONTEXT: SalesContext = {
   familyCount: undefined,
   currentPlatform: 'Not Specified',
   desiredPlatform: 'Not Specified',
-  hintAvailable: true,
+  hintAvailable: undefined,
 };
 
 export default function GamePlanTab() {

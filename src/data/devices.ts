@@ -1,16 +1,24 @@
+import { DEVICE_IMAGE_PATHS } from './deviceImagePaths';
+
 export interface Device {
   name: string;
   category: 'iphone' | 'samsung' | 'pixel' | 'other' | 'tablet' | 'watch' | 'hotspot';
   startingPrice: number | string;
   released: string;
   keySpecs: string;
+  imageUrl?: string;
   /** Deeper selling points — ecosystem hooks, comparison data, use cases */
   sellingNotes?: string;
   // Note: promos are NOT stored here — they come exclusively from weekly-update.json
   // to prevent stale promo data. Only specs, price, and release info stay here.
 }
 
-export const PHONES: Device[] = [
+function withDeviceImage(device: Device): Device {
+  const imageUrl = DEVICE_IMAGE_PATHS[device.name];
+  return imageUrl ? { ...device, imageUrl } : device;
+}
+
+export const PHONES: Device[] = ([
   // iPhone lineup
   {
     name: 'iPhone 17 Pro Max',
@@ -92,9 +100,9 @@ export const PHONES: Device[] = [
   { name: 'Motorola moto g 2026', category: 'other', startingPrice: 189.99, released: '2026', keySpecs: 'Budget device, solid for first-time smartphone users or kids' },
   { name: 'T-Mobile REVVL 8 Pro', category: 'other', startingPrice: 249.99, released: '2025', keySpecs: '6.7" display. T-Mobile own-brand. Solid budget option — great for B2G1 third line, backup phones, or price-sensitive customers' },
   { name: 'T-Mobile REVVL 8', category: 'other', startingPrice: 199.99, released: '2025', keySpecs: 'T-Mobile own-brand. Lowest cost option — kids phones, basic line adds, or backup devices' },
-];
+] satisfies Device[]).map(withDeviceImage);
 
-export const TABLETS: Device[] = [
+export const TABLETS: Device[] = ([
   { name: 'iPad (A16)', category: 'tablet', startingPrice: 499.99, released: '2024', keySpecs: '10.9", A16 chip, USB-C, 128GB. Solid entry iPad for media, school, and light productivity.' },
   { name: 'iPad mini (A17 Pro)', category: 'tablet', startingPrice: 499, released: '2024', keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.' },
   { name: 'iPad Air 11" (M4)', category: 'tablet', startingPrice: 599, released: 'March 2026', keySpecs: '11", M4 chip, Apple Pencil Pro support. Best balance of power and price.' },
@@ -104,9 +112,9 @@ export const TABLETS: Device[] = [
   { name: 'Samsung Galaxy Tab S10+ 5G', category: 'tablet', startingPrice: 999.99, released: '2025', keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.' },
   { name: 'Samsung Galaxy Tab S10 FE 5G', category: 'tablet', startingPrice: 599.99, released: '2025', keySpecs: '5G tablet with S Pen included. Samsung DeX desktop mode. Pairs with Galaxy ecosystem.' },
   { name: 'Samsung Galaxy Tab A11+ 5G', category: 'tablet', startingPrice: 289.99, released: '2026', keySpecs: 'Budget 5G tablet. Great for kids in the car, streaming, or as a second screen. FREE with S26 purchase + tablet line.' },
-];
+] satisfies Device[]).map(withDeviceImage);
 
-export const WATCHES: Device[] = [
+export const WATCHES: Device[] = ([
   {
     name: 'Apple Watch Series 11',
     category: 'watch',
@@ -186,14 +194,14 @@ export const WATCHES: Device[] = [
     keySpecs: 'Real-time GPS, dual cameras, Bluetooth, LED flashlight. For kids who aren\'t ready for a phone.',
     sellingNotes: 'Parents can track location in real time, set geofences, and kids can call/text approved contacts. Dual cameras let kids share photos. LED flashlight is a fun bonus. $174 + wearable line.',
   },
-];
+] satisfies Device[]).map(withDeviceImage);
 
-export const HOTSPOTS: Device[] = [
+export const HOTSPOTS: Device[] = ([
   { name: 'TCL LINKPORT IK511', category: 'hotspot', startingPrice: 96, released: 'Oct 2025', keySpecs: '5G RedCap, max 220Mbps down / 120Mbps up, OpenWrt OS, 256MB RAM, 1.01 oz, USB-C. Connects a single device (no Wi-Fi sharing). Bus-powered.' },
   { name: 'Franklin T10', category: 'hotspot', startingPrice: 'Available', released: '2025', keySpecs: '4G LTE, Wi-Fi 5, connects up to 15 devices simultaneously. Traditional mobile hotspot.' },
   { name: 'SyncUP DRIVE', category: 'hotspot', startingPrice: 108, released: '2025', keySpecs: 'OBD-II plug-in. Vehicle health diagnostics, 5G Wi-Fi hotspot (up to 5 devices), real-time GPS, trip history, speed/boundary alerts for teen drivers. FREE w/ 24 bill credits.' },
   { name: 'SyncUP TRACKER 2', category: 'hotspot', startingPrice: 54, released: '2025', keySpecs: 'LTE/GPS tracking, IP67 weather-resistant, 890 mAh battery (up to 7 days). Real-time location via cellular — works anywhere, not just near phones like AirTag. FREE w/ 24 bill credits.' },
-];
+] satisfies Device[]).map(withDeviceImage);
 
 /** SyncUP tracker comparison data from Google NotebookLM research */
 export const TRACKER_COMPARISON = [

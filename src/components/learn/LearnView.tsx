@@ -162,6 +162,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
     : compareOpen
       ? 'compare'
       : 'shortlist-active';
+  const showFocusedCompareMode = compareOpen && deviceCategory !== 'accessories';
 
   const scrollToComparison = useCallback(() => {
     requestAnimationFrame(() => {
@@ -344,7 +345,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       </div>
 
       {/* Sub-tab toggle — wraps on desktop */}
-      <div className="flex flex-wrap justify-center rounded-3xl p-1 gap-1 glass-tab">
+      <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar rounded-3xl p-1 glass-tab sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
         {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
@@ -353,14 +354,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 type="button"
                 onClick={() => setTab(t.id)}
                 aria-pressed={isActive}
-                className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
+                className={`focus-ring flex shrink-0 items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-sm px-4'
-                    : 'text-t-dark-gray hover:text-t-dark-gray px-2'
+                    : 'text-t-dark-gray hover:text-t-dark-gray px-3'
                 }`}
               >
                 <t.icon className="w-3 h-3 shrink-0" />
-                {isActive ? t.label : <span className="sm:inline hidden">{t.label}</span>}
+                <span>{t.label}</span>
               </button>
             );
           })}
@@ -524,7 +525,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           ) : (
             /* Device lookup + comparison for phones/tablets/wearables */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-5">
+              <div className={showFocusedCompareMode ? 'hidden lg:block lg:col-span-5' : 'lg:col-span-5'}>
                 <div className="rounded-3xl p-5 glass-card glass-specular">
                   <DeviceLookup
                     key={deviceCategory}
@@ -543,7 +544,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   />
                 </div>
               </div>
-              <div ref={comparisonRef} className="lg:col-span-7 space-y-6 scroll-mt-4">
+              <div
+                ref={comparisonRef}
+                className={`${showFocusedCompareMode ? 'lg:col-span-12' : 'lg:col-span-7'} space-y-6 scroll-mt-4`}
+              >
                 {selectedDevices.length > 0 ? (
                   <>
                     <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">

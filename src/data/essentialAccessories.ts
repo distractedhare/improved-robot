@@ -5,6 +5,7 @@ export interface EssentialItem {
   price: string;
   bundle: string | null;
   originalPrice?: string;
+  imageUrl?: string;
   /** What makes this product good — specs, differentiators, review highlights */
   why: string;
   /** One-liner the rep can say out loud to the customer */
@@ -27,6 +28,7 @@ export interface BigAddItem {
   name: string;
   price: string;
   note: string;
+  imageUrl?: string;
   /** What makes this product worth the price — specs, differentiators, standout features */
   why: string;
   /** One-liner the rep can say to pitch it */

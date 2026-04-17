@@ -261,32 +261,62 @@ export default function CustomerContextForm({
                 </div>
 
                 <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setContext(prev => ({ ...prev, hintAvailable: !prev.hintAvailable }))}
-                    className={`focus-ring w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
-                      context.hintAvailable === false
-                        ? 'bg-warning-surface border-warning-border text-warning-foreground'
-                        : 'bg-surface border-t-light-gray text-t-dark-gray'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {context.hintAvailable === false ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
-                      <span className="text-[10px] font-black uppercase tracking-widest">
-                        HINT Availability
+                  <div className="rounded-xl border border-t-light-gray bg-surface p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        {context.hintAvailable === false ? <WifiOff className="w-4 h-4 text-warning-foreground" /> : <Wifi className="w-4 h-4 text-t-magenta" />}
+                        <span className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
+                          HINT Availability
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                        context.hintAvailable === true
+                          ? 'bg-success-surface text-success-foreground'
+                          : context.hintAvailable === false
+                            ? 'bg-warning-surface text-warning-foreground'
+                            : 'bg-t-light-gray text-t-dark-gray'
+                      }`}>
+                        {context.hintAvailable === true ? 'Available' : context.hintAvailable === false ? 'Unavailable' : 'Not Checked'}
                       </span>
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                      context.hintAvailable === false ? 'bg-warning-accent text-white' : 'bg-t-light-gray text-t-dark-gray'
-                    }`}>
-                      {context.hintAvailable === false ? 'Unavailable' : 'Available'}
-                    </span>
-                  </button>
-                  {context.hintAvailable === false && (
-                    <p className="mt-2 text-[10px] font-medium text-warning-foreground/80 px-1">
-                      * Open spots full. Use waiting list & pivot to BTS/IOT or early phone port.
-                    </p>
-                  )}
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {[
+                        { key: 'unchecked', label: 'Not Checked', value: undefined as boolean | undefined },
+                        { key: 'available', label: 'Available', value: true },
+                        { key: 'unavailable', label: 'Unavailable', value: false },
+                      ].map((option) => {
+                        const selected = context.hintAvailable === option.value;
+                        return (
+                          <button
+                            key={option.key}
+                            type="button"
+                            onClick={() => setContext(prev => ({ ...prev, hintAvailable: option.value }))}
+                            aria-pressed={selected}
+                            className={`focus-ring min-h-[44px] rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+                              selected
+                                ? option.value === true
+                                  ? 'border-success-border bg-success-surface text-success-foreground'
+                                  : option.value === false
+                                    ? 'border-warning-border bg-warning-surface text-warning-foreground'
+                                    : 'border-t-magenta/30 bg-t-magenta/8 text-t-magenta'
+                                : 'border-t-light-gray bg-surface-elevated text-t-dark-gray hover:border-t-magenta/30'
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {context.hintAvailable === false ? (
+                      <p className="mt-2 text-[10px] font-medium text-warning-foreground/80 px-1">
+                        Open spots full. Use the waiting list and pivot to BTS, IoT, or an early phone port.
+                      </p>
+                    ) : context.hintAvailable === undefined ? (
+                      <p className="mt-2 text-[10px] font-medium text-t-dark-gray px-1">
+                        Keep HINT in play, but check the address before promising savings or pitching rate relief.
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               </motion.div>
             )}

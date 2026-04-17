@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import TeamJoin from './levelup/TeamJoin';
 import FeedbackForm from './levelup/FeedbackForm';
 import Roadmap from './levelup/Roadmap';
-import { localAiService } from '../services/localAiService';
+import { localAiService, type LocalAiStorageEstimate } from '../services/localAiService';
 import { InitProgressReport } from '@mlc-ai/web-llm';
 
 type SettingsTab = 'team' | 'feedback' | 'roadmap' | 'offline-ai';
@@ -16,6 +16,11 @@ type SettingsTab = 'team' | 'feedback' | 'roadmap' | 'offline-ai';
 const VERSION = "1.2.4-stable";
 const BUILD_ID = "CC-AI-2026-04-08";
 const ADMIN_PASSCODE = 'manager';
+
+function formatStorageBytes(value: number) {
+  if (value <= 0) return '0 GB';
+  return `${(value / (1024 ** 3)).toFixed(value >= 1024 ** 3 ? 1 : 2)} GB`;
+}
 
 interface SettingsViewProps {
   onOpenLeaderboard?: () => void;
@@ -26,23 +31,46 @@ export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = 
   const [isAiReady, setIsAiReady] = useState(localAiService.isReady());
   const [aiProgress, setAiProgress] = useState<InitProgressReport | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(localAiService.getError());
+  const [aiErrorCode, setAiErrorCode] = useState(localAiService.getErrorCode());
+  const [storageEstimate, setStorageEstimate] = useState<LocalAiStorageEstimate | null>(null);
+  const [isResettingAi, setIsResettingAi] = useState(false);
+  const [activeModelLabel, setActiveModelLabel] = useState(localAiService.getActiveModelLabel());
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminInput, setAdminInput] = useState('');
   const [adminError, setAdminError] = useState<string | null>(null);
   const [adminShake, setAdminShake] = useState(0);
   const adminInputRef = useRef<HTMLInputElement>(null);
+  const isAiSupported = localAiService.isSupported();
+
+  const refreshStorageEstimate = async () => {
+    const nextEstimate = await localAiService.getStorageEstimate();
+    setStorageEstimate(nextEstimate);
+  };
 
   useEffect(() => {
+    void refreshStorageEstimate();
+
     const unsubscribeProgress = localAiService.onProgress((p) => setAiProgress(p));
     const unsubscribeReady = localAiService.onReady((ready) => {
       setIsAiReady(ready);
-      if (ready) setIsDownloading(false);
+      setActiveModelLabel(localAiService.getActiveModelLabel());
+      if (ready) {
+        setIsDownloading(false);
+        void refreshStorageEstimate();
+      }
+    });
+    const unsubscribeError = localAiService.onError((error) => {
+      setAiError(error);
+      setAiErrorCode(localAiService.getErrorCode());
+      if (error) setIsDownloading(false);
+      void refreshStorageEstimate();
     });
 
     return () => {
       unsubscribeProgress();
       unsubscribeReady();
+      unsubscribeError();
     };
   }, []);
 
@@ -75,11 +103,31 @@ export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = 
     if (isAiReady || isDownloading) return;
     setIsDownloading(true);
     setAiError(null);
+    setAiErrorCode(null);
     try {
       await localAiService.initialize();
     } catch (err) {
-      setAiError("Failed to initialize local AI. Your device might not support WebGPU.");
+      const message = err instanceof Error ? err.message : 'Failed to initialize local AI.';
+      setAiError(message);
+      setAiErrorCode(localAiService.getErrorCode());
       setIsDownloading(false);
+    } finally {
+      await refreshStorageEstimate();
+    }
+  };
+
+  const handleResetAi = async () => {
+    if (isResettingAi) return;
+    setIsResettingAi(true);
+    try {
+      await localAiService.resetDownload();
+      setAiProgress(null);
+      setAiError(null);
+      setAiErrorCode(null);
+      setActiveModelLabel(localAiService.getActiveModelLabel());
+    } finally {
+      await refreshStorageEstimate();
+      setIsResettingAi(false);
     }
   };
 
@@ -178,30 +226,67 @@ export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = 
                     </div>
                     <div>
                       <h2 className="text-lg font-extrabold tracking-tight">Dead-Zone AI Coach</h2>
-                      <p className="text-xs font-medium text-t-dark-gray">Gemma 2B running locally on your hardware.</p>
+                      <p className="text-xs font-medium text-t-dark-gray">Gemma running locally on your hardware, with a lighter fallback if space gets tight.</p>
                     </div>
                   </div>
 
                   <div className="p-4 rounded-2xl border border-t-light-gray bg-t-light-gray/5 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className={`w-4 h-4 ${isAiReady ? 'text-success-accent' : 'text-t-muted'}`} />
+                        <ShieldCheck className={`w-4 h-4 ${isAiReady ? 'text-success-accent' : isDownloading ? 'text-t-magenta' : 'text-t-muted'}`} />
                         <span className="text-xs font-bold">Model Status</span>
                       </div>
                       <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${
-                        isAiReady ? 'bg-success-surface text-success-accent' : 'bg-t-light-gray text-t-muted'
+                        isAiReady
+                          ? 'bg-success-surface text-success-accent'
+                          : isDownloading
+                            ? 'bg-t-magenta/10 text-t-magenta'
+                            : aiError
+                              ? 'bg-error-surface text-error-foreground'
+                              : 'bg-t-light-gray text-t-muted'
                       }`}>
-                        {isAiReady ? 'Ready' : 'Not Loaded'}
+                        {isAiReady ? 'Ready' : isDownloading ? 'Downloading' : aiError ? 'Needs Attention' : 'Not Loaded'}
                       </span>
                     </div>
 
                     <p className="text-xs text-t-dark-gray leading-relaxed">
-                      The offline coach requires a one-time download of the Gemma AI model (~1.5GB). 
-                      Once downloaded, it works instantly without any internet connection.
+                      The offline coach requires a large one-time Gemma download. Plan for roughly 2 GB of free browser storage the first time, then it runs without an internet connection.
                     </p>
 
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border border-t-light-gray bg-surface px-3 py-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Browser support</p>
+                        <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                          {isAiSupported ? 'WebGPU detected for this browser session.' : 'WebGPU not detected. Chrome, Edge, or Safari with WebGPU enabled is required.'}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-t-light-gray bg-surface px-3 py-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">First download</p>
+                        <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                          Keep this tab open. The first download can take several minutes before the coach is fully ready.
+                        </p>
+                      </div>
+                      {storageEstimate && (
+                        <div className="rounded-xl border border-t-light-gray bg-surface px-3 py-3 sm:col-span-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Browser storage</p>
+                            {storageEstimate.persisted !== null && (
+                              <span className={`text-[9px] font-black uppercase tracking-widest ${
+                                storageEstimate.persisted ? 'text-success-accent' : 'text-t-muted'
+                              }`}>
+                                {storageEstimate.persisted ? 'Persistent' : 'Best effort'}
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                            About {formatStorageBytes(storageEstimate.availableBytes)} appears free for this site right now, with {formatStorageBytes(storageEstimate.usageBytes)} already in use.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
                     {isDownloading && aiProgress && (
-                      <div className="space-y-2">
+                      <div className="space-y-2 rounded-xl border border-t-magenta/20 bg-t-magenta/5 p-3">
                         <div className="flex justify-between text-[10px] font-bold text-t-magenta">
                           <span>{aiProgress.text}</span>
                           <span>{Math.round((aiProgress.progress || 0) * 100)}%</span>
@@ -217,38 +302,75 @@ export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = 
                     )}
 
                     {aiError && (
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-error-surface text-error-foreground border border-error-border">
-                        <AlertCircle className="w-4 h-4 shrink-0" />
-                        <p className="text-[10px] font-bold">{aiError}</p>
+                      <div className="space-y-2 rounded-xl border border-error-border bg-error-surface p-3 text-error-foreground">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <p className="text-[10px] font-black uppercase tracking-widest">Download issue</p>
+                        </div>
+                        <p className="text-[10px] font-bold leading-relaxed">{aiError}</p>
+                        <p className="text-[10px] font-medium opacity-80">
+                          {(aiErrorCode === 'quota' || aiErrorCode === 'cache')
+                            ? 'The local browser storage path failed before Gemma finished downloading. Clear the partial files below, then retry after freeing some space.'
+                            : 'If this is a support issue, open the app in Chrome, Edge, or Safari with hardware acceleration enabled, then try again.'}
+                        </p>
                       </div>
                     )}
 
-                    <button
-                      onClick={handleDownloadAi}
-                      disabled={isAiReady || isDownloading}
-                      className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 transition-all ${
-                        isAiReady 
-                          ? 'bg-success-accent/10 text-success-accent border border-success-accent/20 cursor-default' 
-                          : 'bg-t-magenta text-white shadow-lg shadow-t-magenta/30 hover:scale-[1.02] active:scale-95 disabled:opacity-50'
-                      }`}
-                    >
-                      {isAiReady ? (
-                        <>
-                          <CheckCircle2 className="w-5 h-5" />
-                          <span className="text-xs font-black uppercase tracking-widest">Model Installed</span>
-                        </>
-                      ) : isDownloading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span className="text-xs font-black uppercase tracking-widest">Downloading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Download className="w-5 h-5" />
-                          <span className="text-xs font-black uppercase tracking-widest">Download Gemma Model</span>
-                        </>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <button
+                        onClick={handleDownloadAi}
+                        disabled={isAiReady || isDownloading || !isAiSupported || isResettingAi}
+                        className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all ${
+                          isAiReady 
+                            ? 'bg-success-accent/10 text-success-accent border border-success-accent/20 cursor-default' 
+                            : !isAiSupported
+                              ? 'bg-t-light-gray text-t-muted border border-t-light-gray cursor-not-allowed'
+                              : 'bg-t-magenta text-white shadow-lg shadow-t-magenta/30 hover:scale-[1.02] active:scale-95 disabled:opacity-50'
+                        }`}
+                      >
+                        {isAiReady ? (
+                          <>
+                            <CheckCircle2 className="w-5 h-5" />
+                            <span className="text-xs font-black uppercase tracking-widest">{activeModelLabel} Installed</span>
+                          </>
+                        ) : !isAiSupported ? (
+                          <>
+                            <AlertCircle className="w-5 h-5" />
+                            <span className="text-xs font-black uppercase tracking-widest">WebGPU Required</span>
+                          </>
+                        ) : isDownloading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span className="text-xs font-black uppercase tracking-widest">Downloading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-5 h-5" />
+                            <span className="text-xs font-black uppercase tracking-widest">{aiError ? 'Retry Gemma Download' : 'Download Gemma Model'}</span>
+                          </>
+                        )}
+                      </button>
+
+                      {(!isAiReady || aiError) && (
+                        <button
+                          onClick={handleResetAi}
+                          disabled={isDownloading || isResettingAi}
+                          className="py-4 px-5 rounded-2xl border border-t-light-gray bg-surface text-t-dark-gray flex items-center justify-center gap-3 transition-all hover:bg-t-light-gray/30 disabled:opacity-50 sm:min-w-[220px]"
+                        >
+                          {isResettingAi ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span className="text-xs font-black uppercase tracking-widest">Clearing Files...</span>
+                            </>
+                          ) : (
+                            <>
+                              <X className="w-5 h-5" />
+                              <span className="text-xs font-black uppercase tracking-widest">Clear Gemma Files</span>
+                            </>
+                          )}
+                        </button>
                       )}
-                    </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -257,8 +379,8 @@ export default function SettingsView({ onOpenLeaderboard }: SettingsViewProps = 
                       <p className="text-[10px] font-bold text-t-dark-gray mt-1">100% On-Device</p>
                     </div>
                     <div className="p-3 rounded-xl border border-t-light-gray bg-surface text-center">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Speed</p>
-                      <p className="text-[10px] font-bold text-t-dark-gray mt-1">Instant Response</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Active Model</p>
+                      <p className="text-[10px] font-bold text-t-dark-gray mt-1">{isAiReady ? activeModelLabel : 'Waiting to install'}</p>
                     </div>
                   </div>
                 </div>

@@ -29,9 +29,9 @@ import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
 import CustomerContextForm from './components/CustomerContextForm';
 import GuidedContextFlow from './components/GuidedContextFlow';
-import GamePlanTab from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
+import LivePlanResults from './components/LivePlanResults';
 import SessionStats from './components/SessionStats';
 
 const LearnView = lazy(() => import('./components/learn/LearnView'));
@@ -110,7 +110,7 @@ export default function App() {
     familyCount: undefined,
     currentPlatform: 'Not Specified',
     desiredPlatform: 'Not Specified',
-    hintAvailable: true
+    hintAvailable: undefined
   });
   const [script, setScript] = useState<SalesScript | null>(null);
   const [loading, setLoading] = useState(false);
@@ -497,7 +497,7 @@ export default function App() {
       familyCount: undefined,
       currentPlatform: 'Not Specified',
       desiredPlatform: 'Not Specified',
-      hintAvailable: true
+      hintAvailable: undefined
     });
     setIntentTapped(true);
     setShowGuidedFlow(true);
@@ -680,6 +680,7 @@ export default function App() {
                     weeklySource={weeklySource}
                     ecosystemMatrix={ecosystemMatrix}
                     onDataUpdate={handleWeeklyDataRefresh}
+                    onSelectScenario={handlePracticeScenario}
                   />
                 </Suspense>
               </ErrorBoundary>
@@ -999,8 +1000,76 @@ export default function App() {
               </AnimatePresence>
             </section>
 
-            {/* GENERATE BUTTON */}
-            <GamePlanTab />
+            <section className="rounded-3xl p-4 glass-card glass-specular space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-t-dark-gray">Build the live plan</p>
+                  <p className="mt-0.5 text-[10px] font-medium text-t-dark-gray">
+                    One action. Build the plan, then work the right-hand panel.
+                  </p>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
+                  loading
+                    ? 'bg-t-magenta/10 text-t-magenta'
+                    : script
+                      ? 'bg-success-surface text-success-foreground'
+                      : 'bg-t-light-gray/40 text-t-dark-gray'
+                }`}>
+                  {loading ? 'Building…' : script ? 'Plan Ready' : 'Ready to Build'}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+                  {context.purchaseIntent.replace(' / ', ' ')}
+                </span>
+                <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+                  {context.product.join(', ')}
+                </span>
+                <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
+                  context.hintAvailable === true
+                    ? 'bg-success-surface text-success-foreground'
+                    : context.hintAvailable === false
+                      ? 'bg-warning-surface text-warning-foreground'
+                      : 'bg-t-magenta/10 text-t-magenta'
+                }`}>
+                  {context.product.includes('Home Internet')
+                    ? context.hintAvailable === true
+                      ? 'HINT available'
+                      : context.hintAvailable === false
+                        ? 'HINT unavailable'
+                        : 'HINT not checked'
+                    : 'HINT optional'}
+                </span>
+              </div>
+
+              <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                {context.product.includes('Home Internet') && context.hintAvailable === undefined
+                  ? 'You can build now, but the plan will keep Home Internet in verify-first mode until the address check is done.'
+                  : script
+                    ? 'Refresh the plan anytime the caller gives you new info.'
+                    : 'Use this after the basic setup is in place so the right panel shows the actual call plan instead of only quick plays.'}
+              </p>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => { void handleGenerate(); }}
+                  disabled={loading}
+                  className="focus-ring inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl bg-t-magenta px-4 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-t-magenta/20 transition-transform hover:scale-[1.01] active:scale-95 disabled:cursor-wait disabled:opacity-70"
+                >
+                  <Sparkles className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
+                  {script ? 'Refresh Live Plan' : 'Build Live Plan'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('gameplan')}
+                  className="focus-ring inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-t-light-gray bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta"
+                >
+                  Keep plan in view
+                </button>
+              </div>
+            </section>
           </>
         )}
 
@@ -1128,7 +1197,9 @@ export default function App() {
                 <ObjectionResults result={objectionResult} onClear={() => setObjectionResult(null)} />
               )}
 
-              {/* Full generated game plan removed during redesign — GamePlanTab now handles its own flow */}
+              {activeTab === 'gameplan' && script && !loading && (
+                <LivePlanResults script={script} context={context} />
+              )}
 	            </AnimatePresence>
 	            </div>
 	            </ErrorBoundary>
@@ -1229,7 +1300,7 @@ export default function App() {
                 <h3 className="text-lg font-black tracking-tight text-t-dark-gray">HINT Availability</h3>
               </div>
               <p className="text-sm text-t-dark-gray font-medium mb-6">
-                Did you check their address? Is T-Mobile Home Internet currently available for them?
+                Did you check their address yet? Keep HINT in the plan even if you still need to verify availability.
               </p>
               <div className="space-y-3">
                 <button
@@ -1261,6 +1332,21 @@ export default function App() {
                   className="w-full focus-ring bg-surface border-2 border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
                 >
                   <WifiOff className="w-4 h-4" /> No, Spots Full
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleContextUpdate(prev => ({
+                      ...prev,
+                      hintAvailable: undefined,
+                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
+                    }));
+                    setShowHintPrompt(false);
+                    void handleGenerate();
+                  }}
+                  className="w-full focus-ring bg-surface-elevated border border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4" /> Not Yet Checked
                 </button>
               </div>
             </motion.div>

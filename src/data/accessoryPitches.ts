@@ -4,6 +4,7 @@ export interface AccessoryPitch {
   name: string;
   category: 'protection' | 'audio' | 'charging' | 'case' | 'tracker' | 'other';
   price: string;
+  imageUrl?: string;
   margin: 'high' | 'medium' | 'low';
   transitionScript: string;
 }

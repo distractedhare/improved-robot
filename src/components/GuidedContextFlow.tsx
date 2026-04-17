@@ -194,9 +194,9 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       </div>
       <div className="grid grid-cols-1 gap-3">
         {[
-          { id: 'Yes', label: 'Yes, they qualify!', color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
-          { id: 'No', label: 'No, not available.', color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
-          { id: 'Wait', label: 'Checking it right now...', color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
+          { id: 'Yes', label: 'Yes, they qualify!', availability: true as boolean | undefined, color: 'bg-success-surface border-success-border text-success-foreground hover:bg-success-surface/80' },
+          { id: 'No', label: 'No, not available.', availability: false as boolean | undefined, color: 'bg-error-surface border-error-border text-error-foreground hover:bg-error-surface/80' },
+          { id: 'Wait', label: 'Checking it right now...', availability: undefined as boolean | undefined, color: 'bg-surface border-t-light-gray text-t-dark-gray hover:border-t-magenta/50 hover:bg-t-magenta/5' },
         ].map((opt) => (
           <motion.button
             key={opt.id}
@@ -204,7 +204,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             animate={selectedId === opt.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -2 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(opt.id, { hintQualified: opt.id as any }, 'product')}
+            onClick={() => handleOptionSelect(opt.id, { hintQualified: opt.id as any, hintAvailable: opt.availability }, 'product')}
             className={`p-4 rounded-2xl border-2 transition-all text-center font-black uppercase tracking-widest text-[11px] shadow-sm ${
               selectedId === opt.id ? 'ring-2 ring-offset-2 ring-t-magenta/50 scale-[1.02]' : ''
             } ${opt.color}`}
