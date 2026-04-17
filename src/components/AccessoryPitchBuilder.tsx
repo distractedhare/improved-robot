@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
 import { EcosystemMatrix } from '../types/ecosystem';
+import AccessoryImageSlot from './AccessoryImageSlot';
 import {
   getAccessoryOutcomeLabel,
   getAccessoryPitchPositioningSummary,
@@ -79,6 +80,24 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
         </p>
       </div>
 
+      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Pitch order</p>
+        <div className="mt-2 grid gap-2 md:grid-cols-3">
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Best For</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Match the accessory to the caller first so it never feels random.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Use When</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Grab one or two cues from the call before you mention the item.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Proof</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Close with the proof line, then move into price only if they lean in.</p>
+          </div>
+        </div>
+      </div>
+
       {Object.entries(grouped).map(([category, items]) => (
         <div key={category} className="space-y-2">
           <h4 className="px-1 text-[9px] font-black uppercase tracking-widest text-t-muted">
@@ -123,8 +142,14 @@ function AccessoryCard({
 
   return (
     <div className="rounded-xl glass-card p-4 transition-all hover:border-t-magenta/30">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div>
+      <div className="mb-2 flex items-start gap-3">
+        <AccessoryImageSlot
+          name={accessory.name}
+          imageUrl={accessory.imageUrl}
+          className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+          imageClassName="h-full w-full object-contain"
+        />
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-black text-t-magenta">{accessory.price}</span>
@@ -140,7 +165,7 @@ function AccessoryCard({
           </div>
         </div>
         <DollarSign
-          className={`h-4 w-4 shrink-0 ${
+          className={`mt-1 h-4 w-4 shrink-0 ${
             accessory.margin === 'high'
               ? 'text-success-accent'
               : accessory.margin === 'medium'

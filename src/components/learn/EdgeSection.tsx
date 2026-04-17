@@ -19,7 +19,7 @@ export default function EdgeSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20 glass-prismatic">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <ShieldCheck className="w-64 h-64 -mt-10 -mr-10 text-white" />
         </div>
@@ -30,7 +30,7 @@ export default function EdgeSection() {
           </div>
           <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The T-Mobile Edge</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            What makes T-Mobile different. Memorize these and you'll win more conversations.
+            What makes T-Mobile different, and how to explain it quickly when a customer asks why we win.
           </p>
           <div className="flex flex-wrap gap-2.5 mt-6">
             <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
@@ -45,6 +45,24 @@ export default function EdgeSection() {
               <Tv className="w-3.5 h-3.5 text-white/80" />
               <span className="text-[10px] font-black text-white uppercase tracking-wider">Streaming</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this section</p>
+        <div className="mt-2 grid gap-2 md:grid-cols-3">
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Story first</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with one clean T-Mobile advantage before you mention any competitor weakness.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Proof second</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use one detail to back up the story only if the caller asks why it matters.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Compare last</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Open the competitor comparison only when the caller explicitly wants the side-by-side.</p>
           </div>
         </div>
       </div>
@@ -95,7 +113,7 @@ export default function EdgeSection() {
 
                   {diff.competitorComparison && (
                     <div className="p-3 rounded-xl bg-t-berry/10 border border-t-berry/20">
-                      <p className="text-[9px] font-black uppercase tracking-wider text-t-berry mb-1">vs. the competition</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-t-berry mb-1">vs. The competition</p>
                       <p className="text-[11px] text-t-dark-gray font-medium">{diff.competitorComparison}</p>
                     </div>
                   )}

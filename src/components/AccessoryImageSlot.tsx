@@ -42,8 +42,10 @@ export default function AccessoryImageSlot({
         <img
           src={currentSource}
           alt={fallbackIndex === 0 ? name : `${badge.label} placeholder for ${name}`}
-          className={imageClassName}
+          className={`${imageClassName} ${fallbackIndex === 0 ? '' : 'opacity-80 saturate-75'}`}
           loading="lazy"
+          width={160}
+          height={160}
           onError={() => setFallbackIndex((current) => current + 1)}
         />
       ) : (
@@ -63,9 +65,16 @@ export default function AccessoryImageSlot({
             alt=""
             aria-hidden="true"
             className="h-full w-full object-contain"
+            width={20}
+            height={20}
           />
         </span>
       )}
+      {fallbackIndex > 0 ? (
+        <span className="pointer-events-none absolute left-1 top-1 rounded-full bg-white/90 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-t-muted">
+          Fallback
+        </span>
+      ) : null}
     </div>
   );
 }

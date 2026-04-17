@@ -44,7 +44,7 @@ export const learnCopy = {
   accessoryQuickReference: {
     title: 'Accessories Quick Reference',
     helper: 'Fast lookup for phone reps. Find the outcome, use one line, and keep it moving.',
-    searchLabel: 'Search by accessory',
+    searchLabel: 'Search by accessory…',
     clearLabel: 'Clear search',
     filtersLabel: 'Filter by outcome',
   },

@@ -9,37 +9,37 @@ const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: strin
   'Experience Beyond': {
     tag: 'BEST',
     tagColor: 'bg-t-magenta text-white',
-    bestFor: 'Power users, streamers, travelers, families who want everything.',
-    repInsight: 'Highest margin, lowest churn. These customers stay because they never hit a wall — no throttling, no "you used too much." They get Netflix + Hulu + Apple TV+, 250GB hotspot, yearly upgrades, and satellite. When they call back, it\'s to ADD lines.',
-    image: 'https://picsum.photos/seed/beyond/800/400',
+    bestFor: 'Power users, streamers, travelers, families who want everything. Customers who hate limits.',
+    repInsight: 'Highest margin, lowest churn. These customers stay because they never hit a wall — no throttling, no "you used too much." They get Netflix + Hulu + Apple TV+, 250GB hotspot, yearly upgrades, and satellite. When they call back, it\'s to ADD lines, not complain. This is the plan you want every customer on.',
+    image: '/images/ui/plan-experience-beyond.png',
   },
   'Experience More': {
     tag: 'BETTER',
     tagColor: 'bg-t-berry text-white',
-    bestFor: 'Most customers. Great balance of premium features and price.',
-    repInsight: 'Your bread and butter. Same unlimited premium data as Beyond, Netflix + Apple TV+ included, 60GB hotspot, in-flight Wi-Fi. Covers 90% of what customers actually need. Still a premium plan, still great metrics for you.',
-    image: 'https://picsum.photos/seed/more/800/400',
+    bestFor: 'Most customers. Great balance of premium features and price. The sweet spot.',
+    repInsight: 'Your bread and butter. Same unlimited premium data as Beyond, Netflix + Apple TV+ included, 60GB hotspot, in-flight Wi-Fi. Covers 90% of what customers actually need. When someone says "I don\'t need ALL that" about Beyond, this is where you land them. Still a premium plan, still great metrics for you.',
+    image: '/images/ui/plan-experience-more.png',
   },
   'Better Value': {
     tag: 'BEST VALUE',
-    tagColor: 'bg-green-600 text-white',
+    tagColor: 'bg-success-accent text-white',
     bestFor: 'Families with 3+ lines who qualify — switchers or long-tenure customers.',
-    repInsight: 'This is your secret weapon for switchers. Beyond-level features at $46.67/line for 3 lines. Catch: they need 3+ lines AND either 2 port-ins or 5+ years tenure. If they qualify, it\'s an easy close — show the math vs AT&T/Verizon.',
-    image: 'https://picsum.photos/seed/value/800/400',
+    repInsight: 'This is your secret weapon for switchers. Beyond-level features at $46.67/line for 3 lines. The catch: they need 3+ lines AND either 2 port-ins (new) or 5+ years tenure (existing). If they qualify, it\'s an easy close — show the math vs what they\'re paying at AT&T/Verizon.',
+    image: '/images/ui/plan-better-value.png',
   },
   'Essentials': {
     tag: 'GOOD',
-    tagColor: 'bg-gray-600 text-white',
-    bestFor: 'Price-sensitive customers, light users, seniors on a budget.',
-    repInsight: 'Don\'t lead with this. It has deprioritized data (slow during congestion), 480p video, no hotspot worth using, and no in-flight Wi-Fi. Only use when the customer truly can\'t afford More/Beyond and you\'d lose the sale.',
-    image: 'https://picsum.photos/seed/essentials/800/400',
+    tagColor: 'bg-t-dark-gray/60 text-white',
+    bestFor: 'Price-sensitive customers, light users, seniors on a budget. Use as a last resort.',
+    repInsight: 'Don\'t lead with this. It has deprioritized data (slow during congestion), 480p video, no hotspot worth using, and no in-flight Wi-Fi. If you put someone here who streams or hotspots, they\'ll call back frustrated. Only use when the customer truly can\'t afford More/Beyond and you\'d lose the sale entirely.',
+    image: '/images/ui/plan-essentials.png',
   },
   'Essentials Saver': {
     tag: 'BUDGET',
-    tagColor: 'bg-gray-400 text-white',
+    tagColor: 'bg-t-dark-gray/40 text-white',
     bestFor: 'Absolute bottom dollar. Not eligible for most promos.',
-    repInsight: 'Last resort only. Most device promos don\'t apply, data is heavily deprioritized, no perks. If a customer is on this plan, you\'re leaving money on the table AND they\'ll have a worse experience.',
-    image: 'https://picsum.photos/seed/budget/800/400',
+    repInsight: 'Last resort only. Most device promos don\'t apply, data is heavily deprioritized, no perks. If a customer is on this plan, you\'re leaving money on the table AND they\'ll have a worse experience. Always try to move them up to at least Essentials.',
+    image: '/images/ui/plan-essentials-saver.png',
   },
 };
 
@@ -48,9 +48,10 @@ const QUICK_FACTS = [
   'The streaming perks on Beyond alone are worth ~$20/mo (Netflix + Hulu + Apple TV+)',
   'Beyond has 250GB hotspot — most competitors cap at 15-50GB',
   'Essentials data gets deprioritized during congestion — customers WILL notice in busy areas',
-  'In-flight Wi-Fi is included on More and Beyond — Essentials customers pay per flight',
+  'In-flight Wi-Fi is included on More and Beyond — Essentials customers have to pay per flight',
   '5-Year Price Guarantee on ALL current plans — the price they sign up at is locked',
-  'Connected device lines (tablets, watches) are $5/mo on Beyond vs $10-20 on lower tiers',
+  'Connected device lines (tablets, watches) are only $5/mo on Beyond vs $10-20 on lower tiers',
+  '3rd-line-free promo is active right now on Beyond and More — HUGE for families',
 ];
 
 const CONNECTED_PLANS = [
@@ -62,7 +63,7 @@ const CONNECTED_PLANS = [
       { plan: 'Experience More', price: '$10/mo', note: 'Shares plan features' },
       { plan: 'Essentials', price: '$20/mo', note: 'Standalone pricing' },
     ],
-    tip: 'On Beyond, a tablet line is only $5/mo. Lead with that.',
+    tip: 'On Beyond, a tablet line is only $5/mo — that\'s cheaper than a Netflix subscription. Lead with that.',
   },
   {
     type: 'Watch Line',
@@ -72,16 +73,16 @@ const CONNECTED_PLANS = [
       { plan: 'Experience More', price: '$10/mo', note: 'Shares plan features' },
       { plan: 'Essentials', price: '$10-15/mo', note: 'Basic connectivity' },
     ],
-    tip: 'Watch lines on premium plans share the phone\'s features.',
+    tip: 'Watch lines on premium plans share the phone\'s features. On Essentials, it\'s basic only.',
   },
   {
     type: 'SyncUP / IoT',
     icon: Smartphone,
     pricing: [
       { plan: 'SyncUP Tracker', price: '$5/mo', note: 'GPS tracking line' },
-      { plan: 'SyncUP DRIVE', price: '$10-20/mo', note: 'Connected car plan' },
+      { plan: 'SyncUP DRIVE', price: '$10-20/mo', note: 'Connected car (Magenta Drive plan)' },
     ],
-    tip: 'Tracker lines are $5/mo regardless of phone plan.',
+    tip: 'Tracker lines are $5/mo regardless of phone plan. DRIVE needs its own data plan.',
   },
 ];
 
@@ -89,9 +90,74 @@ export default function PlansSection() {
   const [activeSection, setActiveSection] = useState<Section>('why-premium');
 
   return (
-    <div className="space-y-6">
-      {/* Sub-navigation */}
-      <div className="flex bg-surface border border-t-light-gray rounded-xl p-1.5 gap-2 overflow-x-auto">
+    <div className="space-y-5">
+      {/* Hero banner */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <Crown className="w-64 h-64 -mt-10 -mr-10 text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
+            <Sparkles className="w-3 h-3 text-white" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Product Knowledge</p>
+          </div>
+          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Plans Breakdown</h3>
+          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
+            Know the tiers, know the value, and know <span className="text-white font-black underline decoration-white/40 underline-offset-4">why</span> premium plans are better for both the customer and you.
+            The goal is a cleaner recommendation, happier customers, and stronger metrics.
+          </p>
+          <div className="flex flex-wrap gap-2.5 mt-6">
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Smartphone className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Watch className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+              <Star className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this fast</p>
+        <div className="mt-2 grid gap-2 md:grid-cols-3">
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Best For</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with the fit first so the plan recommendation feels obvious, not scripted.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Do Not Lead With</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use Essentials as a save, not your first move, unless budget is clearly the blocker.</p>
+          </div>
+          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
+            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">How To Say It</p>
+            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use one reason, one proof point, then stop talking and let the caller react.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick facts */}
+      <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
+          <Zap className="w-3 h-3" /> Why premium wins
+        </p>
+        <div className="space-y-2">
+          {QUICK_FACTS.map((fact, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
+              <p className="text-[11px] text-info-foreground font-medium leading-snug">{fact}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Section nav */}
+      <div className="flex rounded-2xl p-1 glass-tab gap-1 overflow-x-auto">
         {[
           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },
@@ -102,124 +168,190 @@ export default function PlansSection() {
             key={s.id}
             type="button"
             onClick={() => setActiveSection(s.id)}
-            className={`flex-1 flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap ${
+            className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-2 rounded-xl transition-all whitespace-nowrap ${
               activeSection === s.id
-                ? 'bg-white shadow-sm border border-gray-200 text-t-magenta'
-                : 'text-t-dark-gray hover:bg-gray-100'
+                ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
+                : 'text-t-muted hover:text-t-dark-gray'
             }`}
           >
-            <s.icon className="w-4 h-4" />
+            <s.icon className="w-3 h-3" />
             {s.label}
           </button>
         ))}
       </div>
 
+      {/* WHY PREMIUM */}
       {activeSection === 'why-premium' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-t-magenta rounded-2xl p-6 text-white shadow-md">
-            <h4 className="text-xl font-bold mb-4">Why Push Experience More or Beyond?</h4>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide">For the customer</p>
-                <ul className="space-y-2">
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> No throttling. Their data is always premium.</li>
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> Streaming perks pay for themselves (~$20/mo value).</li>
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> Huge hotspot amounts (60-250GB).</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white/80 mb-2 uppercase tracking-wide mt-4">For you</p>
-                <ul className="space-y-2">
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> Higher margin plans = better commission.</li>
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> Lower churn — premium customers don't leave.</li>
-                  <li className="text-sm flex gap-2"><span className="text-white/60">•</span> Easier to attach $5 connected devices.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
-              <h4 className="text-lg font-bold text-red-800 mb-3">What they lose on Essentials</h4>
-              <ul className="space-y-2">
-                <li className="text-sm text-red-700 flex gap-2"><span>✕</span> Data gets throttled during congestion</li>
-                <li className="text-sm text-red-700 flex gap-2"><span>✕</span> Video capped at 480p</li>
-                <li className="text-sm text-red-700 flex gap-2"><span>✕</span> No usable hotspot</li>
-                <li className="text-sm text-red-700 flex gap-2"><span>✕</span> No included streaming perks</li>
-              </ul>
-            </div>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">How to say it</h4>
-              <div className="space-y-3">
-                <p className="text-sm text-gray-800 italic border-l-4 border-t-magenta pl-3 py-1">
-                  "Your current plan gets slowed down when the network's busy. On Experience More, that never happens."
-                </p>
-                <p className="text-sm text-gray-800 italic border-l-4 border-t-magenta pl-3 py-1">
-                  "The streaming alone is worth the upgrade — Netflix and Apple TV+ are included. That's $18/month."
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'phone' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {POSTPAID_PLANS.map((plan) => {
-              const tier = PLAN_TIERS[plan.name];
-              if (!tier) return null;
-              return <PlanCard key={plan.name} plan={plan} tier={tier} />;
-            })}
-          </div>
-        </div>
-      )}
-
-      {activeSection === 'connected' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {CONNECTED_PLANS.map((cp) => (
-            <div key={cp.type} className="border border-gray-200 bg-white rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-t-magenta/10 rounded-full flex items-center justify-center">
-                   <cp.icon className="w-5 h-5 text-t-magenta" />
-                </div>
-                <h4 className="text-lg font-bold">{cp.type}</h4>
-              </div>
-              <div className="space-y-3 mb-6">
-                {cp.pricing.map((p, i) => (
-                  <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                    <div>
-                      <p className="text-sm font-bold text-gray-800">{p.plan}</p>
-                      <p className="text-xs text-gray-500">{p.note}</p>
+        <div className="space-y-4">
+          {/* The real talk card */}
+          <div className="rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-5 text-white">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Real Talk</p>
+            <h4 className="text-lg font-black mb-3">Why You Should Push for Experience More or Beyond</h4>
+            <div className="space-y-3">
+              {[
+                { title: 'For the customer', points: [
+                  'No throttling. Ever. Their data is premium — they\'ll never get slowed down at a concert, sporting event, or busy area.',
+                  'Streaming perks pay for themselves. Netflix + Hulu + Apple TV+ = ~$20/mo in value. That\'s basically the price difference from Essentials.',
+                  'They can actually USE their hotspot. 60-250GB vs basically nothing on Essentials.',
+                  'In-flight Wi-Fi included. No more paying $8 per flight.',
+                  'Satellite connectivity (Beyond) — texts go through even with zero bars in remote areas.',
+                ]},
+                { title: 'For you', points: [
+                  'Higher margin plans = better commission and metrics.',
+                  'Lower churn — premium customers don\'t leave. They\'re getting too much value.',
+                  'Fewer callbacks. Essentials customers call back to complain about slow data. Premium customers don\'t.',
+                  'Upgrade eligibility. Beyond customers can upgrade yearly (6 months + 50% paid) — that\'s a future sale.',
+                  'Connected device attach rate goes up. $5/line for tablets/watches on Beyond vs $20 on Essentials — easier sell.',
+                ]},
+              ].map((block) => (
+                <div key={block.title}>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-white/70 mb-1.5">{block.title}</p>
+                  {block.points.map((point, i) => (
+                    <div key={i} className="flex items-start gap-2 mb-1.5">
+                      <ChevronRight className="w-3 h-3 text-white/60 mt-0.5 shrink-0" />
+                      <p className="text-[11px] font-medium text-white/90 leading-snug">{point}</p>
                     </div>
-                    <span className="text-base font-bold text-t-magenta">{p.price}</span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick comparison: what they lose on Essentials */}
+          <div className="rounded-2xl border-2 border-warning-border bg-warning-surface p-5">
+            <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-3">What customers miss on Essentials</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                'Data gets throttled during congestion',
+                'Video capped at 480p (DVD quality)',
+                'No usable hotspot (600 Kbps = unusable)',
+                'No in-flight Wi-Fi',
+                'No Netflix/Hulu/Apple TV+',
+                'No satellite connectivity',
+                'No yearly upgrade option',
+                'Connected devices cost 2-4x more per line',
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="text-warning-accent font-black text-xs mt-0.5">✕</span>
+                  <p className="text-[11px] text-warning-foreground font-medium leading-snug">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* The script */}
+          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it on a live call</p>
+            <div className="space-y-3">
+              {[
+                '"I want to make sure you\'re getting the most out of T-Mobile. The plan you\'re on — your data can get slowed down when the network\'s busy. On Experience More, that never happens."',
+                '"The streaming alone is worth the upgrade — Netflix and Apple TV+ are included. That\'s $18/month you\'re already paying separately."',
+                '"With your phone plan, you\'d also get in-flight Wi-Fi included. No more paying $8 per flight."',
+                '"Let me show you the per-line math. With the 3rd-line-free promo right now, Experience More is actually only about $47/line for 3 lines."',
+              ].map((script, i) => (
+                <div key={i} className="border-l-3 border-t-magenta pl-3 py-1" style={{ borderLeftWidth: '3px', borderLeftColor: 'var(--color-t-magenta)' }}>
+                  <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{script}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PHONE PLANS */}
+      {activeSection === 'phone' && (
+        <div className="space-y-4">
+          {POSTPAID_PLANS.map((plan) => {
+            const tier = PLAN_TIERS[plan.name];
+            if (!tier) return null;
+            return <PlanCard key={plan.name} plan={plan} tier={tier} />;
+          })}
+
+          {/* Retired plans note */}
+          <div className="rounded-2xl border border-t-light-gray/50 p-4">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">Retired Plans</p>
+            <div className="space-y-1">
+              {RETIRED_PLANS.map((p) => (
+                <p key={p.name} className="text-[11px] text-t-muted font-medium">
+                  <span className="font-bold">{p.name}</span> — {p.note}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONNECTED DEVICES */}
+      {activeSection === 'connected' && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border-2 border-t-magenta/20 bg-t-magenta/5 p-4">
+            <p className="text-[10px] font-black text-t-magenta uppercase tracking-wider mb-1">Key insight</p>
+            <p className="text-[12px] font-medium text-t-dark-gray leading-snug">
+              Connected device lines are dramatically cheaper on premium plans. A tablet on Beyond is $5/mo — on Essentials it's $20/mo.
+              That's your pitch: "Upgrading your phone plan actually makes your tablet cheaper too."
+            </p>
+          </div>
+
+          {CONNECTED_PLANS.map((cp) => (
+            <div key={cp.type} className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <cp.icon className="w-4 h-4 text-t-magenta" />
+                <h4 className="text-sm font-black uppercase tracking-tight">{cp.type}</h4>
+              </div>
+              <div className="space-y-2 mb-3">
+                {cp.pricing.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between text-[11px] py-1.5 border-b border-t-light-gray/50 last:border-0">
+                    <span className="font-bold text-t-dark-gray">{p.plan}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-t-magenta">{p.price}</span>
+                      <span className="text-t-muted font-medium text-[10px]">{p.note}</span>
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="bg-gray-50 rounded-lg p-3">
-                 <p className="text-sm font-semibold text-gray-700">💡 {cp.tip}</p>
+              <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
+                <p className="text-[10px] font-bold text-t-magenta">{cp.tip}</p>
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* SPECIALIZED */}
       {activeSection === 'specialized' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
           {[
             { title: '55+ Plans', icon: Users, content: SPECIALIZED_PLANS.senior.description },
             { title: 'Military & First Responder', icon: Shield, content: SPECIALIZED_PLANS.military.description },
             { title: 'Business Plans', icon: Briefcase, content: SPECIALIZED_PLANS.business.description },
           ].map((sp) => (
-            <div key={sp.title} className="border border-gray-200 bg-white rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <sp.icon className="w-6 h-6 text-t-magenta" />
-                <h4 className="text-lg font-bold">{sp.title}</h4>
+            <div key={sp.title} className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <sp.icon className="w-4 h-4 text-t-berry" />
+                <h4 className="text-sm font-black uppercase tracking-tight">{sp.title}</h4>
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">{sp.content}</p>
+              <p className="text-[12px] text-t-dark-gray font-medium leading-relaxed">{sp.content}</p>
             </div>
           ))}
+
+          {/* Prepaid */}
+          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <DollarSign className="w-4 h-4 text-t-berry" />
+              <h4 className="text-sm font-black uppercase tracking-tight">Prepaid Plans</h4>
+            </div>
+            <div className="space-y-1.5">
+              {SPECIALIZED_PLANS.prepaid.map((p) => (
+                <div key={p.name} className="flex items-center justify-between text-[11px] py-1.5 border-b border-t-light-gray/50 last:border-0">
+                  <div>
+                    <span className="font-bold text-t-dark-gray">{p.name}</span>
+                    <span className="text-t-muted ml-2 font-medium">{p.data}</span>
+                  </div>
+                  <span className="font-black text-t-magenta">${p.price}/mo</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -228,48 +360,76 @@ export default function PlansSection() {
 
 function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof PLAN_TIERS[string] }) {
   const [expanded, setExpanded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const imageSource = hasError ? '/images/ui/product-card-fallback.svg' : tier.image;
+  const isBest = tier.tag === 'BEST';
+  const isBetter = tier.tag === 'BETTER' || tier.tag === 'BEST VALUE';
+  const imageLabel = `${plan.name} plan image`;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-full">
-      <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-start">
-        <div>
-          <h4 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h4>
-          <p className="text-sm text-gray-600">{tier.bestFor}</p>
+    <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
+      {/* Plan Image */}
+      <div className="relative h-40 overflow-hidden">
+        <img
+          src={imageSource}
+          alt={imageLabel}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          width={1200}
+          height={675}
+          loading="lazy"
+          onError={() => setHasError(true)}
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-4 left-5">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-xl font-black uppercase tracking-tight text-white">{plan.name}</h4>
+            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${tier.tagColor}`}>
+              {tier.tag}
+            </span>
+          </div>
+          <p className="text-[11px] text-white/90 font-medium">{tier.bestFor}</p>
         </div>
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${tier.tagColor}`}>
-          {tier.tag}
-        </span>
       </div>
 
-      <div className="p-6 flex-grow">
-        {/* Clean Pricing Table */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-4">
-          <div className="grid grid-cols-3 bg-gray-100 px-4 py-2">
-            <span className="text-xs font-bold text-gray-600 uppercase">Lines</span>
-            <span className="text-xs font-bold text-gray-600 uppercase text-center">Total</span>
-            <span className="text-xs font-bold text-gray-600 uppercase text-right">Per Line</span>
+      <div className="p-5">
+        {/* Pricing grid */}
+        <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
+          <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
+            <span>Lines</span>
+            <span className="text-right">Total</span>
+            <span className="text-right">Per Line</span>
           </div>
           {plan.pricing.map((p) => (
-            <div key={p.lines} className="grid grid-cols-3 px-4 py-3 border-t border-gray-100">
-              <span className="text-sm font-semibold text-gray-800">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
-              <span className="text-sm font-semibold text-gray-800 text-center">${p.monthlyTotal}/mo</span>
-              <span className="text-sm font-bold text-t-magenta text-right">${p.perLine.toFixed(2)}/line</span>
+            <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">
+              <span className="font-bold text-t-dark-gray">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
+              <span className="text-right font-bold text-t-dark-gray">${p.monthlyTotal}/mo</span>
+              <span className="text-right font-black text-t-magenta">${p.perLine.toFixed(2)}/line</span>
             </div>
           ))}
+          {plan.pricing.some(p => p.promoNote) && (
+            <div className="px-3 py-1.5 bg-success-surface border-t border-success-border">
+              <p className="text-[9px] font-bold text-success-foreground">
+                {plan.pricing.find(p => p.promoNote)?.promoNote}
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="bg-pink-50 border border-pink-100 rounded-lg p-4 mb-4">
-          <p className="text-xs font-bold text-t-magenta uppercase tracking-wider mb-2">Rep Insight</p>
-          <p className="text-sm text-gray-800">{tier.repInsight}</p>
+        {/* Rep insight */}
+        <div className="bg-t-magenta/5 rounded-xl px-3 py-2.5 border border-t-magenta/10 mb-3">
+          <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
+          <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
         </div>
 
+        {/* Expandable features */}
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between py-2 text-sm font-bold text-t-magenta hover:text-t-berry transition-colors"
+          className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
         >
-          <span>{expanded ? 'Hide Features' : `View all ${plan.features.length} Features`}</span>
-          <ChevronDown className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         </button>
 
         <AnimatePresence>
@@ -278,15 +438,39 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <ul className="mt-4 space-y-2">
+              <div className="mt-3 space-y-1.5">
                 {plan.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-t-magenta font-bold">•</span> {f}
-                  </li>
+                  <div key={i} className="flex items-start gap-2">
+                    <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{f}</p>
+                  </div>
                 ))}
-              </ul>
+                {plan.limitations && plan.limitations.length > 0 && (
+                  <>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mt-3 mb-1">Limitations</p>
+                    {plan.limitations.map((l, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className="text-warning-accent font-black text-xs mt-0.5">!</span>
+                        <p className="text-[11px] text-warning-foreground font-medium leading-snug">{l}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {plan.eligibility && plan.eligibility.length > 0 && (
+                  <>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-1">Eligibility</p>
+                    {plan.eligibility.map((e, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
+                        <p className="text-[11px] text-info-foreground font-medium leading-snug">{e}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

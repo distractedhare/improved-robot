@@ -9,7 +9,7 @@ export interface ManufacturerBadge {
   assetClassName?: string;
 }
 
-export const COMPANY_LOGO_FALLBACK = '/images/ui/company-logo-fallback.png';
+export const COMPANY_LOGO_FALLBACK = '/images/ui/product-card-fallback.svg';
 
 const MANUFACTURER_BADGES: Record<ManufacturerKind, ManufacturerBadge> = {
   apple: {
