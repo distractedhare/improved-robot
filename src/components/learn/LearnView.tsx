@@ -215,7 +215,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   }, [deviceCategory, scrollToComparison]);
 
   // Switch device pool/presets/filters based on sub-category
-  const getDeviceConfig = () => {
+  function getDeviceConfig() {
     const filterBy = (device: Device, filter: string) => {
       const name = device.name.toLowerCase();
 
@@ -255,7 +255,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       default:
         return { pool: LEARN_PHONE_POOL, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
     }
-  };
+  }
 
   const handlePresetSelect = useCallback((devices: Device[]) => {
     const allowedNames = new Set(deviceConfig.pool.map((device) => device.name));
