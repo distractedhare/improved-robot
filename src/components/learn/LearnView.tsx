@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Newspaper, Smartphone, BookOpen, Shield, Play, Watch, Tablet, Headphones, Wifi, Crown, AlertTriangle, Sparkles } from 'lucide-react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
@@ -153,6 +153,15 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
     accessories: [],
   });
   const comparisonRef = useRef<HTMLDivElement>(null);
+  const deviceConfig = getDeviceConfig();
+  const selectedDevices = selectedDevicesByCategory[deviceCategory];
+  const activeCategoryMeta = DEVICE_CATEGORIES.find((category) => category.id === deviceCategory) ?? DEVICE_CATEGORIES[0];
+  const compareOpen = compareOpenByCategory[deviceCategory];
+  const learnPhase = selectedDevices.length === 0
+    ? 'browse'
+    : compareOpen
+      ? 'compare'
+      : 'shortlist-active';
 
   const scrollToComparison = useCallback(() => {
     requestAnimationFrame(() => {
@@ -247,19 +256,6 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         return { pool: LEARN_PHONE_POOL, presets: PHONE_PRESETS, filters: PHONE_FILTERS };
     }
   };
-
-  const deviceConfig = getDeviceConfig();
-  const selectedDevices = selectedDevicesByCategory[deviceCategory];
-  const activeCategoryMeta = useMemo(
-    () => DEVICE_CATEGORIES.find((category) => category.id === deviceCategory) ?? DEVICE_CATEGORIES[0],
-    [deviceCategory]
-  );
-  const compareOpen = compareOpenByCategory[deviceCategory];
-  const learnPhase = selectedDevices.length === 0
-    ? 'browse'
-    : compareOpen
-      ? 'compare'
-      : 'shortlist-active';
 
   const handlePresetSelect = useCallback((devices: Device[]) => {
     const allowedNames = new Set(deviceConfig.pool.map((device) => device.name));
