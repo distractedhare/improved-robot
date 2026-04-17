@@ -92,16 +92,16 @@ export default function PlansSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <Crown className="w-64 h-64 -mt-10 -mr-10 text-white" />
+          <Crown className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
         </div>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
             <Sparkles className="w-3 h-3 text-white" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Product Knowledge</p>
           </div>
-          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Plans Breakdown</h3>
+          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">Plans Breakdown</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
             Know the tiers, know the value, and know <span className="text-white font-black underline decoration-white/40 underline-offset-4">why</span> premium plans are better for both the customer and you.
             The goal is a cleaner recommendation, happier customers, and stronger metrics.
@@ -124,19 +124,19 @@ export default function PlansSection() {
       </div>
 
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this fast</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Use this fast</p>
         <div className="mt-2 grid gap-2 md:grid-cols-3">
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Best For</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with the fit first so the plan recommendation feels obvious, not scripted.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Best For</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Lead with the fit first so the plan recommendation feels obvious, not scripted.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Do Not Lead With</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use Essentials as a save, not your first move, unless budget is clearly the blocker.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Do Not Lead With</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use Essentials as a save, not your first move, unless budget is clearly the blocker.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">How To Say It</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use one reason, one proof point, then stop talking and let the caller react.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">How To Say It</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use one reason, one proof point, then stop talking and let the caller react.</p>
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default function PlansSection() {
       </div>
 
       {/* Section nav */}
-      <div className="flex rounded-2xl p-1 glass-tab gap-1 overflow-x-auto">
+      <div className="flex flex-wrap gap-1 rounded-2xl p-1 glass-tab md:flex-nowrap md:gap-2">
         {[
           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },
@@ -168,7 +168,7 @@ export default function PlansSection() {
             key={s.id}
             type="button"
             onClick={() => setActiveSection(s.id)}
-            className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-2 rounded-xl transition-all whitespace-nowrap ${
+            className={`focus-ring flex min-h-[44px] flex-1 items-center justify-center gap-1 px-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all md:text-[11px] whitespace-nowrap ${
               activeSection === s.id
                 ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
                 : 'text-t-muted hover:text-t-dark-gray'
@@ -369,7 +369,7 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
   return (
     <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
       {/* Plan Image */}
-      <div className="relative h-40 overflow-hidden">
+      <div className="relative aspect-video overflow-hidden md:h-40 md:aspect-auto">
         <img
           src={imageSource}
           alt={imageLabel}
@@ -384,7 +384,7 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
         <div className="absolute bottom-4 left-5">
           <div className="flex items-center gap-2 mb-1">
             <h4 className="text-xl font-black uppercase tracking-tight text-white">{plan.name}</h4>
-            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${tier.tagColor}`}>
+            <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${tier.tagColor}`}>
               {tier.tag}
             </span>
           </div>
@@ -395,10 +395,10 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
       <div className="p-5">
         {/* Pricing grid */}
         <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
-          <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
+          <div className="grid grid-cols-3 bg-t-light-gray/30 px-2.5 py-2 text-[10px] font-black uppercase tracking-wider text-t-muted">
             <span>Lines</span>
             <span className="text-right">Total</span>
-            <span className="text-right">Per Line</span>
+            <span className="text-right">/line</span>
           </div>
           {plan.pricing.map((p) => (
             <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">

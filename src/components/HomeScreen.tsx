@@ -78,7 +78,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
   const topTrending = weeklyData?.trending?.slice(0, 2);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 2xl:max-w-3xl">
       {/* ── Welcome Section ─────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -86,11 +86,11 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="text-center pt-2"
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-t-muted mb-1">
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-t-muted">
           {formatDate()}
         </p>
 	        <h1
-	          className="text-2xl sm:text-3xl font-black tracking-tight mb-1"
+	          className="mb-1 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
 	          style={{
 	            background: 'linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%)',
 	            WebkitBackgroundClip: 'text',
@@ -99,10 +99,10 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
 	        >
 	          {getGreeting()} {role.icon}
 	        </h1>
-        <p className="text-sm font-bold text-t-dark-gray">
+        <p className="text-sm font-bold text-t-dark-gray sm:text-base">
           {role.greeting}
         </p>
-	        <p className="mt-1 max-w-md mx-auto text-xs text-t-dark-gray">
+	        <p className="mx-auto mt-1 max-w-md text-[13px] text-t-dark-gray">
 	          {coachingLine}
 	        </p>
       </motion.div>
@@ -262,17 +262,17 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
         transition={{ delay: 0.4, duration: 0.4 }}
         className="flex items-center justify-center gap-4 pt-2 pb-4 flex-wrap"
       >
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
+        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
           <Shield className="w-3 h-3 text-t-magenta/40" />
           <span>CPNI Safe</span>
         </div>
         <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
+        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
           <Sparkles className="w-3 h-3 text-t-magenta/40" />
           <span>AI Ready</span>
         </div>
         <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-t-muted">
+        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
           <Wifi className="w-3 h-3 text-t-magenta/40" />
           <span>Works Offline</span>
         </div>

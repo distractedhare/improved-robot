@@ -11,7 +11,7 @@ const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const EXPECTED_COUNTS = {
   device: 44,
   accessory: 62,
-  learn: 8,
+  learn: 5,
   fallback: 1,
 };
 

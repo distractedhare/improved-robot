@@ -79,7 +79,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
       className="glass-header sticky top-0 z-20 px-3 pb-3 sm:px-4 sm:pb-4 md:px-6"
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
     >
-      <div className="mx-auto flex max-w-5xl flex-col gap-3">
+      <div className="mx-auto flex max-w-5xl flex-col gap-3 2xl:max-w-6xl">
         <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <motion.button
@@ -101,7 +101,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                 <h1 className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
                   CustomerConnect AI
                 </h1>
-                <span className="rounded-full bg-t-magenta px-2 py-1 text-[8px] font-black uppercase tracking-[0.2em] text-white sm:px-2.5 sm:text-[9px] sm:tracking-[0.22em]">
+                <span className="rounded-full bg-t-magenta px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white sm:px-2.5 sm:text-[10px] sm:tracking-[0.2em]">
                   Demo Ready
                 </span>
               </div>
@@ -126,7 +126,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               type="button"
               onClick={handleNewCall}
               aria-label="Start a new call"
-              className="focus-ring relative inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-3 py-2.5 text-[10px] font-black uppercase tracking-[0.16em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5 sm:tracking-[0.18em]"
+              className="focus-ring relative inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.16em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5 sm:tracking-[0.18em]"
               style={{ touchAction: 'manipulation' }}
             >
               <span className="btn-magenta-shimmer absolute inset-0 rounded-full" aria-hidden="true" />
@@ -144,7 +144,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
             role="tablist"
             className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {MODES.map((item) => {
                 const isActive = mode === item.id;
                 return (
@@ -176,7 +176,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                           <item.icon className="h-4 w-4 shrink-0" />
                           {item.label}
                         </span>
-                        <span className={`mt-1 block text-[9px] font-bold tracking-wide sm:text-[10px] ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                        <span className={`mt-1 block text-[10px] font-bold tracking-wide sm:text-[11px] ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
                           {item.helper}
                         </span>
                       </span>

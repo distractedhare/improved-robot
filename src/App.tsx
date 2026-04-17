@@ -114,8 +114,8 @@ function StatusPill({
 
   return (
     <div className={`rounded-full border px-3 py-2 ${toneClass}`}>
-      <p className="text-[8px] font-black uppercase tracking-[0.18em]">{label}</p>
-      <p className="mt-0.5 text-[10px] font-bold leading-none">{value}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.16em]">{label}</p>
+      <p className="mt-0.5 text-[11px] font-bold leading-none">{value}</p>
     </div>
   );
 }
@@ -634,7 +634,7 @@ export default function App() {
 
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6">
+      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6 2xl:max-w-6xl">
         {mode !== 'home' ? (
           <div className="mb-3 flex flex-wrap gap-2 rounded-2xl border border-t-light-gray/60 bg-surface/85 p-2.5 backdrop-blur-md">
             <StatusPill tone="warning" label="Shift Only" value="Use During Scheduled Hours" />
@@ -781,13 +781,13 @@ export default function App() {
           message="A live-call panel ran into trouble. Reloading this tab is safer than risking a white screen in the demo."
         >
         <>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
           {/* Input Section */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="space-y-3 lg:col-span-5 lg:space-y-4 2xl:col-span-4">
             {/* INTENT + PRODUCT SELECTOR */}
             <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
               <div>
-                <label className="text-xs font-bold mb-3 block text-t-dark-gray">
+                <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
                   Why are they calling?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -799,7 +799,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleIntentSelect(intent.id)}
                         aria-pressed={isActive}
-                        className="focus-ring min-h-[46px] py-2.5 px-3 text-left text-[10px] font-extrabold rounded-xl border-[1.5px] uppercase tracking-wide transition-all flex items-center gap-2"
+                        className="focus-ring flex min-h-[48px] items-center gap-2 rounded-xl border-[1.5px] px-3 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-wide transition-all"
                         style={{
                           background: isActive ? 'var(--bg-intent-active)' : 'var(--bg-intent)',
                           color: isActive ? 'var(--text-intent-active)' : 'var(--text-intent)',
@@ -832,7 +832,7 @@ export default function App() {
 
               {/* Product type — always visible */}
               <div>
-                <label className="text-xs font-bold mb-2 block text-t-dark-gray">
+                <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
                   What product?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -864,7 +864,7 @@ export default function App() {
                           }
                         }}
                         aria-pressed={isSelected}
-                        className={`focus-ring py-2 px-3 text-[10px] font-black rounded-xl border-2 uppercase transition-all flex items-center justify-between ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
+                        className={`focus-ring flex min-h-[48px] items-center justify-between rounded-xl border-2 px-3 py-2 text-[11px] font-black uppercase transition-all ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
                           isSelected
                             ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
                             : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
@@ -872,7 +872,7 @@ export default function App() {
                       >
                         <div className="text-left">
                           <span>{p}</span>
-                          <span className={`block text-[9px] normal-case font-medium mt-0.5 ${isSelected ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                          <span className={`mt-0.5 block text-[10px] font-medium normal-case ${isSelected ? 'text-white/80' : 'text-t-dark-gray'}`}>
                             {p === 'BTS' ? 'Tablets, Watches, etc.' :
                              p === 'IOT' ? 'SyncUP Trackers, DRIVE' :
                              p === 'Phone' ? 'Smartphones & Plans' :
@@ -892,15 +892,15 @@ export default function App() {
             <section className="rounded-3xl p-4 glass-card glass-shine glass-specular space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold text-t-dark-gray">
+                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
                     Where are they calling from?
                   </p>
-                  <p className="mt-0.5 text-[10px] font-medium text-t-dark-gray">
+                  <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray">
                     Tap a region, zoom to state, add ZIP if they give it.
                   </p>
                 </div>
                 {(context.region !== 'Not Specified' || context.zipCode) && (
-                  <div className="rounded-full bg-t-magenta/10 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
+                  <div className="rounded-full bg-t-magenta/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-magenta">
                     {context.region !== 'Not Specified'
                       ? `${context.region}${context.state ? ` · ${context.state}` : ''}`
                       : `ZIP ${context.zipCode}`}
@@ -933,13 +933,13 @@ export default function App() {
                 onClick={() => setContextExpanded(!contextExpanded)}
                 aria-expanded={contextExpanded}
                 aria-controls="customer-context-panel"
-                className="focus-ring w-full flex items-center justify-between p-5"
+                className="focus-ring flex w-full items-center justify-between p-4 md:p-5"
               >
                 <div className="text-left">
-                  <span className="text-xs font-bold block" style={{ color: 'var(--text-primary)' }}>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.14em]" style={{ color: 'var(--text-primary)' }}>
                     {contextExpanded ? 'Customer Profile' : 'Sharper Read'}
                   </span>
-                  <span style={{ color: 'var(--text-tertiary)' }} className="text-[10px] font-medium">
+                  <span style={{ color: 'var(--text-tertiary)' }} className="text-[11px] font-medium">
                     {contextExpanded ? 'Age, carrier, lines, and platforms' : 'Add lines, family count, and platforms for a better plan'}
                   </span>
                 </div>
@@ -977,14 +977,14 @@ export default function App() {
             />
 
             <SessionStats stats={sessionStats} />
-            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
+            <p className="flex items-center justify-center gap-1 px-4 text-center text-[10px] font-medium text-t-dark-gray">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
               <span>CPNI compliant. No PII. Fully offline.</span>
             </p>
           </div>
 
           {/* RIGHT PANEL — Tabs + Results */}
-          <div className="lg:col-span-7 space-y-3">
+          <div className="space-y-3 lg:col-span-7 2xl:col-span-8">
             {/* Tabs — Plan + Objections */}
             <div
               role="tablist"
@@ -993,9 +993,9 @@ export default function App() {
               style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
             >
               {([
-                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Plan built' : loading ? 'Building…' : 'Quick play ready' },
-                { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : 'Quick comeback first' },
-                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT toolkit ready' : 'Repair, reassure, escalate' },
+                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Ready to pitch' : loading ? 'Building live plan' : 'No live plan yet' },
+                { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : script ? 'Quick comeback first' : 'Build the plan, then pressure-test' },
+                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT troubleshoot toolkit' : 'Troubleshoot and escalate' },
               ]).map(tab => (
                 <button
                   key={tab.id}
@@ -1005,14 +1005,14 @@ export default function App() {
                   aria-selected={activeTab === tab.id}
                   aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`focus-ring flex-1 min-h-[56px] min-w-[80px] px-2 py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                  className={`focus-ring flex-1 min-h-[56px] min-w-[88px] rounded-xl px-2.5 py-3 text-center text-[10px] font-black uppercase tracking-wider transition-all sm:text-[11px] md:tracking-widest ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
                   style={{ touchAction: 'manipulation' }}
                 >
                   <span className="flex flex-col items-center gap-1 leading-none">
                     <span className="flex items-center justify-center gap-1 md:gap-2">
                       <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
                     </span>
-                    <span className={`text-[8px] font-bold normal-case tracking-normal ${activeTab === tab.id ? 'text-t-magenta/70' : 'text-t-muted'}`}>
+                    <span className={`text-[9px] font-bold normal-case tracking-normal sm:text-[10px] ${activeTab === tab.id ? 'text-t-magenta/70' : 'text-t-muted'}`}>
                       {tab.helper}
                     </span>
                   </span>
@@ -1123,7 +1123,7 @@ export default function App() {
       </main>
 
 
-      <footer className="max-w-5xl mx-auto px-6 pb-8 pt-6 md:px-10 text-center mt-10 space-y-3 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
+      <footer className="relative z-[1] mx-auto mt-10 max-w-5xl space-y-3 px-6 pb-8 pt-6 text-center md:px-10 2xl:max-w-6xl" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] font-semibold text-t-dark-gray">
           {weeklyLoaded && weeklyData ? (
             <span className="inline-flex items-center gap-1.5">
@@ -1141,7 +1141,7 @@ export default function App() {
             type="button"
             onClick={() => { void handleRefreshApp(); }}
             disabled={refreshingApp}
-            className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray bg-surface-elevated px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray bg-surface-elevated px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
           >
             <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
             {refreshingApp ? 'Refreshing…' : 'Refresh App'}

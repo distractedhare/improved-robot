@@ -1217,37 +1217,6 @@ export async function getProductImageManifest() {
         `${TM}/plans`,
       ],
     },
-    {
-      path: '/images/ui/plan-network-map.png',
-      kind: 'learn',
-      label: 'T-Mobile Network Map',
-      fallbackSource: LEARN_FALLBACK,
-      sourceUrls: [
-        `${TM}/coverage`,
-        `${TM}/home-internet`,
-      ],
-    },
-    {
-      path: '/images/ui/hint-overlay.png',
-      kind: 'learn',
-      label: 'HINT Compliance Card',
-      fallbackSource: LEARN_FALLBACK,
-      sourceUrls: [
-        `${TM}/cell-phone-plans`,
-        `${TM}/plans`,
-      ],
-    },
-    {
-      path: '/images/ui/tmobile-promotions.png',
-      kind: 'learn',
-      label: 'T-Mobile Promotions',
-      fallbackSource: LEARN_FALLBACK,
-      sourceUrls: [
-        `${TM}/offers`,
-        `${TM}/iphone`,
-      ],
-    },
-
     // ═══════════════════════════════════════════════════════════
     // FALLBACK (1)
     // ═══════════════════════════════════════════════════════════

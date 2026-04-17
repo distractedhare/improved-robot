@@ -285,51 +285,51 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   }, [deviceCategory]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 2xl:max-w-6xl">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-8 shadow-2xl shadow-t-dark-gray/20">
+      <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-t-dark-gray to-t-berry p-5 shadow-2xl shadow-t-dark-gray/20 sm:p-6 md:p-8">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <BookOpen className="w-80 h-80 -mt-16 -mr-16 text-white" />
+          <BookOpen className="h-40 w-40 -mt-6 -mr-6 text-white md:h-64 md:w-64 md:-mt-10 md:-mr-10 lg:h-80 lg:w-80 lg:-mt-16 lg:-mr-16" />
         </div>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4">
             <Sparkles className="w-3 h-3 text-t-magenta" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{learnCopy.hero.badge}</p>
           </div>
-          <h2 className="max-w-3xl text-4xl font-black text-white mb-3 tracking-tight leading-none sm:text-5xl">
+          <h2 className="max-w-3xl text-3xl font-black leading-none tracking-tight text-white sm:text-4xl lg:text-5xl">
             {learnCopy.hero.title}
           </h2>
-          <p className="text-base text-white/80 font-medium leading-relaxed max-w-2xl">
+          <p className="max-w-2xl text-sm font-medium leading-relaxed text-white/80 md:text-base">
             {learnCopy.hero.subtitle}
           </p>
           <div className="flex flex-wrap gap-3 mt-6">
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 backdrop-blur-sm">
               <Newspaper className="w-4 h-4 text-t-magenta" />
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-wider">Daily Briefing</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[0].subtitle}</p>
+                <p className="text-[10px] font-medium text-white/70">{learnCopy.hero.cards[0].subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 backdrop-blur-sm">
               <Smartphone className="w-4 h-4 text-t-magenta" />
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-wider">Device Lab</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[1].subtitle}</p>
+                <p className="text-[10px] font-medium text-white/70">{learnCopy.hero.cards[1].subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 backdrop-blur-sm">
               <Crown className="w-4 h-4 text-t-magenta" />
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-wider">{learnCopy.hero.cards[2].title}</p>
-                <p className="text-[9px] text-white/60 font-medium">{learnCopy.hero.cards[2].subtitle}</p>
+                <p className="text-[10px] font-medium text-white/70">{learnCopy.hero.cards[2].subtitle}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sub-tab toggle — wraps on desktop */}
-      <div className="flex flex-wrap justify-center rounded-3xl p-1 gap-1 glass-tab">
+      {/* Sub-tab toggle */}
+      <div className="grid grid-cols-3 gap-1 rounded-3xl p-1 glass-tab md:grid-cols-6">
         {TABS.map((t) => {
             const isActive = tab === t.id;
             return (
@@ -338,21 +338,21 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 type="button"
                 onClick={() => setTab(t.id)}
                 aria-pressed={isActive}
-                className={`focus-ring flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider py-2 rounded-full transition-all whitespace-nowrap ${
+                className={`focus-ring flex min-h-[46px] items-center justify-center gap-1.5 rounded-full px-2 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all md:text-xs ${
                   isActive
-                    ? 'bg-t-magenta text-white shadow-sm px-4'
-                    : 'text-t-dark-gray hover:text-t-dark-gray px-2'
+                    ? 'bg-t-magenta px-3 text-white shadow-sm'
+                    : 'text-t-dark-gray hover:text-t-dark-gray'
                 }`}
               >
-                <t.icon className="w-3 h-3 shrink-0" />
-                {isActive ? t.label : <span className="sm:inline hidden">{t.label}</span>}
+                <t.icon className="h-5 w-5 shrink-0 md:h-4 md:w-4" />
+                <span className="leading-tight">{t.label}</span>
               </button>
             );
           })}
       </div>
 
       <div className="rounded-2xl px-4 py-3 glass-card glass-specular">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">
+        <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-t-magenta">
           {TAB_MOMENT_GUIDANCE[tab].moment}
         </p>
         <p className="text-[11px] font-medium text-t-dark-gray leading-relaxed">
@@ -370,7 +370,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
       {tab === 'devices' && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-info-border bg-info-surface p-4 glass-specular">
-            <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-2">
+            <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-info-foreground">
               {learnCopy.devices.sectionTitle}
             </p>
             <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
@@ -411,7 +411,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         <p className="mt-1 text-[10px] font-medium leading-snug text-t-muted">{category.helper}</p>
                       </div>
                     </div>
-                    <span className={`rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
+                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
                       selectionCount > 0
                         ? 'bg-t-magenta/10 text-t-magenta'
                         : 'bg-t-light-gray/40 text-t-muted'
@@ -427,7 +427,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">{activeCategoryMeta.shellTitle}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">{activeCategoryMeta.shellTitle}</p>
                 <p className="mt-1 text-sm font-black text-t-dark-gray">{activeCategoryMeta.label}</p>
                 <p className="mt-1 max-w-2xl text-[11px] font-medium leading-relaxed text-t-dark-gray">
                   {activeCategoryMeta.shellDescription}
@@ -435,21 +435,21 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </div>
               {deviceCategory !== 'accessories' ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+                  <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
                     {selectedDevices.length > 0 ? `${selectedDevices.length} selected` : 'Nothing selected yet'}
                   </span>
                   {selectedDevices.length > 0 ? (
                     <button
                       type="button"
                       onClick={clearDevices}
-                      className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+                      className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
                     >
                       Clear this category
                     </button>
                   ) : null}
                 </div>
               ) : (
-                <div className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+                <div className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
                   Search + filter ready
                 </div>
               )}
@@ -460,7 +460,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
             <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Learn workflow</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Learn workflow</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {[
                       { id: 'browse', label: 'Browse', helper: 'Scan and shortlist' },
@@ -476,7 +476,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             isActive ? 'border-t-magenta/30 bg-t-magenta/8' : 'border-t-light-gray bg-surface'
                           }`}
                         >
-                          <p className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-t-magenta' : 'text-t-muted'}`}>
+                          <p className={`text-[9px] font-black uppercase tracking-widest ${isActive ? 'text-t-magenta' : 'text-t-muted'}`}>
                             {step.label}
                           </p>
                           <p className="mt-1 text-[10px] font-medium text-t-dark-gray">{step.helper}</p>
@@ -486,7 +486,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   </div>
                 </div>
                 <div className="max-w-sm rounded-2xl border border-info-border bg-info-surface px-3 py-2">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-info-foreground">Next best action</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Next best action</p>
                   <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">
                     {selectedDevices.length === 0
                       ? 'Start in browse mode, then keep the shortlist tight before you compare.'
@@ -534,7 +534,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4 glass-specular">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
                             {compareOpen ? 'Compare mode is live' : 'Shortlist ready'}
                           </p>
                           <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
@@ -548,7 +548,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             <button
                               type="button"
                               onClick={handleCloseCompare}
-                              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
                             >
                               Back to shortlist
                             </button>
@@ -556,7 +556,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             <button
                               type="button"
                               onClick={handleOpenCompare}
-                              className="focus-ring rounded-full bg-t-magenta px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-sm shadow-t-magenta/20"
+                              className="focus-ring rounded-full bg-t-magenta px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm shadow-t-magenta/20"
                             >
                               Open compare
                             </button>
@@ -575,7 +575,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         aria-expanded={showAccessoryPitch}
                       >
                         <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Attach story</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Attach story</p>
                           <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
                             {showAccessoryPitch
                               ? 'Close this when you are done so the compare view stays focused on the device decision.'
@@ -594,7 +594,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-specular border-dashed">
+                  <div className="flex flex-col items-center justify-center rounded-3xl border-dashed p-6 text-center glass-card glass-specular md:p-10">
                     <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
                       {deviceCategory === 'phones' && <Smartphone className="w-8 h-8 text-t-magenta" />}
                       {deviceCategory === 'tablets' && <Tablet className="w-8 h-8 text-t-magenta" />}

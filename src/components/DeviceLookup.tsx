@@ -298,7 +298,7 @@ export default function DeviceLookup({
             key={preset.label}
             type="button"
             onClick={() => handlePresetClick(preset)}
-            className={`focus-ring flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${
+            className={`focus-ring flex min-h-[44px] items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all ${
               preset.primary
                 ? 'bg-t-dark-gray text-white hover:bg-t-dark-gray/80'
                 : 'bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray'
@@ -313,18 +313,18 @@ export default function DeviceLookup({
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Quick compare tray</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Quick compare tray</p>
             <p className="mt-1 text-[11px] font-medium text-t-dark-gray">{lookupCopy.helper}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+            <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
               {selectedDevices.length > 0 ? `${selectedDevices.length} selected` : 'Pick 2-3 to compare'}
             </span>
             {selectedDevices.length > 1 ? (
               <button
                 type="button"
                 onClick={onOpenCompare}
-                className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-all ${
+                className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all ${
                   compareOpen
                     ? 'bg-t-dark-gray text-white'
                     : 'bg-t-magenta text-white shadow-sm shadow-t-magenta/20'
@@ -355,7 +355,7 @@ export default function DeviceLookup({
                 key={device.name}
                 onClick={() => onToggleDevice(device)}
                 aria-pressed={true}
-                className="focus-ring flex items-center gap-2 rounded-2xl border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1.5 text-left text-[9px] font-black text-t-magenta"
+                className="focus-ring flex items-center gap-2 rounded-2xl border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1.5 text-left text-[10px] font-black text-t-magenta"
               >
                 <DeviceImageSlot
                   device={device}
@@ -370,7 +370,7 @@ export default function DeviceLookup({
             <button
               type="button"
               onClick={onClearDevices}
-              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+            className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
             >
               Clear all
             </button>
@@ -394,7 +394,7 @@ export default function DeviceLookup({
             placeholder={lookupCopy.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="focus-ring w-full bg-white border-2 border-t-light-gray rounded-xl py-3 pl-10 pr-4 text-xs font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
+            className="focus-ring w-full rounded-xl border-2 border-t-light-gray bg-white py-3 pl-10 pr-4 text-[11px] font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
             autoComplete="off"
           />
         </div>
@@ -407,7 +407,7 @@ export default function DeviceLookup({
                 key={f.id}
                 onClick={() => setFilter(f.id)}
                 aria-pressed={filter === f.id}
-                className={`text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-full transition-all ${
+                className={`min-h-[44px] rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
                   filter === f.id
                     ? 'focus-ring bg-t-magenta text-white shadow-sm'
                     : 'focus-ring bg-t-light-gray/30 text-t-dark-gray hover:bg-t-light-gray/60'
@@ -419,11 +419,11 @@ export default function DeviceLookup({
           </div>
 
           <div className="flex items-center gap-1.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-t-muted">Sort</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-t-muted">Sort</label>
             <select
               value={sortMode}
               onChange={(event) => setSortMode(event.target.value as DeviceLookupSort)}
-              className="focus-ring rounded-full border border-t-light-gray bg-surface px-2 py-2 text-[9px] font-black uppercase tracking-wide text-t-dark-gray"
+              className="focus-ring rounded-full border border-t-light-gray bg-surface px-2 py-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray"
             >
               {SORT_OPTIONS.map(option => (
                 <option
@@ -443,7 +443,7 @@ export default function DeviceLookup({
                   setFilter('all');
                   setSortMode(defaultSortMode);
                 }}
-                className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[9px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
+                className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
               >
                 Reset
               </button>
@@ -517,13 +517,13 @@ export default function DeviceLookup({
                     }`}>
                       {selected && <span className="text-white text-[8px] font-black">✓</span>}
                     </div>
-                    <span className="text-xs font-black text-t-dark-gray truncate leading-tight">{device.name}</span>
+                    <span className="truncate text-[13px] font-black leading-tight text-t-dark-gray">{device.name}</span>
                   </div>
                   <div className="ml-7 mt-2 flex flex-wrap gap-1.5">
                     {browseSummary?.bestFit.slice(0, 2).map((fit) => (
                       <span
                         key={fit}
-                        className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-t-magenta"
+                        className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta"
                       >
                         {fit}
                       </span>
@@ -533,13 +533,13 @@ export default function DeviceLookup({
                     {browseSummary?.shortHook || 'Use one clean angle, then back it up with one proof point.'}
                   </p>
                   <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
+                    <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
                       {device.category}
                     </span>
-                    <span className="rounded-full border border-t-magenta bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-t-magenta">
+                    <span className="rounded-full border border-t-magenta bg-t-magenta/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
                       {priceLabel}
                     </span>
-                    <span className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-t-muted">
+                    <span className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted">
                       {device.released}
                     </span>
                   </div>

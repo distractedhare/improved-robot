@@ -128,7 +128,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="space-y-2">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.searchLabel}</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.searchLabel}</p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
           <input
@@ -161,11 +161,11 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+          <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
             {outcomeFilter === 'all' ? 'All outcomes' : outcomeFilter}
           </span>
           {searchQuery ? (
-            <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
+            <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-magenta">
               Search active
             </span>
           ) : null}
@@ -176,14 +176,14 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                 setOutcomeFilter('all');
                 setSearchQuery('');
               }}
-              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
             >
               Reset filters
             </button>
           ) : null}
         </div>
 
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.filtersLabel}</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">{learnCopy.accessoryQuickReference.filtersLabel}</p>
         <div className="flex flex-wrap gap-1.5">
           {OUTCOME_FILTERS.map(filter => {
             const isActive = outcomeFilter === filter.id;
@@ -195,7 +195,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                 type="button"
                 onClick={() => setOutcomeFilter(filter.id)}
                 aria-pressed={isActive}
-                className={`focus-ring flex items-center gap-1.5 rounded-xl border-2 px-3 py-2 text-[9px] font-black uppercase tracking-wider transition-all ${
+                className={`focus-ring flex min-h-[44px] items-center gap-1.5 rounded-xl border-2 px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
                   isActive
                     ? 'border-t-magenta bg-t-magenta text-white shadow-md shadow-t-magenta/20'
                     : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/40'
@@ -203,7 +203,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
               >
                 <filter.icon className="h-3 w-3" />
                 <span>{filter.label}</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[7px] font-bold ${
+                <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-bold ${
                   isActive ? 'bg-surface/20 text-white' : 'bg-t-light-gray/50 text-t-muted'
                 }`}>
                   {count}
@@ -215,7 +215,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="rounded-2xl border border-info-border bg-info-surface p-4">
-        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-info-foreground">Fast Bundle Formula</p>
+        <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-info-foreground">Fast Bundle Formula</p>
         <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
           <p><span className="font-black">1.</span> Protect it first: case, glass, or camera protection.</p>
           <p><span className="font-black">2.</span> Remove friction next: charger, battery, or car-mount story.</p>
@@ -224,32 +224,32 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Accessory workflow</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Accessory workflow</p>
         <div className="mt-2 grid gap-2 md:grid-cols-3">
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Browse</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Start with the outcome filter so the rep leads with the problem, not the product wall.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Browse</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Start with the outcome filter so the rep leads with the problem, not the product wall.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Shortlist</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Keep only the top one or two fits visible in the conversation before moving into price.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Shortlist</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Keep only the top one or two fits visible in the conversation before moving into price.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Pitch</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use “Best For,” “Use when,” and the proof line first so the attach feels helpful, not random.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Pitch</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use “Best For,” “Use when,” and the proof line first so the attach feels helpful, not random.</p>
           </div>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl glass-card shadow-sm">
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
+          <p className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
             Essentials — bundle-eligible (25% off with 3+)
           </p>
           <button
             type="button"
             onClick={() => setExpanded(allOpen ? new Set() : new Set(ESSENTIALS_TABLE.map(category => category.id)))}
-            className="focus-ring rounded text-[8px] font-bold text-t-magenta transition-colors hover:text-t-berry"
+            className="focus-ring rounded text-[9px] font-bold text-t-magenta transition-colors hover:text-t-berry"
           >
             {allOpen ? 'Collapse all' : 'Expand all'}
           </button>
@@ -269,15 +269,15 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                   className="focus-ring flex w-full items-center justify-between px-4 py-2.5 transition-colors hover:bg-t-light-gray/20"
                 >
                   <div className="flex items-center gap-2">
-                    <p className={`text-[9px] font-black uppercase tracking-wider ${hasMatches ? 'text-t-magenta' : 'text-t-muted'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-wider ${hasMatches ? 'text-t-magenta' : 'text-t-muted'}`}>
                       {category.category}
                     </p>
                     {outcomeFilter !== 'all' && matchCount > 0 && (
-                      <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-magenta">
+                      <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-t-magenta">
                         {matchCount} match{matchCount !== 1 ? 'es' : ''}
                       </span>
                     )}
-                    <span className="text-[8px] font-medium text-t-muted">{category.items.length} items</span>
+                    <span className="text-[9px] font-medium text-t-muted">{category.items.length} items</span>
                   </div>
                   <ChevronDown className={`h-3.5 w-3.5 text-t-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -316,7 +316,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                                   <span className="font-bold text-t-dark-gray">{item.price}</span>
                                 )}
                                 {item.bundle && (
-                                  <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[8px] font-black uppercase text-success-foreground">
+                                  <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[9px] font-black uppercase text-success-foreground">
                                     {item.bundle} bundle
                                   </span>
                                 )}
@@ -330,7 +330,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                                   {item.worksWith.map(eco => (
                                     <span
                                       key={eco}
-                                      className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[7px] font-black uppercase tracking-wider text-t-dark-gray"
+                                      className="rounded bg-t-light-gray/30 px-1 py-0.5 text-[8px] font-black uppercase tracking-wider text-t-dark-gray"
                                     >
                                       {eco}
                                     </span>
@@ -370,7 +370,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
       </div>
 
       <div className="rounded-2xl glass-card p-4 shadow-sm">
-        <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
+        <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
           Premium add-ons (no bundle discount)
         </p>
         <div className="space-y-2">
@@ -459,19 +459,19 @@ function AccessoryReferenceCard({
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
-        <span className="rounded-full border border-t-magenta/20 bg-white/70 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+        <span className="rounded-full border border-t-magenta/20 bg-white/70 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">
           {summary.bestFit[0] || 'General fit'}
         </span>
-        <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+        <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">
           {getAppealTypeLabel(summary.appealType)}
         </span>
-        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
+        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
           {outcomeLabel}
         </span>
         {summary.bestFit.slice(0, 2).map(fit => (
           <span
             key={fit}
-            className="rounded-full border border-t-light-gray px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray"
+            className="rounded-full border border-t-light-gray px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
           >
             {fit}
           </span>
@@ -481,10 +481,10 @@ function AccessoryReferenceCard({
       <p className="mt-2 text-[10px] font-bold leading-relaxed text-t-magenta">{summary.sayThis}</p>
       <p className="mt-2 text-[10px] font-medium leading-snug text-t-dark-gray">{summary.whyItLands}</p>
 
-      <p className="mt-2 text-[9px] font-bold text-info-foreground">
+      <p className="mt-2 text-[10px] font-bold text-info-foreground">
         Use when: <span className="font-medium text-t-dark-gray">{callCue || summary.primaryAngle.title}</span>
       </p>
-      <p className="mt-1 text-[9px] font-bold text-success-foreground">
+      <p className="mt-1 text-[10px] font-bold text-success-foreground">
         Proof: <span className="font-medium text-t-dark-gray">{summary.primaryAngle.proof}</span>
       </p>
     </div>

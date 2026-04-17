@@ -17,16 +17,16 @@ export default function HomeInternetSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <Wifi className="w-64 h-64 -mt-10 -mr-10 text-white" />
+          <Wifi className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
         </div>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
             <Home className="w-3 h-3 text-white" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Biggest Push Right Now</p>
           </div>
-          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">T-Mobile Home Internet</h3>
+          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">T-Mobile Home Internet</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
             Check every address on every call. No data caps, no contracts, and no equipment fees.
             <span className="text-white font-black"> Up to a $300 rebate plus the "Month On Us" promo is active now.</span>
@@ -49,30 +49,30 @@ export default function HomeInternetSection() {
       </div>
 
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Primary path</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Primary path</p>
         <div className="mt-2 grid gap-2 md:grid-cols-4">
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">1. Fit</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Check the address first and decide whether HINT is actually a match.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">1. Fit</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Check the address first and decide whether HINT is actually a match.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">2. Pitch</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with simplicity, savings, and fast setup before speed jargon.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">2. Pitch</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Lead with simplicity, savings, and fast setup before speed jargon.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">3. Objections</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Only open the objection lane when the caller gives you a real blocker.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">3. Objections</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Only open the objection lane when the caller gives you a real blocker.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">4. Competition</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use the compare story only if they ask why they should switch from cable.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">4. Competition</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use the compare story only if they ask why they should switch from cable.</p>
           </div>
         </div>
       </div>
 
       {/* Quick facts ticker */}
       <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
+        <p className="mb-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-info-foreground">
           <Zap className="w-3 h-3" /> Quick facts to keep ready
         </p>
         <div className="space-y-2">
@@ -98,7 +98,7 @@ export default function HomeInternetSection() {
             key={s.id}
             type="button"
             onClick={() => setActiveSection(s.id)}
-            className={`focus-ring flex-1 flex items-center justify-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-2 rounded-xl transition-all whitespace-nowrap ${
+            className={`focus-ring flex min-h-[44px] flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap md:text-[11px] ${
               activeSection === s.id
                 ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
                 : 'text-t-muted hover:text-t-dark-gray'
@@ -128,7 +128,7 @@ export default function HomeInternetSection() {
                 }`}
               >
                 {/* Plan Image */}
-                <div className="relative h-44 overflow-hidden">
+                <div className="relative aspect-video overflow-hidden md:h-44 md:aspect-auto">
                   <img
                     src={PLAN_IMAGES[plan.name] ?? PRODUCT_IMAGE_FALLBACK}
                     alt={plan.name}
@@ -148,8 +148,8 @@ export default function HomeInternetSection() {
                   <div className="absolute bottom-4 left-5 right-5">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <h4 className="text-xl font-black text-white uppercase tracking-tight">{plan.name}</h4>
-                      <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
-                      {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
+                      <span className={`${tierConfig.tagColor} rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white`}>{tierConfig.tag}</span>
+                      {idx === 2 && <span className="rounded-full bg-t-magenta px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">Push This</span>}
                     </div>
                     <p className="text-[11px] text-white/90 font-medium">{plan.bestFor}</p>
                   </div>
@@ -159,7 +159,7 @@ export default function HomeInternetSection() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex flex-wrap gap-1.5">
                       {tierConfig.customerTypes.map((ct) => (
-                        <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+                        <span key={ct} className="rounded-full bg-t-light-gray/40 px-2 py-0.5 text-[10px] font-bold text-t-muted">{ct}</span>
                       ))}
                     </div>
                     <div className="text-right">
@@ -170,11 +170,11 @@ export default function HomeInternetSection() {
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="bg-t-light-gray/30 rounded-xl p-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
+                      <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-t-muted">Download</p>
                       <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
                     </div>
                     <div className="bg-t-light-gray/30 rounded-xl p-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
+                      <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-t-muted">Upload</p>
                       <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
                     </div>
                   </div>
@@ -190,7 +190,7 @@ export default function HomeInternetSection() {
 
                   {plan.includedPerks.length > 0 && (
                     <div className="bg-success-surface rounded-xl border border-success-border p-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Included Perks</p>
+                      <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-success-foreground">Included Perks</p>
                       {plan.includedPerks.map((perk, i) => (
                         <div key={i} className="flex items-center gap-2">
                           <Zap className="w-3 h-3 text-success-accent shrink-0" />

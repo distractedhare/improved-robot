@@ -19,16 +19,16 @@ export default function EdgeSection() {
   return (
     <div className="space-y-5">
       {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <ShieldCheck className="w-64 h-64 -mt-10 -mr-10 text-white" />
+          <ShieldCheck className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
         </div>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
             <Zap className="w-3 h-3 text-white" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Your Edge</p>
           </div>
-          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">The T-Mobile Edge</h3>
+          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">The T-Mobile Edge</h3>
           <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
             What makes T-Mobile different, and how to explain it quickly when a customer asks why we win.
           </p>
@@ -50,19 +50,19 @@ export default function EdgeSection() {
       </div>
 
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this section</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Use this section</p>
         <div className="mt-2 grid gap-2 md:grid-cols-3">
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Story first</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with one clean T-Mobile advantage before you mention any competitor weakness.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Story first</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Lead with one clean T-Mobile advantage before you mention any competitor weakness.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Proof second</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use one detail to back up the story only if the caller asks why it matters.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Proof second</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use one detail to back up the story only if the caller asks why it matters.</p>
           </div>
           <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Compare last</p>
-            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Open the competitor comparison only when the caller explicitly wants the side-by-side.</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Compare last</p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Open the competitor comparison only when the caller explicitly wants the side-by-side.</p>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function EdgeSection() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-black uppercase tracking-tight">{diff.category}</p>
-              <p className="text-[10px] text-t-dark-gray font-medium truncate">{diff.headline}</p>
+              <p className="line-clamp-2 text-[11px] font-medium text-t-dark-gray">{diff.headline}</p>
             </div>
             {expanded === diff.category ? (
               <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
@@ -113,7 +113,7 @@ export default function EdgeSection() {
 
                   {diff.competitorComparison && (
                     <div className="p-3 rounded-xl bg-t-berry/10 border border-t-berry/20">
-                      <p className="text-[9px] font-black uppercase tracking-wider text-t-berry mb-1">vs. The competition</p>
+                      <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-t-berry">vs. The competition</p>
                       <p className="text-[11px] text-t-dark-gray font-medium">{diff.competitorComparison}</p>
                     </div>
                   )}

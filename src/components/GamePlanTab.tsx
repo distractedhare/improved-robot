@@ -49,7 +49,7 @@ export default function GamePlanTab({
         type="button"
         onClick={() => onGenerate()}
         disabled={loading}
-        className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-[0.98] transition-transform"
+        className="focus-ring flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-black uppercase tracking-[0.18em] btn-magenta-shimmer transition-transform group hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -65,7 +65,7 @@ export default function GamePlanTab({
         type="button"
         onClick={onRunDemoScenario}
         disabled={loading}
-        className="focus-ring w-full rounded-2xl border-2 border-t-magenta/30 bg-t-magenta/8 px-4 py-4 text-left transition-all hover:border-t-magenta/55 hover:bg-t-magenta/12 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="focus-ring w-full rounded-2xl border-2 border-t-magenta/30 bg-t-magenta/8 px-4 py-4 text-left transition-all hover:border-t-magenta/55 hover:bg-t-magenta/12 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta text-white shadow-lg shadow-t-magenta/20">
@@ -76,15 +76,15 @@ export default function GamePlanTab({
               <p className="text-sm font-black uppercase tracking-[0.16em] text-t-magenta">
                 Run a Test Scenario
               </p>
-              <span className="rounded-full bg-t-magenta/12 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+              <span className="rounded-full bg-t-magenta/12 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
                 Beta Safe
               </span>
             </div>
-            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+            <p className="mt-1 text-[12px] font-medium leading-relaxed text-t-dark-gray">
               Auto-load one of the Level Up &gt; Practice Scenarios presets so testers can try the live flow instantly without filling anything out first.
             </p>
             {lastDemoScenarioName && (
-              <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray">
+              <p className="mt-2 text-[11px] font-black uppercase tracking-wide text-t-dark-gray">
                 Last loaded: {lastDemoScenarioName}
               </p>
             )}

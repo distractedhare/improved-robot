@@ -44,7 +44,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
           </div>
           <div>
             <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Fix Toolkit</h2>
-            <p className="mt-1 text-xs font-medium leading-relaxed text-t-dark-gray">
+            <p className="mt-1 text-[13px] font-medium leading-relaxed text-t-dark-gray">
               Triage the issue first, work the cleanest self-serve steps, then use the handoff card only if the caller truly needs another lane.
             </p>
           </div>
@@ -70,7 +70,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               }`}
             >
               <CatIcon className={`h-4 w-4 ${isActive ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
-              <span className="text-[9px] font-black uppercase tracking-wider">{cat.name}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">{cat.name}</span>
             </button>
           );
         })}
@@ -78,7 +78,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
       <div className="grid gap-4">
         <section className="rounded-2xl border border-info-border bg-info-surface p-4">
-          <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Best next move</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground">Best next move</p>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
             <QuickStep label="1. Confirm the issue" copy={`Make sure the caller is really in the ${selectedCategory.name.toLowerCase()} lane before you start solving.`} />
             <QuickStep label="2. Work the repair path" copy="Use the steps below in order so the rep sounds structured and calm." />
@@ -98,7 +98,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                 <p className="text-[10px] font-medium text-t-dark-gray">Keep the rep focused on the next useful action, not the whole script at once.</p>
               </div>
             </div>
-            <span className="text-[9px] font-black uppercase tracking-widest text-t-magenta">
+            <span className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
               {completedSteps.length}/{selectedCategory.steps.length}
             </span>
           </div>
@@ -137,7 +137,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
             <div className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
               <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Escalate only if needed</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Escalate only if needed</p>
                 <p className="mt-0.5 text-[10px] font-medium text-foreground">
                   {selectedCategory.transferCriteria}
                 </p>
@@ -160,14 +160,14 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               <div key={i} className="rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
                 <div className="mb-1 flex items-center gap-1.5">
                   <div className="h-1 w-1 rounded-full bg-t-magenta" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">{pivot.condition}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">{pivot.condition}</span>
                 </div>
                 <p className="text-xs font-medium text-foreground leading-relaxed">
                   "{pivot.pitch}"
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-white/50 p-1.5 dark:bg-black/20">
                   <Zap className="h-2.5 w-2.5 text-t-magenta" />
-                  <span className="text-[9px] font-bold text-t-magenta uppercase tracking-wider">Benefit: {pivot.benefit}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-t-magenta">Benefit: {pivot.benefit}</span>
                 </div>
               </div>
             ))}
@@ -176,7 +176,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
         {/* Department Quick Links */}
         <section className="rounded-2xl border border-t-light-gray bg-surface p-4 shadow-sm glass-card">
-          <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">Escalation Cards</h3>
+          <h3 className="mb-3 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">Escalation Cards</h3>
           <div className="grid gap-2 md:grid-cols-3">
             {[
               {
@@ -202,7 +202,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                 </div>
                 <p className="mt-2 text-[10px] font-medium leading-relaxed text-t-dark-gray">{dept.when}</p>
                 <div className="mt-3 rounded-xl bg-t-light-gray/25 p-2">
-                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Say this in the handoff</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Say this in the handoff</p>
                   <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{dept.handoff}</p>
                 </div>
               </div>
@@ -217,8 +217,8 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 function QuickStep({ label, copy }: { label: string; copy: string }) {
   return (
     <div className="rounded-2xl border border-info-border/70 bg-white/60 px-3 py-3">
-      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">{label}</p>
-      <p className="mt-1 text-[10px] font-medium leading-relaxed text-info-foreground">{copy}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">{label}</p>
+      <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">{copy}</p>
     </div>
   );
 }
