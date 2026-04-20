@@ -5,6 +5,7 @@ import { Flame, Sparkles, Trophy, Clock, Target, Lightbulb } from 'lucide-react'
 import { BINGO_BOARDS, BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import { recordBingoCellCompleted, recordBingoRows, recordStreak } from '../../services/prizeService';
+import { heavyCrash, successBuzz } from '../../utils/haptics';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
 
@@ -64,6 +65,7 @@ export default function BingoBoard() {
   const [activeBoardId, setActiveBoardId] = useState(() => getFeaturedBoardId());
   const [progress, setProgress] = useState(() => getBoardProgress(getFeaturedBoardId()));
   const [rowToast, setRowToast] = useState<{ count: number } | null>(null);
+  const [rowSlam, setRowSlam] = useState<{ id: number; count: number } | null>(null);
   const [boardCelebration, setBoardCelebration] = useState(false);
 
   const activeBoard = useMemo(() => getBoardById(activeBoardId), [activeBoardId]);
@@ -93,6 +95,12 @@ export default function BingoBoard() {
     return () => window.clearTimeout(timeoutId);
   }, [rowToast]);
 
+  useEffect(() => {
+    if (!rowSlam) return undefined;
+    const timeoutId = window.setTimeout(() => setRowSlam(null), 1200);
+    return () => window.clearTimeout(timeoutId);
+  }, [rowSlam]);
+
   const handleToggle = useCallback((cell: BingoCellType, reflection?: string) => {
     const wasCompleted = completedIds.has(cell.id);
     const result = toggleBingoCell(activeBoardId, cell.id, reflection);
@@ -104,14 +112,20 @@ export default function BingoBoard() {
       recordStreak(result.stats.streak);
     }
 
-    if (result.newRowKeys.length > 0) {
+    if (result.newRowKeys.length > 0 && !result.boardCompletedNow) {
       celebrateRow();
+      successBuzz();
       setRowToast({ count: result.newRowKeys.length });
+      setRowSlam({ id: Date.now(), count: result.newRowKeys.length });
+      recordBingoRows(result.stats.rowCount);
+    } else if (result.newRowKeys.length > 0) {
+      // Row lines also cleared on the winning move — record them but let the board celebration carry the moment
       recordBingoRows(result.stats.rowCount);
     }
 
     if (result.boardCompletedNow) {
       celebrateBoard();
+      heavyCrash();
       setBoardCelebration(true);
     }
   }, [activeBoardId, completedIds]);
@@ -274,6 +288,50 @@ export default function BingoBoard() {
       <p className="hidden sm:block text-center text-[10px] font-medium text-t-muted">
         Tap a square to mark it. The FREE center square already counts. Progress saves automatically.
       </p>
+
+      {/* BINGO! slam overlay — fires on row completion */}
+      <AnimatePresence>
+        {rowSlam && (
+          <motion.div
+            key={rowSlam.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="pointer-events-none fixed inset-0 z-[95] flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.4, rotate: -6, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              exit={{ scale: 1.2, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 14 }}
+              className="relative"
+            >
+              <div
+                className="absolute inset-0 -m-10 rounded-full blur-3xl"
+                style={{ background: 'radial-gradient(closest-side, rgba(226,0,116,0.45), rgba(226,0,116,0))' }}
+              />
+              <div className="relative flex flex-col items-center gap-1 px-8 py-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+                  {rowSlam.count > 1 ? `${rowSlam.count} lines` : 'Row complete'}
+                </p>
+                <p
+                  className="text-[72px] sm:text-[96px] font-black uppercase leading-none tracking-tight"
+                  style={{
+                    background: 'linear-gradient(135deg, #FFFFFF 0%, #E20074 55%, #861B54 100%)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                    filter: 'drop-shadow(0 8px 18px rgba(226,0,116,0.55))',
+                  }}
+                >
+                  BINGO!
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Row completion toast */}
       <AnimatePresence>

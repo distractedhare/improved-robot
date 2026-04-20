@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import confetti from 'canvas-confetti';
 import { Check, X } from 'lucide-react';
 import { BingoCell as BingoCellType } from '../../constants/bingoBoard';
 import { lightTap } from '../../utils/haptics';
@@ -35,6 +36,33 @@ const CATEGORY_STYLES = {
   },
 } as const;
 
+const CATEGORY_HEX: Record<string, string[]> = {
+  sales: ['#E20074', '#FF4AA0', '#FFFFFF'],
+  skill: ['#861B54', '#C74B8A', '#FFFFFF'],
+  vibe: ['#333333', '#B0B0B0', '#FFFFFF'],
+};
+
+const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+function burstFromElement(element: HTMLElement | null, colors: string[]): void {
+  if (!element || prefersReducedMotion()) return;
+  const rect = element.getBoundingClientRect();
+  const x = (rect.left + rect.width / 2) / window.innerWidth;
+  const y = (rect.top + rect.height / 2) / window.innerHeight;
+  void confetti({
+    particleCount: 18,
+    spread: 70,
+    startVelocity: 22,
+    scalar: 0.75,
+    ticks: 90,
+    gravity: 0.9,
+    colors,
+    origin: { x, y },
+    disableForReducedMotion: true,
+  });
+}
+
 const QUICK_REFLECTIONS: Record<string, { text: string; marks: boolean }[]> = {
   sales: [
     { text: 'Pitched it & Closed it 💰', marks: true },
@@ -56,6 +84,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
   const isFree = cell.id === 'free-space';
   const style = CATEGORY_STYLES[cell.category];
   const [showReflection, setShowReflection] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   const handleTap = () => {
     if (isFree) return;
@@ -75,6 +104,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
     lightTap();
     setShowReflection(false);
     if (option.marks) {
+      burstFromElement(buttonRef.current, CATEGORY_HEX[cell.category] ?? CATEGORY_HEX.sales);
       onToggle(option.text);
     }
   };
@@ -86,6 +116,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
   return (
     <>
       <motion.button
+        ref={buttonRef}
         type="button"
         onClick={handleTap}
         aria-pressed={completed}
@@ -119,6 +150,21 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
             transition={{ duration: 0.3 }}
             style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.08) 100%)',
+            }}
+          />
+        )}
+
+        {/* Winning-line shimmer sweep — animates a diagonal band across cells in a completed line */}
+        {completed && isWinning && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[1]"
+            style={{
+              background:
+                'linear-gradient(110deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 70%)',
+              backgroundSize: '300% 100%',
+              animation: 'shimmer-sweep 2.2s ease-in-out infinite',
+              mixBlendMode: 'screen',
             }}
           />
         )}
