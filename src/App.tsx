@@ -39,6 +39,8 @@ const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 import type { SettingsTab } from './components/SettingsView';
 import TroubleshootingPivot from './components/TroubleshootingPivot';
+import OrderSupportPanel from './components/OrderSupportPanel';
+import AccountSupportPanel from './components/AccountSupportPanel';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -992,11 +994,23 @@ export default function App() {
               className="flex flex-wrap gap-1.5 rounded-2xl p-1.5 glass-tab"
               style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
             >
-              {([
-                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Ready to pitch' : loading ? 'Building live plan' : 'No live plan yet' },
-                { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : script ? 'Quick comeback first' : 'Build the plan, then pressure-test' },
-                { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT troubleshoot toolkit' : 'Troubleshoot and escalate' },
-              ]).map(tab => (
+              {(() => {
+                // Third-tab morphs based on the caller's intent so each support
+                // flow gets its own panel instead of everyone landing in Tech Support.
+                const intent = context.purchaseIntent;
+                const thirdTab =
+                  intent === 'order support'
+                    ? { id: 'troubleshoot' as const, icon: Package, label: 'Order', helper: context.orderSupportType ? context.orderSupportType.replace(/_/g, ' ') : 'Triage the order issue' }
+                    : intent === 'account support'
+                      ? { id: 'troubleshoot' as const, icon: UserCircle, label: 'Account', helper: 'Triage, answer, or transfer' }
+                      : { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT troubleshoot toolkit' : 'Troubleshoot and escalate' };
+
+                return [
+                  { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Ready to pitch' : loading ? 'Building live plan' : 'No live plan yet' },
+                  { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : script ? 'Quick comeback first' : 'Build the plan, then pressure-test' },
+                  thirdTab,
+                ];
+              })().map(tab => (
                 <button
                   key={tab.id}
                   id={`live-tab-${tab.id}`}
@@ -1039,7 +1053,13 @@ export default function App() {
               )}
               {activeTab === 'troubleshoot' && (
                 <div id="live-panel-troubleshoot" role="tabpanel" aria-labelledby="live-tab-troubleshoot">
-                  <TroubleshootingPivot initialCategory={context.product[0]} />
+                  {context.purchaseIntent === 'order support' ? (
+                    <OrderSupportPanel context={context} setContext={handleContextUpdate} />
+                  ) : context.purchaseIntent === 'account support' ? (
+                    <AccountSupportPanel context={context} setContext={handleContextUpdate} />
+                  ) : (
+                    <TroubleshootingPivot initialCategory={context.product[0]} />
+                  )}
                 </div>
               )}
             </AnimatePresence>
