@@ -175,14 +175,26 @@ export default function BingoBoard() {
         </div>
       </div>
 
-      {/* Mini Lesson Callout */}
-      <div className="glass-card flex items-start gap-3 rounded-xl border-l-4 border-l-t-magenta p-3">
-        <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-t-magenta" />
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">GAME PLAN</p>
-          <p className="mt-0.5 text-xs font-medium text-t-dark-gray leading-relaxed">{activeBoard.miniLesson}</p>
-        </div>
-      </div>
+      {/* Mini Lesson Callout — collapsible on mobile to save vertical space */}
+      <details className="glass-card group rounded-xl border-l-4 border-l-t-magenta p-2 sm:p-3 sm:pointer-events-none" open>
+        <summary className="flex cursor-pointer select-none items-start gap-2 sm:gap-3 list-none [&::-webkit-details-marker]:hidden">
+          <Lightbulb className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-t-magenta" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">GAME PLAN</p>
+              <span
+                aria-hidden="true"
+                className="text-t-magenta transition-transform group-open:rotate-90 sm:hidden text-[11px] font-black leading-none"
+              >
+                ›
+              </span>
+            </div>
+            <p className="mt-0.5 text-[11px] sm:text-xs font-medium text-t-dark-gray leading-snug line-clamp-1 group-open:line-clamp-none">
+              {activeBoard.miniLesson}
+            </p>
+          </div>
+        </summary>
+      </details>
 
       {/* Mobile: compact "almost there" chip only (if any). Desktop: full pacing detail. */}
       {nearCompleteLines.length > 0 ? (
@@ -225,7 +237,7 @@ export default function BingoBoard() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
         <StatCard icon={<Target className="h-3 w-3" />} label="Progress" value={`${stats.weeklyCompletedCount}/25`} accent="var(--cat-sales-accent)" />
         <StatCard icon={<Trophy className="h-3 w-3" />} label="Rows" value={`${stats.rowCount}`} accent="var(--cat-skill-accent)" />
         <StatCard icon={<Flame className="h-3 w-3" />} label="Streak" value={`${stats.streak}d`} accent="var(--prize-weekly)" />
@@ -240,11 +252,11 @@ export default function BingoBoard() {
         className="glass-elevated rounded-[1.4rem] p-4"
       >
         {/* BINGO header letters */}
-        <div className="mb-2 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
+        <div className="mb-1.5 sm:mb-3 grid grid-cols-5 gap-1 sm:gap-1.5 text-center">
           {['B', 'I', 'N', 'G', 'O'].map((letter, i) => (
             <div
               key={letter}
-              className="rounded-xl py-2 text-sm font-black uppercase tracking-[0.18em] text-white"
+              className="rounded-lg sm:rounded-xl py-1 sm:py-2 text-[11px] sm:text-sm font-black uppercase tracking-[0.18em] text-white"
               style={{
                 background: `linear-gradient(135deg, #E20074 ${i * 10}%, #861B54 ${100 - i * 10}%)`,
                 boxShadow: '0 4px 12px rgba(226, 0, 116, 0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
@@ -372,12 +384,12 @@ export default function BingoBoard() {
 
 function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent: string }) {
   return (
-    <div className="glass-stat rounded-xl p-3">
-      <div className="flex items-center gap-1.5">
+    <div className="glass-stat rounded-xl p-2 sm:p-3">
+      <div className="flex items-center gap-1 sm:gap-1.5">
         <span style={{ color: accent }}>{icon}</span>
-        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">{label}</p>
+        <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.14em] sm:tracking-[0.18em] text-t-dark-gray">{label}</p>
       </div>
-      <p className="mt-1.5 text-lg font-black text-foreground">{value}</p>
+      <p className="mt-1 sm:mt-1.5 text-sm sm:text-lg font-black text-foreground">{value}</p>
     </div>
   );
 }

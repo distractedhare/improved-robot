@@ -84,9 +84,9 @@ html[data-theme="light"],
   --cat-skill-bg: rgba(134, 27, 84, 0.10);
   --cat-skill-border: rgba(134, 27, 84, 0.22);
   --cat-skill-accent: #861B54;
-  --cat-vibe-bg: rgba(0, 0, 0, 0.06);
-  --cat-vibe-border: rgba(0, 0, 0, 0.12);
-  --cat-vibe-accent: #333333;
+  --cat-vibe-bg: rgba(212, 160, 23, 0.10);
+  --cat-vibe-border: rgba(212, 160, 23, 0.28);
+  --cat-vibe-accent: #B8860B;
 
   /* Prize tier colors */
   --prize-daily: #00A550;
@@ -197,9 +197,9 @@ html[data-theme="dark"],
   --cat-skill-bg: rgba(192, 75, 138, 0.16);
   --cat-skill-border: rgba(192, 75, 138, 0.30);
   --cat-skill-accent: #C74B8A;
-  --cat-vibe-bg: rgba(255, 255, 255, 0.08);
-  --cat-vibe-border: rgba(255, 255, 255, 0.16);
-  --cat-vibe-accent: #B0B0B0;
+  --cat-vibe-bg: rgba(245, 208, 78, 0.14);
+  --cat-vibe-border: rgba(245, 208, 78, 0.32);
+  --cat-vibe-accent: #F5D04E;
 
   /* Prize tier colors — brightened for dark */
   --prize-daily: #22C55E;

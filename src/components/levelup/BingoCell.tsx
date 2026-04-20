@@ -39,7 +39,7 @@ const CATEGORY_STYLES = {
 const CATEGORY_HEX: Record<string, string[]> = {
   sales: ['#E20074', '#FF4AA0', '#FFFFFF'],
   skill: ['#861B54', '#C74B8A', '#FFFFFF'],
-  vibe: ['#333333', '#B0B0B0', '#FFFFFF'],
+  vibe: ['#D4A017', '#F5D04E', '#FFFFFF'],
 };
 
 const prefersReducedMotion = (): boolean =>
@@ -201,7 +201,7 @@ export default function BingoCell({ cell, completed, isWinning, onToggle }: Bing
           )}
 
           <span
-            className={`block text-[8px] sm:text-[10px] font-black uppercase tracking-[0.04em] leading-tight break-words hyphens-auto w-full text-center ${
+            className={`block text-[10px] sm:text-[12px] font-black uppercase tracking-[0.01em] leading-[1.15] break-words hyphens-auto w-full text-center ${
               completed ? 'text-white' : 'text-foreground'
             }`}
           >
