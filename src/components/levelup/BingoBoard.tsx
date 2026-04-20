@@ -117,14 +117,14 @@ export default function BingoBoard() {
   }, [activeBoardId, completedIds]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3 sm:space-y-5">
       {/* Board header */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta">Weekly Challenge</p>
-            <h3 className="mt-1 text-2xl font-black tracking-tight text-foreground">{activeBoard.name}</h3>
-            <p className="mt-1 text-sm font-medium text-t-dark-gray">{activeBoard.subtitle}</p>
+            <h3 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-foreground">{activeBoard.name}</h3>
+            <p className="mt-1 text-[12px] sm:text-sm font-medium text-t-dark-gray leading-snug">{activeBoard.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="glass-stat rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
@@ -145,7 +145,7 @@ export default function BingoBoard() {
                 aria-selected={isActive}
                 aria-controls={`bingo-board-panel-${boardOption.id}`}
                 onClick={() => setActiveBoardId(boardOption.id)}
-                className={`focus-ring min-w-[200px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-3 text-left transition-all active:scale-[0.97] ${
+                className={`focus-ring min-w-[160px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.97] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)]'
                     : 'glass-card text-t-dark-gray hover:border-t-magenta/30'
@@ -170,7 +170,20 @@ export default function BingoBoard() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+      {/* Mobile: compact "almost there" chip only (if any). Desktop: full pacing detail. */}
+      {nearCompleteLines.length > 0 ? (
+        <div className="flex items-center gap-2 rounded-xl border border-info-border bg-info-surface px-3 py-2 sm:hidden">
+          <Flame className="h-4 w-4 shrink-0 text-t-berry" />
+          <div className="min-w-0">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">Almost there</p>
+            <p className="truncate text-[11px] font-medium text-info-foreground">
+              {nearCompleteLines.map((line) => line.label).join(' • ')} — one square away
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="hidden sm:block rounded-2xl border border-info-border bg-info-surface p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">Board pacing</p>
@@ -243,11 +256,11 @@ export default function BingoBoard() {
       </div>
 
       {/* Board stats footer */}
-      <div className="glass-card rounded-xl p-4">
+      <div className="glass-card rounded-xl p-3 sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Board Stats</p>
-            <p className="mt-1 text-sm font-medium text-t-dark-gray">
+            <p className="mt-1 text-xs sm:text-sm font-medium text-t-dark-gray">
               Time on this board: <span className="font-black text-foreground">{durationLabel}</span>
             </p>
           </div>
@@ -258,7 +271,7 @@ export default function BingoBoard() {
         </div>
       </div>
 
-      <p className="text-center text-[10px] font-medium text-t-muted">
+      <p className="hidden sm:block text-center text-[10px] font-medium text-t-muted">
         Tap a square to mark it. The FREE center square already counts. Progress saves automatically.
       </p>
 

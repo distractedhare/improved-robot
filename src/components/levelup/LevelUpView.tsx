@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Award, Flame, Play, Sparkles, Star, Ticket, Trophy, Zap } from 'lucide-react';
+import { Award, Flame, HardHat, Play, Sparkles, Star, Ticket, Trophy, Zap } from 'lucide-react';
 import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService';
 import { getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
 import { getPrizeData } from '../../services/prizeService';
@@ -8,13 +8,15 @@ import BingoBoard from './BingoBoard';
 import SpeedRound from './SpeedRound';
 import PrizeHub from './PrizeHub';
 import PracticeScenarios from './PracticeScenarios';
+import RunnerComingSoon from './RunnerComingSoon';
 
-type LevelUpTab = 'bingo' | 'speed' | 'practice' | 'prizes';
+type LevelUpTab = 'bingo' | 'speed' | 'practice' | 'runner' | 'prizes';
 
 const LEVEL_UP_TABS = [
   { id: 'bingo' as const, icon: Trophy, label: 'Bingo', helper: 'Weekly board momentum' },
   { id: 'speed' as const, icon: Zap, label: 'Speed Round', helper: 'Fast coaching reps' },
   { id: 'practice' as const, icon: Play, label: 'Practice', helper: 'Scenario rehearsals' },
+  { id: 'runner' as const, icon: HardHat, label: 'T-LIFE Runner', helper: 'Coming soon — under construction' },
   { id: 'prizes' as const, icon: Award, label: 'Prizes', helper: 'Track what is within reach' },
 ];
 
@@ -75,7 +77,8 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
                   Level <span className="text-t-magenta">Up</span>
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm font-medium text-t-dark-gray">
-                  Keep the game layer sharp enough that reps want to open it for fun and useful enough that the next live call actually feels easier.
+                  "Keep the game layer sharp enough that reps want to open it for fun and useful enough that the next live
+                  call actually feels easier."
                 </p>
               </>
             )}
@@ -99,7 +102,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
         <div className="grid gap-3 md:grid-cols-4">
           <DashboardCard
             icon={<Trophy className="h-4 w-4 text-t-magenta" />}
-            label="Today’s Challenge"
+            label="Today's Challenge"
             value={featuredBoard.name}
             detail="Featured weekly board"
           />
@@ -119,7 +122,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
             icon={<Star className="h-4 w-4 text-warning-accent" />}
             label="Still in Reach"
             value={todayWithinReach === 0 ? 'Daily Goal Hit' : `${todayWithinReach} cells`}
-            detail={todayWithinReach === 0 ? 'Momentum badge is live' : 'to lock in today’s badge'}
+            detail={todayWithinReach === 0 ? 'Momentum badge is live' : "to lock in today's badge"}
           />
         </div>
 
@@ -140,9 +143,11 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
                 ? 'Pick a scenario, then jump straight into Live with the plan already loaded.'
                 : tab === 'speed'
                   ? 'Use one fast round to sharpen phrasing before the next call.'
-                  : tab === 'prizes'
-                    ? 'See what is still realistically within reach today, not just the reward list.'
-                    : 'Use Bingo to reinforce the exact call behaviors you want reps repeating.'}
+                  : tab === 'runner'
+                    ? 'T-LIFE Runner is under construction — drop in when the build is ready.'
+                    : tab === 'prizes'
+                      ? 'See what is still realistically within reach today, not just the reward list.'
+                      : 'Use Bingo to reinforce the exact call behaviors you want reps repeating.'}
             </p>
           </div>
         </div>
@@ -150,10 +155,11 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
         <nav
           aria-label="Level Up sections"
           role="tablist"
-          className="glass grid gap-2 rounded-2xl p-2 sm:grid-cols-4"
+          className="glass grid grid-cols-2 gap-2 rounded-2xl p-2 sm:grid-cols-3 lg:grid-cols-5"
         >
           {LEVEL_UP_TABS.map((item) => {
             const isActive = tab === item.id;
+            const isComingSoon = item.id === 'runner';
             return (
               <button
                 key={item.id}
@@ -163,7 +169,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
                 aria-selected={isActive}
                 aria-controls={`level-up-panel-${item.id}`}
                 onClick={() => setTab(item.id)}
-                className={`focus-ring min-h-[52px] rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
+                className={`focus-ring relative min-h-[52px] rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
                   isActive
                     ? 'bg-t-magenta text-white shadow-[0_8px_18px_rgba(226,0,116,0.22)]'
                     : 'glass-tab text-t-dark-gray hover:text-foreground'
@@ -172,6 +178,11 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
                 <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em]">
                   <item.icon className="h-3.5 w-3.5 shrink-0" />
                   {item.label}
+                  {isComingSoon && !isActive ? (
+                    <span className="ml-auto rounded-full bg-[#FFD400] px-1.5 py-[1px] text-[8px] font-black uppercase tracking-[0.14em] text-black">
+                      Soon
+                    </span>
+                  ) : null}
                 </span>
                 <span className={`mt-0.5 block text-[10px] font-medium ${isActive ? 'text-white/75' : 'text-t-dark-gray'}`}>
                   {item.helper}
@@ -197,11 +208,14 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
             <div className="rounded-2xl border border-info-border bg-info-surface p-4">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-info-foreground">Practice scenarios</p>
               <p className="mt-2 text-[11px] font-medium leading-relaxed text-info-foreground">
-                Rehearse the live-call flow with one realistic customer setup, then let the app jump you into Live with the full plan already loaded.
+                "Rehearse the live-call flow with one realistic customer setup, then let the app jump you into Live with the
+                full plan already loaded."
               </p>
             </div>
             <PracticeScenarios onSelectScenario={onSelectScenario} />
           </div>
+        ) : tab === 'runner' ? (
+          <RunnerComingSoon />
         ) : (
           <PrizeHub />
         )}
