@@ -28,18 +28,18 @@ const INTENT_LABELS: Record<SalesContext['purchaseIntent'], string> = {
 
 function getHintStatus(context: SalesContext): { label: string; tone: string; icon: typeof Wifi } {
   if (!context.product.includes('Home Internet')) {
-    return { label: 'HINT not in play', tone: 'bg-t-light-gray/40 text-t-dark-gray', icon: Wifi };
+    return { label: 'HINT not in play', tone: 'glass-utility text-white/80', icon: Wifi };
   }
 
   if (context.hintAvailable === true) {
-    return { label: 'HINT available', tone: 'bg-success-surface text-success-foreground', icon: Wifi };
+    return { label: 'HINT available', tone: 'bg-t-magenta text-white shadow-[0_18px_36px_-24px_rgba(226,0,116,0.75)]', icon: Wifi };
   }
 
   if (context.hintAvailable === false) {
-    return { label: 'HINT unavailable', tone: 'bg-warning-surface text-warning-foreground', icon: WifiOff };
+    return { label: 'HINT unavailable', tone: 'bg-white/12 text-white/90', icon: WifiOff };
   }
 
-  return { label: 'HINT not checked', tone: 'bg-t-magenta/10 text-t-magenta', icon: Wifi };
+  return { label: 'HINT not checked', tone: 'bg-white text-t-magenta shadow-[0_18px_36px_-24px_rgba(255,255,255,0.55)]', icon: Wifi };
 }
 
 export default function LivePlanResults({ script, context }: LivePlanResultsProps) {
@@ -53,7 +53,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
 
   return (
     <div className="space-y-4">
-      <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-dark-gray via-t-berry to-t-magenta p-5 text-white shadow-xl">
+      <section className="glass-billboard overflow-hidden rounded-[2rem] p-5 text-white shadow-xl">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
@@ -99,7 +99,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
         />
 
         <PlanSection
-          icon={<Search className="h-4 w-4 text-info-foreground" />}
+          icon={<Search className="h-4 w-4 text-t-magenta" />}
           eyebrow="Discovery"
           title="Questions Worth Asking"
           tone="info"
@@ -107,7 +107,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
         />
 
         <PlanSection
-          icon={<Lightbulb className="h-4 w-4 text-warning-foreground" />}
+          icon={<Lightbulb className="h-4 w-4 text-t-magenta" />}
           eyebrow="Value Story"
           title="Proof Points to Use"
           tone="warning"
@@ -115,7 +115,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
         />
 
         <PlanSection
-          icon={<ShoppingBag className="h-4 w-4 text-success-foreground" />}
+          icon={<ShoppingBag className="h-4 w-4 text-t-magenta" />}
           eyebrow="Close Cleanly"
           title="Next Moves"
           tone="success"
@@ -124,7 +124,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
       </div>
 
       {script.accessoryRecommendations.length > 0 ? (
-        <section className="rounded-3xl border border-t-light-gray/60 bg-surface-elevated p-5">
+        <section className="glass-stage-quiet rounded-3xl p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-magenta/10">
               <Headphones className="h-5 w-5 text-t-magenta" />
@@ -137,7 +137,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {script.accessoryRecommendations.slice(0, 4).map((item) => (
-              <div key={item.name} className="rounded-2xl border border-t-light-gray/60 bg-surface px-4 py-3">
+              <div key={item.name} className="glass-reading rounded-2xl px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-black text-foreground">{item.name}</p>
@@ -153,7 +153,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-t-light-gray/60 bg-surface p-5">
+      <section className="glass-stage-quiet rounded-3xl p-5">
         <div className="flex items-start gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-light-gray/40">
             <CheckCircle2 className="h-5 w-5 text-t-magenta" />
@@ -171,7 +171,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
 
 function StatusPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/10 px-3 py-3 backdrop-blur-sm">
+    <div className="glass-utility rounded-2xl px-3 py-3">
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/75">{label}</p>
       <p className="mt-1 text-[11px] font-bold leading-relaxed text-white">{value}</p>
     </div>
@@ -196,14 +196,14 @@ function PlanSection({
   supportingLabel?: string;
 }) {
   const toneClass = {
-    magenta: 'border-t-magenta/20 bg-t-magenta/5 text-t-magenta',
-    info: 'border-info-border bg-info-surface text-info-foreground',
-    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
-    success: 'border-success-border bg-success-surface text-success-foreground',
+    magenta: 'glass-feature',
+    info: 'glass-stage-quiet',
+    warning: 'glass-stage-quiet',
+    success: 'glass-stage-quiet',
   }[tone];
 
   return (
-    <section className={`rounded-3xl border p-5 ${toneClass}`}>
+    <section className={`rounded-3xl p-5 ${toneClass}`}>
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/70">
           {icon}
@@ -216,14 +216,14 @@ function PlanSection({
 
       <div className="mt-4 space-y-2">
         {items.slice(0, 4).map((item) => (
-          <div key={item} className="rounded-2xl border border-t-light-gray/60 bg-surface px-4 py-3">
+          <div key={item} className="glass-reading rounded-2xl px-4 py-3">
             <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">{item}</p>
           </div>
         ))}
       </div>
 
       {supportingItems && supportingItems.length > 0 ? (
-        <div className="mt-4 rounded-2xl border border-t-light-gray/60 bg-surface px-4 py-3">
+        <div className="glass-reading mt-4 rounded-2xl px-4 py-3">
           <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
             {supportingLabel || 'Extra lines'}
           </p>

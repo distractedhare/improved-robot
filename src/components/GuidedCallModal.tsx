@@ -49,14 +49,13 @@ function discoveryQ(product: string): string {
   return DISCOVERY_QUESTIONS[product]?.[0] ?? DISCOVERY_QUESTIONS['No Specific Product'][0];
 }
 
-// ── Hero card intent colours ──────────────────────────────────────────────────
-const INTENT_META: Record<string, { gradient: string; label: string }> = {
-  'exploring':           { gradient: 'from-violet-500 to-indigo-600',  label: 'Exploring' },
-  'ready to buy':        { gradient: 'from-t-magenta to-t-berry',      label: 'Ready to Buy' },
-  'upgrade / add a line':{ gradient: 'from-emerald-500 to-teal-600',   label: 'Upgrade / Add a Line' },
-  'order support':       { gradient: 'from-amber-500 to-orange-600',   label: 'Order Support' },
-  'tech support':        { gradient: 'from-sky-500 to-blue-600',       label: 'Tech Support' },
-  'account support':     { gradient: 'from-slate-500 to-slate-700',    label: 'Account Support' },
+const INTENT_META: Record<string, { label: string; eyebrow: string }> = {
+  'exploring':           { label: 'Exploring', eyebrow: 'Discovery call' },
+  'ready to buy':        { label: 'Ready to Buy', eyebrow: 'Close with confidence' },
+  'upgrade / add a line':{ label: 'Upgrade / Add a Line', eyebrow: 'Stack value cleanly' },
+  'order support':       { label: 'Order Support', eyebrow: 'Resolve, then pivot' },
+  'tech support':        { label: 'Tech Support', eyebrow: 'Fix first, earn the pitch' },
+  'account support':     { label: 'Account Support', eyebrow: 'Clarify, then guide' },
 };
 
 export default function GuidedCallModal({ open, onClose, context, setContext }: GuidedCallModalProps) {
@@ -126,7 +125,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-4 rounded-xl glass-card glass-shine bg-t-magenta/8 border border-t-magenta/20 px-4 py-3 shadow-md"
+      className="glass-feature mt-4 rounded-xl px-4 py-3"
     >
       <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say this</p>
       <p className="text-[12px] font-semibold text-t-dark-gray leading-snug italic">"{text}"</p>
@@ -148,7 +147,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
             whileTap={{ scale: 0.96 }}
             whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
             onClick={() => selectIntent(opt.id)}
-            className="flex flex-col items-center gap-2 p-4 rounded-2xl glass-card glass-shine border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 transition-all text-center group shadow-sm"
+            className="glass-reading flex flex-col items-center gap-2 rounded-2xl p-4 text-center group transition-all"
           >
             <div className="w-10 h-10 rounded-xl bg-t-light-gray/30 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
               <opt.icon className="w-5 h-5 text-t-dark-gray group-hover:text-white" />
@@ -196,16 +195,15 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
         <div className="flex gap-3">
           {[
-            { label: 'Yes — available', value: true,  color: 'border-emerald-400 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
-            { label: 'No — not available', value: false, color: 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/40' },
+            { label: 'Yes — available', value: true,  color: 'glass-control-active text-white' },
+            { label: 'No — not available', value: false, color: 'glass-control text-t-dark-gray hover:text-foreground' },
           ].map(opt => (
             <motion.button
               key={String(opt.value)}
               type="button"
               whileTap={{ scale: 0.97 }}
-              whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
               onClick={() => selectHint(opt.value)}
-              className={`flex-1 py-4 rounded-2xl glass-card glass-shine border-2 font-black text-sm transition-all shadow-sm ${opt.color}`}
+              className={`flex-1 rounded-2xl py-4 font-black text-sm transition-all ${opt.color}`}
             >
               <MapPin className="w-5 h-5 mx-auto mb-1" />
               {opt.label}
@@ -237,15 +235,15 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
               whileTap={{ scale: 0.96 }}
               whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
               onClick={() => toggleProduct(opt.id)}
-              className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl glass-card glass-shine border-2 transition-all shadow-sm
+              className={`relative flex flex-col items-center gap-2 rounded-2xl p-4 transition-all
                 ${active
-                  ? 'border-t-magenta bg-t-magenta/8'
-                  : 'border-t-light-gray hover:border-t-magenta/40'
+                  ? 'glass-control-active'
+                  : 'glass-reading'
                 }`}
             >
-              <opt.icon className={`w-6 h-6 ${active ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
-              <p className={`text-[10px] font-black uppercase tracking-tight ${active ? 'text-t-magenta' : 'text-t-dark-gray'}`}>{opt.label}</p>
-              {active && <CheckCircle2 className="absolute top-2 right-2 w-3.5 h-3.5 text-t-magenta" />}
+              <opt.icon className={`w-6 h-6 ${active ? 'text-white' : 'text-t-dark-gray'}`} />
+              <p className={`text-[10px] font-black uppercase tracking-tight ${active ? 'text-white' : 'text-t-dark-gray'}`}>{opt.label}</p>
+              {active && <CheckCircle2 className="absolute top-2 right-2 w-3.5 h-3.5 text-white" />}
             </motion.button>
           );
         })}
@@ -254,7 +252,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         type="button"
         onClick={confirmProducts}
         disabled={selectedProducts.length === 0}
-        className="w-full py-3.5 rounded-2xl bg-t-magenta text-white font-black text-sm uppercase tracking-widest disabled:opacity-40 transition-opacity"
+        className="cta-primary w-full rounded-2xl py-3.5 text-sm font-black uppercase tracking-widest text-white disabled:opacity-40 transition-opacity"
       >
         {selectedProducts.length === 0 ? 'Select at least one' : `Continue →`}
       </button>
@@ -276,7 +274,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
             whileTap={{ scale: 0.96 }}
             whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
             onClick={() => selectAge(age)}
-            className="py-3.5 rounded-xl glass-card glass-shine border-2 border-t-light-gray hover:border-t-magenta/50 hover:bg-t-magenta/5 text-sm font-black text-t-dark-gray transition-all shadow-sm"
+            className="glass-reading rounded-xl py-3.5 text-sm font-black text-t-dark-gray transition-all"
           >
             {age}
           </motion.button>
@@ -285,7 +283,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
           type="button"
           whileTap={{ scale: 0.96 }}
           onClick={() => selectAge('Not Specified')}
-          className="col-span-3 py-3 rounded-xl border-2 border-t-light-gray bg-surface hover:border-t-magenta/40 text-[10px] font-black uppercase tracking-widest text-t-muted transition-all"
+          className="glass-control col-span-3 rounded-xl py-3 text-[10px] font-black uppercase tracking-widest text-t-muted transition-all hover:text-foreground"
         >
           Skip / Not sure
         </motion.button>
@@ -303,14 +301,13 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
 
     return (
       <div className="space-y-4">
-        {/* Hero gradient card */}
-        <div className={`rounded-3xl bg-gradient-to-br ${meta.gradient} p-5 text-white shadow-xl`}>
+        <div className="glass-billboard rounded-3xl p-5 text-white shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-widest opacity-70">You're live</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-white/70">{meta.eyebrow}</p>
               <h2 className="text-2xl font-black mt-0.5">{meta.label}</h2>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+            <div className="glass-utility flex h-12 w-12 items-center justify-center rounded-2xl">
               <Zap className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -318,7 +315,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
           {/* Context chips */}
           <div className="flex flex-wrap gap-1.5">
             {context.hintAvailable !== undefined && (
-              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${context.hintAvailable ? 'bg-emerald-400/30 text-white' : 'bg-white/15 text-white/70'}`}>
+              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${context.hintAvailable ? 'bg-white/20 text-white' : 'bg-white/12 text-white/72'}`}>
                 {context.hintAvailable ? 'HINT ✓' : 'No HINT'}
               </span>
             )}
@@ -341,7 +338,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Opener */}
-        <div className="rounded-2xl glass-card glass-shine border border-t-light-gray p-4 space-y-1.5 shadow-md">
+        <div className="glass-reading rounded-2xl p-4 space-y-1.5 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Open with</p>
@@ -350,7 +347,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Ask first */}
-        <div className="rounded-2xl glass-card glass-shine border border-t-light-gray p-4 shadow-md">
+        <div className="glass-reading rounded-2xl p-4 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <ChevronRight className="w-3.5 h-3.5 text-info-foreground" />
             <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Ask first</p>
@@ -359,7 +356,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* One-liner */}
-        <div className="rounded-2xl glass-card glass-shine border border-t-magenta/20 bg-t-magenta/5 p-4 shadow-md">
+        <div className="glass-feature rounded-2xl p-4 shadow-md">
           <div className="flex items-center gap-1.5 mb-2">
             <Zap className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Talk track</p>
@@ -372,7 +369,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
           type="button"
           whileTap={{ scale: 0.98 }}
           onClick={onClose}
-          className={`w-full py-4 rounded-2xl bg-gradient-to-r ${meta.gradient} text-white font-black text-sm uppercase tracking-widest shadow-lg flex items-center justify-center gap-2`}
+          className="cta-primary flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg"
         >
           Start Call <ArrowRight className="w-4 h-4" />
         </motion.button>
@@ -410,7 +407,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
             className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg"
           >
-            <div className="rounded-t-3xl bg-surface border-t border-t-light-gray shadow-2xl">
+            <div className="glass-modal rounded-t-3xl shadow-2xl">
               {/* Handle + close */}
               <div className="flex items-center justify-between px-5 pt-4 pb-2">
                 <div className="flex gap-1.5">

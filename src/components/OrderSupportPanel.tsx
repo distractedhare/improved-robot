@@ -68,7 +68,7 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-3xl glass-card p-5 shadow-sm">
+      <div className="glass-stage rounded-3xl p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta/10">
             <Package className="h-5 w-5 text-t-magenta" />
@@ -83,7 +83,7 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
       </div>
 
       {/* Sub-type selector */}
-      <div className="rounded-3xl glass-card p-4 shadow-sm">
+      <div className="glass-stage-quiet rounded-3xl p-4 shadow-sm">
         <OrderSupportSelector value={selected ?? undefined} onChange={handleSelect} />
       </div>
 
@@ -99,7 +99,7 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
             className="space-y-3"
           >
             {/* Acknowledge */}
-            <div className="rounded-2xl glass-card border border-t-light-gray p-4 shadow-sm">
+            <div className="glass-reading rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
                 <Headphones className="w-3.5 h-3.5 text-t-magenta" />
                 <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Say this first</p>
@@ -108,16 +108,16 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
             </div>
 
             {/* Quick action */}
-            <div className="rounded-2xl glass-card border border-info-border bg-info-surface/40 p-4 shadow-sm">
+            <div className="glass-reading rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-info-foreground" />
-                <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Quick action</p>
+                <CheckCircle2 className="w-3.5 h-3.5 text-t-magenta" />
+                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Quick action</p>
               </div>
               <p className="text-[13px] font-medium text-t-dark-gray leading-snug">{play.quickAction}</p>
             </div>
 
             {/* Sales pivot */}
-            <div className="rounded-2xl glass-card border border-t-magenta/20 bg-t-magenta/5 p-4 shadow-sm">
+            <div className="glass-feature rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
                 <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Pivot back to sales</p>
@@ -127,11 +127,11 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
 
             {/* Transfer hint */}
             {play.transferHint && (
-              <div className="rounded-2xl border border-warning-border bg-warning-surface/40 p-3 shadow-sm">
+              <div className="glass-reading rounded-2xl p-3 shadow-sm">
                 <div className="flex items-start gap-2">
-                  <ArrowUpRight className="w-3.5 h-3.5 text-warning-foreground mt-0.5 shrink-0" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-t-magenta mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground">When to transfer</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">When to transfer</p>
                     <p className="mt-1 text-[12px] font-medium text-t-dark-gray leading-snug">{play.transferHint}</p>
                   </div>
                 </div>
@@ -143,7 +143,7 @@ export default function OrderSupportPanel({ context, setContext }: OrderSupportP
 
       {/* Empty state */}
       {!play && (
-        <div className="rounded-2xl border border-dashed border-t-light-gray bg-surface/60 p-4 text-center">
+        <div className="glass-stage-quiet rounded-2xl p-4 text-center">
           <p className="text-[11px] font-black uppercase tracking-widest text-t-muted">
             Pick the order issue above
           </p>

@@ -64,7 +64,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
   };
 
   return (
-    <div className="rounded-3xl glass-card p-6 space-y-6 relative overflow-hidden">
+    <div className="glass-stage rounded-3xl p-6 space-y-6 relative overflow-hidden">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-black tracking-tight text-t-dark-gray flex items-center gap-2">
@@ -88,7 +88,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
             <button
               key={p.name}
               onClick={() => setTargetDevice(p)}
-              className="p-3 rounded-2xl border-2 border-t-light-gray hover:border-t-magenta/30 transition-all text-left group"
+              className="glass-reading p-3 rounded-2xl transition-all text-left group"
             >
               <p className="text-[10px] font-black text-t-magenta uppercase mb-1">Target</p>
               <p className="text-xs font-bold text-t-dark-gray group-hover:text-t-magenta">{p.name}</p>
@@ -106,7 +106,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
             {/* FRONT SIDE */}
             <div className={`w-full h-full backface-hidden ${isFlipped ? 'pointer-events-none opacity-0' : 'opacity-100'}`}>
               <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10">
+                <div className="glass-feature flex items-center gap-4 rounded-2xl p-4">
                   <div className="w-12 h-12 rounded-xl bg-t-magenta/10 flex items-center justify-center shrink-0">
                     <Smartphone className="w-6 h-6 text-t-magenta" />
                   </div>
@@ -124,10 +124,10 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
                       <button
                         key={p.name}
                         onClick={() => setPivotDevice(p)}
-                        className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                        className={`flex items-center justify-between p-3 rounded-xl transition-all ${
                           pivotDevice?.name === p.name 
-                            ? 'border-t-magenta bg-t-magenta/5 shadow-md' 
-                            : 'border-t-light-gray hover:border-t-magenta/20'
+                            ? 'glass-feature shadow-md'
+                            : 'glass-reading'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
                 <button
                   disabled={!pivotDevice || loading}
                   onClick={generateTalkTrack}
-                  className="w-full btn-magenta-shimmer py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cta-primary w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   Generate Pivot Track
@@ -173,11 +173,11 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl border border-t-light-gray bg-surface">
+                  <div className="glass-reading rounded-xl p-3">
                     <p className="text-[9px] font-black text-t-magenta uppercase mb-1">Why it works</p>
                     <p className="text-[10px] font-medium text-t-dark-gray">Focuses on "Zero Down" to remove the credit barrier immediately.</p>
                   </div>
-                  <div className="p-3 rounded-xl border border-t-light-gray bg-surface">
+                  <div className="glass-reading rounded-xl p-3">
                     <p className="text-[9px] font-black text-t-magenta uppercase mb-1">Key Spec Match</p>
                     <p className="text-[10px] font-medium text-t-dark-gray">Both have 5G and large screens for streaming.</p>
                   </div>
@@ -185,7 +185,7 @@ export default function CreditPivot({ targetDevice: initialTarget, onClose }: Cr
 
                 <button
                   onClick={() => setIsFlipped(false)}
-                  className="w-full py-3 rounded-xl border-2 border-t-light-gray text-[10px] font-black uppercase tracking-widest text-t-dark-gray hover:bg-t-light-gray/10 transition-colors"
+                  className="glass-control w-full rounded-xl py-3 text-[10px] font-black uppercase tracking-widest text-t-dark-gray transition-colors"
                 >
                   Edit Comparison
                 </button>

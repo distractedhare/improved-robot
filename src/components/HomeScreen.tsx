@@ -79,71 +79,71 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 2xl:max-w-3xl">
-      {/* ── Welcome Section ─────────────────────────────── */}
-      <motion.div
+      <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="text-center pt-2"
+        className="glass-stage space-y-5 rounded-[2.1rem] p-5 sm:p-6"
       >
-        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-t-muted">
-          {formatDate()}
-        </p>
-	        <h1
-	          className="mb-1 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
-	          style={{
-	            background: 'linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%)',
-	            WebkitBackgroundClip: 'text',
-	            WebkitTextFillColor: 'transparent',
-	          }}
-	        >
-	          {getGreeting()} {role.icon}
-	        </h1>
-        <p className="text-sm font-bold text-t-dark-gray sm:text-base">
-          {role.greeting}
-        </p>
-	        <p className="mx-auto mt-1 max-w-md text-[13px] text-t-dark-gray">
-	          {coachingLine}
-	        </p>
-      </motion.div>
-
-      {/* ── Role Selector (hidden when only 1 role) ──── */}
-      {showRoleSelector && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="flex justify-center gap-2 flex-wrap"
-        >
-          {enabledRoles.map(r => (
-            <button
-              key={r.id}
-              onClick={() => handleRoleChange(r.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                role.id === r.id
-                  ? 'bg-t-magenta text-white shadow-lg shadow-t-magenta/30'
-                  : 'glass-card text-t-dark-gray hover:border-t-magenta/40'
-              }`}
+        <div className="space-y-3 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-between">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-t-muted">
+              {formatDate()}
+            </p>
+            <span className="glass-magenta rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+              Rep Home
+            </span>
+          </div>
+          <div>
+            <h1
+              className="mb-1 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
+              style={{
+                background: 'linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
             >
-              {r.icon} {r.shortLabel}
-            </button>
-          ))}
-        </motion.div>
-      )}
+              {getGreeting()} {role.icon}
+            </h1>
+            <p className="text-sm font-bold text-t-dark-gray sm:text-base">
+              {role.greeting}
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-[13px] text-t-dark-gray sm:mx-0">
+              {coachingLine}
+            </p>
+          </div>
+        </div>
 
-      {/* ── Today's Hot ─────────────────────────────────── */}
-      {todaysHot && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.4 }}
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(226, 0, 116, 0.08) 0%, rgba(226, 0, 116, 0.02) 100%)',
-            border: '1.5px solid rgba(226, 0, 116, 0.2)',
-          }}
-        >
-          <div className="px-5 py-4">
+        {showRoleSelector && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+            className="glass-capsule flex flex-wrap justify-center gap-2 rounded-full p-2 sm:justify-start"
+          >
+            {enabledRoles.map(r => (
+              <button
+                key={r.id}
+                onClick={() => handleRoleChange(r.id)}
+                className={`focus-ring rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.16em] transition-all ${
+                  role.id === r.id
+                    ? 'glass-control-active text-white'
+                    : 'glass-control text-t-dark-gray hover:text-foreground'
+                }`}
+              >
+                {r.icon} {r.shortLabel}
+              </button>
+            ))}
+          </motion.div>
+        )}
+
+        {todaysHot && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+            className="glass-feature rounded-[1.75rem] p-5"
+          >
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-4 h-4 text-t-magenta" />
               <span className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
@@ -156,32 +156,31 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
               {todaysHot.context}
             </p>
-          </div>
 
-          {/* Trending buzz */}
-          {topTrending && topTrending.length > 0 && (
-            <div className="border-t border-t-magenta/10 px-5 py-3 space-y-2">
-              {topTrending.map((item, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <TrendingUp className="w-3 h-3 text-t-magenta/60 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-[11px] font-bold text-t-dark-gray">{item.buzz}</p>
-                    <p className="text-[10px] text-t-dark-gray font-medium">{item.repTip}</p>
+            {topTrending && topTrending.length > 0 && (
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {topTrending.map((item, i) => (
+                  <div key={i} className="glass-reading rounded-[1.2rem] px-3 py-3">
+                    <div className="flex items-start gap-2">
+                      <TrendingUp className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-[11px] font-bold text-t-dark-gray">{item.buzz}</p>
+                        <p className="text-[10px] text-t-dark-gray font-medium">{item.repTip}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      )}
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
 
-      {/* ── Action Cards ────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.4 }}
-        className="space-y-3"
-      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+          className="space-y-3"
+        >
         {(['primary', 'secondary', 'tertiary'] as const).map((tier, i) => {
           const card = role.actionCards[tier];
           const Icon = MODE_ICONS[card.mode] || Zap;
@@ -197,28 +196,19 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
                 }
                 onNavigate(card.mode as AppMode);
               }}
-              className={`focus-ring w-full text-left rounded-2xl p-5 transition-all group ${
+              className={`focus-ring w-full text-left rounded-[1.6rem] p-5 transition-all group ${
                 isPrimary
-                  ? 'magenta-glow'
-                  : 'glass-card glass-shine hover:border-t-magenta/30'
+                  ? 'cta-primary'
+                  : 'glass-reading hover:border-t-magenta/30'
               }`}
-              style={
-                isPrimary
-                  ? {
-                      background: 'linear-gradient(135deg, #E20074 0%, #C10062 50%, #A00050 100%)',
-                      border: 'none',
-                      boxShadow: '0 8px 32px rgba(226, 0, 116, 0.35), 0 0 60px rgba(226, 0, 116, 0.08)',
-                    }
-                  : undefined
-              }
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    className={`w-10 h-10 rounded-[1rem] flex items-center justify-center shrink-0 ${
                       isPrimary
                         ? 'bg-white/20'
-                        : 'bg-t-magenta/10'
+                        : 'glass-magenta'
                     }`}
                   >
                     <Icon
@@ -253,30 +243,30 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             </button>
           );
         })}
-      </motion.div>
+        </motion.div>
 
-      {/* ── Bottom Strip ────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.4 }}
-        className="flex items-center justify-center gap-4 pt-2 pb-4 flex-wrap"
-      >
-        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
-          <Shield className="w-3 h-3 text-t-magenta/40" />
-          <span>CPNI Safe</span>
-        </div>
-        <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
-          <Sparkles className="w-3 h-3 text-t-magenta/40" />
-          <span>AI Ready</span>
-        </div>
-        <div className="w-px h-3 bg-t-dark-gray/15" />
-        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
-          <Wifi className="w-3 h-3 text-t-magenta/40" />
-          <span>Works Offline</span>
-        </div>
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+          className="glass-capsule flex flex-wrap items-center justify-center gap-4 rounded-full px-4 py-3"
+        >
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+            <Shield className="w-3 h-3 text-t-magenta/40" />
+            <span>CPNI Safe</span>
+          </div>
+          <div className="h-3 w-px bg-t-dark-gray/15" />
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+            <Sparkles className="w-3 h-3 text-t-magenta/40" />
+            <span>AI Ready</span>
+          </div>
+          <div className="h-3 w-px bg-t-dark-gray/15" />
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+            <Wifi className="w-3 h-3 text-t-magenta/40" />
+            <span>Works Offline</span>
+          </div>
+        </motion.div>
+      </motion.section>
     </div>
   );
 }

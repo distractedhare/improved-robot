@@ -31,9 +31,10 @@ export default function PlaybookSection() {
         description="Treat this like a tactical picker, not a script library. Take one clean line for the moment you are in, then get back to the call."
         icon={<BookOpen className="h-4 w-4" />}
         chips={['Discovery first', 'One proof point', 'Stop talking sooner']}
+        variant="compact"
       />
 
-      <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
+      <div className="flex flex-wrap rounded-[1.5rem] p-1 gap-1 glass-stage-quiet">
         {MOMENTS.map((moment) => {
           const isActive = activeMoment === moment.id;
           return (
@@ -43,8 +44,8 @@ export default function PlaybookSection() {
               onClick={() => setActiveMoment(moment.id)}
               className={`focus-ring flex-1 min-w-[120px] rounded-xl px-3 py-3 text-left transition-all ${
                 isActive
-                  ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                  : 'text-t-muted hover:text-t-dark-gray'
+                  ? 'glass-control-active text-white'
+                  : 'glass-control text-t-muted hover:text-t-dark-gray'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -225,7 +226,7 @@ function SectionShell({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-4 rounded-3xl p-5 glass-card glass-specular">
+    <div className="space-y-4 rounded-3xl p-5 glass-stage-quiet">
       <div>
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
         <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{subtitle}</p>

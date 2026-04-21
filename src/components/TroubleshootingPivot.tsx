@@ -37,7 +37,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
   return (
     <div className="space-y-4">
-      <div className="rounded-3xl glass-card p-5 shadow-sm">
+      <div className="glass-stage rounded-3xl p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta/10">
             <RefreshCw className="h-5 w-5 text-t-magenta" />
@@ -52,7 +52,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
       </div>
 
       {/* Category Selection - Compact Scrollable on Mobile */}
-      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar sm:grid sm:grid-cols-4 sm:overflow-visible">
+      <div className="glass-capsule flex gap-2 overflow-x-auto rounded-[1.75rem] p-2 no-scrollbar sm:grid sm:grid-cols-4 sm:overflow-visible">
         {TROUBLESHOOTING_DATA.map((cat) => {
           const CatIcon = ICON_MAP[cat.icon] || Info;
           const isActive = selectedCategory.id === cat.id;
@@ -63,10 +63,10 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                 setSelectedCategory(cat);
                 setCompletedSteps([]);
               }}
-              className={`focus-ring flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 transition-all sm:flex-col sm:px-2 sm:py-3 ${
+              className={`focus-ring flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 transition-all sm:flex-col sm:px-2 sm:py-3 ${
                 isActive 
-                  ? 'border-t-magenta bg-t-magenta/5 text-t-magenta shadow-sm' 
-                  : 'border-t-light-gray bg-surface text-t-dark-gray hover:border-t-magenta/30 hover:bg-t-light-gray/20'
+                  ? 'glass-control-active text-white'
+                  : 'glass-control text-t-dark-gray hover:text-foreground'
               }`}
             >
               <CatIcon className={`h-4 w-4 ${isActive ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
@@ -77,7 +77,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
       </div>
 
       <div className="grid gap-4">
-        <section className="rounded-2xl border border-info-border bg-info-surface p-4">
+        <section className="glass-feature rounded-2xl p-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground">Best next move</p>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
             <QuickStep label="1. Confirm the issue" copy={`Make sure the caller is really in the ${selectedCategory.name.toLowerCase()} lane before you start solving.`} />
@@ -87,7 +87,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
         </section>
 
         {/* Troubleshooting Steps */}
-        <section className="rounded-2xl border border-t-light-gray bg-surface p-4 shadow-sm glass-card">
+        <section className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-t-magenta/10">
@@ -108,21 +108,21 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               <button
                 key={step.id}
                 onClick={() => toggleStep(step.id)}
-                className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+                className={`flex w-full items-start gap-3 rounded-xl p-3 text-left transition-all ${
                   completedSteps.includes(step.id)
-                    ? 'border-success-accent/30 bg-success-surface/30'
-                    : 'border-t-light-gray bg-t-light-gray/5 hover:border-t-magenta/20'
+                    ? 'glass-feature'
+                    : 'glass-reading'
                 }`}
               >
                 <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
                   completedSteps.includes(step.id)
-                    ? 'border-success-accent bg-success-accent text-white'
+                    ? 'border-t-magenta bg-t-magenta text-white'
                     : 'border-t-dark-gray/30'
                 }`}>
                   {completedSteps.includes(step.id) && <CheckCircle2 className="h-2.5 w-2.5" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-bold ${completedSteps.includes(step.id) ? 'text-success-accent line-through opacity-70' : 'text-foreground'}`}>
+                  <p className={`text-xs font-bold ${completedSteps.includes(step.id) ? 'text-t-magenta line-through opacity-70' : 'text-foreground'}`}>
                     {step.label}
                   </p>
                   <p className="mt-0.5 text-[10px] text-t-dark-gray leading-relaxed">
@@ -133,7 +133,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
             ))}
           </div>
 
-          <div className="mt-4 rounded-xl border border-t-magenta/20 bg-t-magenta/5 p-3">
+          <div className="glass-feature mt-4 rounded-xl p-3">
             <div className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
               <div>
@@ -147,7 +147,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
         </section>
 
         {/* Sales Pivots */}
-        <section className="rounded-2xl border border-t-magenta/20 bg-surface p-4 shadow-sm glass-card relative overflow-hidden">
+        <section className="glass-stage-quiet relative overflow-hidden rounded-2xl p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-t-magenta text-white">
               <Lightbulb className="h-4 w-4" />
@@ -157,7 +157,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
           <div className="space-y-3">
             {selectedCategory.pivots.map((pivot, i) => (
-              <div key={i} className="rounded-xl border border-t-light-gray bg-t-light-gray/10 p-3">
+              <div key={i} className="glass-reading rounded-xl p-3">
                 <div className="mb-1 flex items-center gap-1.5">
                   <div className="h-1 w-1 rounded-full bg-t-magenta" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">{pivot.condition}</span>
@@ -175,7 +175,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
         </section>
 
         {/* Department Quick Links */}
-        <section className="rounded-2xl border border-t-light-gray bg-surface p-4 shadow-sm glass-card">
+        <section className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
           <h3 className="mb-3 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">Escalation Cards</h3>
           <div className="grid gap-2 md:grid-cols-3">
             {[
@@ -195,7 +195,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                 handoff: 'Share availability status plus any setup steps already completed.',
               },
             ].map((dept) => (
-              <div key={dept.name} className="rounded-2xl border border-t-light-gray p-3">
+              <div key={dept.name} className="glass-reading rounded-2xl p-3">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[10px] font-black uppercase tracking-wider text-foreground">{dept.name}</p>
                   <ArrowUpRight className="h-3.5 w-3.5 text-t-magenta" />
@@ -216,7 +216,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
 function QuickStep({ label, copy }: { label: string; copy: string }) {
   return (
-    <div className="rounded-2xl border border-info-border/70 bg-white/60 px-3 py-3">
+    <div className="glass-reading rounded-2xl px-3 py-3">
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">{label}</p>
       <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">{copy}</p>
     </div>

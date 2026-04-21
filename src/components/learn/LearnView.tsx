@@ -227,6 +227,9 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const activeLineupHeroNote = activePreset && activeLineupLabel === activePreset.label ? activePreset.heroNote : undefined;
   const overflowLineupDevices = selectedDevices.filter((device) => !compareDevices.some((candidate) => candidate.name === device.name));
   const showLineupHero = selectedDevices.length >= 2;
+  const panelSurfaceClassName = tab === 'devices'
+    ? 'rounded-[2.25rem] p-4 sm:p-5 glass-stage glass-specular'
+    : 'rounded-[2.25rem] p-4 sm:p-5 glass-stage-quiet';
 
   useEffect(() => {
     setShowAccessoryPitch(false);
@@ -491,34 +494,15 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   }, []);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 2xl:max-w-6xl">
+    <div className="mx-auto max-w-5xl space-y-4 2xl:max-w-6xl">
       {tab === 'briefing' ? (
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.34, ease: 'easeOut' }}
-          className="relative overflow-hidden rounded-[2.5rem] px-5 py-6 sm:px-6 md:px-8 md:py-8 glass-billboard glass-prismatic"
+          transition={{ duration: 0.28, ease: 'easeOut' }}
+          className="relative overflow-hidden rounded-[2.5rem] px-5 py-6 sm:px-6 md:px-8 md:py-8 glass-billboard"
         >
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-14 top-0 h-40 w-40 rounded-full bg-t-magenta/18 blur-3xl"
-            animate={{ x: [0, 14, 0], y: [0, 10, 0], scale: [1, 1.06, 1] }}
-            transition={{ duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-          />
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute right-0 top-10 h-36 w-36 rounded-full bg-t-berry/20 blur-3xl"
-            animate={{ x: [0, -16, 0], y: [0, 12, 0], scale: [1, 0.98, 1] }}
-            transition={{ duration: 14, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-          />
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-1/3 h-32 w-32 rounded-full bg-white/12 blur-3xl"
-            animate={{ x: [0, 10, 0], y: [0, -8, 0], opacity: [0.45, 0.65, 0.45] }}
-            transition={{ duration: 10, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-          />
-
-          <div className="relative z-10 grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+          <div className="relative z-10 space-y-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full glass-utility px-3 py-1.5">
                 <Sparkles className="h-3 w-3 text-t-magenta" />
@@ -557,33 +541,37 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               </div>
             </div>
 
-            <div className="rounded-[2rem] glass-feature p-5">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
-                {learnCopy.onClockPanel.title}
-              </p>
-              <p className="mt-3 text-lg font-black tracking-tight text-foreground dark:text-white">
-                Use Learn like a live billboard, then move fast.
-              </p>
-              <p className="mt-2 text-[13px] font-medium leading-relaxed text-t-dark-gray dark:text-white/78">
-                {learnCopy.onClockPanel.description}
-              </p>
-              <div className="mt-5 space-y-2">
-                {[
-                  'Start with what is live right now.',
-                  'Move into Devices once the call needs a winner.',
-                  'Use Plans or HINT only when the customer gives you the lane.',
-                ].map((rule) => (
-                  <div key={rule} className="rounded-2xl glass-utility px-3 py-2">
-                    <p className="text-[11px] font-bold leading-relaxed text-foreground dark:text-white/88">{rule}</p>
-                  </div>
-                ))}
+            <div className="rounded-[1.75rem] glass-control p-3.5 sm:p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-2xl">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
+                    {learnCopy.onClockPanel.title}
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold leading-relaxed text-foreground dark:text-white/92">
+                    Use Learn like a live billboard, then move fast.
+                  </p>
+                  <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray dark:text-white/74">
+                    {learnCopy.onClockPanel.description}
+                  </p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[40rem]">
+                  {[
+                    'Start with what is live right now.',
+                    'Move into Devices once the call needs a winner.',
+                    'Use Plans or HINT only when the customer gives you the lane.',
+                  ].map((rule) => (
+                    <div key={rule} className="rounded-[1.1rem] glass-reading px-3 py-2">
+                      <p className="text-[10px] font-bold leading-relaxed text-foreground dark:text-white/88">{rule}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
       ) : null}
 
-      <div className="grid grid-cols-3 gap-1.5 rounded-[1.75rem] p-1.5 glass-feature md:grid-cols-6" role="tablist" aria-label="Learn sections">
+      <div className="grid grid-cols-3 gap-1.5 rounded-[1.5rem] p-1.5 glass-stage-quiet glass-specular md:grid-cols-6" role="tablist" aria-label="Learn sections">
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
@@ -602,8 +590,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               onKeyDown={(event) => handleTabKeyDown(event, t.id)}
               className={`focus-ring flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all md:text-xs ${
                 isActive
-                  ? 'bg-t-magenta px-3 text-white shadow-sm shadow-t-magenta/20'
-                  : 'glass-utility text-t-dark-gray hover:text-t-dark-gray'
+                  ? 'glass-control-active'
+                  : 'glass-control text-t-dark-gray hover:text-t-dark-gray'
               }`}
             >
               <t.icon className="h-5 w-5 shrink-0 md:h-4 md:w-4" />
@@ -619,16 +607,14 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           id={`learn-panel-${tab}`}
           role="tabpanel"
           aria-labelledby={`learn-tab-${tab}`}
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.24, ease: 'easeOut' }}
-          className="space-y-4"
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className={`space-y-4 ${panelSurfaceClassName}`}
         >
           {tab === 'briefing' && (
-            <div className="rounded-[2rem] p-4 sm:p-5 glass-feature">
-              <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
-            </div>
+            <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
           )}
 
           {tab === 'devices' && (
@@ -639,10 +625,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                 description="This is the glamorous workbench: keep the shortlist tight, move into a winner fast, and only open the attach story once the device decision feels obvious."
                 icon={<Smartphone className="h-4 w-4" />}
                 chips={['Compare & pitch', 'Winner-driven attach', '2-3 device max']}
-                variant="feature"
+                variant="compact"
               />
 
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
                 {DEVICE_CATEGORIES.map((category) => {
                   const isActive = deviceCategory === category.id;
                   const selectionCount = selectedDevicesByCategory[category.id].length;
@@ -655,26 +641,38 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         setDeviceCategory(category.id);
                       }}
                       aria-pressed={isActive}
-                      className={`focus-ring rounded-2xl p-3 text-left transition-all ${
+                      className={`focus-ring min-w-[154px] rounded-[1.55rem] p-3 text-left transition-all lg:min-w-0 ${
                         isActive
-                          ? 'glass-feature border-t-magenta/30 shadow-sm'
-                          : 'glass-utility hover:border-t-magenta/30'
+                          ? 'glass-control-active shadow-sm shadow-t-magenta/12'
+                          : 'glass-control text-t-dark-gray hover:border-t-magenta/30'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${isActive ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'}`}>
+                        <div className="flex min-w-0 items-center gap-2">
+                          <div className={`flex h-9 w-9 items-center justify-center rounded-2xl ${
+                            isActive ? 'bg-white/18 text-white' : 'bg-surface-elevated text-t-magenta'
+                          }`}>
                             <category.icon className="h-4 w-4" />
                           </div>
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-wider text-t-dark-gray">{category.label}</p>
-                            <p className="mt-1 text-[10px] font-medium leading-snug text-t-muted">{category.helper}</p>
+                          <div className="min-w-0">
+                            <p className={`truncate text-[10px] font-black uppercase tracking-wider ${
+                              isActive ? 'text-white' : 'text-t-dark-gray'
+                            }`}>
+                              {category.label}
+                            </p>
+                            <p className={`mt-1 text-[10px] font-medium leading-snug ${
+                              isActive ? 'text-white/82' : 'text-t-muted'
+                            }`}>
+                              {category.helper}
+                            </p>
                           </div>
                         </div>
                         <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
-                          selectionCount > 0
-                            ? 'bg-t-magenta/10 text-t-magenta'
-                            : 'bg-t-light-gray/40 text-t-muted'
+                          isActive
+                            ? 'bg-white/18 text-white'
+                            : selectionCount > 0
+                              ? 'bg-t-magenta/10 text-t-magenta'
+                              : 'bg-t-light-gray/40 text-t-muted'
                         }`}>
                           {selectionCount}
                         </span>
@@ -686,7 +684,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
               {deviceCategory !== 'accessories' ? (
                 <>
-                  <div className="rounded-[2rem] p-5 glass-feature">
+                  <div className="rounded-[2rem] p-4 sm:p-5 glass-stage-quiet glass-specular">
                     {showLineupHero && activeLineupLabel ? (
                       <DeviceLineupHero
                         label={activeLineupLabel}
@@ -698,6 +696,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         ecosystemMatrix={ecosystemMatrix}
                         compareOpen={compareOpen}
                         heroNote={activeLineupHeroNote}
+                        layoutMode="showcase"
                         onOpenCompare={handleOpenCompare}
                         onReset={clearDevices}
                         onInspectDevice={handleInspectDevice}
@@ -706,23 +705,24 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                       />
                     ) : (
                       <div className="space-y-5">
-                        <div className="max-w-3xl">
-                          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{activeCategoryMeta.shellTitle}</p>
-                          <h3 className="mt-2 text-2xl font-black tracking-tight text-foreground">Compare Launchpad</h3>
-                          <p className="mt-2 max-w-3xl text-[13px] font-medium leading-relaxed text-t-dark-gray">
-                            {activeCategoryMeta.shellDescription}
-                          </p>
-                        </div>
-
-                        <div className="grid gap-2 rounded-[1.5rem] glass-reading p-3 sm:grid-cols-2">
-                          {learnCopy.devices.fastCallRules.slice(0, 2).map((rule, index) => (
-                            <div key={rule} className="rounded-[1.1rem] bg-info-surface/75 px-3 py-2">
-                              <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">
-                                Fast rule {index + 1}
-                              </p>
-                              <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">{rule}</p>
-                            </div>
-                          ))}
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                          <div className="max-w-3xl">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{activeCategoryMeta.shellTitle}</p>
+                            <h3 className="mt-2 text-2xl font-black tracking-tight text-foreground">Compare Launchpad</h3>
+                            <p className="mt-2 max-w-3xl text-[13px] font-medium leading-relaxed text-t-dark-gray">
+                              {activeCategoryMeta.shellDescription}
+                            </p>
+                          </div>
+                          <div className="grid gap-2 rounded-[1.45rem] glass-reading p-3 sm:grid-cols-2 lg:max-w-md">
+                            {learnCopy.devices.fastCallRules.slice(0, 2).map((rule, index) => (
+                              <div key={rule} className="glass-reading rounded-[1.1rem] px-3 py-2">
+                                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                  Fast rule {index + 1}
+                                </p>
+                                <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{rule}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
                         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
@@ -740,8 +740,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                 onClick={() => handlePresetSelect(preset)}
                                 className={`group focus-ring overflow-hidden rounded-[2rem] p-4 text-left transition-all ${
                                   isActivePreset
-                                    ? 'glass-feature border-t-magenta/30 shadow-lg shadow-t-magenta/10'
-                                    : 'glass-utility hover:-translate-y-0.5 hover:border-t-magenta/30'
+                                    ? 'glass-stage shadow-lg shadow-t-magenta/10'
+                                    : 'glass-control hover:-translate-y-0.5'
                                 }`}
                               >
                                 <div className="relative">
@@ -758,7 +758,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                       </p>
                                       <p className="mt-1 text-sm font-black text-foreground">{preset.label}</p>
                                     </div>
-                                    <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                                    <span className="glass-reading rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
                                       {presetDevices.length} picks
                                     </span>
                                   </div>
@@ -770,7 +770,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                   {presetDevices.slice(0, 3).map((device) => (
                                     <div
                                       key={device.name}
-                                      className="rounded-[1.35rem] border border-white/40 bg-white/88 p-2.5 shadow-sm"
+                                      className="glass-reading rounded-[1.35rem] p-2.5 shadow-sm"
                                     >
                                       <img
                                         src={device.imageUrl ?? PRODUCT_IMAGE_FALLBACK}
@@ -792,7 +792,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                     {presetDevices.map((device) => (
                                       <span
                                         key={device.name}
-                                        className="rounded-full border border-t-light-gray bg-surface-elevated px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
+                                        className="glass-reading rounded-full px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
                                       >
                                         {device.name}
                                       </span>
@@ -805,7 +805,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                     {preset.heroNote ?? preset.subtitle}
                                   </p>
                                   {priceRange ? (
-                                    <span className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                    <span className="glass-magenta rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
                                       {priceRange}
                                     </span>
                                   ) : null}
@@ -821,13 +821,13 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               ) : null}
 
               {deviceCategory === 'accessories' ? (
-                <div className="rounded-[2rem] p-5 glass-feature">
+                <div className="rounded-[2rem] p-4 sm:p-5 glass-stage-quiet">
                   <AccessoriesReference ecosystemMatrix={ecosystemMatrix} />
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                   <div className="lg:col-span-5">
-                    <div className="rounded-[2rem] p-5 glass-utility">
+                    <div className="rounded-[1.85rem] p-4 glass-stage-quiet">
                       <DeviceLookup
                         key={deviceCategory}
                         selectedDevices={selectedDevices}
@@ -840,6 +840,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         filterBy={deviceConfig.filterBy}
                         defaultSort={deviceConfig.defaultSort}
                         browseExpanded={browseOpenByCategory[deviceCategory]}
+                        layoutEmphasis={showLineupHero ? 'secondary' : 'primary'}
                         onBrowseExpandedChange={handleBrowseExpandedChange}
                         onInspectDevice={handleInspectDevice}
                       />
@@ -850,7 +851,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     {selectedDevices.length > 0 ? (
                       <>
                         {!showLineupHero ? (
-                          <div className="rounded-[1.5rem] p-4 glass-feature">
+                          <div className="rounded-[1.5rem] p-4 glass-stage-quiet">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                               <div>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
@@ -867,7 +868,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                   <button
                                     type="button"
                                     onClick={handleCloseCompare}
-                                    className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                                    className="focus-ring rounded-full glass-control px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
                                   >
                                     Back to shortlist
                                   </button>
@@ -875,7 +876,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                   <button
                                     type="button"
                                     onClick={handleOpenCompare}
-                                    className="focus-ring rounded-full bg-t-magenta px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm shadow-t-magenta/20"
+                                    className="focus-ring rounded-full glass-control-active px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white"
                                   >
                                     Open compare
                                   </button>
@@ -888,7 +889,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             <button
                               type="button"
                               onClick={handleCloseCompare}
-                              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                              className="focus-ring rounded-full glass-control px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
                             >
                               Back to shortlist
                             </button>
@@ -903,17 +904,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             activeIndex={activeCompareIndex}
                             onActiveIndexChange={handleActiveCompareIndexChange}
                           />
-                        ) : showLineupHero ? (
-                          <div className="rounded-[1.5rem] p-4 glass-feature">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Quick scan is ready</p>
-                            <p className="mt-2 text-[12px] font-medium leading-relaxed text-t-dark-gray">
-                              Tap any lineup card for a quick brief, or open compare when the caller wants the side-by-side story spelled out.
-                            </p>
-                          </div>
                         ) : null}
 
                         {activeCompareDevice && (compareOpen || selectedDevices.length === 1) ? (
-                          <div className="rounded-[1.5rem] p-3 glass-feature">
+                          <div className="rounded-[1.5rem] p-3 glass-stage-quiet">
                             <button
                               type="button"
                               onClick={() => setShowAccessoryPitch((current) => !current)}
@@ -928,7 +922,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                     initial={{ opacity: 0, y: 4, scale: 0.98 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                                    className="rounded-full glass-utility px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray"
+                                    className="rounded-full glass-control px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray"
                                   >
                                     {activeCompareDevice.name}
                                   </motion.span>
@@ -939,7 +933,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                     : 'Open this after the winner is clear so accessories do not bury the device choice.'}
                                 </p>
                               </div>
-                              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-t-light-gray bg-surface text-t-magenta">
+                              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full glass-control text-t-magenta">
                                 {showAccessoryPitch ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                               </span>
                             </button>
@@ -957,7 +951,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         ) : null}
                       </>
                     ) : (
-                      <div className="flex flex-col items-center justify-center rounded-[2rem] border-dashed p-6 text-center glass-feature md:p-10">
+                      <div className="flex flex-col items-center justify-center rounded-[2rem] border-dashed p-6 text-center glass-stage-quiet md:p-10">
                         <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated shadow-sm">
                           {deviceCategory === 'phones' && <Smartphone className="h-8 w-8 text-t-magenta" />}
                           {deviceCategory === 'tablets' && <Tablet className="h-8 w-8 text-t-magenta" />}
@@ -1000,29 +994,13 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
             </div>
           )}
 
-          {tab === 'plans' && (
-            <div className="rounded-[2rem] p-5 glass-utility">
-              <PlansSection />
-            </div>
-          )}
+          {tab === 'plans' && <PlansSection />}
 
-          {tab === 'homeinternet' && (
-            <div className="rounded-[2rem] p-5 glass-utility">
-              <HomeInternetSection />
-            </div>
-          )}
+          {tab === 'homeinternet' && <HomeInternetSection />}
 
-          {tab === 'playbook' && (
-            <div className="rounded-[2rem] p-5 glass-utility">
-              <PlaybookSection />
-            </div>
-          )}
+          {tab === 'playbook' && <PlaybookSection />}
 
-          {tab === 'edge' && (
-            <div className="rounded-[2rem] p-5 glass-utility">
-              <EdgeSection />
-            </div>
-          )}
+          {tab === 'edge' && <EdgeSection />}
         </motion.section>
       </AnimatePresence>
     </div>

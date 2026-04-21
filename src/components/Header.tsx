@@ -33,7 +33,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
   const [pref, setPref] = useState<ThemePref>(() => {
     const stored = localStorage.getItem('theme');
     if (stored === 'light' || stored === 'dark') return stored;
-    return 'auto';
+    return 'dark';
   });
   const [isDark, setIsDark] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark');
 
@@ -53,8 +53,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
   }, [pref]);
 
   const cycleTheme = () => {
-    // Cycle: light → auto → dark → light
-    const order: ThemePref[] = ['light', 'auto', 'dark'];
+    const order: ThemePref[] = ['dark', 'light', 'auto'];
     const next = order[(order.indexOf(pref) + 1) % 3];
     setPref(next);
     if (next === 'auto') {
@@ -80,14 +79,14 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3 2xl:max-w-6xl">
-        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
+        <div className="glass-capsule flex flex-wrap items-center gap-2 rounded-[2rem] px-3 py-3 sm:flex-nowrap sm:gap-3 sm:px-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <motion.button
               layout
               type="button"
               onClick={() => onModeChange('home')}
               aria-label="Go to home screen"
-              className="focus-ring flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-t-light-gray bg-surface shadow-sm transition-transform hover:scale-[1.02] active:scale-95 sm:h-14 sm:w-14"
+              className="focus-ring flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.35rem] glass-control transition-transform hover:scale-[1.02] active:scale-95 sm:h-14 sm:w-14"
             >
               <img
                 src="/tmo-logo-v4.svg"
@@ -101,11 +100,11 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                 <h1 className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
                   CustomerConnect AI
                 </h1>
-                <span className="rounded-full bg-t-magenta px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white sm:px-2.5 sm:text-[10px] sm:tracking-[0.2em]">
+                <span className="rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white cta-primary sm:px-2.5 sm:text-[10px] sm:tracking-[0.2em]">
                   Demo Ready
                 </span>
               </div>
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-t-dark-gray sm:text-[11px]">
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-t-dark-gray sm:text-[11px]">
                 T-Mobile virtual retail call coaching
               </p>
             </div>
@@ -117,7 +116,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               onClick={cycleTheme}
               aria-label={pref === 'auto' ? 'Theme: auto (follows system)' : pref === 'dark' ? 'Theme: dark' : 'Theme: light'}
               title={pref === 'auto' ? 'Auto' : pref === 'dark' ? 'Dark' : 'Light'}
-              className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-t-light-gray bg-surface-elevated text-t-dark-gray transition-colors hover:text-t-magenta"
+              className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full glass-control text-t-dark-gray transition-colors hover:text-t-magenta"
             >
               {pref === 'auto' ? <Monitor className="h-4 w-4" /> : isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -126,14 +125,11 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               type="button"
               onClick={handleNewCall}
               aria-label="Start a new call"
-              className="focus-ring relative inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.16em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5 sm:tracking-[0.18em]"
+              className="focus-ring cta-primary inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.16em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:px-5 sm:tracking-[0.18em]"
               style={{ touchAction: 'manipulation' }}
             >
-              <span className="btn-magenta-shimmer absolute inset-0 rounded-full" aria-hidden="true" />
-              <span className="relative z-[1] inline-flex items-center gap-2">
-                <UserPlus className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden sm:inline">New Call</span>
-              </span>
+              <UserPlus className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">New Call</span>
             </button>
           </div>
         </div>
@@ -142,7 +138,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
           <nav
             aria-label="App mode"
             role="tablist"
-            className="rounded-2xl border border-t-light-gray bg-surface p-1.5 shadow-sm"
+            className="glass-capsule rounded-full p-1.5"
           >
             <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {MODES.map((item) => {
@@ -156,17 +152,17 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                     aria-selected={isActive}
                     aria-controls={`mode-panel-${item.id}`}
                     onClick={() => onModeChange(item.id)}
-                    className={`focus-ring relative min-h-[62px] overflow-hidden rounded-xl px-3 py-3 text-left transition-transform active:scale-[0.985] ${
+                    className={`focus-ring relative min-h-[62px] overflow-hidden rounded-full px-3 py-3 text-left transition-transform active:scale-[0.985] ${
                       isActive
-                        ? 'text-white shadow-[0_14px_24px_rgba(226,0,116,0.22)]'
-                        : 'border border-transparent text-t-dark-gray hover:border-t-light-gray hover:bg-t-light-gray/30'
+                        ? 'glass-control-active text-white'
+                        : 'glass-control text-t-dark-gray hover:text-foreground'
                     }`}
                     style={{ touchAction: 'manipulation' }}
                   >
                     {isActive && (
                       <motion.span
                         layoutId="mode-pill"
-                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-t-magenta to-t-berry"
+                        className="absolute inset-0 rounded-full bg-t-magenta"
                         transition={{ type: 'spring', stiffness: 360, damping: 30 }}
                       />
                     )}

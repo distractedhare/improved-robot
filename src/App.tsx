@@ -44,7 +44,7 @@ import AccountSupportPanel from './components/AccountSupportPanel';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-t-light-gray bg-surface p-5 shadow-md">
+    <div className="glass-stage-quiet rounded-xl p-5 shadow-md">
       <div className="animate-pulse space-y-3">
         <div className="h-3 w-28 rounded-full bg-t-light-gray" />
         <div className="h-8 w-48 rounded-lg bg-t-light-gray/80" />
@@ -70,7 +70,7 @@ function TabErrorFallback({
   onRetry: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-t-magenta/20 bg-surface p-5 shadow-md">
+    <div className="glass-feature rounded-xl p-5 shadow-md">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-t-magenta/10">
           <XCircle className="h-5 w-5 text-t-magenta" />
@@ -81,7 +81,7 @@ function TabErrorFallback({
           <button
             type="button"
             onClick={onRetry}
-            className="focus-ring mt-4 inline-flex min-h-[44px] items-center rounded-xl bg-t-magenta px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
+            className="focus-ring cta-primary mt-4 inline-flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
             style={{ touchAction: 'manipulation' }}
           >
             Retry
@@ -108,14 +108,14 @@ function StatusPill({
   tone: 'warning' | 'success' | 'magenta' | 'neutral';
 }) {
   const toneClass = {
-    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
-    success: 'border-success-border bg-success-surface text-success-foreground',
-    magenta: 'border-t-magenta/20 bg-t-magenta/8 text-t-magenta',
-    neutral: 'border-t-light-gray bg-surface text-t-dark-gray',
+    warning: 'glass-reading text-t-dark-gray',
+    success: 'glass-reading text-t-dark-gray',
+    magenta: 'glass-feature text-t-magenta',
+    neutral: 'glass-reading text-t-dark-gray',
   }[tone];
 
   return (
-    <div className={`rounded-full border px-3 py-2 ${toneClass}`}>
+    <div className={`rounded-full px-3 py-2 ${toneClass}`}>
       <p className="text-[9px] font-black uppercase tracking-[0.16em]">{label}</p>
       <p className="mt-0.5 text-[11px] font-bold leading-none">{value}</p>
     </div>
@@ -311,15 +311,24 @@ export default function App() {
     setAnalyzing(false);
     setEnhancingPlan(false);
     setEnhancingObjection(false);
-    setContext(value);
+    const nextContext = typeof value === 'function' ? value(context) : value;
+    setContext(nextContext);
     setScript(null);
     setObjectionResult(null);
     setSelectedObjections([]);
     setSelectedGamePlanItems([]);
-    setActiveTab('gameplan');
+    if (
+      nextContext.purchaseIntent === 'tech support' ||
+      nextContext.purchaseIntent === 'order support' ||
+      nextContext.purchaseIntent === 'account support'
+    ) {
+      setActiveTab('troubleshoot');
+    } else {
+      setActiveTab('gameplan');
+    }
     setIntentTapped(true);
     setError(null);
-  }, [cancelInFlightRequests]);
+  }, [cancelInFlightRequests, context]);
 
   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
     const now = Date.now();
@@ -630,15 +639,11 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className="relative min-h-screen overflow-x-hidden font-sans text-foreground selection:bg-t-magenta/20">
-      <div className="bg-orb bg-orb-1" aria-hidden="true" />
-      <div className="bg-orb bg-orb-2" aria-hidden="true" />
-      <div className="bg-orb bg-orb-3" aria-hidden="true" />
-
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
 
       <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6 2xl:max-w-6xl">
         {mode !== 'home' ? (
-          <div className="mb-3 flex flex-wrap gap-2 rounded-2xl border border-t-light-gray/60 bg-surface/85 p-2.5 backdrop-blur-md">
+          <div className="glass-capsule mb-3 flex flex-wrap gap-2 rounded-[1.5rem] p-2.5">
             <StatusPill tone="warning" label="Shift Only" value="Use During Scheduled Hours" />
             <StatusPill
               tone={isDataExpired ? 'warning' : 'neutral'}
@@ -787,7 +792,7 @@ export default function App() {
           {/* Input Section */}
           <div className="space-y-3 lg:col-span-5 lg:space-y-4 2xl:col-span-4">
             {/* INTENT + PRODUCT SELECTOR */}
-            <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
+            <section className="glass-stage space-y-3 rounded-[1.9rem] p-4">
               <div>
                 <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
                   Why are they calling?
@@ -801,28 +806,11 @@ export default function App() {
                         type="button"
                         onClick={() => handleIntentSelect(intent.id)}
                         aria-pressed={isActive}
-                        className="focus-ring flex min-h-[48px] items-center gap-2 rounded-xl border-[1.5px] px-3 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-wide transition-all"
-                        style={{
-                          background: isActive ? 'var(--bg-intent-active)' : 'var(--bg-intent)',
-                          color: isActive ? 'var(--text-intent-active)' : 'var(--text-intent)',
-                          borderColor: isActive ? 'var(--bg-intent-active)' : 'var(--border-intent)',
-                          boxShadow: isActive ? '0 4px 16px rgba(226, 0, 116, 0.4), 0 0 30px rgba(226, 0, 116, 0.1)' : 'var(--shadow-surface)',
-                          transform: isActive ? 'scale(1.02)' : undefined,
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.background = 'var(--bg-intent-hover)';
-                            e.currentTarget.style.borderColor = 'var(--border-intent-hover)';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.background = 'var(--bg-intent)';
-                            e.currentTarget.style.borderColor = 'var(--border-intent)';
-                            e.currentTarget.style.transform = 'none';
-                          }
-                        }}
+                        className={`focus-ring flex min-h-[48px] items-center gap-2 rounded-[1rem] px-3 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-wide transition-all ${
+                          isActive
+                            ? 'glass-control-active scale-[1.01]'
+                            : 'glass-control text-t-dark-gray hover:text-foreground'
+                        }`}
                       >
                         <intent.icon className="w-3.5 h-3.5 shrink-0" />
                         <span className="leading-tight">{intent.label}</span>
@@ -866,10 +854,10 @@ export default function App() {
                           }
                         }}
                         aria-pressed={isSelected}
-                        className={`focus-ring flex min-h-[48px] items-center justify-between rounded-xl border-2 px-3 py-2 text-[11px] font-black uppercase transition-all ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
+                        className={`focus-ring flex min-h-[48px] items-center justify-between rounded-[1rem] px-3 py-2 text-[11px] font-black uppercase transition-all ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
                           isSelected
-                            ? 'bg-t-magenta text-white border-t-magenta shadow-lg shadow-t-magenta/20'
-                            : 'bg-surface text-t-dark-gray border-t-light-gray hover:border-t-magenta/50'
+                            ? 'glass-control-active text-white'
+                            : 'glass-control text-t-dark-gray hover:text-foreground'
                         }`}
                       >
                         <div className="text-left">
@@ -891,7 +879,7 @@ export default function App() {
             </section>
 
             {/* LOCATION MAP — first-class in live flow */}
-            <section className="rounded-3xl p-4 glass-card glass-shine glass-specular space-y-3">
+            <section className="glass-stage-quiet rounded-[1.9rem] p-4 space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
@@ -902,7 +890,7 @@ export default function App() {
                   </p>
                 </div>
                 {(context.region !== 'Not Specified' || context.zipCode) && (
-                  <div className="rounded-full bg-t-magenta/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-magenta">
+                  <div className="glass-magenta rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-magenta">
                     {context.region !== 'Not Specified'
                       ? `${context.region}${context.state ? ` · ${context.state}` : ''}`
                       : `ZIP ${context.zipCode}`}
@@ -924,12 +912,7 @@ export default function App() {
             </section>
 
             {/* COLLAPSIBLE CUSTOMER CONTEXT (Secondary — go deeper) */}
-            <section
-              className="rounded-3xl overflow-hidden glass-card glass-specular"
-              style={{
-                borderStyle: contextExpanded ? 'solid' : 'dashed',
-              }}
-            >
+            <section className="glass-stage-quiet overflow-hidden rounded-[1.9rem]">
               <button
                 type="button"
                 onClick={() => setContextExpanded(!contextExpanded)}
@@ -991,8 +974,7 @@ export default function App() {
             <div
               role="tablist"
               aria-label="Live call tools"
-              className="flex flex-wrap gap-1.5 rounded-2xl p-1.5 glass-tab"
-              style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
+              className="glass-capsule flex flex-wrap gap-1.5 rounded-full p-1.5"
             >
               {(() => {
                 // Third-tab morphs based on the caller's intent so each support
@@ -1019,14 +1001,14 @@ export default function App() {
                   aria-selected={activeTab === tab.id}
                   aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`focus-ring flex-1 min-h-[56px] min-w-[88px] rounded-xl px-2.5 py-3 text-center text-[10px] font-black uppercase tracking-wider transition-all sm:text-[11px] md:tracking-widest ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                  className={`focus-ring flex-1 min-h-[56px] min-w-[88px] rounded-full px-2.5 py-3 text-center text-[10px] font-black uppercase tracking-wider transition-all sm:text-[11px] md:tracking-widest ${activeTab === tab.id ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'}`}
                   style={{ touchAction: 'manipulation' }}
                 >
                   <span className="flex flex-col items-center gap-1 leading-none">
                     <span className="flex items-center justify-center gap-1 md:gap-2">
                       <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
                     </span>
-                    <span className={`text-[9px] font-bold normal-case tracking-normal sm:text-[10px] ${activeTab === tab.id ? 'text-t-magenta/70' : 'text-t-muted'}`}>
+                    <span className={`text-[9px] font-bold normal-case tracking-normal sm:text-[10px] ${activeTab === tab.id ? 'text-white/80' : 'text-t-muted'}`}>
                       {tab.helper}
                     </span>
                   </span>
@@ -1080,7 +1062,7 @@ export default function App() {
               {/* Loading state */}
 	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
 	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-	                  className="min-h-[400px] rounded-3xl glass-card p-6"
+	                  className="min-h-[400px] rounded-[2rem] glass-stage p-6"
 	                >
 	                  <div className="animate-pulse space-y-4">
 	                    <div className="h-3 w-32 rounded-full bg-t-magenta/15" />
@@ -1161,9 +1143,9 @@ export default function App() {
             type="button"
             onClick={() => { void handleRefreshApp(); }}
             disabled={refreshingApp}
-            className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray bg-surface-elevated px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
+            className="focus-ring glass-control inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
           >
-            <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
+            <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-dark-gray/70'}`} />
             {refreshingApp ? 'Refreshing…' : 'Refresh App'}
           </button>
         </div>
@@ -1184,8 +1166,7 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label="Scroll to top"
-            className="focus-ring fixed bottom-6 right-6 z-50 p-3.5 rounded-full transition-colors text-white magenta-glow shadow-2xl"
-            style={{ background: 'linear-gradient(135deg, #E20074, #861B54)' }}
+            className="focus-ring fixed bottom-6 right-6 z-50 cta-primary rounded-full p-3.5 text-white transition-colors shadow-2xl"
           >
             <ArrowUp className="w-5 h-5" />
           </motion.button>
@@ -1200,8 +1181,8 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-surface w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-t-light-gray"
-            >
+            className="glass-modal w-full max-w-sm rounded-[2rem] p-6"
+          >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
                   <Wifi className="w-5 h-5 text-t-magenta" />
@@ -1223,7 +1204,7 @@ export default function App() {
                     setShowHintPrompt(false);
                     void handleGenerate();
                   }}
-                  className="w-full focus-ring btn-magenta-shimmer rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                  className="w-full focus-ring cta-primary rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" /> Yes, Available
                 </button>
@@ -1238,7 +1219,7 @@ export default function App() {
                     setShowHintPrompt(false);
                     void handleGenerate();
                   }}
-                  className="w-full focus-ring bg-surface border-2 border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                  className="w-full focus-ring glass-control text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors hover:text-foreground"
                 >
                   <WifiOff className="w-4 h-4" /> No, Spots Full
                 </button>

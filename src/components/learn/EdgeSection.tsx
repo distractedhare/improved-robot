@@ -25,11 +25,26 @@ export default function EdgeSection() {
         description="Lead with one clean T-Mobile advantage, use one proof line if they ask why it matters, and only open competitor comparison when the customer wants the side-by-side."
         icon={<ShieldCheck className="h-4 w-4" />}
         chips={['Story first', 'Proof second', 'Compare last']}
+        variant="compact"
       />
+
+      <div className="grid gap-3 md:grid-cols-3">
+        {DIFFERENTIATORS.slice(0, 3).map((diff) => (
+          <div key={diff.category} className="rounded-[1.45rem] glass-reading-strong p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl glass-control text-t-magenta">
+                {CATEGORY_ICONS[diff.category] || <ShieldCheck className="w-4 h-4" />}
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{diff.category}</p>
+            </div>
+            <p className="mt-3 text-[12px] font-semibold leading-relaxed text-foreground">{diff.headline}</p>
+          </div>
+        ))}
+      </div>
 
       <div className="space-y-3">
         {DIFFERENTIATORS.map((diff) => (
-          <div key={diff.category} className="rounded-2xl border-2 border-t-light-gray overflow-hidden bg-surface-elevated">
+          <div key={diff.category} className="rounded-2xl overflow-hidden glass-stage-quiet">
             <button
               type="button"
               onClick={() => setExpanded((prev) => prev === diff.category ? null : diff.category)}

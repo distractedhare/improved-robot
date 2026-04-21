@@ -41,6 +41,8 @@ interface DeviceLookupProps {
   onBrowseExpandedChange?: (expanded: boolean) => void;
   /** Optional quick brief trigger for a selected device */
   onInspectDevice?: (device: Device) => void;
+  /** Whether browse should read as a primary or secondary surface */
+  layoutEmphasis?: 'primary' | 'secondary';
 }
 
 type DeviceLookupSort = 'name' | 'price' | 'newest';
@@ -397,6 +399,7 @@ export default function DeviceLookup({
   browseExpanded,
   onBrowseExpandedChange,
   onInspectDevice,
+  layoutEmphasis = 'primary',
 }: DeviceLookupProps) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
@@ -447,6 +450,7 @@ export default function DeviceLookup({
   const hiddenCount = Math.max(0, filteredDevices.length - visibleDevices.length);
   const hasActiveControls = search.trim().length > 0 || filter !== 'all' || sortMode !== defaultSortMode;
   const selectionLimitReached = selectedDevices.length >= 3;
+  const isSecondary = layoutEmphasis === 'secondary';
   const browseSummaries = useMemo(
     () => new Map(pool.map((device) => [device.name, getDevicePositioningSummary(device, null, null)])),
     [pool]
@@ -456,7 +460,9 @@ export default function DeviceLookup({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-3">
+      <div className={`rounded-[1.65rem] p-3 ${
+        isSecondary ? 'glass-reading' : 'glass-stage-quiet'
+      }`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Active lineup</p>
@@ -472,8 +478,8 @@ export default function DeviceLookup({
                 onClick={onOpenCompare}
                 className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all ${
                   compareOpen
-                    ? 'bg-t-dark-gray text-white'
-                    : 'bg-t-magenta text-white shadow-sm shadow-t-magenta/20'
+                    ? 'glass-control text-t-dark-gray'
+                    : 'glass-control-active text-white'
                 }`}
               >
                 <PanelTopOpen className="h-3 w-3" />
@@ -498,7 +504,11 @@ export default function DeviceLookup({
               {selectedDevices.map((device) => (
                 <div
                   key={device.name}
-                  className="flex items-center rounded-2xl border border-t-magenta/20 bg-t-magenta/8 text-[10px] font-black text-t-magenta"
+                  className={`flex items-center rounded-2xl text-[10px] font-black ${
+                    isSecondary
+                      ? 'border border-t-light-gray/60 bg-surface-elevated text-t-dark-gray'
+                      : 'border border-t-magenta/20 bg-t-magenta/8 text-t-magenta'
+                  }`}
                 >
                   <button
                     type="button"
@@ -526,7 +536,7 @@ export default function DeviceLookup({
               <button
                 type="button"
                 onClick={onClearDevices}
-                className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+                className="focus-ring rounded-full glass-control px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
               >
                 Clear all
               </button>
@@ -544,7 +554,7 @@ export default function DeviceLookup({
         )}
       </div>
 
-      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated/80 p-2 lg:hidden">
+      <div className={`rounded-[1.45rem] p-2 lg:hidden ${isSecondary ? 'glass-reading' : 'glass-stage-quiet'}`}>
         <button
           type="button"
           onClick={() => onBrowseExpandedChange?.(!isBrowseExpanded)}
@@ -568,7 +578,9 @@ export default function DeviceLookup({
       <div className={isBrowseExpanded ? 'block' : 'hidden lg:block'}>
         <div className="space-y-4">
           {/* Sticky compact control bar */}
-          <div className="sticky top-0 z-10 rounded-xl border border-t-light-gray/60 bg-surface/95 p-2 backdrop-blur-sm">
+          <div className={`sticky top-0 z-10 rounded-[1.35rem] p-2 backdrop-blur-sm ${
+            isSecondary ? 'glass-reading' : 'glass-control'
+          }`}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
           <input
@@ -593,8 +605,8 @@ export default function DeviceLookup({
                 aria-pressed={filter === f.id}
                 className={`min-h-[44px] rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
                   filter === f.id
-                    ? 'focus-ring bg-t-magenta text-white shadow-sm'
-                    : 'focus-ring bg-t-light-gray/30 text-t-dark-gray hover:bg-t-light-gray/60'
+                    ? 'focus-ring glass-control-active text-white'
+                    : 'focus-ring glass-control text-t-dark-gray hover:text-t-magenta'
                 }`}
               >
                 {f.label}
@@ -607,7 +619,7 @@ export default function DeviceLookup({
             <select
               value={sortMode}
               onChange={(event) => setSortMode(event.target.value as DeviceLookupSort)}
-              className="focus-ring rounded-full border border-t-light-gray bg-surface px-2 py-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray"
+              className="focus-ring rounded-full glass-control px-2 py-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray"
             >
               {SORT_OPTIONS.map(option => (
                 <option
@@ -627,7 +639,7 @@ export default function DeviceLookup({
                   setFilter('all');
                   setSortMode(defaultSortMode);
                 }}
-                className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
+                className="focus-ring rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
               >
                 Reset
               </button>
@@ -678,12 +690,14 @@ export default function DeviceLookup({
                   }}
                   aria-pressed={selected}
                   disabled={!selected && selectionLimitReached}
-                  className={`focus-ring w-full text-left p-3 rounded-2xl border-2 transition-all ${
+                  className={`focus-ring w-full text-left p-3 rounded-2xl border transition-all ${
                     selected
                       ? 'border-t-magenta bg-t-magenta/5 shadow-md'
                       : selectionLimitReached
                         ? 'border-t-light-gray/50 bg-surface opacity-60'
-                        : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
+                        : isSecondary
+                          ? 'border-t-light-gray/70 bg-surface-elevated hover:border-t-magenta/20'
+                          : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -748,6 +762,7 @@ interface DeviceLineupHeroProps {
   ecosystemMatrix?: EcosystemMatrix | null;
   compareOpen?: boolean;
   heroNote?: string;
+  layoutMode?: 'showcase' | 'compact';
   onOpenCompare?: () => void;
   onReset: () => void;
   onInspectDevice?: (device: Device) => void;
@@ -765,6 +780,7 @@ export function DeviceLineupHero({
   ecosystemMatrix,
   compareOpen = false,
   heroNote,
+  layoutMode = 'showcase',
   onOpenCompare,
   onReset,
   onInspectDevice,
@@ -779,20 +795,21 @@ export function DeviceLineupHero({
   const roleByName = useMemo(() => new Map(lineupRoles.map((role) => [role.name, role])), [lineupRoles]);
   const narrative = buildLineupNarrative(lineupRoles);
   const compareNames = new Set(compareDevices.map((device) => device.name));
+  const isShowcase = layoutMode === 'showcase';
 
   return (
-    <div className="space-y-4">
+    <div className={isShowcase ? 'space-y-5' : 'space-y-4'}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full glass-utility px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
+            <span className="rounded-full glass-control px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
               {kind === 'preset' ? 'Preset lineup' : 'Custom compare'}
             </span>
-            <span className="rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
+            <span className="rounded-full glass-reading px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
               {devices.length} in lineup
             </span>
             {devices.length > compareDevices.length ? (
-              <span className="rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
+              <span className="rounded-full glass-reading px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
                 {compareDevices.length} live in compare
               </span>
             ) : null}
@@ -816,7 +833,7 @@ export function DeviceLineupHero({
               type="button"
               onClick={onOpenCompare}
               className={`focus-ring rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider ${
-                compareOpen ? 'bg-t-dark-gray text-white' : 'bg-t-magenta text-white shadow-sm shadow-t-magenta/20'
+                compareOpen ? 'glass-control text-t-dark-gray' : 'glass-control-active text-white'
               }`}
             >
               {compareOpen ? 'Comparing now' : 'Open compare'}
@@ -826,7 +843,7 @@ export function DeviceLineupHero({
             <button
               type="button"
               onClick={onBrowseAll}
-              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+              className="focus-ring rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
             >
               Browse all devices
             </button>
@@ -834,7 +851,7 @@ export function DeviceLineupHero({
           <button
             type="button"
             onClick={onReset}
-            className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+            className="focus-ring rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
           >
             Reset lineup
           </button>
@@ -852,10 +869,10 @@ export function DeviceLineupHero({
               key={device.name}
               type="button"
               onClick={() => onInspectDevice?.(device)}
-              className={`group focus-ring min-w-[250px] flex-1 rounded-[1.9rem] p-4 text-left transition-all sm:min-w-[280px] ${
+              className={`group focus-ring min-w-[250px] flex-1 rounded-[1.9rem] p-4 text-left transition-all ${isShowcase ? 'sm:min-w-[280px]' : 'sm:min-w-[260px]'} ${
                 isInCompare
-                  ? 'glass-feature border-t-magenta/30 shadow-lg shadow-t-magenta/10'
-                  : 'glass-utility hover:-translate-y-0.5 hover:border-t-magenta/30'
+                  ? 'glass-stage border-t-magenta/30 shadow-lg shadow-t-magenta/10'
+                  : 'glass-control hover:-translate-y-0.5 hover:border-t-magenta/30'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -883,7 +900,7 @@ export function DeviceLineupHero({
                 />
               </div>
 
-              <div className="mt-4 rounded-[1.45rem] glass-reading p-3.5">
+              <div className="mt-4 rounded-[1.45rem] glass-reading-strong p-3.5">
                 <p className="text-[11px] font-semibold leading-relaxed text-foreground">
                   {summary?.shortHook || 'Lead with one clear angle, then back it up with one everyday proof point.'}
                 </p>
@@ -932,7 +949,7 @@ export function DeviceLineupHero({
       </div>
 
       {overflowDevices.length > 0 ? (
-        <div className="rounded-[1.5rem] glass-reading p-3">
+        <div className="rounded-[1.5rem] glass-reading-strong p-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">More options</p>
@@ -946,7 +963,7 @@ export function DeviceLineupHero({
                   key={device.name}
                   type="button"
                   onClick={() => onSwapCompareDevice?.(device)}
-                  className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:border-t-magenta/30 hover:text-t-magenta"
+                  className="focus-ring rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:border-t-magenta/30 hover:text-t-magenta"
                 >
                   Use {device.name}
                 </button>
@@ -1003,7 +1020,7 @@ export function DeviceQuickBriefSheet({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-[3px] sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/52 backdrop-blur-[2px] sm:items-center sm:p-6"
           onClick={onClose}
         >
           <motion.div
@@ -1011,7 +1028,7 @@ export function DeviceQuickBriefSheet({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-t-[2rem] glass-elevated sm:rounded-[2rem]"
+            className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-t-[2rem] glass-stage sm:rounded-[2rem]"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -1034,11 +1051,11 @@ export function DeviceQuickBriefSheet({
               </div>
 
               <div className="overflow-y-auto px-4 pb-5 pt-4 sm:px-6">
-                <div className="rounded-[1.75rem] glass-reading p-4 sm:p-5">
+                <div className="rounded-[1.75rem] glass-reading-strong p-4 sm:p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                     <DeviceImageSlot
                       device={device}
-                      className="h-32 w-32 shrink-0 rounded-[1.75rem] border border-white/45 bg-white/94 p-4 shadow-sm sm:h-36 sm:w-36"
+                      className="h-36 w-36 shrink-0 rounded-[1.75rem] border border-white/45 bg-white/96 p-4 shadow-sm sm:h-40 sm:w-40"
                       imageClassName="h-full w-full object-contain"
                       showBadge={false}
                     />
@@ -1072,25 +1089,26 @@ export function DeviceQuickBriefSheet({
 
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {featureBriefs.map((brief) => (
-                    <div key={`${device.name}-${brief.feature}`} className="rounded-[1.5rem] glass-reading p-4">
+                    <div key={`${device.name}-${brief.feature}`} className="rounded-[1.5rem] glass-reading-strong p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{brief.feature}</p>
-                      <p className="mt-2 text-[12px] font-bold leading-relaxed text-t-dark-gray">{brief.benefit}</p>
+                      <p className="mt-3 text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">Why it matters</p>
+                      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{brief.benefit}</p>
                       <p className="mt-3 text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">Use this for</p>
                       <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{brief.useCase}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-4 rounded-[1.5rem] bg-t-dark-gray p-4 text-white shadow-lg shadow-black/15">
+                <div className="mt-4 rounded-[1.5rem] glass-reading-strong p-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">How to say it</p>
-                  <p className="mt-2 text-[13px] font-bold leading-relaxed">{summary.sayThis}</p>
+                  <p className="mt-2 text-[13px] font-bold leading-relaxed text-foreground">{summary.sayThis}</p>
                 </div>
 
                 <div className="mt-4 space-y-3">
                   <button
                     type="button"
                     onClick={() => setShowDeals((current) => !current)}
-                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading px-4 py-3 text-left"
+                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading-strong px-4 py-3 text-left"
                     aria-expanded={showDeals}
                   >
                     <div>
@@ -1116,7 +1134,7 @@ export function DeviceQuickBriefSheet({
                   <button
                     type="button"
                     onClick={() => setShowCoaching((current) => !current)}
-                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading px-4 py-3 text-left"
+                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading-strong px-4 py-3 text-left"
                     aria-expanded={showCoaching}
                   >
                     <div>
@@ -1264,17 +1282,17 @@ export function DeviceComparison({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="rounded-2xl bg-t-dark-gray p-4 text-white">
+      <div className="rounded-[1.75rem] glass-stage-quiet p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1">Compare mode</p>
-            <p className="text-sm font-black">Keep the shortlist tight, then pitch from the current best fit.</p>
+            <p className="text-sm font-black text-foreground">Keep the shortlist tight, then pitch from the current best fit.</p>
           </div>
           <button
             type="button"
             onClick={() => setShowDifferencesOnly((current) => !current)}
             className={`focus-ring hidden rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors md:inline-flex ${
-              showDifferencesOnly ? 'bg-white text-t-dark-gray' : 'bg-white/10 text-white'
+              showDifferencesOnly ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
             }`}
           >
             {showDifferencesOnly ? 'Differences only' : 'Show all'}
@@ -1287,7 +1305,7 @@ export function DeviceComparison({
               key={device.name}
               onClick={() => onActiveIndexChange(index)}
               className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
-                clampedActiveIndex === index ? 'bg-t-magenta text-white' : 'bg-white/10 text-white/75'
+                clampedActiveIndex === index ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
               }`}
             >
               {device.name}
@@ -1302,7 +1320,7 @@ export function DeviceComparison({
           initial={{ opacity: 0, y: 10, scale: 0.992 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.22, ease: 'easeOut' }}
-          className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/10 via-surface to-white/90 p-4 shadow-sm"
+          className="rounded-3xl p-4 glass-stage-quiet"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -1323,11 +1341,11 @@ export function DeviceComparison({
             <ScoutPanel label="Quick Pitch" value={activeSummary.sayThis} tone="success" />
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl border border-t-light-gray/50 bg-white/80 px-3 py-2">
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl glass-reading px-3 py-2">
             <button
               type="button"
               onClick={() => onActiveIndexChange(clampedActiveIndex === 0 ? devices.length - 1 : clampedActiveIndex - 1)}
-              className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+              className="focus-ring inline-flex items-center gap-1.5 rounded-full glass-control px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
             >
               <ArrowLeft className="h-3 w-3" />
               Prev
@@ -1338,7 +1356,7 @@ export function DeviceComparison({
             <button
               type="button"
               onClick={() => onActiveIndexChange((clampedActiveIndex + 1) % devices.length)}
-              className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+              className="focus-ring inline-flex items-center gap-1.5 rounded-full glass-control px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
             >
               Next
               <ArrowRight className="h-3 w-3" />
@@ -1346,7 +1364,7 @@ export function DeviceComparison({
           </div>
         </motion.div>
 
-        <div className="rounded-2xl glass-card p-4">
+        <div className="rounded-2xl glass-stage-quiet p-4">
           <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Compare against</p>
           <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
             Pick the challenger you want the winner to beat, then scan the four rows below.
@@ -1363,8 +1381,8 @@ export function DeviceComparison({
                   onClick={() => setMobileChallengerIndex(trueIndex)}
                   className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider ${
                     isSelected
-                      ? 'bg-t-magenta text-white'
-                      : 'border border-t-light-gray bg-surface text-t-dark-gray'
+                      ? 'glass-control-active text-white'
+                      : 'glass-control text-t-dark-gray'
                   }`}
                 >
                   {device.name}
@@ -1376,7 +1394,7 @@ export function DeviceComparison({
 
         <div className="space-y-3">
           {mobileCompareRows.map((row) => (
-            <div key={`${activeDevice.name}-${challengerDevice.name}-${row.label}`} className="rounded-2xl border border-t-light-gray/60 bg-surface/85 p-4">
+            <div key={`${activeDevice.name}-${challengerDevice.name}-${row.label}`} className="rounded-2xl glass-reading-strong p-4">
               <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{row.label}</p>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-t-magenta/20 bg-t-magenta/8 p-3">
@@ -1400,7 +1418,7 @@ export function DeviceComparison({
             initial={{ opacity: 0, y: 10, scale: 0.992 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/10 via-surface to-white/90 p-4 shadow-sm"
+            className="rounded-3xl p-4 glass-stage-quiet"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -1436,11 +1454,11 @@ export function DeviceComparison({
               <ScoutPanel label="Quick Pitch" value={activeSummary.sayThis} tone="success" />
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl border border-t-light-gray/50 bg-white/80 px-3 py-2">
+            <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl glass-reading px-3 py-2">
               <button
                 type="button"
                 onClick={() => onActiveIndexChange(clampedActiveIndex === 0 ? devices.length - 1 : clampedActiveIndex - 1)}
-                className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                className="focus-ring inline-flex items-center gap-1.5 rounded-full glass-control px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Prev
@@ -1451,7 +1469,7 @@ export function DeviceComparison({
               <button
                 type="button"
                 onClick={() => onActiveIndexChange((clampedActiveIndex + 1) % devices.length)}
-                className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                className="focus-ring inline-flex items-center gap-1.5 rounded-full glass-control px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
               >
                 Next
                 <ArrowRight className="h-3 w-3" />
@@ -1459,7 +1477,7 @@ export function DeviceComparison({
             </div>
           </motion.div>
 
-          <div className="rounded-2xl glass-card overflow-hidden">
+          <div className="rounded-2xl glass-stage-quiet overflow-hidden">
             <div className="border-b border-t-light-gray/50 px-4 py-3">
               <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Fast differences</p>
               <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
@@ -1514,7 +1532,7 @@ export function DeviceDetail({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl glass-card p-4 space-y-3"
+      className="rounded-2xl glass-stage-quiet p-4 space-y-3"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
@@ -1534,12 +1552,12 @@ export function DeviceDetail({
         </div>
       </div>
 
-      <div className="bg-t-dark-gray rounded-2xl p-4 text-white">
+      <div className="rounded-2xl glass-reading-strong p-4">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-2 flex items-center gap-1.5">
           <MessageSquareQuote className="w-3 h-3" /> Say It Like This
         </p>
-        <p className="text-sm font-bold leading-relaxed">{summary.sayThis}</p>
-        <p className="mt-2 text-[10px] font-medium text-white/70">
+        <p className="text-sm font-bold leading-relaxed text-foreground">{summary.sayThis}</p>
+        <p className="mt-2 text-[10px] font-medium text-t-muted">
           Open with the line, give one proof, then stop and listen.
         </p>
       </div>

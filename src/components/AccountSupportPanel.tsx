@@ -59,7 +59,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-3xl glass-card p-5 shadow-sm">
+      <div className="glass-stage rounded-3xl p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta/10">
             <UserCircle className="h-5 w-5 text-t-magenta" />
@@ -74,7 +74,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
       </div>
 
       {/* Topic picker */}
-      <div className="rounded-3xl glass-card p-4 shadow-sm">
+      <div className="glass-stage-quiet rounded-3xl p-4 shadow-sm">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-3">
           What's the account question?
         </p>
@@ -88,17 +88,17 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
                 type="button"
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setSelected(topic.id)}
-                className={`relative flex flex-col gap-2 rounded-xl border-2 p-3 text-left transition-all duration-150
+                className={`relative flex flex-col gap-2 rounded-xl p-3 text-left transition-all duration-150
                   ${isActive
-                    ? 'border-t-magenta bg-t-magenta/8 shadow-sm shadow-t-magenta/20'
-                    : 'border-t-light-gray bg-surface hover:border-t-magenta/40 hover:bg-t-magenta/5'
+                    ? 'glass-control-active text-white'
+                    : 'glass-control text-t-dark-gray hover:text-foreground'
                   }`}
               >
                 <div className="flex items-center gap-2">
-                  <div className={`p-1.5 rounded-lg transition-colors ${isActive ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-dark-gray'}`}>
+                  <div className={`p-1.5 rounded-lg transition-colors ${isActive ? 'bg-white/18 text-white' : 'bg-t-light-gray/40 text-t-dark-gray'}`}>
                     <Icon className="w-3.5 h-3.5" />
                   </div>
-                  <p className={`text-[10px] font-black uppercase tracking-tight leading-tight ${isActive ? 'text-t-magenta' : 'text-t-dark-gray'}`}>
+                  <p className={`text-[10px] font-black uppercase tracking-tight leading-tight ${isActive ? 'text-white' : 'text-t-dark-gray'}`}>
                     {topic.label}
                   </p>
                 </div>
@@ -107,7 +107,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
                 </p>
                 {isActive && (
                   <div className="absolute top-2.5 right-2.5 text-t-magenta">
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-4 h-4 text-white" />
                   </div>
                 )}
               </motion.button>
@@ -127,7 +127,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
             transition={{ duration: 0.18 }}
             className="space-y-3"
           >
-            <div className="rounded-2xl glass-card border border-t-light-gray p-4 shadow-sm">
+            <div className="glass-reading rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
                 <Headphones className="w-3.5 h-3.5 text-t-magenta" />
                 <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Say this first</p>
@@ -135,15 +135,15 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
               <p className="text-[13px] font-semibold text-t-dark-gray leading-snug italic">{play.acknowledge}</p>
             </div>
 
-            <div className="rounded-2xl glass-card border border-info-border bg-info-surface/40 p-4 shadow-sm">
+            <div className="glass-reading rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-info-foreground" />
-                <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Quick action</p>
+                <CheckCircle2 className="w-3.5 h-3.5 text-t-magenta" />
+                <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Quick action</p>
               </div>
               <p className="text-[13px] font-medium text-t-dark-gray leading-snug">{play.quickAction}</p>
             </div>
 
-            <div className="rounded-2xl glass-card border border-t-magenta/20 bg-t-magenta/5 p-4 shadow-sm">
+            <div className="glass-feature rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
                 <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Pivot back to sales</p>
@@ -152,11 +152,11 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
             </div>
 
             {play.transferHint && (
-              <div className="rounded-2xl border border-warning-border bg-warning-surface/40 p-3 shadow-sm">
+              <div className="glass-reading rounded-2xl p-3 shadow-sm">
                 <div className="flex items-start gap-2">
-                  <ArrowUpRight className="w-3.5 h-3.5 text-warning-foreground mt-0.5 shrink-0" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-t-magenta mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground">When to transfer</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">When to transfer</p>
                     <p className="mt-1 text-[12px] font-medium text-t-dark-gray leading-snug">{play.transferHint}</p>
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
       </AnimatePresence>
 
       {!play && (
-        <div className="rounded-2xl border border-dashed border-t-light-gray bg-surface/60 p-4 text-center">
+        <div className="glass-stage-quiet rounded-2xl p-4 text-center">
           <p className="text-[11px] font-black uppercase tracking-widest text-t-muted">
             Pick a topic above
           </p>

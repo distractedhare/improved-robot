@@ -49,7 +49,7 @@ export default function GamePlanTab({
         type="button"
         onClick={() => onGenerate()}
         disabled={loading}
-        className="focus-ring flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-black uppercase tracking-[0.18em] btn-magenta-shimmer transition-transform group hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring cta-primary flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-black uppercase tracking-[0.18em] transition-transform group hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -65,10 +65,10 @@ export default function GamePlanTab({
         type="button"
         onClick={onRunDemoScenario}
         disabled={loading}
-        className="focus-ring w-full rounded-2xl border-2 border-t-magenta/30 bg-t-magenta/8 px-4 py-4 text-left transition-all hover:border-t-magenta/55 hover:bg-t-magenta/12 disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring glass-feature w-full rounded-[1.6rem] px-4 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50"
       >
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta text-white shadow-lg shadow-t-magenta/20">
+          <div className="cta-primary mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           </div>
           <div className="min-w-0">
@@ -222,14 +222,14 @@ export function GamePlanResults({
           {crossDemo && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {crossDemo.p360 && (
-                <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-t-magenta/5 border border-t-magenta/10">
+                <div className="glass-reading flex items-start gap-2.5 rounded-2xl p-4">
                   <Shield className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
                   <p className="text-[11px] text-t-dark-gray font-bold leading-snug">{crossDemo.p360}</p>
                 </div>
               )}
               {crossDemo.tLife && (
-                <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-info-surface border border-info-border">
-                  <Sparkles className="w-4 h-4 text-info-accent mt-0.5 shrink-0" />
+                <div className="glass-reading flex items-start gap-2.5 rounded-2xl p-4">
+                  <Sparkles className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
                   <p className="text-[11px] text-t-dark-gray font-bold leading-snug">{crossDemo.tLife}</p>
                 </div>
               )}
@@ -262,51 +262,51 @@ export function GamePlanResults({
       )}
 
       {/* Interactive Sales Tools Section */}
-      <div className="space-y-4 pt-4 border-t border-t-light-gray">
+      <div className="glass-stage-quiet space-y-4 rounded-3xl p-5">
         <div className="flex items-center justify-between">
           <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
             <Sparkles className="w-3 h-3 text-t-magenta" /> Interactive Sales Tools
           </h3>
-          <span className="text-[8px] font-black text-t-magenta bg-t-magenta/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
-            Gemini Powered
+          <span className="glass-magenta rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+            Local Tools
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
             onClick={() => setActiveTool(activeTool === 'credit' ? 'none' : 'credit')}
-            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
-              activeTool === 'credit' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            className={`p-3 rounded-2xl transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'credit' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'
             }`}
           >
-            <ArrowRightLeft className={`w-5 h-5 ${activeTool === 'credit' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <ArrowRightLeft className={`w-5 h-5 ${activeTool === 'credit' ? 'text-white' : 'text-t-muted'}`} />
             <span className="text-[9px] font-black uppercase tracking-tight">Credit Pivot</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'persona' ? 'none' : 'persona')}
-            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
-              activeTool === 'persona' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            className={`p-3 rounded-2xl transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'persona' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'
             }`}
           >
-            <Users className={`w-5 h-5 ${activeTool === 'persona' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <Users className={`w-5 h-5 ${activeTool === 'persona' ? 'text-white' : 'text-t-muted'}`} />
             <span className="text-[9px] font-black uppercase tracking-tight">Persona Pitch</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'math' ? 'none' : 'math')}
-            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
-              activeTool === 'math' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            className={`p-3 rounded-2xl transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'math' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'
             }`}
           >
-            <Calculator className={`w-5 h-5 ${activeTool === 'math' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <Calculator className={`w-5 h-5 ${activeTool === 'math' ? 'text-white' : 'text-t-muted'}`} />
             <span className="text-[9px] font-black uppercase tracking-tight">Plan Math</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'accessories' ? 'none' : 'accessories')}
-            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
-              activeTool === 'accessories' ? 'border-t-magenta bg-t-magenta/5' : 'border-t-light-gray bg-surface hover:border-t-magenta/20'
+            className={`p-3 rounded-2xl transition-all flex flex-col items-center text-center gap-2 ${
+              activeTool === 'accessories' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'
             }`}
           >
-            <ShoppingBag className={`w-5 h-5 ${activeTool === 'accessories' ? 'text-t-magenta' : 'text-t-muted'}`} />
+            <ShoppingBag className={`w-5 h-5 ${activeTool === 'accessories' ? 'text-white' : 'text-t-muted'}`} />
             <span className="text-[9px] font-black uppercase tracking-tight">Acc. Flow</span>
           </button>
         </div>
@@ -366,7 +366,7 @@ export function GamePlanResults({
       </div>
 
       {/* Next Steps */}
-      <div className="rounded-3xl p-5 shadow-sm" style={{ background: 'var(--bg-surface-primary)', border: '2px solid var(--border-surface-strong)' }}>
+      <div className="glass-stage-quiet rounded-3xl p-5">
         <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3" /> Close It Out
         </h3>
@@ -382,7 +382,7 @@ export function GamePlanResults({
 
       {/* Coach's Corner */}
       {script.coachsCorner && (
-        <div className="bg-t-magenta/5 rounded-xl border border-t-magenta/15 px-4 py-3">
+        <div className="glass-feature rounded-xl px-4 py-3">
           <p className="text-[10px] text-t-dark-gray font-bold">
             <span className="text-t-magenta font-black">Coach:</span> {script.coachsCorner}
           </p>
@@ -394,7 +394,7 @@ export function GamePlanResults({
         <button
           type="button"
           onClick={onSwitchToObjections}
-          className="focus-ring w-full btn-magenta-shimmer rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          className="focus-ring cta-primary w-full rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
         >
           <MessageSquare className="w-5 h-5" /> Getting Pushback? Let's Flip It
         </button>
@@ -417,7 +417,7 @@ function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
               {CATEGORY_LABELS[rec.category] ?? rec.category}
@@ -431,7 +431,7 @@ function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">Why this?</p>
@@ -457,12 +457,12 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-start gap-3">
             <AccessoryImageSlot
               name={rec.items[0] ?? rec.category}
               imageUrl={getAccessoryImageUrl(rec.items[0] ?? rec.category)}
-              className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+              className="glass-reading h-14 w-14 shrink-0 rounded-xl p-2"
               imageClassName="h-full w-full object-contain"
               placeholderLabel="Demo"
             />
@@ -484,7 +484,7 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">The "Why"</p>
@@ -510,7 +510,7 @@ function OneLinerFlipCard({ line }: { line: string }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-t-magenta/20 bg-t-magenta/5">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1">
             <Zap className="w-3 h-3 text-t-magenta" />
             <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Quick Hit</p>
@@ -522,7 +522,7 @@ function OneLinerFlipCard({ line }: { line: string }) {
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">When to use</p>
@@ -548,7 +548,7 @@ function WelcomeFlipCard({ message, index }: { message: string, index: number })
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-5 h-5 rounded-full bg-t-magenta text-white text-[10px] font-black flex items-center justify-center">
               {index + 1}
@@ -562,7 +562,7 @@ function WelcomeFlipCard({ message, index }: { message: string, index: number })
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Pro Tip</p>
@@ -588,7 +588,7 @@ function DiscoveryFlipCard({ question }: { question: string }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-4 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-3 h-3 text-t-magenta" />
             <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Discovery Question</p>
@@ -600,7 +600,7 @@ function DiscoveryFlipCard({ question }: { question: string }) {
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-4 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Why ask this?</p>
@@ -627,7 +627,7 @@ function ValuePropFlipCard({ prop }: { prop: string }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-card p-5 flex flex-col justify-center border-2 border-transparent hover:border-t-magenta/20 transition-colors">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-5 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-8 rounded-lg bg-t-magenta/10 flex items-center justify-center">
               <Zap className="w-4 h-4 text-t-magenta" />
@@ -645,7 +645,7 @@ function ValuePropFlipCard({ prop }: { prop: string }) {
 
         {/* BACK */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-t-dark-gray p-5 flex flex-col justify-center border-2 border-t-magenta/30"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-5 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
           <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">How to pitch it</p>

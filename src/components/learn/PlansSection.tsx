@@ -98,25 +98,32 @@ export default function PlansSection() {
         description="Lead with fit, use one proof point, and only fall to Essentials when budget is the real blocker. The premium story should feel obvious, not rehearsed."
         icon={<Crown className="h-4 w-4" />}
         chips={['5 phone plans', 'Connected lines', '3rd line free']}
+        variant="compact"
       />
 
-      {/* Quick facts */}
-      <div className="rounded-2xl border-2 border-info-border bg-info-surface p-4">
-        <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
-          <Zap className="w-3 h-3" /> Why premium wins
-        </p>
-        <div className="space-y-2">
-          {QUICK_FACTS.map((fact, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
-              <p className="text-[11px] text-info-foreground font-medium leading-snug">{fact}</p>
-            </div>
-          ))}
+      <div className="rounded-[1.8rem] glass-reading-strong p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-xl">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1 flex items-center gap-1.5">
+              <Zap className="w-3 h-3" /> Premium value rail
+            </p>
+            <p className="text-[12px] font-semibold leading-relaxed text-foreground">
+              Lead with Beyond or More first. Use one value proof, show the per-line math, and only fall to Essentials when budget is the real blocker.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:max-w-2xl">
+            {QUICK_FACTS.slice(0, 4).map((fact, i) => (
+              <div key={i} className="rounded-[1.1rem] bg-info-surface/75 px-3 py-2">
+                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">Proof point</p>
+                <p className="mt-1 text-[11px] font-medium leading-snug text-info-foreground">{fact}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Section nav */}
-      <div className="flex flex-wrap gap-1 rounded-2xl p-1 glass-tab md:flex-nowrap md:gap-2">
+      <div className="flex flex-wrap gap-1 rounded-[1.5rem] p-1 glass-stage-quiet md:flex-nowrap md:gap-2">
         {[
           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },
@@ -129,8 +136,8 @@ export default function PlansSection() {
             onClick={() => setActiveSection(s.id)}
             className={`focus-ring flex min-h-[44px] flex-1 items-center justify-center gap-1 px-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all md:text-[11px] whitespace-nowrap ${
               activeSection === s.id
-                ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                : 'text-t-muted hover:text-t-dark-gray'
+                ? 'glass-control-active text-white'
+                : 'glass-control text-t-muted hover:text-t-dark-gray'
             }`}
           >
             <s.icon className="w-3 h-3" />
@@ -142,10 +149,9 @@ export default function PlansSection() {
       {/* WHY PREMIUM */}
       {activeSection === 'why-premium' && (
         <div className="space-y-4">
-          {/* The real talk card */}
-          <div className="rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-5 text-white">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Real Talk</p>
-            <h4 className="text-lg font-black mb-3">Why You Should Push for Experience More or Beyond</h4>
+          <div className="rounded-2xl glass-reading-strong p-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta mb-2">Real Talk</p>
+            <h4 className="text-lg font-black mb-3 text-foreground">Why You Should Push for Experience More or Beyond</h4>
             <div className="space-y-3">
               {[
                 { title: 'For the customer', points: [
@@ -164,11 +170,11 @@ export default function PlansSection() {
                 ]},
               ].map((block) => (
                 <div key={block.title}>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-white/70 mb-1.5">{block.title}</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-t-muted mb-1.5">{block.title}</p>
                   {block.points.map((point, i) => (
                     <div key={i} className="flex items-start gap-2 mb-1.5">
-                      <ChevronRight className="w-3 h-3 text-white/60 mt-0.5 shrink-0" />
-                      <p className="text-[11px] font-medium text-white/90 leading-snug">{point}</p>
+                      <ChevronRight className="w-3 h-3 text-t-magenta/70 mt-0.5 shrink-0" />
+                      <p className="text-[11px] font-medium text-t-dark-gray leading-snug">{point}</p>
                     </div>
                   ))}
                 </div>
@@ -176,8 +182,7 @@ export default function PlansSection() {
             </div>
           </div>
 
-          {/* Quick comparison: what they lose on Essentials */}
-          <div className="rounded-2xl border-2 border-warning-border bg-warning-surface p-5">
+          <div className="rounded-2xl border border-warning-border bg-warning-surface p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-3">What customers miss on Essentials</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
@@ -199,7 +204,7 @@ export default function PlansSection() {
           </div>
 
           {/* The script */}
-          <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+          <div className="rounded-2xl glass-reading-strong p-5">
             <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it on a live call</p>
             <div className="space-y-3">
               {[

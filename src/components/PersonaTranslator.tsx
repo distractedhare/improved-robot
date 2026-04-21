@@ -54,7 +54,7 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
   };
 
   return (
-    <div className="rounded-3xl glass-card p-6 space-y-6">
+    <div className="glass-stage rounded-3xl p-6 space-y-6">
       <div>
         <h3 className="text-lg font-black tracking-tight text-t-dark-gray flex items-center gap-2">
           <Users className="w-5 h-5 text-t-magenta" />
@@ -70,21 +70,21 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
           <button
             key={p.id}
             onClick={() => setSelectedPersona(p)}
-            className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center text-center gap-2 ${
+            className={`p-3 rounded-2xl transition-all flex flex-col items-center text-center gap-2 ${
               selectedPersona.id === p.id 
-                ? 'border-t-magenta bg-t-magenta/5 shadow-md' 
-                : 'border-t-light-gray hover:border-t-magenta/20'
+                ? 'glass-control-active text-white shadow-md'
+                : 'glass-control text-t-dark-gray hover:text-foreground'
             }`}
           >
-            <p.icon className={`w-5 h-5 ${selectedPersona.id === p.id ? 'text-t-magenta' : 'text-t-muted'}`} />
-            <span className={`text-[10px] font-black uppercase tracking-tight ${selectedPersona.id === p.id ? 'text-t-magenta' : 'text-t-dark-gray'}`}>
+            <p.icon className={`w-5 h-5 ${selectedPersona.id === p.id ? 'text-white' : 'text-t-muted'}`} />
+            <span className={`text-[10px] font-black uppercase tracking-tight ${selectedPersona.id === p.id ? 'text-white' : 'text-t-dark-gray'}`}>
               {p.label}
             </span>
           </button>
         ))}
       </div>
 
-      <div className="p-4 rounded-2xl bg-t-light-gray/20 border border-t-light-gray">
+      <div className="glass-reading rounded-2xl p-4">
         <p className="text-[9px] font-black text-t-muted uppercase mb-2">What You're Pitching</p>
         <p className="text-sm font-medium text-t-dark-gray leading-relaxed">
           "{baseText}"
@@ -114,7 +114,7 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
             key="empty"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-t-light-gray p-6 text-center"
+            className="glass-reading flex flex-col items-center justify-center gap-2 rounded-2xl p-6 text-center"
           >
             <Sparkles className="w-6 h-6 text-t-magenta/40" />
             <p className="text-xs font-bold text-t-dark-gray/60">Pick a persona and hit Translate to generate the pitch.</p>
@@ -125,7 +125,7 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
       <button
         disabled={loading}
         onClick={translate}
-        className="w-full btn-magenta-shimmer py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
+        className="cta-primary w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
         Translate for {selectedPersona.label}

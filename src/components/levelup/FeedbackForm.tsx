@@ -256,7 +256,7 @@ export default function FeedbackForm() {
                 value={hardestObjection}
                 onChange={(e) => setHardestObjection(e.target.value)}
                 placeholder='e.g. "I can get the same plan cheaper at Verizon"'
-                className="focus-ring w-full rounded-xl border-2 border-t-light-gray bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder:text-t-dark-gray/30 transition-all"
+                className="focus-ring glass-reading w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground placeholder:text-t-dark-gray/30 transition-all"
               />
             </div>
 
@@ -267,7 +267,7 @@ export default function FeedbackForm() {
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Bugs? Feature ideas? Things you love? Lay it on me..."
                 rows={3}
-                className="focus-ring w-full rounded-2xl border-2 border-t-light-gray bg-surface p-4 text-sm font-medium text-foreground placeholder:text-t-dark-gray/30 resize-none transition-all"
+                className="focus-ring glass-reading w-full rounded-2xl p-4 text-sm font-medium text-foreground placeholder:text-t-dark-gray/30 resize-none transition-all"
               />
             </div>
 
@@ -279,7 +279,7 @@ export default function FeedbackForm() {
               <button
                 type="button"
                 onClick={() => setStep('questions')}
-                className="focus-ring px-4 py-3 rounded-xl border-2 border-t-light-gray text-[10px] font-black uppercase tracking-wider text-t-dark-gray hover:border-t-berry/50 transition-all"
+                className="focus-ring glass-control px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-all"
               >
                 Back
               </button>
@@ -287,7 +287,7 @@ export default function FeedbackForm() {
                 type="button"
                 onClick={handleSend}
                 disabled={sending}
-                className="focus-ring flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 btn-magenta-shimmer disabled:opacity-60"
+                className="focus-ring cta-primary flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {sending ? (
                   'Sending...'
@@ -314,8 +314,8 @@ export default function FeedbackForm() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center space-y-4 py-8"
           >
-            <div className="w-16 h-16 rounded-full bg-success-surface border-2 border-success-border flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8 text-success-accent" />
+            <div className="glass-feature mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+              <CheckCircle2 className="w-8 h-8 text-t-magenta" />
             </div>
             <h3 className="text-xl font-black uppercase tracking-tight">Thank you!</h3>
             <p className="text-sm text-t-dark-gray font-medium max-w-xs mx-auto">
@@ -324,12 +324,12 @@ export default function FeedbackForm() {
             <button
               type="button"
               onClick={handleReset}
-              className="focus-ring px-6 py-2.5 rounded-xl border-2 border-t-light-gray text-[10px] font-black uppercase tracking-wider text-t-dark-gray hover:border-t-berry/50 transition-all"
+              className="focus-ring glass-control px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-all"
             >
               Send another
             </button>
 
-            <div className="mt-6 rounded-xl border border-t-light-gray bg-surface-elevated p-4">
+            <div className="glass-reading mt-6 rounded-xl p-4">
               <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-2">
                 Want to share more? Reach out directly
               </p>

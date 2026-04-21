@@ -323,7 +323,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-xl bg-gradient-to-r from-t-magenta to-t-berry px-4 py-3 flex items-center gap-3 glass-shine magenta-glow"
+        className="glass-feature flex items-center gap-3 rounded-xl px-4 py-3"
       >
         <Home className="w-5 h-5 text-white shrink-0" />
         <p className="text-xs font-bold text-white">Check the address for Home Internet first. Rebate and Month On Us value land best after availability is confirmed.</p>
@@ -340,7 +340,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
             key={prod}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`rounded-2xl bg-gradient-to-r ${ctx.color} p-4 shadow-md text-white`}
+            className="glass-billboard rounded-2xl p-4 text-white shadow-md"
           >
             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70 mb-2">
               {ctx.label} — {intent}
@@ -353,7 +353,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                     <p className="text-[11px] font-black uppercase tracking-wider text-white">{tip.title}</p>
                   </div>
                   <p className="text-[10px] text-white/80 leading-snug ml-5">{tip.description}</p>
-                  <div className="bg-white/10 rounded-lg p-2 ml-5 border border-white/10">
+                  <div className="glass-reading ml-5 rounded-lg p-2">
                     <p className="text-[10px] font-bold text-white leading-snug break-words">{tip.talkTrack}</p>
                   </div>
                 </div>
@@ -364,17 +364,17 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
       })}
 
       {/* Intent header */}
-      <div className="rounded-2xl glass-card glass-shine p-5 shadow-sm">
+      <div className="glass-stage-quiet rounded-2xl p-5 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-tight text-t-dark-gray mb-1">{intent}</h3>
         <p className="text-xs font-medium text-t-dark-gray">{plays.subtitle}</p>
       </div>
 
       {/* Plays */}
-      <div className="rounded-2xl glass-card glass-shine glass-card-hover p-5 shadow-sm space-y-3">
+      <div className="glass-stage-quiet rounded-2xl p-5 shadow-sm space-y-3">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Quick plays</p>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {plays.plays.map((play, i) => (
-            <div key={i} className="space-y-2 pb-4 border-b border-t-light-gray/30 last:border-0 last:pb-0">
+            <div key={i} className="glass-reading space-y-2 rounded-2xl p-4">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
                   <Zap className="w-3 h-3 text-t-magenta" />
@@ -382,7 +382,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                 <p className="text-xs font-black text-t-dark-gray uppercase tracking-tight">{play.title}</p>
               </div>
               <p className="text-[11px] text-t-dark-gray font-medium leading-snug ml-8">{play.description}</p>
-              <div className="bg-t-magenta/5 rounded-xl p-3 ml-8 border border-t-magenta/10 relative group">
+              <div className="glass-feature relative ml-8 rounded-xl p-3">
                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-t-magenta rounded-full opacity-50" />
                 <p className="text-xs font-bold text-t-magenta leading-relaxed break-words">
                   {play.talkTrack}
@@ -400,7 +400,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
           <button
             type="button"
             onClick={() => setAccOpen(!accOpen)}
-            className="focus-ring w-full flex items-center justify-between p-3 rounded-xl glass-card text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
+            className="focus-ring glass-control w-full rounded-xl p-3 text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
           >
             <span className="flex items-center gap-2"><Tag className="w-3 h-3 text-t-magenta" /> Accessories play</span>
             <ChevronDown className={`w-3.5 h-3.5 text-t-muted transition-transform ${accOpen ? 'rotate-180' : ''}`} />
@@ -415,7 +415,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                 className="overflow-hidden"
               >
                 <div className="space-y-4 pt-3">
-                  <div className="rounded-2xl border border-t-magenta/15 bg-t-magenta/5 p-4 space-y-2">
+                  <div className="glass-feature rounded-2xl p-4 space-y-2">
                     <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Fast accessory flow</p>
                     <p className="text-[10px] font-medium leading-snug text-t-dark-gray">
                       Protect the purchase first, solve one daily friction point second, then save the fun add-on for callers who want the upgrade to feel exciting.
@@ -433,7 +433,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
                   {/* Big adds */}
                   <BigAddsSection age={age} />
 
-                  <div className="bg-t-magenta/5 rounded-xl px-3 py-2 border border-t-magenta/10">
+                  <div className="glass-reading rounded-xl px-3 py-2">
                     <p className="text-[10px] text-t-magenta font-bold">
                       <strong>P360 isn't an accessory — it's a given.</strong> Pitch it like it's part of the phone purchase, not an add-on. $7–$26/mo depending on the device.
                     </p>
@@ -447,12 +447,12 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
 
       {/* Support intent: premium accessory awareness card */}
       {isSupportCall && supportAccessory && (
-        <div className="bg-support-surface rounded-2xl border-2 border-support-border p-4 space-y-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-support-foreground flex items-center gap-1.5">
+        <div className="glass-stage-quiet rounded-2xl p-4 space-y-3">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta flex items-center gap-1.5">
             <Headphones className="w-3 h-3" />
             After you've helped them:
           </p>
-          <div className="bg-surface-elevated rounded-xl p-4 border border-support-border shadow-sm">
+          <div className="glass-reading rounded-xl p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1.5 flex-1">
                 <p className="text-xs font-black text-t-dark-gray">{supportAccessory.item.product}</p>
@@ -463,12 +463,12 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
 	                <p className="text-[9px] font-bold text-t-magenta">{supportAccessory.item.commission}</p>
 	              </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-support-border flex items-center gap-1.5">
+            <div className="glass-reading mt-3 flex items-center gap-1.5 rounded-xl px-3 py-2">
               <CreditCard className="w-3 h-3 text-t-magenta shrink-0" />
               <p className="text-[9px] text-t-dark-gray font-medium">They can finance it on their T-Mobile bill — most customers don't know this.</p>
             </div>
           </div>
-	          <p className="text-[9px] font-medium text-support-foreground">{supportAccessory.item.naturalTransition}</p>
+	          <p className="text-[9px] font-medium text-t-dark-gray">{supportAccessory.item.naturalTransition}</p>
         </div>
       )}
 
@@ -506,7 +506,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
   }, [recommended]);
 
   return (
-    <div className="rounded-2xl glass-card shadow-sm overflow-hidden">
+    <div className="glass-stage-quiet overflow-hidden rounded-2xl shadow-sm">
       <div className="px-4 pt-4 pb-2">
         <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
           Top Essentials — qualifying items (save more w/ 3+)
@@ -548,7 +548,7 @@ function EssentialsAccordion({ intent, age }: { intent: Intent; age?: string }) 
                   >
                     <div className="px-4 pb-3 space-y-1.5">
                       {cat.items.slice(0, 2).map((item, i) => (
-                        <div key={i} className="rounded-xl border border-t-light-gray/50 p-2.5 hover:border-t-magenta/30 transition-colors">
+                        <div key={i} className="glass-reading rounded-xl p-2.5 transition-colors hover:border-t-magenta/30">
                           <div className="flex items-center justify-between gap-2 text-[10px]">
                             <span className="font-bold text-t-dark-gray min-w-0 break-words">{item.name}</span>
                             <div className="flex items-center gap-3 shrink-0">
@@ -609,13 +609,13 @@ function BigAddsSection({ age }: { age?: string }) {
   }, [ageKey]);
 
   return (
-    <div className="rounded-2xl glass-card p-4 shadow-sm">
+    <div className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
       <p className="text-[9px] font-black uppercase tracking-widest text-t-dark-gray mb-2">Top big swings</p>
-      <div className="space-y-2">
-        {visibleAdds.map((item, i) => {
-          const highlighted = ageKey && item.bestFor?.includes(ageKey);
-          return (
-            <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'bg-t-magenta/5 border border-t-magenta/10' : 'border border-t-light-gray/50 hover:border-t-magenta/30'} transition-colors`}>
+        <div className="space-y-2">
+          {visibleAdds.map((item, i) => {
+            const highlighted = ageKey && item.bestFor?.includes(ageKey);
+            return (
+            <div key={i} className={`rounded-xl p-3 text-[10px] ${highlighted ? 'glass-feature' : 'glass-reading'} transition-colors`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-black text-t-dark-gray min-w-0 break-words">{item.name}</span>

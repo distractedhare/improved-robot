@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Briefcase, Heart } from 'lucide-react';
-import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, HINT_QUICK_FACTS, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
+import { Home, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Briefcase, Heart } from 'lucide-react';
+import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
 import LearnSectionHeader from './LearnSectionHeader';
 
 type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
@@ -23,25 +23,36 @@ export default function HomeInternetSection() {
         description="Check the address first, lead with simplicity and savings, and only open the objection or competitor lane when the caller gives you a real blocker."
         icon={<Home className="h-4 w-4" />}
         chips={['From $35/mo', '15-day test drive', 'Self-install']}
+        variant="compact"
       />
 
-      {/* Quick facts ticker */}
-      <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
-        <p className="mb-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-info-foreground">
-          <Zap className="w-3 h-3" /> Quick facts to keep ready
-        </p>
-        <div className="space-y-2">
-          {HINT_QUICK_FACTS.map((fact, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
-              <p className="text-[11px] text-info-foreground font-medium leading-snug">{fact}</p>
-            </div>
-          ))}
+      <div className="rounded-[1.8rem] glass-reading-strong p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-xl">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-t-magenta">
+              <Zap className="w-3 h-3" /> Address-check lane
+            </p>
+            <p className="text-[12px] font-semibold leading-relaxed text-foreground">
+              Check the address first, hook with the savings second, then only open plans, objections, or competition after you know the home qualifies.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[32rem]">
+            {[
+              'Check the address before you pitch.',
+              'Lead with easy setup and lower bill.',
+              'Use objections only when they surface a blocker.',
+            ].map((step, index) => (
+              <div key={step} className="rounded-[1.1rem] bg-info-surface/75 px-3 py-2">
+                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-info-foreground">Step {index + 1}</p>
+                <p className="mt-1 text-[11px] font-medium leading-snug text-info-foreground">{step}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Section nav */}
-      <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
+      <div className="flex flex-wrap rounded-[1.5rem] p-1 gap-1 glass-stage-quiet">
         {[
           { id: 'plans' as Section, icon: DollarSign, label: 'Plans' },
           { id: 'selling' as Section, icon: MessageSquareQuote, label: 'How to Sell' },
@@ -55,8 +66,8 @@ export default function HomeInternetSection() {
             onClick={() => setActiveSection(s.id)}
             className={`focus-ring flex min-h-[44px] flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap md:text-[11px] ${
               activeSection === s.id
-                ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray'
-                : 'text-t-muted hover:text-t-dark-gray'
+                ? 'glass-control-active text-white'
+                : 'glass-control text-t-muted hover:text-t-dark-gray'
             }`}
           >
             <s.icon className="w-3 h-3" />

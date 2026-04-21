@@ -46,7 +46,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-4 2xl:max-w-5xl">
-      <div className="glass-elevated space-y-5 rounded-[1.9rem] p-5">
+      <div className="glass-stage space-y-5 rounded-[1.9rem] p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
             {hasTeam ? (
@@ -84,14 +84,14 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
             )}
           </div>
 
-          <div className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/12 via-surface to-white/90 p-4 shadow-sm lg:max-w-sm">
+          <div className="glass-feature rounded-3xl p-4 shadow-sm lg:max-w-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Featured game</p>
             <h3 className="mt-1 text-lg font-black tracking-tight text-foreground">{featuredBoard.name}</h3>
             <p className="mt-1 text-[12px] font-medium leading-relaxed text-t-dark-gray">{featuredBoard.subtitle}</p>
             <button
               type="button"
               onClick={() => setTab('bingo')}
-              className="focus-ring mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-t-magenta px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
+              className="focus-ring cta-primary mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
             >
               Open Bingo Board
               <Sparkles className="h-3.5 w-3.5" />
@@ -127,7 +127,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-          <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+          <div className="glass-reading rounded-2xl p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Arcade loop</p>
             <div className="mt-2 grid gap-2 sm:grid-cols-4">
               <LoopStep title="Practice" copy="Run a short scenario or quiz round." />
@@ -136,7 +136,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
               <LoopStep title="Earn" copy="Let prizes and streaks reinforce the habit." />
             </div>
           </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface p-4">
+          <div className="glass-reading rounded-2xl p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Best next move</p>
             <p className="mt-2 text-sm font-bold text-foreground">
               {tab === 'practice'
@@ -155,7 +155,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
         <nav
           aria-label="Level Up sections"
           role="tablist"
-          className="glass grid grid-cols-2 gap-2 rounded-2xl p-2 sm:grid-cols-3 lg:grid-cols-5"
+          className="glass-capsule grid grid-cols-2 gap-2 rounded-[1.6rem] p-2 sm:grid-cols-3 lg:grid-cols-5"
         >
           {LEVEL_UP_TABS.map((item) => {
             const isActive = tab === item.id;
@@ -171,8 +171,8 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
                 onClick={() => setTab(item.id)}
                 className={`focus-ring relative min-h-[52px] rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.985] ${
                   isActive
-                    ? 'bg-t-magenta text-white shadow-[0_8px_18px_rgba(226,0,116,0.22)]'
-                    : 'glass-tab text-t-dark-gray hover:text-foreground'
+                    ? 'glass-control-active text-white'
+                    : 'glass-control text-t-dark-gray hover:text-foreground'
                 }`}
               >
                 <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.16em]">
@@ -197,7 +197,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
         id={`level-up-panel-${tab}`}
         role="tabpanel"
         aria-labelledby={`level-up-tab-${tab}`}
-        className="glass-elevated rounded-[1.75rem] p-5"
+        className="glass-stage-quiet rounded-[1.75rem] p-5"
       >
         {tab === 'bingo' ? (
           <BingoBoard />
@@ -205,7 +205,7 @@ export default function LevelUpView({ onSelectScenario }: LevelUpViewProps) {
           <SpeedRound />
         ) : tab === 'practice' ? (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-info-border bg-info-surface p-4">
+            <div className="glass-feature rounded-2xl p-4">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-info-foreground">Practice scenarios</p>
               <p className="mt-2 text-[11px] font-medium leading-relaxed text-info-foreground">
                 "Rehearse the live-call flow with one realistic customer setup, then let the app jump you into Live with the
@@ -236,7 +236,7 @@ function DashboardCard({
   detail: string;
 }) {
   return (
-    <div className="glass-card rounded-2xl p-4">
+    <div className="glass-reading rounded-2xl p-4">
       <div className="flex items-center gap-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-t-magenta/8">
           {icon}
@@ -251,7 +251,7 @@ function DashboardCard({
 
 function LoopStep({ title, copy }: { title: string; copy: string }) {
   return (
-    <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-3">
+    <div className="glass-reading rounded-2xl px-3 py-3">
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
       <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{copy}</p>
     </div>

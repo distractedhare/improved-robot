@@ -115,7 +115,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
   return (
     <div className="space-y-3">
       {isAdmin && (
-      <div className="rounded-2xl glass-card p-4 shadow-sm space-y-3">
+      <div className="glass-stage-quiet space-y-3 rounded-3xl p-4">
         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">Weekly Update Loader</p>
@@ -127,7 +127,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
           <button
             type="button"
             onClick={handleRevert}
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border-2 border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray transition-all hover:border-t-magenta/40 hover:text-t-magenta"
+            className="focus-ring glass-control inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray transition-all hover:text-t-magenta"
           >
             <RotateCcw className="w-3 h-3 shrink-0" />
             Revert to built-in data
@@ -160,10 +160,10 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
             }
           }}
           aria-label="Upload weekly update JSON file"
-          className={`focus-ring cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition-all ${
+          className={`focus-ring cursor-pointer rounded-2xl p-6 text-center transition-all ${
             isDragging
-              ? 'border-t-magenta bg-t-magenta/10'
-              : 'border-t-light-gray bg-t-light-gray/10 hover:border-t-magenta/40 hover:bg-t-magenta/5'
+              ? 'glass-feature'
+              : 'glass-reading hover:bg-t-magenta/5'
           }`}
         >
           <input
@@ -187,9 +187,9 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
         </div>
 
         {uploadSuccess && (
-          <div className="rounded-2xl border border-success-border bg-success-surface px-4 py-3 text-success-foreground">
+          <div className="glass-reading rounded-2xl px-4 py-3 text-foreground">
             <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-success-accent mt-0.5 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest">Upload successful</p>
                 <p className="text-xs font-bold mt-1">{uploadSuccess}</p>
@@ -199,9 +199,9 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
         )}
 
         {uploadError && (
-          <div className="rounded-2xl border border-error-border bg-error-surface px-4 py-3 text-error-foreground">
+          <div className="glass-reading rounded-2xl px-4 py-3 text-foreground">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-error-accent mt-0.5 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest">Upload failed</p>
                 <p className="text-xs font-bold mt-1">{uploadError}</p>
@@ -211,7 +211,7 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
         )}
 
         {weeklyData && (
-          <div className="rounded-2xl border border-t-light-gray bg-t-light-gray/10 px-4 py-3">
+          <div className="glass-reading rounded-2xl px-4 py-3">
             <div className="flex items-start gap-2">
               <FileJson className="w-4 h-4 text-t-magenta mt-0.5 shrink-0" />
               <div className="flex flex-col gap-1 text-[10px] font-bold text-t-dark-gray">
@@ -361,7 +361,7 @@ function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpda
       {promos.map((promo, i) => {
         const isOpen = openIdx === i;
         return (
-          <div key={i} className="rounded-xl border border-t-light-gray overflow-hidden">
+          <div key={i} className="glass-reading overflow-hidden rounded-xl">
             <button
               type="button"
               onClick={() => setOpenIdx(isOpen ? null : i)}
@@ -382,7 +382,7 @@ function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpda
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-3 pb-3 space-y-2 border-t border-t-light-gray/50">
+                  <div className="px-3 pb-3 space-y-2">
                     <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed mt-2">{promo.details}</p>
                     {promo.commonObjections.length > 0 && (
                       <div className="space-y-1.5">
@@ -427,8 +427,8 @@ function BriefingCard({
 }) {
   return (
     <div className={`rounded-[1.5rem] overflow-hidden transition-all glass-specular ${
-      accent ? 'glass-feature border-t-magenta/30' :
-      warning ? 'glass-feature border-warning-border bg-warning-surface/70' :
+      accent ? 'glass-feature' :
+      warning ? 'glass-reading' :
       'glass-utility'
     }`}>
       <button
