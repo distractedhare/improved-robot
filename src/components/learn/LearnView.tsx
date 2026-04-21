@@ -19,13 +19,13 @@ import DeviceLookup, {
 } from '../DeviceLookup';
 import AccessoryPitchBuilder from '../AccessoryPitchBuilder';
 import AccessoriesReference from '../AccessoriesReference';
+import DeviceImage from '../DeviceImage';
 import PlaybookSection from './PlaybookSection';
 import EdgeSection from './EdgeSection';
 import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
 import { learnCopy } from './learnCopy';
 import LearnSectionHeader from './LearnSectionHeader';
-import { PRODUCT_IMAGE_FALLBACK } from '../../utils/manufacturerBadges';
 
 type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
@@ -768,19 +768,13 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
                                 <div className="mt-4 grid grid-cols-3 gap-2">
                                   {presetDevices.slice(0, 3).map((device) => (
-                                    <div
+                                    <DeviceImage
                                       key={device.name}
-                                      className="glass-reading rounded-[1.35rem] p-2.5 shadow-sm"
-                                    >
-                                      <img
-                                        src={device.imageUrl ?? PRODUCT_IMAGE_FALLBACK}
-                                        alt={device.name}
-                                        className="h-24 w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
-                                        loading="lazy"
-                                        width={160}
-                                        height={160}
-                                      />
-                                    </div>
+                                      device={device}
+                                      className="glass-reading h-24 w-full rounded-[1.35rem] p-2.5 shadow-sm"
+                                      imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
+                                      badgeSize="sm"
+                                    />
                                   ))}
                                 </div>
 

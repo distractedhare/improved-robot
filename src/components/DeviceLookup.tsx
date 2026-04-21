@@ -5,12 +5,7 @@ import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } fro
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/positioningService';
-import {
-  COMPANY_LOGO_FALLBACK,
-  PRODUCT_IMAGE_FALLBACK,
-  getManufacturerBadge,
-  manufacturerBadgeClass,
-} from '../utils/manufacturerBadges';
+import DeviceImage from './DeviceImage';
 
 export interface DevicePreset {
   label: string;
@@ -705,6 +700,7 @@ export default function DeviceLookup({
                       device={device}
                       className="relative h-16 w-16 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
                       imageClassName="h-full max-h-12 w-full object-contain"
+                      badgeSize="sm"
                     />
 
                     <div className="flex-1 min-w-0">
@@ -1332,6 +1328,7 @@ export function DeviceComparison({
               device={activeDevice}
               className="h-20 w-20 shrink-0 rounded-[1.25rem] border border-t-light-gray/60 bg-white/85 p-2.5"
               imageClassName="h-full w-full object-contain"
+              badgeSize="sm"
             />
           </div>
 
@@ -1430,6 +1427,7 @@ export function DeviceComparison({
                 device={activeDevice}
                 className="h-24 w-24 shrink-0 rounded-[1.25rem] border border-t-light-gray/60 bg-white/85 p-3"
                 imageClassName="h-full w-full object-contain"
+                badgeSize="sm"
               />
             </div>
 
@@ -1545,6 +1543,7 @@ export function DeviceDetail({
             device={device}
             className="h-20 w-20 rounded-2xl border border-t-light-gray/50 bg-t-light-gray/20 p-3 sm:h-24 sm:w-24"
             imageClassName="h-full max-h-16 w-full object-contain sm:max-h-20"
+            badgeSize="sm"
           />
           <p className="text-lg font-black text-t-magenta">
             {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : device.startingPrice}
@@ -1756,63 +1755,24 @@ function DeviceImageSlot({
   imageClassName,
   placeholderLabel = 'No image',
   showBadge = true,
+  badgeSize = 'md',
 }: {
   device: Device;
   className: string;
   imageClassName: string;
   placeholderLabel?: string;
   showBadge?: boolean;
+  badgeSize?: 'sm' | 'md' | 'lg';
 }) {
-  const badge = getManufacturerBadge(device.name);
-  const fallbackSources = useMemo(
-    () => [device.imageUrl, PRODUCT_IMAGE_FALLBACK, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
-    [badge.fallbackAssetPath, device.imageUrl]
-  );
-  const [fallbackIndex, setFallbackIndex] = useState(0);
-
-  useEffect(() => {
-    setFallbackIndex(0);
-  }, [badge.fallbackAssetPath, device.imageUrl]);
-
-  const currentSource = fallbackSources[fallbackIndex];
-  const shouldShowImage = Boolean(currentSource);
-  const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
-
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
-      {shouldShowImage ? (
-        <img
-          src={currentSource}
-          alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
-          className={imageClassName}
-          loading="lazy"
-          width={160}
-          height={160}
-          onError={() => setFallbackIndex((current) => current + 1)}
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center rounded-lg bg-surface-elevated px-2 text-center text-[9px] font-black uppercase tracking-wider text-t-dark-gray/60">
-          {placeholderLabel}
-        </div>
-      )}
-      {showBadge ? (
-        <span
-          className={`pointer-events-none absolute -bottom-1 right-1 inline-flex h-5 w-5 items-center justify-center rounded-full border p-1 ${manufacturerBadgeClass(
-            badge.kind
-          )}`}
-          title={badge.label}
-        >
-          <img
-            src={badge.assetPath}
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-contain"
-            width={20}
-            height={20}
-          />
-        </span>
-      ) : null}
-    </div>
+    <DeviceImage
+      device={device}
+      className={className}
+      imageClassName={imageClassName}
+      placeholderLabel={placeholderLabel}
+      showBadge={showBadge}
+      badgeSize={badgeSize}
+    />
   );
 }
 
