@@ -7,6 +7,7 @@ import { EcosystemMatrix } from '../types/ecosystem';
 import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/positioningService';
 import {
   COMPANY_LOGO_FALLBACK,
+  PRODUCT_IMAGE_FALLBACK,
   getManufacturerBadge,
   manufacturerBadgeClass,
 } from '../utils/manufacturerBadges';
@@ -14,6 +15,9 @@ import {
 export interface DevicePreset {
   label: string;
   deviceNames: string[];
+  subtitle: string;
+  useWhen: string;
+  heroNote?: string;
   icon?: ReactNode;
   primary?: boolean;
 }
@@ -22,21 +26,21 @@ interface DeviceLookupProps {
   selectedDevices: Device[];
   onToggleDevice: (device: Device) => void;
   onClearDevices: () => void;
-  onFlagshipShowdown: () => void;
   onOpenCompare?: () => void;
   compareOpen?: boolean;
   /** Optional custom device pool — defaults to ALL_DEVICES */
   devicePool?: Device[];
-  /** Optional custom presets — defaults to phone presets */
-  presets?: DevicePreset[];
   /** Optional custom filters */
   filters?: { id: string; label: string }[];
-  /** Optional custom preset handler for non-default device categories */
-  onPresetSelect?: (devices: Device[]) => void;
   /** Optional custom sort mode */
   defaultSort?: DeviceLookupSort;
   /** Optional category-specific filter resolver */
   filterBy?: (device: Device, filter: string) => boolean;
+  /** Optional mobile browse state */
+  browseExpanded?: boolean;
+  onBrowseExpandedChange?: (expanded: boolean) => void;
+  /** Optional quick brief trigger for a selected device */
+  onInspectDevice?: (device: Device) => void;
 }
 
 type DeviceLookupSort = 'name' | 'price' | 'newest';
@@ -46,8 +50,7 @@ const ALL_DEVICES: Device[] = [...PHONES, ...TABLETS, ...WATCHES, ...HOTSPOTS];
 // --- Phone presets ---
 export const FLAGSHIP_PHONES: string[] = ['iPhone 17 Pro Max', 'Galaxy S26 Ultra', 'Pixel 10 Pro XL'];
 export const BUDGET_PHONES: string[] = ['iPhone 17e', 'Galaxy A17 5G', 'Pixel 10a'];
-export const FOLDABLES: string[] = ['Galaxy Z Fold7', 'Galaxy Z Flip7', 'Pixel 10 Pro Fold'];
-export const EVERYDAY_VALUE: string[] = ['iPhone 17e', 'T-Mobile REVVL 8 Pro', 'Galaxy A17 5G', 'Motorola moto g 2026'];
+export const QUIRKY_COUSINS: string[] = ['Samsung Galaxy XCover7 Pro', 'T-Mobile REVVL 8 Pro', 'Motorola moto g 2026'];
 
 // --- Tablet presets ---
 export const FLAGSHIP_TABLETS: string[] = ['iPad Pro 11" (M5)', 'Samsung Galaxy Tab S10+ 5G'];
@@ -62,23 +65,95 @@ export const ADVENTURE_READY: string[] = ['Apple Watch Ultra 3', 'Samsung Galaxy
 
 // Default phone presets
 export const PHONE_PRESETS: DevicePreset[] = [
-  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_PHONES, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
-  { label: 'Budget Battle', deviceNames: BUDGET_PHONES, icon: <Zap className="w-2.5 h-2.5" /> },
-  { label: 'Foldable Face-Off', deviceNames: FOLDABLES, icon: <Layers className="w-2.5 h-2.5" /> },
-  { label: 'Everyday Value', deviceNames: EVERYDAY_VALUE, icon: <Tag className="w-2.5 h-2.5" /> },
+  {
+    label: 'Flagship Showdown',
+    deviceNames: FLAGSHIP_PHONES,
+    subtitle: 'Prestige picks with camera flex, AI halo, and top-shelf battery stories.',
+    useWhen: 'Use this when the caller wants the latest thing, the best camera, or the premium status-device story.',
+    heroNote: 'Premium want, balanced challenger, and a budget-safe pivot all in one scan.',
+    icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />,
+    primary: true,
+  },
+  {
+    label: 'Budget Conscious',
+    deviceNames: BUDGET_PHONES,
+    subtitle: 'Current-feeling phones that protect the payment and still sound like a smart upgrade.',
+    useWhen: 'Use this when qualification is tight but the customer still wants something fresh, fast, and easy to defend.',
+    heroNote: 'Best for payment-sensitive calls where you still need the phone to feel like a win.',
+    icon: <Zap className="w-2.5 h-2.5" />,
+  },
+  {
+    label: 'Quirky Cousins',
+    deviceNames: QUIRKY_COUSINS,
+    subtitle: 'Utility-first devices for rugged jobs, backup lines, and off-script use cases.',
+    useWhen: 'Use this when the normal flagship story misses the real job-to-be-done and the customer needs something more specific.',
+    heroNote: 'Great for third-line saves, backup-phone conversations, and practical niche fits.',
+    icon: <Sparkles className="w-2.5 h-2.5" />,
+  },
 ];
 
 export const TABLET_PRESETS: DevicePreset[] = [
-  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_TABLETS, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
-  { label: 'Budget Battle', deviceNames: BUDGET_TABLETS, icon: <Zap className="w-2.5 h-2.5" /> },
-  { label: 'iPad Lineup', deviceNames: IPAD_LINEUP, icon: <Layers className="w-2.5 h-2.5" /> },
-  { label: 'Galaxy Tabs', deviceNames: GALAXY_TABS, icon: <Layers className="w-2.5 h-2.5" /> },
+  {
+    label: 'Flagship Showdown',
+    deviceNames: FLAGSHIP_TABLETS,
+    subtitle: 'Top-tier screens and productivity power for customers who want tablet-first performance.',
+    useWhen: 'Use this when the tablet is replacing a laptop, creative device, or serious work screen.',
+    heroNote: 'Best when the customer cares more about capability than lowest monthly cost.',
+    icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />,
+    primary: true,
+  },
+  {
+    label: 'Budget Battle',
+    deviceNames: BUDGET_TABLETS,
+    subtitle: 'Practical family tablets that keep the price story clean and easy.',
+    useWhen: 'Use this when the customer needs a shared household screen, school device, or light entertainment tablet.',
+    heroNote: 'Lower cost without losing the obvious everyday use case.',
+    icon: <Zap className="w-2.5 h-2.5" />,
+  },
+  {
+    label: 'iPad Lineup',
+    deviceNames: IPAD_LINEUP,
+    subtitle: 'A simple Apple-only ladder from casual use up through pro work.',
+    useWhen: 'Use this when the customer already leans Apple and just needs the right rung of the iPad ladder.',
+    heroNote: 'Great for sizing the customer up from casual use to serious productivity.',
+    icon: <Layers className="w-2.5 h-2.5" />,
+  },
+  {
+    label: 'Galaxy Tabs',
+    deviceNames: GALAXY_TABS,
+    subtitle: 'Samsung tablet options with DeX, ecosystem hooks, and family-friendly picks.',
+    useWhen: 'Use this when the customer already prefers Galaxy or wants keyboard-ready multitasking.',
+    heroNote: 'Use this to keep the Samsung story inside one clear compare lane.',
+    icon: <Layers className="w-2.5 h-2.5" />,
+  },
 ];
 
 export const WATCH_PRESETS: DevicePreset[] = [
-  { label: 'Flagship Showdown', deviceNames: FLAGSHIP_WATCHES, icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />, primary: true },
-  { label: 'Budget Battle', deviceNames: BUDGET_WATCHES, icon: <Zap className="w-2.5 h-2.5" /> },
-  { label: 'Adventure Ready', deviceNames: ADVENTURE_READY, icon: <Wrench className="w-2.5 h-2.5" /> },
+  {
+    label: 'Flagship Showdown',
+    deviceNames: FLAGSHIP_WATCHES,
+    subtitle: 'The biggest watch stories for health, battery, and ecosystem pull.',
+    useWhen: 'Use this when the customer wants the best watch experience and needs help choosing the right premium lane.',
+    heroNote: 'Fastest way to compare the halo watches without opening the whole catalog.',
+    icon: <Crown className="w-2.5 h-2.5 text-warning-accent" />,
+    primary: true,
+  },
+  {
+    label: 'Budget Battle',
+    deviceNames: BUDGET_WATCHES,
+    subtitle: 'Entry-friendly wearables that still cover the key everyday stories.',
+    useWhen: 'Use this when the customer wants a first smartwatch, family wearable, or lower-cost add-on.',
+    heroNote: 'Keeps the entry story confident instead of sounding like a step down.',
+    icon: <Zap className="w-2.5 h-2.5" />,
+  },
+  {
+    label: 'Adventure Ready',
+    deviceNames: ADVENTURE_READY,
+    subtitle: 'Durability-forward wearables for active customers and off-the-grid stories.',
+    useWhen: 'Use this when the customer cares more about endurance, ruggedness, or specialty utility than pure style.',
+    heroNote: 'Great for adventure and fitness calls that need more than standard smartwatch language.',
+    icon: <Wrench className="w-2.5 h-2.5" />,
+  },
 ];
 
 export function getDevicesByNames(names: string[]): Device[] {
@@ -198,30 +273,141 @@ function inferLookupMode(pool: Device[]): DeviceLookupMode {
   return 'phones';
 }
 
+function unique<T>(items: T[]): T[] {
+  return Array.from(new Set(items));
+}
+
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
+function formatCurrency(value: number) {
+  return currencyFormatter.format(value);
+}
+
+function formatDevicePrice(device: Device) {
+  return typeof device.startingPrice === 'number' ? formatCurrency(device.startingPrice) : device.startingPrice;
+}
+
+export function normalizeCompareSet(deviceNames: string[], compareSet: string[]): string[] {
+  const orderedNames = compareSet.filter((name) => deviceNames.includes(name));
+
+  if (orderedNames.length >= Math.min(3, deviceNames.length)) {
+    return orderedNames.slice(0, 3);
+  }
+
+  const next = [...orderedNames];
+  deviceNames.forEach((name) => {
+    if (!next.includes(name) && next.length < Math.min(3, deviceNames.length)) {
+      next.push(name);
+    }
+  });
+
+  return next;
+}
+
+function buildFeatureBriefs(device: Device, summary: ReturnType<typeof getDevicePositioningSummary>) {
+  const quickUseCases = unique([...summary.listenFor, ...summary.bestFit]).filter(Boolean);
+  const briefs = summary.featureTranslations.slice(0, 3).map((translation, index) => ({
+    feature: translation.feature,
+    benefit: translation.benefit,
+    useCase: quickUseCases[index] ?? quickUseCases[0] ?? 'everyday upgrades',
+  }));
+
+  if (briefs.length < 4) {
+    briefs.push({
+      feature: summary.primaryAngle.title,
+      benefit: summary.primaryAngle.proof,
+      useCase: summary.bestFit[0] ?? quickUseCases[0] ?? 'customers who want a clear everyday upgrade',
+    });
+  }
+
+  if (briefs.length < 5) {
+    briefs.push({
+      feature: 'Why reps lead with it',
+      benefit: summary.shortHook || device.keySpecs.split(',')[0] || 'It gives the rep one strong reason to position it fast.',
+      useCase: summary.listenFor[0] ?? summary.bestFit[0] ?? 'calls where the customer wants the short version',
+    });
+  }
+
+  return briefs.slice(0, 5);
+}
+
+type LineupRole = {
+  name: string;
+  label: string;
+  helper: string;
+};
+
+function buildLineupRoles(
+  devices: Device[],
+  summaries: Map<string, ReturnType<typeof getDevicePositioningSummary>>
+): LineupRole[] {
+  if (devices.length === 0) return [];
+
+  const ranked = [...devices].sort((a, b) => toSafeNumber(b.startingPrice) - toSafeNumber(a.startingPrice));
+
+  if (ranked.length === 2) {
+    const cheaper = ranked[1];
+    const cheaperAppeal = summaries.get(cheaper.name)?.appealType;
+    const cheaperIsValue = cheaperAppeal === 'value' || cheaperAppeal === 'practical' || toSafeNumber(ranked[0].startingPrice) - toSafeNumber(cheaper.startingPrice) >= 250;
+
+    return [
+      { name: ranked[0].name, label: 'Dream pick', helper: 'premium want' },
+      { name: cheaper.name, label: cheaperIsValue ? 'Value save' : 'Smarter fit', helper: cheaperIsValue ? 'safer budget option' : 'easier-to-qualify option' },
+    ];
+  }
+
+  if (ranked.length >= 3) {
+    return [
+      { name: ranked[0].name, label: 'Dream pick', helper: 'premium want' },
+      { name: ranked[1].name, label: 'Best balance', helper: 'best balance' },
+      { name: ranked[ranked.length - 1].name, label: 'Value save', helper: 'safer budget option' },
+    ];
+  }
+
+  return [{ name: ranked[0].name, label: 'Current focus', helper: 'quick brief' }];
+}
+
+function buildLineupNarrative(roles: LineupRole[]) {
+  if (roles.length >= 3) {
+    return 'Start with the premium want, use the balance option to anchor the story, and keep the safer budget option ready if qualification gets tight.';
+  }
+
+  if (roles.length === 2) {
+    return 'Use this as a fast tradeoff scan between the premium want and the smarter fit so the rep can pivot without sounding like they are downgrading the customer.';
+  }
+
+  return 'Tap into the quick brief, then pull in another device if the caller needs a real comparison.';
+}
+
 export default function DeviceLookup({
   selectedDevices,
   onToggleDevice,
   onClearDevices,
-  onFlagshipShowdown,
   onOpenCompare,
   compareOpen = false,
   devicePool,
-  presets,
   filters: customFilters,
-  onPresetSelect,
   defaultSort = 'name',
   filterBy,
+  browseExpanded,
+  onBrowseExpandedChange,
+  onInspectDevice,
 }: DeviceLookupProps) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
   const [sortMode, setSortMode] = useState<DeviceLookupSort>(defaultSort);
   const deferredSearch = useDeferredValue(search);
   const pool = devicePool || ALL_DEVICES;
-  const activePresets = presets || PHONE_PRESETS;
   const filters = customFilters || DEFAULT_FILTERS;
   const defaultSortMode = defaultSort;
   const lookupMode = useMemo(() => inferLookupMode(pool), [pool]);
   const lookupCopy = LOOKUP_COPY[lookupMode];
+  const isBrowseExpanded = browseExpanded ?? true;
 
   useEffect(() => {
     setSortMode(defaultSortMode);
@@ -268,52 +454,12 @@ export default function DeviceLookup({
 
   const isSelected = (device: Device) => selectedDevices.some(d => d.name === device.name);
 
-  const handlePresetClick = (preset: DevicePreset) => {
-    const allowedNames = new Set(pool.map((device) => device.name));
-    const presetDevices = getDevicesByNames(preset.deviceNames).filter((device) => allowedNames.has(device.name));
-    if (presetDevices.length === 0) {
-      return;
-    }
-
-    if (onPresetSelect) {
-      onPresetSelect(presetDevices);
-      return;
-    }
-
-    onClearDevices();
-    if (preset.deviceNames === FLAGSHIP_PHONES) {
-      onFlagshipShowdown();
-      return;
-    }
-
-    presetDevices.forEach(d => onToggleDevice(d));
-  };
-
   return (
     <div className="space-y-4">
-      {/* Quick comparison presets */}
-      <div className="flex flex-wrap gap-1.5">
-        {activePresets.map((preset) => (
-          <button
-            key={preset.label}
-            type="button"
-            onClick={() => handlePresetClick(preset)}
-            className={`focus-ring flex min-h-[44px] items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all ${
-              preset.primary
-                ? 'bg-t-dark-gray text-white hover:bg-t-dark-gray/80'
-                : 'bg-t-light-gray/50 text-t-dark-gray hover:bg-t-light-gray'
-            }`}
-          >
-            {preset.icon}
-            {preset.label}
-          </button>
-        ))}
-      </div>
-
       <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Quick compare tray</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Active lineup</p>
             <p className="mt-1 text-[11px] font-medium text-t-dark-gray">{lookupCopy.helper}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -349,42 +495,80 @@ export default function DeviceLookup({
               </p>
             )}
             <div className="flex flex-wrap gap-1.5 items-center">
-            {selectedDevices.map((device) => (
+              {selectedDevices.map((device) => (
+                <div
+                  key={device.name}
+                  className="flex items-center rounded-2xl border border-t-magenta/20 bg-t-magenta/8 text-[10px] font-black text-t-magenta"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onInspectDevice?.(device)}
+                    className="focus-ring flex items-center gap-2 rounded-l-2xl px-2.5 py-1.5 text-left"
+                  >
+                    <DeviceImageSlot
+                      device={device}
+                      className="h-8 w-8 shrink-0 rounded-xl border border-t-light-gray/50 bg-white/70 p-1"
+                      imageClassName="h-full w-full object-contain"
+                      showBadge={false}
+                    />
+                    <span className="max-w-[92px] truncate">{device.name}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onToggleDevice(device)}
+                    className="focus-ring rounded-r-2xl border-l border-t-magenta/20 px-2 py-2 text-t-magenta transition-colors hover:bg-t-magenta/10"
+                    aria-label={`Remove ${device.name} from the active lineup`}
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              ))}
               <button
                 type="button"
-                key={device.name}
-                onClick={() => onToggleDevice(device)}
-                aria-pressed={true}
-                className="focus-ring flex items-center gap-2 rounded-2xl border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1.5 text-left text-[10px] font-black text-t-magenta"
+                onClick={onClearDevices}
+                className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
               >
-                <DeviceImageSlot
-                  device={device}
-                  className="h-8 w-8 shrink-0 rounded-xl border border-t-light-gray/50 bg-white/70 p-1"
-                  imageClassName="h-full w-full object-contain"
-                  showBadge={false}
-                />
-                <span className="max-w-[92px] truncate">{device.name}</span>
-                <X className="w-2.5 h-2.5" />
+                Clear all
               </button>
-            ))}
-            <button
-              type="button"
-              onClick={onClearDevices}
-            className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
-            >
-              Clear all
-            </button>
             </div>
+            {onInspectDevice ? (
+              <p className="text-[10px] font-medium text-t-muted">
+                Tap a selected device for a quick brief without leaving the showdown.
+              </p>
+            ) : null}
           </div>
         ) : (
           <p className="mt-3 text-[10px] font-medium text-t-muted">
-            Use a preset or tap individual devices to build a clean side-by-side.
+            Tap individual devices to build a clean side-by-side, then open compare when you have the strongest two or three fits.
           </p>
         )}
       </div>
 
-      {/* Sticky compact control bar */}
-      <div className="sticky top-0 z-10 rounded-xl border border-t-light-gray/60 bg-surface/95 p-2 backdrop-blur-sm">
+      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated/80 p-2 lg:hidden">
+        <button
+          type="button"
+          onClick={() => onBrowseExpandedChange?.(!isBrowseExpanded)}
+          className="focus-ring flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left"
+          aria-expanded={isBrowseExpanded}
+        >
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
+              {isBrowseExpanded ? 'Hide browse' : 'Browse all devices'}
+            </p>
+            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+              {isBrowseExpanded
+                ? 'Collapse search and filters so the lineup stays front-and-center.'
+                : 'Open the full device wall when you want to swap the lineup or scout another option.'}
+            </p>
+          </div>
+          <ChevronDown className={`h-4 w-4 shrink-0 text-t-muted transition-transform ${isBrowseExpanded ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      <div className={isBrowseExpanded ? 'block' : 'hidden lg:block'}>
+        <div className="space-y-4">
+          {/* Sticky compact control bar */}
+          <div className="sticky top-0 z-10 rounded-xl border border-t-light-gray/60 bg-surface/95 p-2 backdrop-blur-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
           <input
@@ -450,106 +634,530 @@ export default function DeviceLookup({
             ) : null}
           </div>
         </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-t-muted">
+              {filteredDevices.length > 0
+                ? hiddenCount > 0
+                  ? `Showing ${visibleDevices.length} of ${filteredDevices.length} matches`
+                  : `Showing ${filteredDevices.length} matches`
+                : 'No matches found'}
+            </p>
+            {hiddenCount > 0 ? (
+              <p className="text-[10px] font-medium text-t-muted">
+                Refine the search to see the remaining {hiddenCount} devices.
+              </p>
+            ) : null}
+          </div>
+
+          {/* Device list */}
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1 pb-1">
+            {filteredDevices.length === 0 && (
+              <p className="rounded-xl border border-dashed border-t-light-gray bg-surface-elevated p-4 text-center text-[10px] font-black uppercase tracking-widest text-t-muted">
+                {lookupCopy.emptyState}
+              </p>
+            )}
+
+            {visibleDevices.map((device) => {
+              const selected = isSelected(device);
+              const priceLabel = typeof device.startingPrice === 'number'
+                ? `$${device.startingPrice}`
+                : device.startingPrice;
+              const browseSummary = browseSummaries.get(device.name);
+
+              return (
+                <button
+                  type="button"
+                  key={device.name}
+                  onClick={() => {
+                    if (!selected && selectionLimitReached) {
+                      return;
+                    }
+                    onToggleDevice(device);
+                  }}
+                  aria-pressed={selected}
+                  disabled={!selected && selectionLimitReached}
+                  className={`focus-ring w-full text-left p-3 rounded-2xl border-2 transition-all ${
+                    selected
+                      ? 'border-t-magenta bg-t-magenta/5 shadow-md'
+                      : selectionLimitReached
+                        ? 'border-t-light-gray/50 bg-surface opacity-60'
+                        : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <DeviceImageSlot
+                      device={device}
+                      className="relative h-16 w-16 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
+                      imageClassName="h-full max-h-12 w-full object-contain"
+                    />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
+                          selected ? 'bg-t-magenta border-t-magenta' : 'border-t-light-gray'
+                        }`}>
+                          {selected && <span className="text-white text-[8px] font-black">✓</span>}
+                        </div>
+                        <span className="truncate text-[13px] font-black leading-tight text-t-dark-gray">{device.name}</span>
+                      </div>
+                      <div className="ml-7 mt-2 flex flex-wrap gap-1.5">
+                        {browseSummary?.bestFit.slice(0, 2).map((fit) => (
+                          <span
+                            key={fit}
+                            className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta"
+                          >
+                            {fit}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="ml-7 mt-2 text-[10px] font-bold leading-snug text-t-dark-gray">
+                        {browseSummary?.shortHook || 'Use one clean angle, then back it up with one proof point.'}
+                      </p>
+                      <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
+                          {device.category}
+                        </span>
+                        <span className="rounded-full border border-t-magenta bg-t-magenta/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
+                          {priceLabel}
+                        </span>
+                        <span className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted">
+                          {device.released}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface DeviceLineupHeroProps {
+  label: string;
+  kind: 'preset' | 'custom';
+  devices: Device[];
+  compareDevices: Device[];
+  overflowDevices: Device[];
+  weeklyData: WeeklyUpdate | null;
+  ecosystemMatrix?: EcosystemMatrix | null;
+  compareOpen?: boolean;
+  heroNote?: string;
+  onOpenCompare?: () => void;
+  onReset: () => void;
+  onInspectDevice?: (device: Device) => void;
+  onSwapCompareDevice?: (device: Device) => void;
+  onBrowseAll?: () => void;
+}
+
+export function DeviceLineupHero({
+  label,
+  kind,
+  devices,
+  compareDevices,
+  overflowDevices,
+  weeklyData,
+  ecosystemMatrix,
+  compareOpen = false,
+  heroNote,
+  onOpenCompare,
+  onReset,
+  onInspectDevice,
+  onSwapCompareDevice,
+  onBrowseAll,
+}: DeviceLineupHeroProps) {
+  const summaries = useMemo(
+    () => new Map(devices.map((device) => [device.name, getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)])),
+    [devices, weeklyData, ecosystemMatrix]
+  );
+  const lineupRoles = useMemo(() => buildLineupRoles(devices, summaries), [devices, summaries]);
+  const roleByName = useMemo(() => new Map(lineupRoles.map((role) => [role.name, role])), [lineupRoles]);
+  const narrative = buildLineupNarrative(lineupRoles);
+  const compareNames = new Set(compareDevices.map((device) => device.name));
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full glass-utility px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
+              {kind === 'preset' ? 'Preset lineup' : 'Custom compare'}
+            </span>
+            <span className="rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
+              {devices.length} in lineup
+            </span>
+            {devices.length > compareDevices.length ? (
+              <span className="rounded-full border border-t-light-gray bg-surface px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-t-dark-gray">
+                {compareDevices.length} live in compare
+              </span>
+            ) : null}
+          </div>
+          <h3 className="mt-3 text-2xl font-black tracking-tight text-foreground sm:text-[2rem]">
+            {label}
+          </h3>
+          {heroNote ? (
+            <p className="mt-2 max-w-3xl text-[12px] font-semibold leading-relaxed text-foreground sm:text-[13px]">
+              {heroNote}
+            </p>
+          ) : null}
+          <p className="mt-2 max-w-3xl text-[13px] font-medium leading-relaxed text-t-dark-gray sm:text-sm">
+            {narrative}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {devices.length > 1 ? (
+            <button
+              type="button"
+              onClick={onOpenCompare}
+              className={`focus-ring rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider ${
+                compareOpen ? 'bg-t-dark-gray text-white' : 'bg-t-magenta text-white shadow-sm shadow-t-magenta/20'
+              }`}
+            >
+              {compareOpen ? 'Comparing now' : 'Open compare'}
+            </button>
+          ) : null}
+          {onBrowseAll ? (
+            <button
+              type="button"
+              onClick={onBrowseAll}
+              className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+            >
+              Browse all devices
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={onReset}
+            className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+          >
+            Reset lineup
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-1">
-        <p className="text-[10px] font-black uppercase tracking-widest text-t-muted">
-          {filteredDevices.length > 0
-            ? hiddenCount > 0
-              ? `Showing ${visibleDevices.length} of ${filteredDevices.length} matches`
-              : `Showing ${filteredDevices.length} matches`
-            : 'No matches found'}
-        </p>
-        {hiddenCount > 0 ? (
-          <p className="text-[10px] font-medium text-t-muted">
-            Refine the search to see the remaining {hiddenCount} devices.
-          </p>
-        ) : null}
-      </div>
-
-      {/* Device list */}
-      <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1 pb-1">
-        {filteredDevices.length === 0 && (
-          <p className="rounded-xl border border-dashed border-t-light-gray bg-surface-elevated p-4 text-center text-[10px] font-black uppercase tracking-widest text-t-muted">
-            {lookupCopy.emptyState}
-          </p>
-        )}
-
-        {visibleDevices.map((device) => {
-          const selected = isSelected(device);
-          const priceLabel = typeof device.startingPrice === 'number'
-            ? `$${device.startingPrice}`
-            : device.startingPrice;
-          const browseSummary = browseSummaries.get(device.name);
+      <div className="flex gap-3 overflow-x-auto pb-1">
+        {devices.map((device) => {
+          const summary = summaries.get(device.name);
+          const role = roleByName.get(device.name);
+          const isInCompare = compareNames.has(device.name);
 
           return (
             <button
-                type="button"
-                key={device.name}
-              onClick={() => {
-                if (!selected && selectionLimitReached) {
-                  return;
-                }
-                onToggleDevice(device);
-              }}
-              aria-pressed={selected}
-              disabled={!selected && selectionLimitReached}
-              className={`focus-ring w-full text-left p-3 rounded-2xl border-2 transition-all ${
-                selected
-                  ? 'border-t-magenta bg-t-magenta/5 shadow-md'
-                  : selectionLimitReached
-                    ? 'border-t-light-gray/50 bg-surface opacity-60'
-                    : 'border-t-light-gray bg-surface hover:border-t-magenta/30'
+              key={device.name}
+              type="button"
+              onClick={() => onInspectDevice?.(device)}
+              className={`group focus-ring min-w-[250px] flex-1 rounded-[1.9rem] p-4 text-left transition-all sm:min-w-[280px] ${
+                isInCompare
+                  ? 'glass-feature border-t-magenta/30 shadow-lg shadow-t-magenta/10'
+                  : 'glass-utility hover:-translate-y-0.5 hover:border-t-magenta/30'
               }`}
             >
-              <div className="flex items-start gap-4">
-                {/* Device Thumbnail */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  {role ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white">
+                        {role.label}
+                      </span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">
+                        {role.helper}
+                      </span>
+                    </div>
+                  ) : null}
+                  <h4 className="mt-3 text-base font-black leading-tight text-foreground">{device.name}</h4>
+                  <p className="mt-1 text-[12px] font-bold text-t-magenta">
+                    {formatDevicePrice(device)}
+                  </p>
+                </div>
                 <DeviceImageSlot
                   device={device}
-                  className="relative h-16 w-16 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
-                  imageClassName="h-full max-h-12 w-full object-contain"
+                  className="h-24 w-24 shrink-0 rounded-[1.45rem] border border-white/35 bg-white/92 p-3 shadow-sm"
+                  imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
+                  showBadge={false}
                 />
+              </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
-                      selected ? 'bg-t-magenta border-t-magenta' : 'border-t-light-gray'
-                    }`}>
-                      {selected && <span className="text-white text-[8px] font-black">✓</span>}
-                    </div>
-                    <span className="truncate text-[13px] font-black leading-tight text-t-dark-gray">{device.name}</span>
+              <div className="mt-4 rounded-[1.45rem] glass-reading p-3.5">
+                <p className="text-[11px] font-semibold leading-relaxed text-foreground">
+                  {summary?.shortHook || 'Lead with one clear angle, then back it up with one everyday proof point.'}
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Best for</p>
+                    <p className="mt-1 text-[11px] font-bold leading-snug text-t-dark-gray">
+                      {summary?.bestFit[0] || 'Everyday upgrades'}
+                    </p>
                   </div>
-                  <div className="ml-7 mt-2 flex flex-wrap gap-1.5">
-                    {browseSummary?.bestFit.slice(0, 2).map((fit) => (
-                      <span
-                        key={fit}
-                        className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta"
-                      >
-                        {fit}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="ml-7 mt-2 text-[10px] font-bold leading-snug text-t-dark-gray">
-                    {browseSummary?.shortHook || 'Use one clean angle, then back it up with one proof point.'}
-                  </p>
-                  <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
-                      {device.category}
-                    </span>
-                    <span className="rounded-full border border-t-magenta bg-t-magenta/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-magenta">
-                      {priceLabel}
-                    </span>
-                    <span className="rounded-full border border-t-light-gray bg-t-light-gray/20 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-t-muted">
-                      {device.released}
-                    </span>
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Listen for</p>
+                    <p className="mt-1 text-[11px] font-bold leading-snug text-t-dark-gray">
+                      {summary?.listenFor[0] || role?.helper || 'Customers who want the short version'}
+                    </p>
                   </div>
                 </div>
+                <p className="mt-3 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                  Lead with: {summary?.primaryAngle.title || 'One clear reason this device makes sense right now.'}
+                </p>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {summary?.bestFit.slice(1, 3).map((fit) => (
+                  <span
+                    key={fit}
+                    className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta"
+                  >
+                    {fit}
+                  </span>
+                ))}
+                <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                  {summary ? getAppealTypeLabel(summary.appealType) : 'Quick scan'}
+                </span>
+                <span className={`rounded-full px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] ${
+                  isInCompare
+                    ? 'border border-t-magenta/20 bg-white/75 text-t-dark-gray'
+                    : 'border border-t-light-gray bg-surface text-t-muted'
+                }`}>
+                  {isInCompare ? 'In compare' : 'Quick brief'}
+                </span>
               </div>
             </button>
           );
         })}
       </div>
+
+      {overflowDevices.length > 0 ? (
+        <div className="rounded-[1.5rem] glass-reading p-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">More options</p>
+              <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                These lineup picks stay visible in the hero. Swap one into the active compare set when you want a different tradeoff.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {overflowDevices.map((device) => (
+                <button
+                  key={device.name}
+                  type="button"
+                  onClick={() => onSwapCompareDevice?.(device)}
+                  className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-2 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:border-t-magenta/30 hover:text-t-magenta"
+                >
+                  Use {device.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
+  );
+}
+
+interface DeviceQuickBriefSheetProps {
+  device: Device | null;
+  open: boolean;
+  weeklyData: WeeklyUpdate | null;
+  ecosystemMatrix?: EcosystemMatrix | null;
+  onClose: () => void;
+}
+
+export function DeviceQuickBriefSheet({
+  device,
+  open,
+  weeklyData,
+  ecosystemMatrix,
+  onClose,
+}: DeviceQuickBriefSheetProps) {
+  const [showDeals, setShowDeals] = useState(false);
+  const [showCoaching, setShowCoaching] = useState(false);
+  const summary = useMemo(
+    () => device ? getDevicePositioningSummary(device, weeklyData, ecosystemMatrix) : null,
+    [device, weeklyData, ecosystemMatrix]
+  );
+
+  useEffect(() => {
+    if (open) {
+      setShowDeals(false);
+      setShowCoaching(false);
+    }
+  }, [device?.name, open]);
+
+  if (!device || !summary) return null;
+
+  const featureBriefs = buildFeatureBriefs(device, summary).slice(0, 4);
+  const weeklyPromos = weeklyData?.currentPromos.filter((promo) =>
+    promo.name.toLowerCase().includes(device.name.toLowerCase().split(' ')[0]) ||
+    promo.details.toLowerCase().includes(device.name.toLowerCase().split(' ')[0])
+  ) ?? [];
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-[3px] sm:items-center sm:p-6"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-t-[2rem] glass-elevated sm:rounded-[2rem]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${device.name} quick brief`}
+          >
+            <div className="mx-auto mt-3 h-1.5 w-14 rounded-full bg-white/35 sm:hidden" />
+            <div className="flex max-h-[90vh] flex-col overflow-hidden">
+              <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Quick brief</p>
+                  <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">{device.name}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="focus-ring rounded-full border border-t-light-gray bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="overflow-y-auto px-4 pb-5 pt-4 sm:px-6">
+                <div className="rounded-[1.75rem] glass-reading p-4 sm:p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                    <DeviceImageSlot
+                      device={device}
+                      className="h-32 w-32 shrink-0 rounded-[1.75rem] border border-white/45 bg-white/94 p-4 shadow-sm sm:h-36 sm:w-36"
+                      imageClassName="h-full w-full object-contain"
+                      showBadge={false}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                          {getAppealTypeLabel(summary.appealType)}
+                        </span>
+                        <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                          Released {device.released}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-lg font-black text-t-magenta">{formatDevicePrice(device)}</p>
+                      <p className="mt-2 text-[13px] font-semibold leading-relaxed text-foreground">{summary.shortHook}</p>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {summary.bestFit.slice(0, 2).map((fit) => (
+                          <span
+                            key={fit}
+                            className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta"
+                          >
+                            {fit}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="mt-3 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                        Listen for: {summary.listenFor[0] || 'customers who want the short version and a cleaner story.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {featureBriefs.map((brief) => (
+                    <div key={`${device.name}-${brief.feature}`} className="rounded-[1.5rem] glass-reading p-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{brief.feature}</p>
+                      <p className="mt-2 text-[12px] font-bold leading-relaxed text-t-dark-gray">{brief.benefit}</p>
+                      <p className="mt-3 text-[9px] font-black uppercase tracking-[0.18em] text-t-muted">Use this for</p>
+                      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{brief.useCase}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 rounded-[1.5rem] bg-t-dark-gray p-4 text-white shadow-lg shadow-black/15">
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">How to say it</p>
+                  <p className="mt-2 text-[13px] font-bold leading-relaxed">{summary.sayThis}</p>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeals((current) => !current)}
+                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading px-4 py-3 text-left"
+                    aria-expanded={showDeals}
+                  >
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Deals this week</p>
+                      <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                        {weeklyPromos.length > 0 ? `${weeklyPromos.length} weekly promo matches for this device.` : 'No device-specific weekly deals surfaced right now.'}
+                      </p>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 shrink-0 text-t-muted transition-transform ${showDeals ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showDeals && weeklyPromos.length > 0 ? (
+                    <div className="space-y-2 rounded-[1.5rem] border border-success-border bg-success-surface p-4">
+                      {weeklyPromos.map((promo) => (
+                        <div key={promo.name} className="rounded-xl border border-success-border/60 bg-surface-elevated/80 p-3">
+                          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-success-foreground">{promo.name}</p>
+                          <p className="mt-1 text-[11px] font-medium leading-relaxed text-success-foreground">{promo.details}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowCoaching((current) => !current)}
+                    className="focus-ring flex w-full items-center justify-between rounded-[1.5rem] glass-reading px-4 py-3 text-left"
+                    aria-expanded={showCoaching}
+                  >
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Need another angle?</p>
+                      <p className="mt-1 text-[11px] font-medium text-t-dark-gray">
+                        Open the deeper coaching only if the caller wants more proof or another position.
+                      </p>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 shrink-0 text-t-muted transition-transform ${showCoaching ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showCoaching ? (
+                    <div className="grid gap-3 pb-2 sm:grid-cols-2">
+                      <div className="rounded-[1.5rem] border border-info-border bg-info-surface p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-info-foreground">Primary angle</p>
+                        <p className="mt-2 text-[12px] font-bold text-info-foreground">{summary.primaryAngle.title}</p>
+                        <p className="mt-2 text-[11px] font-medium leading-relaxed text-info-foreground">{summary.primaryAngle.proof}</p>
+                      </div>
+                      <div className="rounded-[1.5rem] border border-t-light-gray/60 bg-surface p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Listen for</p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {summary.listenFor.slice(0, 4).map((cue) => (
+                            <span
+                              key={cue}
+                              className="rounded-full border border-t-light-gray bg-surface-elevated px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
+                            >
+                              {cue}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="mt-3 text-[11px] font-medium leading-relaxed text-t-dark-gray">{summary.avoidIf}</p>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
 
@@ -558,25 +1166,47 @@ export function DeviceComparison({
   devices,
   weeklyData,
   ecosystemMatrix,
+  activeIndex,
+  onActiveIndexChange,
 }: {
   devices: Device[];
   weeklyData: WeeklyUpdate | null;
   ecosystemMatrix?: EcosystemMatrix | null;
+  activeIndex: number;
+  onActiveIndexChange: (index: number) => void;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [showDifferencesOnly, setShowDifferencesOnly] = useState(true);
+  const [mobileChallengerIndex, setMobileChallengerIndex] = useState(1);
   const summaries = useMemo(
     () => devices.map(device => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)),
     [devices, weeklyData, ecosystemMatrix]
   );
-  const activeDevice = devices[Math.min(activeIndex, devices.length - 1)];
-  const activeSummary = summaries[Math.min(activeIndex, summaries.length - 1)];
+  const clampedActiveIndex = Math.min(activeIndex, Math.max(devices.length - 1, 0));
+  const activeDevice = devices[clampedActiveIndex];
+  const activeSummary = summaries[Math.min(clampedActiveIndex, summaries.length - 1)];
+
+  useEffect(() => {
+    if (devices.length <= 1) {
+      setMobileChallengerIndex(0);
+      return;
+    }
+
+    if (mobileChallengerIndex === clampedActiveIndex || mobileChallengerIndex >= devices.length) {
+      setMobileChallengerIndex(clampedActiveIndex === 0 ? 1 : 0);
+    }
+  }, [clampedActiveIndex, devices.length, mobileChallengerIndex]);
 
   if (devices.length === 0) return null;
 
   if (devices.length === 1) {
     return <DeviceDetail device={devices[0]} weeklyData={weeklyData} ecosystemMatrix={ecosystemMatrix} />;
   }
+
+  const challengerIndex = mobileChallengerIndex === clampedActiveIndex || mobileChallengerIndex >= devices.length
+    ? (clampedActiveIndex === 0 ? 1 : 0)
+    : mobileChallengerIndex;
+  const challengerDevice = devices[challengerIndex];
+  const challengerSummary = summaries[challengerIndex];
 
   const compareRows = [
     {
@@ -605,6 +1235,29 @@ export function DeviceComparison({
     ? compareRows.filter((row) => new Set(row.values).size > 1)
     : compareRows;
 
+  const mobileCompareRows = [
+    {
+      label: 'Price',
+      activeValue: typeof activeDevice.startingPrice === 'number' ? `$${activeDevice.startingPrice}` : String(activeDevice.startingPrice),
+      challengerValue: typeof challengerDevice.startingPrice === 'number' ? `$${challengerDevice.startingPrice}` : String(challengerDevice.startingPrice),
+    },
+    {
+      label: 'Best For',
+      activeValue: activeSummary.bestFit.slice(0, 2).join(', '),
+      challengerValue: challengerSummary.bestFit.slice(0, 2).join(', '),
+    },
+    {
+      label: 'Lead With',
+      activeValue: activeSummary.primaryAngle.title,
+      challengerValue: challengerSummary.primaryAngle.title,
+    },
+    {
+      label: 'Proof Point',
+      activeValue: activeSummary.primaryAngle.proof,
+      challengerValue: challengerSummary.primaryAngle.proof,
+    },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -620,7 +1273,7 @@ export function DeviceComparison({
           <button
             type="button"
             onClick={() => setShowDifferencesOnly((current) => !current)}
-            className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
+            className={`focus-ring hidden rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors md:inline-flex ${
               showDifferencesOnly ? 'bg-white text-t-dark-gray' : 'bg-white/10 text-white'
             }`}
           >
@@ -632,9 +1285,9 @@ export function DeviceComparison({
             <button
               type="button"
               key={device.name}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => onActiveIndexChange(index)}
               className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
-                activeIndex === index ? 'bg-t-magenta text-white' : 'bg-white/10 text-white/75'
+                clampedActiveIndex === index ? 'bg-t-magenta text-white' : 'bg-white/10 text-white/75'
               }`}
             >
               {device.name}
@@ -643,9 +1296,112 @@ export function DeviceComparison({
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+      <div className="space-y-4 md:hidden">
+        <motion.div
+          key={`${activeDevice.name}-${challengerDevice.name}`}
+          initial={{ opacity: 0, y: 10, scale: 0.992 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/10 via-surface to-white/90 p-4 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Current best fit</p>
+              <h3 className="mt-1 text-lg font-black tracking-tight text-t-dark-gray">{activeDevice.name}</h3>
+              <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{activeSummary.shortHook}</p>
+            </div>
+            <DeviceImageSlot
+              device={activeDevice}
+              className="h-20 w-20 shrink-0 rounded-[1.25rem] border border-t-light-gray/60 bg-white/85 p-2.5"
+              imageClassName="h-full w-full object-contain"
+            />
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            <ScoutPanel label="Best Customer" value={activeSummary.bestFit[0] || 'General fit'} tone="magenta" />
+            <ScoutPanel label="Why It Wins" value={activeSummary.primaryAngle.proof} tone="neutral" />
+            <ScoutPanel label="Quick Pitch" value={activeSummary.sayThis} tone="success" />
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl border border-t-light-gray/50 bg-white/80 px-3 py-2">
+            <button
+              type="button"
+              onClick={() => onActiveIndexChange(clampedActiveIndex === 0 ? devices.length - 1 : clampedActiveIndex - 1)}
+              className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Prev
+            </button>
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">
+              {clampedActiveIndex + 1} of {devices.length}
+            </p>
+            <button
+              type="button"
+              onClick={() => onActiveIndexChange((clampedActiveIndex + 1) % devices.length)}
+              className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+            >
+              Next
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
+        </motion.div>
+
+        <div className="rounded-2xl glass-card p-4">
+          <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Compare against</p>
+          <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+            Pick the challenger you want the winner to beat, then scan the four rows below.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {devices.filter((_, index) => index !== clampedActiveIndex).map((device, index) => {
+              const trueIndex = devices.findIndex((item) => item.name === device.name);
+              const isSelected = trueIndex === challengerIndex;
+
+              return (
+                <button
+                  key={`${device.name}-${index}`}
+                  type="button"
+                  onClick={() => setMobileChallengerIndex(trueIndex)}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider ${
+                    isSelected
+                      ? 'bg-t-magenta text-white'
+                      : 'border border-t-light-gray bg-surface text-t-dark-gray'
+                  }`}
+                >
+                  {device.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {mobileCompareRows.map((row) => (
+            <div key={`${activeDevice.name}-${challengerDevice.name}-${row.label}`} className="rounded-2xl border border-t-light-gray/60 bg-surface/85 p-4">
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{row.label}</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-t-magenta/20 bg-t-magenta/8 p-3">
+                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{activeDevice.name}</p>
+                  <p className="mt-2 text-[11px] font-bold leading-relaxed text-t-dark-gray">{row.activeValue}</p>
+                </div>
+                <div className="rounded-2xl border border-t-light-gray bg-surface-elevated p-3">
+                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-muted">{challengerDevice.name}</p>
+                  <p className="mt-2 text-[11px] font-bold leading-relaxed text-t-dark-gray">{row.challengerValue}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="hidden gap-4 md:grid xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div className="space-y-4">
-          <div className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/10 via-surface to-white/90 p-4 shadow-sm">
+          <motion.div
+            key={activeDevice.name}
+            initial={{ opacity: 0, y: 10, scale: 0.992 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="rounded-3xl border border-t-magenta/20 bg-gradient-to-br from-t-magenta/10 via-surface to-white/90 p-4 shadow-sm"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Current best fit</p>
@@ -683,25 +1439,25 @@ export function DeviceComparison({
             <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl border border-t-light-gray/50 bg-white/80 px-3 py-2">
               <button
                 type="button"
-                onClick={() => setActiveIndex((current) => (current === 0 ? devices.length - 1 : current - 1))}
+                onClick={() => onActiveIndexChange(clampedActiveIndex === 0 ? devices.length - 1 : clampedActiveIndex - 1)}
                 className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Prev
               </button>
               <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">
-                {activeIndex + 1} of {devices.length}
+                {clampedActiveIndex + 1} of {devices.length}
               </p>
               <button
                 type="button"
-                onClick={() => setActiveIndex((current) => (current + 1) % devices.length)}
+                onClick={() => onActiveIndexChange((clampedActiveIndex + 1) % devices.length)}
                 className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
               >
                 Next
                 <ArrowRight className="h-3 w-3" />
               </button>
             </div>
-          </div>
+          </motion.div>
 
           <div className="rounded-2xl glass-card overflow-hidden">
             <div className="border-b border-t-light-gray/50 px-4 py-3">
@@ -716,7 +1472,7 @@ export function DeviceComparison({
                   <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">{row.label}</p>
                   {row.values.map((value, index) => (
                     <div key={`${row.label}-${devices[index].name}`} className={`rounded-xl px-3 py-2 text-[11px] font-medium leading-relaxed ${
-                      index === activeIndex ? 'bg-t-magenta/8 text-t-dark-gray ring-1 ring-t-magenta/20' : 'bg-surface-elevated text-t-dark-gray'
+                      index === clampedActiveIndex ? 'bg-t-magenta/8 text-t-dark-gray ring-1 ring-t-magenta/20' : 'bg-surface-elevated text-t-dark-gray'
                     }`}>
                       <p className="mb-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">{devices[index].name}</p>
                       {value}
@@ -991,7 +1747,7 @@ function DeviceImageSlot({
 }) {
   const badge = getManufacturerBadge(device.name);
   const fallbackSources = useMemo(
-    () => [device.imageUrl, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
+    () => [device.imageUrl, PRODUCT_IMAGE_FALLBACK, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
     [badge.fallbackAssetPath, device.imageUrl]
   );
   const [fallbackIndex, setFallbackIndex] = useState(0);
@@ -1010,7 +1766,7 @@ function DeviceImageSlot({
         <img
           src={currentSource}
           alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
-          className={`${imageClassName} ${isPrimaryImage ? '' : 'opacity-80 saturate-75'}`}
+          className={imageClassName}
           loading="lazy"
           width={160}
           height={160}

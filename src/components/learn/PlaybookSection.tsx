@@ -8,6 +8,7 @@ import {
   SERVICE_TO_SALES,
   TRANSITIONS,
 } from '../../data/salesMethodology';
+import LearnSectionHeader from './LearnSectionHeader';
 
 type PlaybookMoment = 'discovery' | 'objections' | 'close' | 'rapport' | 'pivots';
 
@@ -24,30 +25,13 @@ export default function PlaybookSection() {
 
   return (
     <div className="space-y-5">
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
-        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <BookOpen className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
-        </div>
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
-            <Target className="w-3 h-3 text-white" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Sales Playbook</p>
-          </div>
-          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">Use it by call moment</h3>
-          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            This should feel like a tactical picker, not a giant script library. Start with the moment you are in, take one clean line, then get back to the call.
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-info-border bg-info-surface p-4">
-        <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-info-foreground">Fast rule</p>
-        <div className="space-y-1.5 text-[11px] font-medium text-info-foreground">
-          <p><span className="font-black">1.</span> Lead with fit, not product dumping.</p>
-          <p><span className="font-black">2.</span> Use one proof point, then stop.</p>
-          <p><span className="font-black">3.</span> Only open the deeper lane if the call still needs it.</p>
-        </div>
-      </div>
+      <LearnSectionHeader
+        eyebrow="Sales Playbook"
+        title="Use it by call moment"
+        description="Treat this like a tactical picker, not a script library. Take one clean line for the moment you are in, then get back to the call."
+        icon={<BookOpen className="h-4 w-4" />}
+        chips={['Discovery first', 'One proof point', 'Stop talking sooner']}
+      />
 
       <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
         {MOMENTS.map((moment) => {

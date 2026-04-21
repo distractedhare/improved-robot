@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, ChevronUp, Wifi, Satellite, ShieldCheck, Globe, Tv, Plane, Gift, Zap } from 'lucide-react';
+import { ChevronDown, ChevronUp, Wifi, Satellite, ShieldCheck, Globe, Tv, Plane, Gift } from 'lucide-react';
 import { DIFFERENTIATORS } from '../../data/differentiators';
+import LearnSectionHeader from './LearnSectionHeader';
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Network: <Wifi className="w-4 h-4" />,
@@ -18,112 +19,71 @@ export default function EdgeSection() {
 
   return (
     <div className="space-y-5">
-      {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
-        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <ShieldCheck className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
-        </div>
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
-            <Zap className="w-3 h-3 text-white" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Your Edge</p>
-          </div>
-          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">The T-Mobile Edge</h3>
-          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            What makes T-Mobile different, and how to explain it quickly when a customer asks why we win.
-          </p>
-          <div className="flex flex-wrap gap-2.5 mt-6">
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Wifi className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">5G Network</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Globe className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Global</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Tv className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Streaming</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Use this section</p>
-        <div className="mt-2 grid gap-2 md:grid-cols-3">
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Story first</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Lead with one clean T-Mobile advantage before you mention any competitor weakness.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Proof second</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use one detail to back up the story only if the caller asks why it matters.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Compare last</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Open the competitor comparison only when the caller explicitly wants the side-by-side.</p>
-          </div>
-        </div>
-      </div>
+      <LearnSectionHeader
+        eyebrow="Your Edge"
+        title="The T-Mobile Edge"
+        description="Lead with one clean T-Mobile advantage, use one proof line if they ask why it matters, and only open competitor comparison when the customer wants the side-by-side."
+        icon={<ShieldCheck className="h-4 w-4" />}
+        chips={['Story first', 'Proof second', 'Compare last']}
+      />
 
       <div className="space-y-3">
         {DIFFERENTIATORS.map((diff) => (
-        <div key={diff.category} className="rounded-2xl border-2 border-t-light-gray overflow-hidden bg-surface-elevated">
-          <button
-            type="button"
-            onClick={() => setExpanded(prev => prev === diff.category ? null : diff.category)}
-            aria-expanded={expanded === diff.category}
-            className="focus-ring w-full flex items-center gap-3 p-4 text-left group"
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              expanded === diff.category ? 'bg-t-magenta text-white' : 'bg-t-magenta/10 text-t-magenta group-hover:bg-t-magenta/20'
-            }`}>
-              {CATEGORY_ICONS[diff.category] || <ShieldCheck className="w-4 h-4" />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-black uppercase tracking-tight">{diff.category}</p>
-              <p className="line-clamp-2 text-[11px] font-medium text-t-dark-gray">{diff.headline}</p>
-            </div>
-            {expanded === diff.category ? (
-              <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-t-muted shrink-0" />
-            )}
-          </button>
+          <div key={diff.category} className="rounded-2xl border-2 border-t-light-gray overflow-hidden bg-surface-elevated">
+            <button
+              type="button"
+              onClick={() => setExpanded((prev) => prev === diff.category ? null : diff.category)}
+              aria-expanded={expanded === diff.category}
+              className="focus-ring w-full flex items-center gap-3 p-4 text-left group"
+            >
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                expanded === diff.category ? 'bg-t-magenta text-white' : 'bg-t-magenta/10 text-t-magenta group-hover:bg-t-magenta/20'
+              }`}>
+                {CATEGORY_ICONS[diff.category] || <ShieldCheck className="w-4 h-4" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-black uppercase tracking-tight">{diff.category}</p>
+                <p className="line-clamp-2 text-[11px] font-medium text-t-dark-gray">{diff.headline}</p>
+              </div>
+              {expanded === diff.category ? (
+                <ChevronUp className="w-4 h-4 text-t-muted shrink-0" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-t-muted shrink-0" />
+              )}
+            </button>
 
-          <AnimatePresence>
-            {expanded === diff.category && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <div className="px-4 pb-4 space-y-3">
-                  <ul className="space-y-1.5">
-                    {diff.details.map((detail, i) => (
-                      <li key={i} className="text-xs text-t-dark-gray font-medium flex gap-2">
-                        <span className="text-t-magenta/50 shrink-0">&bull;</span>
-                        <span>{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
+            <AnimatePresence>
+              {expanded === diff.category && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 space-y-3">
+                    <ul className="space-y-1.5">
+                      {diff.details.map((detail, i) => (
+                        <li key={i} className="text-xs text-t-dark-gray font-medium flex gap-2">
+                          <span className="text-t-magenta/50 shrink-0">&bull;</span>
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  {diff.competitorComparison && (
-                    <div className="p-3 rounded-xl bg-t-berry/10 border border-t-berry/20">
-                      <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-t-berry">vs. The competition</p>
-                      <p className="text-[11px] text-t-dark-gray font-medium">{diff.competitorComparison}</p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      ))}
-    </div>
+                    {diff.competitorComparison && (
+                      <div className="p-3 rounded-xl bg-t-berry/10 border border-t-berry/20">
+                        <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-t-berry">vs. The competition</p>
+                        <p className="text-[11px] text-t-dark-gray font-medium">{diff.competitorComparison}</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

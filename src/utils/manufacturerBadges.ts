@@ -9,6 +9,7 @@ export interface ManufacturerBadge {
   assetClassName?: string;
 }
 
+export const PRODUCT_IMAGE_FALLBACK = '/images/ui/product-fallback.png';
 export const COMPANY_LOGO_FALLBACK = '/images/ui/product-card-fallback.svg';
 
 const MANUFACTURER_BADGES: Record<ManufacturerKind, ManufacturerBadge> = {

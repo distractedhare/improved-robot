@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet, Sparkles } from 'lucide-react';
+import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS, RETIRED_PLANS } from '../../data/plans';
+import LearnSectionHeader from './LearnSectionHeader';
 
 type Section = 'phone' | 'connected' | 'specialized' | 'why-premium';
 
@@ -91,58 +92,16 @@ export default function PlansSection() {
 
   return (
     <div className="space-y-5">
-      {/* Hero banner */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-5 shadow-xl shadow-t-magenta/20 sm:p-6 md:p-8">
-        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <Crown className="h-40 w-40 -mt-4 -mr-4 text-white md:h-52 md:w-52 md:-mt-6 md:-mr-6 lg:h-64 lg:w-64 lg:-mt-10 lg:-mr-10" />
-        </div>
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
-            <Sparkles className="w-3 h-3 text-white" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Product Knowledge</p>
-          </div>
-          <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">Plans Breakdown</h3>
-          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
-            Know the tiers, know the value, and know <span className="text-white font-black underline decoration-white/40 underline-offset-4">why</span> premium plans are better for both the customer and you.
-            The goal is a cleaner recommendation, happier customers, and stronger metrics.
-          </p>
-          <div className="flex flex-wrap gap-2.5 mt-6">
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Smartphone className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Watch className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
-              <Star className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
-        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Use this fast</p>
-        <div className="mt-2 grid gap-2 md:grid-cols-3">
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Best For</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Lead with the fit first so the plan recommendation feels obvious, not scripted.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Do Not Lead With</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use Essentials as a save, not your first move, unless budget is clearly the blocker.</p>
-          </div>
-          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">How To Say It</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">Use one reason, one proof point, then stop talking and let the caller react.</p>
-          </div>
-        </div>
-      </div>
+      <LearnSectionHeader
+        eyebrow="Plan Positioning"
+        title="Plans Breakdown"
+        description="Lead with fit, use one proof point, and only fall to Essentials when budget is the real blocker. The premium story should feel obvious, not rehearsed."
+        icon={<Crown className="h-4 w-4" />}
+        chips={['5 phone plans', 'Connected lines', '3rd line free']}
+      />
 
       {/* Quick facts */}
-      <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
+      <div className="rounded-2xl border-2 border-info-border bg-info-surface p-4">
         <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
           <Zap className="w-3 h-3" /> Why premium wins
         </p>
