@@ -2,7 +2,7 @@ import { useState, useMemo, useDeferredValue, useEffect, type ReactNode } from '
 import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, ChevronDown, ArrowRightLeft, Lightbulb, ArrowLeft, ArrowRight, PanelTopOpen, Star, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } from '../data/devices';
-import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
+import { Promo, WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/positioningService';
 import DeviceImage from './DeviceImage';
@@ -43,6 +43,79 @@ interface DeviceLookupProps {
 type DeviceLookupSort = 'name' | 'price' | 'newest';
 
 const ALL_DEVICES: Device[] = [...PHONES, ...TABLETS, ...WATCHES, ...HOTSPOTS];
+
+function normalizePromoText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9+]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function containsWholeAlias(haystack: string, needle: string): boolean {
+  if (!haystack || !needle) return false;
+  return ` ${haystack} `.includes(` ${needle} `);
+}
+
+function getPromoAliases(device: Device): string[] {
+  const normalizedName = normalizePromoText(device.name);
+  const aliases = new Set<string>([normalizedName]);
+
+  if (normalizedName.startsWith('samsung galaxy ')) {
+    aliases.add(normalizedName.slice('samsung galaxy '.length));
+  } else if (normalizedName.startsWith('galaxy ')) {
+    aliases.add(normalizedName.slice('galaxy '.length));
+  }
+
+  return [...aliases].filter((alias) => alias.length > 0);
+}
+
+function getPromoMatchScore(searchText: string, device: Device): number {
+  const normalizedText = normalizePromoText(searchText);
+  let bestScore = 0;
+
+  getPromoAliases(device).forEach((alias) => {
+    if (!containsWholeAlias(normalizedText, alias)) return;
+    bestScore = Math.max(bestScore, alias.split(' ').length);
+  });
+
+  return bestScore;
+}
+
+function getPromoBestMatches(promo: Promo, devicePool: Device[]): Device[] {
+  const searchCandidates = [promo.name, `${promo.name} ${promo.details}`];
+  let bestScore = 0;
+  let bestMatches: Device[] = [];
+
+  searchCandidates.forEach((searchText, index) => {
+    if (bestScore > 0 && index > 0) return;
+
+    const scoredMatches = devicePool
+      .map((device) => ({ device, score: getPromoMatchScore(searchText, device) }))
+      .filter((match) => match.score > 0);
+
+    if (scoredMatches.length === 0) return;
+
+    const maxScore = Math.max(...scoredMatches.map((match) => match.score));
+    bestScore = maxScore;
+    bestMatches = scoredMatches
+      .filter((match) => match.score === maxScore)
+      .map((match) => match.device);
+  });
+
+  return bestMatches;
+}
+
+function findPromoForDevice(promos: Promo[], device: Device, devicePool: Device[]): Promo | null {
+  for (const promo of promos) {
+    const matchedDevices = getPromoBestMatches(promo, devicePool);
+    if (matchedDevices.some((matchedDevice) => matchedDevice.name === device.name)) {
+      return promo;
+    }
+  }
+
+  return null;
+}
 
 // --- Phone presets ---
 export const FLAGSHIP_PHONES: string[] = ['iPhone 17 Pro Max', 'Galaxy S26 Ultra', 'Pixel 10 Pro XL'];
@@ -333,13 +406,13 @@ function buildFeatureBriefs(device: Device, summary: ReturnType<typeof getDevice
   return briefs.slice(0, 5);
 }
 
-type LineupRole = {
+export type LineupRole = {
   name: string;
   label: string;
   helper: string;
 };
 
-function buildLineupRoles(
+export function buildLineupRoles(
   devices: Device[],
   summaries: Map<string, ReturnType<typeof getDevicePositioningSummary>>
 ): LineupRole[] {
@@ -369,7 +442,7 @@ function buildLineupRoles(
   return [{ name: ranked[0].name, label: 'Current focus', helper: 'quick brief' }];
 }
 
-function buildLineupNarrative(roles: LineupRole[]) {
+export function buildLineupNarrative(roles: LineupRole[]) {
   if (roles.length >= 3) {
     return 'Start with the premium want, use the balance option to anchor the story, and keep the safer budget option ready if qualification gets tight.';
   }
@@ -1191,6 +1264,7 @@ export function DeviceComparison({
 }) {
   const [showDifferencesOnly, setShowDifferencesOnly] = useState(true);
   const [mobileChallengerIndex, setMobileChallengerIndex] = useState(1);
+  const [compareView, setCompareView] = useState<'rep' | 'full'>('rep');
   const summaries = useMemo(
     () => devices.map(device => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)),
     [devices, weeklyData, ecosystemMatrix]
@@ -1243,11 +1317,18 @@ export function DeviceComparison({
       label: 'Released',
       values: devices.map(d => d.released),
     },
+    {
+      label: 'Core Specs',
+      values: devices.map(d => d.keySpecs),
+    },
   ];
 
-  const filteredRows = showDifferencesOnly
-    ? compareRows.filter((row) => new Set(row.values).size > 1)
-    : compareRows;
+  const repQuickRows = new Set(['Price', 'Best For', 'Lead With', 'Proof Point']);
+  const filteredRows = compareRows.filter((row) => {
+    if (compareView === 'rep' && !repQuickRows.has(row.label)) return false;
+    if (!showDifferencesOnly) return true;
+    return new Set(row.values).size > 1;
+  });
 
   const mobileCompareRows = [
     {
@@ -1271,6 +1352,9 @@ export function DeviceComparison({
       challengerValue: challengerSummary.primaryAngle.proof,
     },
   ];
+  const activePromo = weeklyData
+    ? findPromoForDevice(weeklyData.currentPromos, activeDevice, ALL_DEVICES)
+    : null;
 
   return (
     <motion.div
@@ -1295,6 +1379,24 @@ export function DeviceComparison({
           </button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setCompareView('rep')}
+            className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
+              compareView === 'rep' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+            }`}
+          >
+            Rep quick compare
+          </button>
+          <button
+            type="button"
+            onClick={() => setCompareView('full')}
+            className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
+              compareView === 'full' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+            }`}
+          >
+            Full detail
+          </button>
           {devices.map((device, index) => (
             <button
               type="button"
@@ -1309,6 +1411,71 @@ export function DeviceComparison({
           ))}
         </div>
       </div>
+
+      <div className="sticky top-2 z-20 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl dark:bg-[#0f0f10]/90">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {devices.map((device, index) => {
+            const isActive = index === clampedActiveIndex;
+            return (
+              <button
+                key={`${device.name}-sticky-identity`}
+                type="button"
+                onClick={() => onActiveIndexChange(index)}
+                className={`focus-ring min-w-[164px] rounded-2xl border p-2 text-left transition-colors ${
+                  isActive
+                    ? 'border-t-magenta/30 bg-t-magenta/10'
+                    : 'border-t-light-gray/70 bg-surface-elevated/85 hover:border-t-magenta/20'
+                }`}
+              >
+                <p className="truncate text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{device.name}</p>
+                <p className="mt-1 text-[11px] font-bold text-t-dark-gray">
+                  {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : String(device.startingPrice)}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <motion.div
+        key={`${activeDevice.name}-hero-focus`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="rounded-3xl glass-stage-quiet p-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Hero focus card</p>
+            <h3 className="mt-1 text-lg font-black tracking-tight text-t-dark-gray">{activeDevice.name}</h3>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{activeSummary.sayThis}</p>
+          </div>
+          <DeviceImageSlot
+            device={activeDevice}
+            className="h-16 w-16 shrink-0 rounded-[1.15rem] border border-t-light-gray/60 bg-white/85 p-2.5"
+            imageClassName="h-full w-full object-contain"
+            badgeSize="sm"
+          />
+        </div>
+        <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <div className="rounded-2xl glass-reading p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Core specs</p>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{activeDevice.keySpecs}</p>
+          </div>
+          <div className="rounded-2xl glass-reading p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Primary angle</p>
+            <p className="mt-1 text-[11px] font-black text-t-dark-gray">{activeSummary.primaryAngle.title}</p>
+            <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{activeSummary.primaryAngle.proof}</p>
+          </div>
+        </div>
+        {activePromo ? (
+          <div className="mt-3 rounded-2xl border border-success-border bg-success-surface p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-success-foreground">This week on this model</p>
+            <p className="mt-1 text-[11px] font-black text-success-foreground">{activePromo.name}</p>
+            <p className="mt-1 text-[10px] font-medium leading-relaxed text-success-foreground/80">{activePromo.details}</p>
+          </div>
+        ) : null}
+      </motion.div>
 
       <div className="space-y-4 md:hidden">
         <motion.div

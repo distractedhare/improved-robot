@@ -32,6 +32,8 @@ import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
 import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
 import InstantPlays from './components/InstantPlays';
 import SessionStats from './components/SessionStats';
+import PwaUpdater from './components/PwaUpdater';
+import { refreshPwaApp } from './services/pwaRefreshService';
 
 const LearnView = lazy(() => import('./components/learn/LearnView'));
 const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
@@ -53,7 +55,7 @@ function LazySectionFallback({ label }: { label: string }) {
           <div className="h-28 rounded-xl bg-t-light-gray/70" />
         </div>
       </div>
-      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-t-dark-gray">
+      <p className="type-kicker mt-4 text-t-dark-gray">
         Loading {label}
       </p>
     </div>
@@ -76,12 +78,12 @@ function TabErrorFallback({
           <XCircle className="h-5 w-5 text-t-magenta" />
         </div>
         <div className="flex-1">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
+          <p className="type-kicker text-t-magenta">{title}</p>
           <p className="mt-1 text-sm font-medium leading-relaxed text-t-dark-gray">{message}</p>
           <button
             type="button"
             onClick={onRetry}
-            className="focus-ring cta-primary mt-4 inline-flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.01] active:scale-95"
+            className="focus-ring cta-primary mt-4 inline-flex min-h-[44px] items-center rounded-xl px-4 py-2.5 text-sm font-black tracking-tight text-white transition-transform hover:scale-[1.01] active:scale-95"
             style={{ touchAction: 'manipulation' }}
           >
             Retry
@@ -116,8 +118,8 @@ function StatusPill({
 
   return (
     <div className={`rounded-full px-3 py-2 ${toneClass}`}>
-      <p className="text-[9px] font-black uppercase tracking-[0.16em]">{label}</p>
-      <p className="mt-0.5 text-[11px] font-bold leading-none">{value}</p>
+      <p className="type-micro">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold leading-none">{value}</p>
     </div>
   );
 }
@@ -561,31 +563,11 @@ export default function App() {
     if (refreshingApp) return;
     setRefreshingApp(true);
 
-    try {
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(registrations.map((registration) => registration.update().catch(() => undefined)));
-
-        for (const registration of registrations) {
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-        }
-      }
-
-      if (navigator.onLine && 'caches' in window) {
-        const cacheKeys = await caches.keys();
-        await Promise.all(
-          cacheKeys
-            .filter((key) => key.startsWith('customerconnect-'))
-            .map((key) => caches.delete(key))
-        );
-      }
-    } catch (err) {
-      logDevWarning('App refresh encountered an issue, falling back to a normal reload.', err);
-    }
-
-    window.location.reload();
+    await refreshPwaApp({
+      onWarning: (err) => {
+        logDevWarning('App refresh encountered an issue, falling back to a normal reload.', err);
+      },
+    });
   }, [refreshingApp]);
 
   const INTENTS = [
@@ -614,12 +596,6 @@ export default function App() {
     : context.hintAvailable
       ? 'HINT Available'
       : 'HINT Full';
-  const freshnessLabel = weeklyLoaded && weeklyData
-    ? isDataExpired
-      ? `Update Due • ${weeklyData.metadata.validUntil}`
-      : `Fresh Until • ${weeklyData.metadata.validUntil}`
-    : 'Briefing Warmup';
-
   const handleModeChange = useCallback((nextMode: AppMode) => {
     if (nextMode !== 'live') {
       cancelInFlightRequests();
@@ -639,18 +615,17 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className="relative min-h-screen overflow-x-hidden font-sans text-foreground selection:bg-t-magenta/20">
+      <PwaUpdater />
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
 
       <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6 2xl:max-w-6xl">
         {mode !== 'home' ? (
           <div className="glass-capsule mb-3 flex flex-wrap gap-2 rounded-[1.5rem] p-2.5">
-            <StatusPill tone="warning" label="Shift Only" value="Use During Scheduled Hours" />
             <StatusPill
               tone={isDataExpired ? 'warning' : 'neutral'}
               label="Data"
-              value={freshnessLabel}
+              value={isDataExpired ? 'Update Due' : 'Fresh'}
             />
-            <StatusPill tone="success" label="Privacy" value="No PII" />
             {mode === 'live' ? (
               <>
                 <StatusPill tone="magenta" label="Live" value={livePlanStatus} />
@@ -794,7 +769,7 @@ export default function App() {
             {/* INTENT + PRODUCT SELECTOR */}
             <section className="glass-stage space-y-3 rounded-[1.9rem] p-4">
               <div>
-                <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
+                <label className="type-kicker mb-3 block text-t-dark-gray">
                   Why are they calling?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -806,7 +781,7 @@ export default function App() {
                         type="button"
                         onClick={() => handleIntentSelect(intent.id)}
                         aria-pressed={isActive}
-                        className={`focus-ring flex min-h-[48px] items-center gap-2 rounded-[1rem] px-3 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-wide transition-all ${
+                        className={`focus-ring flex min-h-[48px] items-center gap-2 rounded-[1rem] px-3 py-2.5 text-left text-xs font-extrabold tracking-tight transition-all ${
                           isActive
                             ? 'glass-control-active scale-[1.01]'
                             : 'glass-control text-t-dark-gray hover:text-foreground'
@@ -822,7 +797,7 @@ export default function App() {
 
               {/* Product type — always visible */}
               <div>
-                <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
+                <label className="type-kicker mb-2 block text-t-dark-gray">
                   What product?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -854,7 +829,7 @@ export default function App() {
                           }
                         }}
                         aria-pressed={isSelected}
-                        className={`focus-ring flex min-h-[48px] items-center justify-between rounded-[1rem] px-3 py-2 text-[11px] font-black uppercase transition-all ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
+                        className={`focus-ring flex min-h-[48px] items-center justify-between rounded-[1rem] px-3 py-2 text-xs font-black tracking-tight transition-all ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
                           isSelected
                             ? 'glass-control-active text-white'
                             : 'glass-control text-t-dark-gray hover:text-foreground'
@@ -862,7 +837,7 @@ export default function App() {
                       >
                         <div className="text-left">
                           <span>{p}</span>
-                          <span className={`mt-0.5 block text-[10px] font-medium normal-case ${isSelected ? 'text-white/80' : 'text-t-dark-gray'}`}>
+                          <span className={`mt-0.5 block text-xs font-medium normal-case leading-snug ${isSelected ? 'text-white/80' : 'text-t-dark-gray'}`}>
                             {p === 'BTS' ? 'Tablets, Watches, etc.' :
                              p === 'IOT' ? 'SyncUP Trackers, DRIVE' :
                              p === 'Phone' ? 'Smartphones & Plans' :
@@ -882,7 +857,7 @@ export default function App() {
             <section className="glass-stage-quiet rounded-[1.9rem] p-4 space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-t-dark-gray">
+                  <p className="type-kicker text-t-dark-gray">
                     Where are they calling from?
                   </p>
                   <p className="mt-0.5 text-[11px] font-medium text-t-dark-gray">
@@ -890,10 +865,12 @@ export default function App() {
                   </p>
                 </div>
                 {(context.region !== 'Not Specified' || context.zipCode) && (
-                  <div className="glass-magenta rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-magenta">
+                  <div className="glass-magenta rounded-full px-3 py-1 text-t-magenta">
+                    <span className="type-micro">
                     {context.region !== 'Not Specified'
                       ? `${context.region}${context.state ? ` · ${context.state}` : ''}`
                       : `ZIP ${context.zipCode}`}
+                    </span>
                   </div>
                 )}
               </div>
@@ -921,7 +898,7 @@ export default function App() {
                 className="focus-ring flex w-full items-center justify-between p-4 md:p-5"
               >
                 <div className="text-left">
-                  <span className="block text-[11px] font-black uppercase tracking-[0.14em]" style={{ color: 'var(--text-primary)' }}>
+                  <span className="type-kicker block" style={{ color: 'var(--text-primary)' }}>
                     {contextExpanded ? 'Customer Profile' : 'Sharper Read'}
                   </span>
                   <span style={{ color: 'var(--text-tertiary)' }} className="text-[11px] font-medium">
@@ -962,9 +939,9 @@ export default function App() {
             />
 
             <SessionStats stats={sessionStats} />
-            <p className="flex items-center justify-center gap-1 px-4 text-center text-[10px] font-medium text-t-dark-gray">
+            <p className="flex items-center justify-center gap-1 px-4 text-center text-[11px] font-medium text-t-dark-gray">
               <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
-              <span>CPNI compliant. No PII. Fully offline.</span>
+              <span>Shift-safe, no PII, and fully offline.</span>
             </p>
           </div>
 
@@ -1001,16 +978,18 @@ export default function App() {
                   aria-selected={activeTab === tab.id}
                   aria-controls={`live-panel-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`focus-ring flex-1 min-h-[56px] min-w-[88px] rounded-full px-2.5 py-3 text-center text-[10px] font-black uppercase tracking-wider transition-all sm:text-[11px] md:tracking-widest ${activeTab === tab.id ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'}`}
+                  className={`focus-ring flex-1 min-h-[52px] min-w-[88px] rounded-full px-2.5 py-3 text-center text-xs font-black tracking-tight transition-all sm:text-xs ${activeTab === tab.id ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'}`}
                   style={{ touchAction: 'manipulation' }}
                 >
                   <span className="flex flex-col items-center gap-1 leading-none">
                     <span className="flex items-center justify-center gap-1 md:gap-2">
                       <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
                     </span>
-                    <span className={`text-[9px] font-bold normal-case tracking-normal sm:text-[10px] ${activeTab === tab.id ? 'text-white/80' : 'text-t-muted'}`}>
-                      {tab.helper}
-                    </span>
+                    {activeTab === tab.id ? (
+                      <span className="text-[10px] font-medium normal-case tracking-normal text-white/80 sm:text-[11px]">
+                        {tab.helper}
+                      </span>
+                    ) : null}
                   </span>
                 </button>
               ))}
@@ -1071,9 +1050,9 @@ export default function App() {
 	                    <div className="h-24 rounded-2xl bg-t-light-gray/70" />
 	                    <div className="h-16 rounded-2xl bg-t-light-gray/60" />
 	                  </div>
-	                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
+	                  <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-t-magenta/10 px-3 py-2 text-t-magenta">
 	                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-	                    {activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}
+	                    <span className="type-micro">{activeTab === 'gameplan' ? 'Building local plan first' : 'Working on your response'}</span>
 	                  </div>
 	                </motion.div>
 	              )}
@@ -1126,7 +1105,7 @@ export default function App() {
 
 
       <footer className="relative z-[1] mx-auto mt-10 max-w-5xl space-y-3 px-6 pb-8 pt-6 text-center md:px-10 2xl:max-w-6xl" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] font-semibold text-t-dark-gray">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold text-t-dark-gray">
           {weeklyLoaded && weeklyData ? (
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="w-3 h-3 text-t-magenta/60" />
@@ -1143,16 +1122,16 @@ export default function App() {
             type="button"
             onClick={() => { void handleRefreshApp(); }}
             disabled={refreshingApp}
-            className="focus-ring glass-control inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
+            className="focus-ring glass-control inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black tracking-tight text-t-dark-gray transition-colors hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
           >
             <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-dark-gray/70'}`} />
             {refreshingApp ? 'Refreshing…' : 'Refresh App'}
           </button>
         </div>
-        <p className="text-[10px] font-medium text-t-muted">
+        <p className="text-xs font-medium text-t-muted">
           If the app looks stale, refresh once and let the preview reload.
         </p>
-        <p className="pt-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
+        <p className="pt-2 text-[11px] font-semibold text-t-dark-gray">
           &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
         </p>
       </footer>

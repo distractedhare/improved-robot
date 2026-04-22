@@ -1,4 +1,5 @@
 import express from 'express';
+import { randomUUID } from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -14,14 +15,23 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const appUrl = process.env.APP_URL || 'http://localhost:3000';
+  const appOrigin = new URL(appUrl).origin;
+  const sessionSecret = process.env.SESSION_SECRET;
 
   app.use(express.json());
+
+  if (isProduction && !sessionSecret) {
+    throw new Error('SESSION_SECRET is required in production.');
+  }
+
   app.use(cookieSession({
     name: 'session',
-    keys: [process.env.SESSION_SECRET || 'github-oauth-secret'],
+    keys: [sessionSecret || 'dev-github-oauth-secret'],
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: true,
-    sameSite: 'none',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     httpOnly: true,
   }));
 
@@ -32,23 +42,37 @@ async function startServer() {
       return res.status(500).json({ error: 'GITHUB_CLIENT_ID is not configured' });
     }
 
-    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/github/callback`;
+    const oauthState = randomUUID();
+    req.session = req.session ?? {};
+    req.session.github_oauth_state = oauthState;
+
+    const redirectUri = new URL('/auth/github/callback', appUrl).toString();
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
       scope: 'read:user repo',
-      state: Math.random().toString(36).substring(7),
+      state: oauthState,
     });
 
     res.json({ url: `https://github.com/login/oauth/authorize?${params.toString()}` });
   });
 
   app.get(['/auth/github/callback', '/auth/github/callback/'], async (req, res) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
 
-    if (!code) {
+    if (typeof code !== 'string' || code.length === 0) {
       return res.status(400).send('No code provided');
     }
+
+    const sessionState = req.session?.github_oauth_state;
+    if (typeof state !== 'string' || typeof sessionState !== 'string' || state !== sessionState) {
+      if (req.session) {
+        delete req.session.github_oauth_state;
+      }
+      return res.status(400).send('Invalid or expired OAuth state');
+    }
+
+    delete req.session!.github_oauth_state;
 
     try {
       const response = await axios.post('https://github.com/login/oauth/access_token', {
@@ -70,7 +94,7 @@ async function startServer() {
             <body>
               <script>
                 if (window.opener) {
-                  window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS' }, '*');
+                  window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS' }, ${JSON.stringify(appOrigin)});
                   window.close();
                 } else {
                   window.location.href = '/';

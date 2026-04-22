@@ -35,7 +35,7 @@ export const learnCopy = {
       default: 'Pick devices to compare specs and selling points.',
     },
     starterPrompts: {
-      phones: 'Try "Flagship Showdown" or "Everyday Value" to get started',
+      phones: 'Try "Flagship Showdown" or "Budget Conscious" to get started',
       tablets: 'Try "Flagship Showdown" or "Budget Battle" to get started',
       wearables: 'Try "Flagship Showdown" or filter to Connected',
       default: 'Pick from a quick preset and compare right away',

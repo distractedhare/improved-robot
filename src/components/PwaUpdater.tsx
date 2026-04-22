@@ -1,19 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, RefreshCw, X } from 'lucide-react';
+import { refreshPwaApp } from '../services/pwaRefreshService';
 
 export default function PwaUpdater() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const latestWorkerRef = useRef<ServiceWorker | null>(null);
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
 
     let cancelled = false;
 
+    const showWaitingWorker = (worker: ServiceWorker | null) => {
+      if (!worker) return;
+      if (latestWorkerRef.current !== worker) {
+        latestWorkerRef.current = worker;
+        setDismissed(false);
+      }
+      setWaitingWorker(worker);
+    };
+
     const trackRegistration = (registration: ServiceWorkerRegistration) => {
       if (registration.waiting) {
-        setWaitingWorker(registration.waiting);
+        showWaitingWorker(registration.waiting);
       }
 
       registration.addEventListener('updatefound', () => {
@@ -24,7 +36,7 @@ export default function PwaUpdater() {
             installing.state === 'installed' &&
             navigator.serviceWorker.controller
           ) {
-            setWaitingWorker(installing);
+            showWaitingWorker(installing);
           }
         });
       });
@@ -42,6 +54,7 @@ export default function PwaUpdater() {
 
     const onControllerChange = () => {
       // New SW has taken control — any pending "waiting" state is resolved.
+      latestWorkerRef.current = null;
       setWaitingWorker(null);
     };
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
@@ -53,7 +66,7 @@ export default function PwaUpdater() {
         .then((reg) => {
           if (!reg) return;
           reg.update().catch(() => undefined);
-          if (reg.waiting) setWaitingWorker(reg.waiting);
+          if (reg.waiting) showWaitingWorker(reg.waiting);
         })
         .catch(() => undefined);
     };
@@ -66,15 +79,11 @@ export default function PwaUpdater() {
     };
   }, []);
 
-  const handleRefresh = () => {
-    if (waitingWorker) {
-      try {
-        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-      } catch {
-        /* silent */
-      }
-    }
-    window.location.reload();
+  const handleRefresh = async () => {
+    if (refreshing) return;
+
+    setRefreshing(true);
+    await refreshPwaApp({ waitingWorker });
   };
 
   const handleDismiss = () => {
@@ -101,24 +110,26 @@ export default function PwaUpdater() {
           </div>
           <button
             type="button"
-            onClick={handleRefresh}
+            onClick={() => { void handleRefresh(); }}
+            disabled={refreshing}
             className="focus-ring min-w-0 flex-1 text-left"
           >
             <p className="text-[11px] font-black uppercase tracking-widest text-t-magenta">
               New Promos Available!
             </p>
             <p className="truncate text-[11px] font-medium text-t-dark-gray">
-              Tap to refresh and load the latest build.
+              {refreshing ? 'Refreshing the latest build…' : 'Tap to refresh and load the latest build.'}
             </p>
           </button>
           <button
             type="button"
-            onClick={handleRefresh}
+            onClick={() => { void handleRefresh(); }}
             aria-label="Refresh to load the new version"
-            className="focus-ring hidden shrink-0 items-center gap-1.5 rounded-full bg-t-magenta px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-sm hover:scale-[1.02] active:scale-95 sm:inline-flex"
+            disabled={refreshing}
+            className="focus-ring hidden shrink-0 items-center gap-1.5 rounded-full bg-t-magenta px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-wait disabled:opacity-60 sm:inline-flex"
           >
-            <RefreshCw className="h-3 w-3" />
-            Refresh
+            <RefreshCw className={`h-3 w-3 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing…' : 'Refresh'}
           </button>
           <button
             type="button"

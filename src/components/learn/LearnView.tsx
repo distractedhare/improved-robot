@@ -3,6 +3,7 @@ import { Newspaper, Smartphone, BookOpen, Shield, Watch, Tablet, Headphones, Wif
 import { AnimatePresence, motion } from 'motion/react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
 import { WeeklyUpdateSource } from '../../services/localGenerationService';
+import { getAppealTypeLabel, getDevicePositioningSummary } from '../../services/positioningService';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device } from '../../data/devices';
 import { EcosystemMatrix } from '../../types/ecosystem';
 import DailyBriefing from '../DailyBriefing';
@@ -11,6 +12,8 @@ import DeviceLookup, {
   DeviceComparison,
   DeviceLineupHero,
   DeviceQuickBriefSheet,
+  buildLineupNarrative,
+  buildLineupRoles,
   getDevicesByNames,
   PHONE_PRESETS,
   TABLET_PRESETS,
@@ -170,6 +173,39 @@ const formatPresetPriceRange = (devices: Device[]) => {
 
   if (min === max) return currencyFormatter.format(min);
   return `${currencyFormatter.format(min)} - ${currencyFormatter.format(max)}`;
+};
+
+const formatPresetDevicePrice = (device: Device) => {
+  const priceValue = toDevicePriceValue(device);
+  return Number.isFinite(priceValue) ? currencyFormatter.format(priceValue) : String(device.startingPrice);
+};
+
+type PresetPreview = {
+  devices: Device[];
+  narrative: string;
+  roleByName: Map<string, { label: string; helper: string }>;
+  summaryByName: Map<string, ReturnType<typeof getDevicePositioningSummary>>;
+};
+
+const buildPresetPreview = (
+  preset: DevicePreset,
+  pool: Device[],
+  weeklyData: WeeklyUpdate | null,
+  ecosystemMatrix?: EcosystemMatrix | null
+): PresetPreview => {
+  const allowedNames = new Set(pool.map((device) => device.name));
+  const devices = getDevicesByNames(preset.deviceNames).filter((device) => allowedNames.has(device.name));
+  const summaryByName = new Map(
+    devices.map((device) => [device.name, getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)])
+  );
+  const lineupRoles = buildLineupRoles(devices, summaryByName);
+
+  return {
+    devices,
+    narrative: buildLineupNarrative(lineupRoles),
+    roleByName: new Map(lineupRoles.map((role) => [role.name, role])),
+    summaryByName,
+  };
 };
 
 export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, onDataUpdate }: LearnViewProps) {
@@ -725,11 +761,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                           </div>
                         </div>
 
-                        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+                        <div className="grid gap-4 xl:grid-cols-2">
                           {deviceConfig.presets.map((preset) => {
-                            const presetDevices = getDevicesByNames(preset.deviceNames).filter((device) =>
-                              deviceConfig.pool.some((candidate) => candidate.name === device.name)
-                            );
+                            const presetPreview = buildPresetPreview(preset, deviceConfig.pool, weeklyData, ecosystemMatrix);
+                            const { devices: presetDevices, narrative, roleByName, summaryByName } = presetPreview;
                             const isActivePreset = activePreset?.label === preset.label && activeLineupLabel === preset.label;
                             const priceRange = formatPresetPriceRange(presetDevices);
 
@@ -746,63 +781,126 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                               >
                                 <div className="relative">
                                   <div className="pointer-events-none absolute inset-x-0 top-0 h-28 rounded-[1.6rem] bg-[radial-gradient(circle_at_top_left,rgba(226,0,116,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(134,27,84,0.14),transparent_62%)]" />
-                                  <div className="relative flex items-center justify-between gap-3">
-                                    <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                                      preset.primary ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'
-                                    }`}>
-                                      {preset.icon}
+                                  <div className="relative">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="rounded-full glass-reading px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                        Preset lineup
+                                      </span>
+                                      <span className="rounded-full glass-reading px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                                        {presetDevices.length} in lane
+                                      </span>
+                                      {preset.primary ? (
+                                        <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-white">
+                                          Lead preset
+                                        </span>
+                                      ) : null}
+                                      {priceRange ? (
+                                        <span className="glass-magenta rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                          {priceRange}
+                                        </span>
+                                      ) : null}
                                     </div>
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
-                                        {preset.primary ? 'Lead preset' : 'Quick compare'}
-                                      </p>
-                                      <p className="mt-1 text-sm font-black text-foreground">{preset.label}</p>
+
+                                    <div className="mt-4 flex items-start justify-between gap-3">
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-3">
+                                          <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+                                            preset.primary ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'
+                                          }`}>
+                                            {preset.icon}
+                                          </div>
+                                          <div className="min-w-0">
+                                            <p className="text-sm font-black text-foreground">{preset.label}</p>
+                                            <p className="mt-1 text-[11px] font-semibold leading-relaxed text-t-dark-gray">
+                                              {preset.heroNote ?? preset.subtitle}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <p className="mt-3 max-w-2xl text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                                          {narrative}
+                                        </p>
+                                      </div>
+                                      <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] ${
+                                        isActivePreset
+                                          ? 'bg-t-magenta text-white'
+                                          : 'glass-reading text-t-dark-gray'
+                                      }`}>
+                                        {isActivePreset ? 'Loaded now' : 'Tap to load'}
+                                      </span>
                                     </div>
-                                    <span className="glass-reading rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
-                                      {presetDevices.length} picks
-                                    </span>
                                   </div>
                                 </div>
 
-                                <p className="mt-3 text-[12px] font-semibold leading-relaxed text-foreground">{preset.subtitle}</p>
+                                <div className="mt-4 space-y-2.5">
+                                  {presetDevices.slice(0, 3).map((device) => {
+                                    const summary = summaryByName.get(device.name);
+                                    const role = roleByName.get(device.name);
 
-                                <div className="mt-4 grid grid-cols-3 gap-2">
-                                  {presetDevices.slice(0, 3).map((device) => (
-                                    <DeviceImage
-                                      key={device.name}
-                                      device={device}
-                                      className="glass-reading h-24 w-full rounded-[1.35rem] p-2.5 shadow-sm"
-                                      imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
-                                      badgeSize="sm"
-                                    />
-                                  ))}
+                                    return (
+                                      <div key={device.name} className="rounded-[1.45rem] glass-reading-strong p-3">
+                                        <div className="flex items-start gap-3">
+                                          <DeviceImage
+                                            device={device}
+                                            className="h-20 w-20 shrink-0 rounded-[1.2rem] border border-white/35 bg-white/92 p-2.5 shadow-sm"
+                                            imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
+                                            badgeSize="sm"
+                                          />
+                                          <div className="min-w-0 flex-1">
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                              {role ? (
+                                                <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-white">
+                                                  {role.label}
+                                                </span>
+                                              ) : null}
+                                              <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                                                {summary ? getAppealTypeLabel(summary.appealType) : 'Quick scan'}
+                                              </span>
+                                            </div>
+                                            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                                              <p className="min-w-0 flex-1 text-[13px] font-black leading-tight text-foreground">
+                                                {device.name}
+                                              </p>
+                                              <span className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                                {formatPresetDevicePrice(device)}
+                                              </span>
+                                            </div>
+                                            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                                              {summary?.shortHook || role?.helper || 'Use one clear angle, then back it up with one everyday proof point.'}
+                                            </p>
+                                            <div className="mt-2 flex flex-wrap gap-1.5">
+                                              {(summary?.bestFit.slice(0, 2) ?? []).map((fit) => (
+                                                <span
+                                                  key={`${device.name}-${fit}`}
+                                                  className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta"
+                                                >
+                                                  {fit}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
                                 </div>
 
                                 <div className="mt-4 rounded-[1.5rem] glass-reading p-3.5">
-                                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
-                                  <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
-                                  <p className="mt-3 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Lineup</p>
-                                  <div className="mt-2 flex flex-wrap gap-1.5">
-                                    {presetDevices.map((device) => (
-                                      <span
-                                        key={device.name}
-                                        className="glass-reading rounded-full px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
-                                      >
-                                        {device.name}
-                                      </span>
-                                    ))}
+                                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
+                                      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 sm:max-w-[16rem] sm:justify-end">
+                                      {presetDevices.map((device) => (
+                                        <span
+                                          key={device.name}
+                                          className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
+                                        >
+                                          {device.name}
+                                        </span>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                  <p className="max-w-[18rem] text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                                    {preset.heroNote ?? preset.subtitle}
-                                  </p>
-                                  {priceRange ? (
-                                    <span className="glass-magenta rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
-                                      {priceRange}
-                                    </span>
-                                  ) : null}
                                 </div>
                               </button>
                             );
