@@ -266,6 +266,9 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const activeCompareIndex = clampCompareIndex(activeCompareIndexByCategory[deviceCategory], compareDevices.length);
   const activeCompareDevice = compareDevices[activeCompareIndex] ?? null;
   const focusedDevice = selectedDevices.find((device) => device.name === focusedDeviceName) ?? null;
+  const focusedDeviceSummary = focusedDevice
+    ? getDevicePositioningSummary(focusedDevice, weeklyData, ecosystemMatrix)
+    : null;
   const activePreset = activePresetByCategory[deviceCategory];
   const activeLineupLabel = (() => {
     if (selectedDevices.length < 2) return null;
@@ -449,7 +452,15 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
   const handleInspectDevice = useCallback((device: Device) => {
     setFocusedDeviceName(device.name);
-  }, []);
+
+    const compareIndex = compareDevices.findIndex((candidate) => candidate.name === device.name);
+    if (compareIndex === -1) return;
+
+    setActiveCompareIndexByCategory((prev) => ({
+      ...prev,
+      [deviceCategory]: compareIndex,
+    }));
+  }, [compareDevices, deviceCategory]);
 
   // Switch device pool/presets/filters based on sub-category
   function getDeviceConfig() {
@@ -1112,6 +1123,69 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                               Back to shortlist
                             </button>
                           </div>
+                        ) : null}
+
+                        {!compareOpen && showLineupHero && focusedDevice && focusedDeviceSummary ? (
+                          <motion.div
+                            key={`${focusedDevice.name}-focused-hero`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="rounded-[1.7rem] p-4 glass-stage-quiet"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Focused device</p>
+                                  <span className="rounded-full glass-control px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-t-dark-gray">
+                                    {formatPresetDevicePrice(focusedDevice)}
+                                  </span>
+                                </div>
+                                <h3 className="mt-2 text-lg font-black tracking-tight text-t-dark-gray">{focusedDevice.name}</h3>
+                                <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                                  {focusedDeviceSummary.sayThis}
+                                </p>
+                              </div>
+                              <DeviceImage
+                                device={focusedDevice}
+                                className="h-20 w-20 shrink-0 rounded-[1.25rem] border border-t-light-gray/60 bg-white/90 p-2.5"
+                                imageClassName="h-full w-full object-contain"
+                                badgeSize="sm"
+                              />
+                            </div>
+
+                            <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)]">
+                              <div className="rounded-[1.3rem] glass-reading p-3">
+                                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Best fit cue</p>
+                                <p className="mt-1 text-[11px] font-black text-t-dark-gray">
+                                  {focusedDeviceSummary.bestFit[0] || getAppealTypeLabel(focusedDeviceSummary.appealType)}
+                                </p>
+                                <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                                  {focusedDeviceSummary.primaryAngle.title}
+                                </p>
+                              </div>
+                              <div className="rounded-[1.3rem] glass-reading p-3">
+                                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Why it lands</p>
+                                <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                                  {focusedDeviceSummary.primaryAngle.proof}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-2 rounded-[1.3rem] glass-reading p-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Core specs</p>
+                                {compareDevices.some((device) => device.name === focusedDevice.name) ? (
+                                  <span className="rounded-full border border-t-magenta/25 bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-[0.16em] text-t-magenta">
+                                    Compare hero synced
+                                  </span>
+                                ) : null}
+                              </div>
+                              <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                                {focusedDevice.keySpecs}
+                              </p>
+                            </div>
+                          </motion.div>
                         ) : null}
 
                         {compareOpen ? (
