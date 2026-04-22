@@ -215,6 +215,7 @@ const CharacterCard = ({
 }) => {
   return (
     <button
+      type="button"
       onClick={onSelect}
       className={`min-w-[285px] max-w-[320px] snap-center rounded-[1.8rem] border p-3 text-left transition-all pointer-events-auto ${
         selected
@@ -241,6 +242,14 @@ const CharacterCard = ({
         </div>
       </div>
       <p className="mt-3 text-sm leading-relaxed text-white/70">{character.tagline}</p>
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+        <div className={`text-[10px] font-black uppercase tracking-[0.28em] ${selected ? 'text-white' : 'text-white/45'}`}>
+          {selected ? 'Runner selected' : 'Tap to select'}
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.24em] text-white/35">
+          Preview below
+        </div>
+      </div>
     </button>
   );
 };
@@ -253,96 +262,268 @@ const CharacterPreviewOverlay = ({
   character: CharacterDefinition;
   selected: boolean;
   onClose: () => void;
-}) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[140] bg-[rgba(2,0,8,0.9)] backdrop-blur-xl p-4 md:p-6"
-  >
-    <div className="mx-auto flex min-h-full w-full max-w-6xl items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 16, scale: 0.98 }}
-        className="w-full rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.16),transparent_40%),linear-gradient(180deg,rgba(11,4,21,0.96),rgba(0,0,0,0.95))] p-4 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
-      >
-        <div className="mb-5 flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-[0.32em]" style={{ color: character.accent }}>
-              Full card preview
-            </div>
-            <div className="mt-2 text-3xl font-black font-cyber italic md:text-5xl">{character.name}</div>
-            <div className="mt-2 text-sm uppercase tracking-[0.24em] text-white/50">
-              {character.brand} • {character.series}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
-          >
-            <X size={18} />
-          </button>
-        </div>
+}) => {
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
 
-        <div className="grid items-start gap-6 lg:grid-cols-[0.56fr_0.44fr]">
-          <ArtworkFrame
-            src={character.cardImage}
-            alt={character.name}
-            accent={character.accent}
-            className="mx-auto w-full max-w-[30rem]"
-            mediaClassName="h-[68vh] md:h-[76vh]"
-          />
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
-          <div className="flex min-w-0 flex-col gap-4">
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/28 p-4">
-              <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Role</div>
-              <div className="mt-2 text-xl font-black">{character.role}</div>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{character.tagline}</p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/28 p-4">
-              <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Lore</div>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{character.lore}</p>
-            </div>
-
-            <div className="grid gap-2">
-              {character.abilities.slice(0, 3).map((ability) => (
-                <AbilityPill
-                  key={ability.id}
-                  label={ability.type}
-                  copy={`${ability.name} · ${ability.description}`}
-                  accent={character.accent}
-                />
-              ))}
-            </div>
-
-            <div className="mt-auto flex flex-col gap-3 sm:flex-row">
-              <div
-                className="inline-flex items-center justify-center rounded-2xl border px-4 py-3 text-sm font-black uppercase tracking-[0.22em]"
-                style={{
-                  borderColor: selected ? `${character.accent}` : 'rgba(255,255,255,0.12)',
-                  background: selected ? `${character.accent}22` : 'rgba(255,255,255,0.04)',
-                  color: selected ? '#FFFFFF' : 'rgba(255,255,255,0.72)',
-                }}
-              >
-                {selected ? 'Current runner' : 'Previewing'}
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[140] bg-[rgba(2,0,8,0.9)] backdrop-blur-xl p-4 md:p-6"
+    >
+      <div className="mx-auto flex min-h-full w-full max-w-6xl items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.98 }}
+          onClick={(event) => event.stopPropagation()}
+          className="w-full rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.16),transparent_40%),linear-gradient(180deg,rgba(11,4,21,0.96),rgba(0,0,0,0.95))] p-4 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
+        >
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.32em]" style={{ color: character.accent }}>
+                Full card preview
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#E20074] px-5 py-3 text-sm font-black uppercase tracking-[0.22em] text-white transition-transform hover:scale-[1.01]"
-              >
-                Back to roster
-              </button>
+              <div className="mt-2 text-3xl font-black font-cyber italic md:text-5xl">{character.name}</div>
+              <div className="mt-2 text-sm uppercase tracking-[0.24em] text-white/50">
+                {character.brand} • {character.series}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="mb-5 rounded-[1.4rem] border border-white/10 bg-white/6 px-4 py-3 text-sm text-white/72">
+            Tap outside the card, press <span className="font-black text-white">Esc</span>, or use the button below to head back to the roster.
+          </div>
+
+          <div className="grid items-start gap-6 lg:grid-cols-[0.56fr_0.44fr]">
+            <ArtworkFrame
+              src={character.cardImage}
+              alt={character.name}
+              accent={character.accent}
+              className="mx-auto w-full max-w-[30rem]"
+              mediaClassName="h-[68vh] md:h-[76vh]"
+            />
+
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="rounded-[1.5rem] border border-white/10 bg-black/28 p-4">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Role</div>
+                <div className="mt-2 text-xl font-black">{character.role}</div>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{character.tagline}</p>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-white/10 bg-black/28 p-4">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Lore</div>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{character.lore}</p>
+              </div>
+
+              <div className="grid gap-2">
+                {character.abilities.slice(0, 3).map((ability) => (
+                  <AbilityPill
+                    key={ability.id}
+                    label={ability.type}
+                    copy={`${ability.name} · ${ability.description}`}
+                    accent={character.accent}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-auto flex flex-col gap-3 sm:flex-row">
+                <div
+                  className="inline-flex items-center justify-center rounded-2xl border px-4 py-3 text-sm font-black uppercase tracking-[0.22em]"
+                  style={{
+                    borderColor: selected ? `${character.accent}` : 'rgba(255,255,255,0.12)',
+                    background: selected ? `${character.accent}22` : 'rgba(255,255,255,0.04)',
+                    color: selected ? '#FFFFFF' : 'rgba(255,255,255,0.72)',
+                  }}
+                >
+                  {selected ? 'Current runner' : 'Previewing'}
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#E20074] px-5 py-3 text-sm font-black uppercase tracking-[0.22em] text-white transition-transform hover:scale-[1.01]"
+                >
+                  Back to roster
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
-    </div>
-  </motion.div>
-);
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
+
+const QUICK_START_STEPS = [
+  {
+    title: 'Choose a runner',
+    copy: 'Tap a character card to select it. The roster now stays in place until you intentionally open a preview.',
+  },
+  {
+    title: 'Stay in your lane',
+    copy: 'Move with arrows, WASD, swipe, or the mobile buttons. Jump up. Smash down.',
+  },
+  {
+    title: 'Play the loop',
+    copy: 'Collect letters and power-ups, answer trivia cleanly, and save the run any time you need to pause.',
+  },
+];
+
+const TutorialGuideOverlay = ({
+  selectedCharacter,
+  onClose,
+  onStart,
+}: {
+  selectedCharacter: CharacterDefinition;
+  onClose: () => void;
+  onStart: () => void;
+}) => {
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[140] bg-[rgba(2,0,8,0.92)] backdrop-blur-xl p-4 md:p-6"
+    >
+      <div className="mx-auto flex min-h-full w-full max-w-5xl items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.98 }}
+          onClick={(event) => event.stopPropagation()}
+          className="w-full rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.22),transparent_38%),linear-gradient(180deg,rgba(11,4,21,0.98),rgba(0,0,0,0.97))] p-5 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
+        >
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.32em] text-[#E20074]">How to play</div>
+              <div className="mt-2 text-3xl font-black font-cyber italic md:text-5xl">Shift briefing</div>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/72 md:text-base">
+                Give new players the fast read first: pick a runner, stay mobile, and treat trivia plus pickups like
+                part of the same scoring loop.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-4">
+              <div className="rounded-[1.6rem] border border-white/10 bg-white/6 p-5">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Quick start</div>
+                <div className="mt-4 grid gap-3">
+                  {QUICK_START_STEPS.map((step, index) => (
+                    <div key={step.title} className="rounded-[1.3rem] border border-white/10 bg-black/28 p-4">
+                      <div className="text-[10px] uppercase tracking-[0.28em] text-[#E20074]">Step {index + 1}</div>
+                      <div className="mt-2 text-lg font-black">{step.title}</div>
+                      <p className="mt-2 text-sm leading-relaxed text-white/70">{step.copy}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-[1.6rem] border border-white/10 bg-black/28 p-5">
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Desktop controls</div>
+                  <div className="mt-3 text-sm leading-relaxed text-white/72">
+                    Arrows or WASD move. Up jumps. Down smashes. <span className="font-black text-white">E</span> or
+                    <span className="font-black text-white"> F</span> fires the signature skill when the meter is full.
+                  </div>
+                </div>
+                <div className="rounded-[1.6rem] border border-white/10 bg-black/28 p-5">
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Phone controls</div>
+                  <div className="mt-3 text-sm leading-relaxed text-white/72">
+                    Swipe lanes or use the HUD buttons. The mobile control cluster stays visible once the run starts, so
+                    nobody has to guess.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-[1.7rem] border border-white/10 bg-white/6 p-5">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-[#E20074]">Current starter</div>
+                <div className="mt-2 text-2xl font-black">{selectedCharacter.name}</div>
+                <div className="mt-1 text-sm uppercase tracking-[0.22em] text-white/50">{selectedCharacter.title}</div>
+                <p className="mt-3 text-sm leading-relaxed text-white/70">
+                  You can switch runners any time before launch. The preview is optional now, so selection stays clean.
+                </p>
+              </div>
+
+              <div className="space-y-3 rounded-[1.7rem] border border-white/10 bg-black/28 p-5">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Training tips you will see in-run</div>
+                {TUTORIAL_DATA.map((tip) => {
+                  const Icon = tip.icon;
+                  return (
+                    <div key={tip.id} className="rounded-[1.3rem] border border-white/10 bg-white/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#E20074]/35 bg-[#E20074]/14 text-[#ff8cc6]">
+                          <Icon size={18} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-[0.28em] text-[#E20074]">{tip.title}</div>
+                          <p className="mt-2 text-sm leading-relaxed text-white/70">{tip.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={onStart}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#E20074] px-5 py-4 text-sm font-black uppercase tracking-[0.22em] text-white transition-transform hover:scale-[1.01]"
+            >
+              Start with {selectedCharacter.name}
+              <Play size={16} fill="currentColor" />
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-5 py-4 text-sm font-black uppercase tracking-[0.22em] text-white/80 transition-colors hover:bg-white/12 hover:text-white"
+            >
+              Back to roster
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
 
 const StatusChip = ({ label, active, accent }: { label: string; active: boolean; accent: string }) => (
   <div
@@ -645,17 +826,49 @@ const MenuScreen: React.FC = () => {
     }
   }, [selectedCharacterId, setSelectedCharacter]);
 
+  const menuScrollRef = React.useRef<HTMLDivElement | null>(null);
+  const detailsRef = React.useRef<HTMLDivElement | null>(null);
   const [previewCharacterId, setPreviewCharacterId] = React.useState<CharacterId | null>(null);
+  const [showTutorialGuide, setShowTutorialGuide] = React.useState(false);
+  const [showScrollCue, setShowScrollCue] = React.useState(true);
   const selectedCharacter = getCharacterDefinition(selectedCharacterId);
   const previewCharacter = previewCharacterId ? getCharacterDefinition(previewCharacterId) : null;
 
   const handleCardSelect = React.useCallback((characterId: CharacterId) => {
     setSelectedCharacter(characterId);
-    setPreviewCharacterId(characterId);
   }, [setSelectedCharacter]);
 
+  const handleStartGame = React.useCallback(() => {
+    audio.init();
+    startGame();
+  }, [startGame]);
+
+  const scrollToDetails = React.useCallback(() => {
+    detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  React.useEffect(() => {
+    const node = menuScrollRef.current;
+    if (!node) return;
+
+    const updateScrollCue = () => {
+      const canScroll = node.scrollHeight - node.clientHeight > 140;
+      const nearTop = node.scrollTop < 90;
+      setShowScrollCue(canScroll && nearTop);
+    };
+
+    updateScrollCue();
+    node.addEventListener('scroll', updateScrollCue, { passive: true });
+    window.addEventListener('resize', updateScrollCue);
+
+    return () => {
+      node.removeEventListener('scroll', updateScrollCue);
+      window.removeEventListener('resize', updateScrollCue);
+    };
+  }, []);
+
   return (
-    <div className="absolute inset-0 z-[110] bg-[#050011] pointer-events-auto overflow-y-auto">
+    <div ref={menuScrollRef} className="absolute inset-0 z-[110] bg-[#050011] pointer-events-auto overflow-y-auto">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.25),transparent_45%),linear-gradient(180deg,#080010_0%,#050011_50%,#000000_100%)]" />
       <div className="absolute inset-0 opacity-30 bg-[linear-gradient(rgba(226,0,116,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(226,0,116,0.15)_1px,transparent_1px)] bg-[size:36px_36px]" />
 
@@ -671,7 +884,8 @@ const MenuScreen: React.FC = () => {
               <span className="text-[#E20074]">RUNNER</span>
             </h1>
             <p className="max-w-2xl text-white/70 text-lg md:text-xl leading-relaxed mt-5">
-              Pick one of five runner kits, let Sidekick Core run support, and climb a boss ladder that ends with Dead Zone Titan. The trivia loop, reward pacing, and mobile controls stay fast enough for real reps to actually use.
+              Pick one of five runner kits, let Sidekick Core run support, and climb a boss ladder that ends with Dead Zone Titan.
+              If this is somebody's first run, open the tutorial before launch and the whole loop becomes much easier to read.
             </p>
           </div>
 
@@ -695,6 +909,9 @@ const MenuScreen: React.FC = () => {
           <div>
             <div className="text-[10px] uppercase tracking-[0.35em] text-[#E20074]">Character select</div>
             <div className="text-2xl text-white font-black mt-1">Choose from five runner builds</div>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
+              Tap a card to lock in your runner. The large full-card art is now an optional preview, not the default click behavior.
+            </p>
           </div>
           <div className="hidden md:flex items-center gap-3 text-white/40 text-xs uppercase tracking-[0.25em]">
             <Triangle size={14} /> swipe or scroll cards
@@ -712,7 +929,20 @@ const MenuScreen: React.FC = () => {
           ))}
         </div>
 
-        <div className="grid xl:grid-cols-[1.15fr_0.85fr] gap-6 mt-8 items-start">
+        {showScrollCue ? (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={scrollToDetails}
+              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-white/80 transition-colors hover:bg-white/12 hover:text-white"
+            >
+              More below: guide, selected runner, launch
+              <ChevronRight size={14} className="rotate-90" />
+            </button>
+          </div>
+        ) : null}
+
+        <div ref={detailsRef} className="grid xl:grid-cols-[1.15fr_0.85fr] gap-6 mt-8 items-start">
           <div className="rounded-[2rem] bg-white/6 border border-white/10 p-6 md:p-8">
             <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Selected runner</div>
             <div className="mt-5 grid lg:grid-cols-[0.62fr_0.38fr] gap-5">
@@ -735,7 +965,7 @@ const MenuScreen: React.FC = () => {
                     className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/75 transition-colors hover:bg-white/12 hover:text-white"
                   >
                     <Triangle size={12} className="rotate-90" />
-                    Open full card
+                    Preview full card
                   </button>
                 </div>
 
@@ -759,6 +989,19 @@ const MenuScreen: React.FC = () => {
           </div>
 
           <div className="grid gap-6">
+            <div className="rounded-[2rem] bg-white/6 border border-white/10 p-5">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">First run guide</div>
+              <div className="mt-4 grid gap-3">
+                {QUICK_START_STEPS.map((step, index) => (
+                  <div key={step.title} className="rounded-[1.4rem] border border-white/10 bg-black/28 p-4">
+                    <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Step {index + 1}</div>
+                    <div className="mt-2 text-base font-black text-white">{step.title}</div>
+                    <p className="mt-1 text-sm leading-relaxed text-white/68">{step.copy}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="rounded-[2rem] bg-white/6 border border-white/10 p-5">
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Support intelligence</div>
               <div className="mt-4 grid gap-4">
@@ -806,13 +1049,17 @@ const MenuScreen: React.FC = () => {
 
               <div className="grid gap-3">
                 <button
-                  onClick={() => {
-                    audio.init();
-                    startGame();
-                  }}
+                  onClick={handleStartGame}
                   className="w-full py-5 rounded-2xl bg-[#E20074] text-white font-black text-xl uppercase tracking-[0.25em] hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
                 >
                   Start shift <Play size={22} fill="currentColor" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTutorialGuide(true)}
+                  className="w-full py-4 rounded-2xl bg-white/10 border border-white/15 text-white font-black uppercase tracking-[0.22em] hover:bg-white/15 transition-all flex items-center justify-center gap-3"
+                >
+                  How to play <ChevronRight size={18} />
                 </button>
                 {hasResumeSave && (
                   <button
@@ -829,7 +1076,7 @@ const MenuScreen: React.FC = () => {
                   onClick={() => openSettings(GameStatus.MENU)}
                   className="w-full py-4 rounded-2xl bg-transparent border border-white/10 text-white/70 font-black uppercase tracking-[0.22em] hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-3"
                 >
-                  Operations <Settings size={18} />
+                  Settings + saves <Settings size={18} />
                 </button>
               </div>
             </div>
@@ -842,6 +1089,16 @@ const MenuScreen: React.FC = () => {
               character={previewCharacter}
               selected={previewCharacter.id === selectedCharacterId}
               onClose={() => setPreviewCharacterId(null)}
+            />
+          ) : null}
+          {showTutorialGuide ? (
+            <TutorialGuideOverlay
+              selectedCharacter={selectedCharacter}
+              onClose={() => setShowTutorialGuide(false)}
+              onStart={() => {
+                setShowTutorialGuide(false);
+                handleStartGame();
+              }}
             />
           ) : null}
         </AnimatePresence>

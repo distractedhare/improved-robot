@@ -15,7 +15,7 @@ interface HeaderProps {
 const MODES = [
   { id: 'live' as const, icon: Zap, label: 'Live Call', shortLabel: 'Live' },
   { id: 'learn' as const, icon: BookOpen, label: 'Learn', shortLabel: 'Learn' },
-  { id: 'level-up' as const, icon: Trophy, label: 'Level Up', shortLabel: 'Level Up' },
+  { id: 'level-up' as const, icon: Trophy, label: 'Level Up', shortLabel: 'Level Up', badge: 'NEW!' },
   { id: 'offline-coach' as const, icon: Wifi, label: 'Offline Coach', shortLabel: 'Offline' },
   { id: 'settings' as const, icon: Settings, label: 'Settings', shortLabel: 'Settings' },
 ] as const;
@@ -158,7 +158,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                         : 'glass-control text-t-dark-gray hover:text-foreground'
                     }`}
                     style={{ touchAction: 'manipulation' }}
-                  >
+                    >
                     {isActive && (
                       <motion.span
                         layoutId="mode-pill"
@@ -168,11 +168,24 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                     )}
                     <span className="relative z-[1] flex h-full items-center justify-center gap-2">
                       <item.icon className="h-4 w-4 shrink-0" />
-                      <span className="min-w-0 truncate text-[11px] font-black uppercase tracking-[0.16em] sm:hidden">
-                        {item.shortLabel}
-                      </span>
-                      <span className="hidden min-w-0 truncate text-xs font-black uppercase tracking-[0.16em] sm:inline">
-                        {item.label}
+                      <span className="flex min-w-0 flex-col items-start justify-center leading-none sm:items-center">
+                        <span className="min-w-0 truncate text-[11px] font-black uppercase tracking-[0.16em] sm:hidden">
+                          {item.shortLabel}
+                        </span>
+                        <span className="hidden min-w-0 truncate text-xs font-black uppercase tracking-[0.16em] sm:inline">
+                          {item.label}
+                        </span>
+                        {'badge' in item ? (
+                          <span
+                            className={`mt-1 rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.18em] ${
+                              isActive
+                                ? 'bg-white/18 text-white'
+                                : 'bg-[#E20074]/12 text-[#E20074]'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        ) : null}
                       </span>
                     </span>
                   </button>

@@ -91,7 +91,7 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
               </h2>
               <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-t-dark-gray sm:text-base">
                 This should feel like launching a playable training mode, not opening another dashboard card. Pick a runner,
-                jump straight into the track, and use pause settings any time you need the tutorial guide.
+                jump straight into the track, and open the tutorial from the start screen any time somebody needs the clean walkthrough first.
               </p>
             </div>
 
@@ -105,8 +105,8 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
               <DashboardCard
                 icon={<Sparkles className="h-4 w-4 text-t-magenta" />}
                 label="Tutorial Access"
-                value="Any pause"
-                detail="Open guide from settings"
+                value="One tap"
+                detail="Start screen or settings"
               />
               <DashboardCard
                 icon={<Zap className="h-4 w-4 text-warning-accent" />}
