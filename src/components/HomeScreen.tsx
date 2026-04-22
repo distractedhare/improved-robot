@@ -87,10 +87,10 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
       >
         <div className="space-y-3 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-t-muted">
+            <p className="type-kicker text-t-muted">
               {formatDate()}
             </p>
-            <span className="glass-magenta rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+            <span className="type-micro glass-utility rounded-full px-3 py-1 text-t-magenta">
               Rep Home
             </span>
           </div>
@@ -146,14 +146,14 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           >
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-4 h-4 text-t-magenta" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
+              <span className="type-kicker text-t-magenta">
                 Today's Hot
               </span>
             </div>
-            <p className="text-sm font-black text-t-dark-gray leading-snug mb-1">
+            <p className="text-base font-black text-t-dark-gray leading-snug mb-1">
               {todaysHot.headline}
             </p>
-            <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
+            <p className="type-helper text-t-dark-gray">
               {todaysHot.context}
             </p>
 
@@ -164,8 +164,8 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
                     <div className="flex items-start gap-2">
                       <TrendingUp className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-[11px] font-bold text-t-dark-gray">{item.buzz}</p>
-                        <p className="text-[10px] text-t-dark-gray font-medium">{item.repTip}</p>
+                        <p className="text-xs font-bold text-t-dark-gray">{item.buzz}</p>
+                        <p className="mt-1 text-[11px] text-t-dark-gray font-medium leading-relaxed">{item.repTip}</p>
                       </div>
                     </div>
                   </div>
@@ -226,7 +226,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
                       {card.label}
                     </p>
                     <p
-                      className={`text-xs font-medium mt-0.5 ${
+                      className={`mt-1 text-sm font-medium leading-relaxed ${
                         isPrimary ? 'text-white/75' : 'text-t-dark-gray'
                       }`}
                     >
@@ -249,19 +249,19 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}
-          className="glass-capsule flex flex-wrap items-center justify-center gap-4 rounded-full px-4 py-3"
+          className="glass-capsule flex flex-wrap items-center justify-center gap-3 rounded-[1.4rem] px-4 py-2.5"
         >
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-t-muted">
             <Shield className="w-3 h-3 text-t-magenta/40" />
             <span>CPNI Safe</span>
           </div>
           <div className="h-3 w-px bg-t-dark-gray/15" />
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-t-muted">
             <Sparkles className="w-3 h-3 text-t-magenta/40" />
             <span>AI Ready</span>
           </div>
           <div className="h-3 w-px bg-t-dark-gray/15" />
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-t-muted">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-t-muted">
             <Wifi className="w-3 h-3 text-t-magenta/40" />
             <span>Works Offline</span>
           </div>

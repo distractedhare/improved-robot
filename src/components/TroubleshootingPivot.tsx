@@ -70,7 +70,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               }`}
             >
               <CatIcon className={`h-4 w-4 ${isActive ? 'text-t-magenta' : 'text-t-dark-gray'}`} />
-              <span className="text-[10px] font-black uppercase tracking-wider">{cat.name}</span>
+              <span className="text-xs font-black tracking-tight">{cat.name}</span>
             </button>
           );
         })}
@@ -78,7 +78,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
       <div className="grid gap-4">
         <section className="glass-feature rounded-2xl p-4">
-          <p className="text-[10px] font-black uppercase tracking-widest text-info-foreground">Best next move</p>
+          <p className="type-kicker text-info-foreground">Best next move</p>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
             <QuickStep label="1. Confirm the issue" copy={`Make sure the caller is really in the ${selectedCategory.name.toLowerCase()} lane before you start solving.`} />
             <QuickStep label="2. Work the repair path" copy="Use the steps below in order so the rep sounds structured and calm." />
@@ -95,10 +95,10 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               </div>
               <div>
                 <h2 className="text-sm font-extrabold tracking-tight">{selectedCategory.name} Repair Path</h2>
-                <p className="text-[10px] font-medium text-t-dark-gray">Keep the rep focused on the next useful action, not the whole script at once.</p>
+                <p className="mt-1 text-xs font-medium text-t-dark-gray">Keep the rep focused on the next useful action, not the whole script at once.</p>
               </div>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
+            <span className="type-kicker text-t-magenta">
               {completedSteps.length}/{selectedCategory.steps.length}
             </span>
           </div>
@@ -114,18 +114,18 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
                     : 'glass-reading'
                 }`}
               >
-                <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
                   completedSteps.includes(step.id)
-                    ? 'border-t-magenta bg-t-magenta text-white'
-                    : 'border-t-dark-gray/30'
+                    ? 'border-transparent bg-t-magenta text-white'
+                    : 'border-t-dark-gray/25 bg-white/70 dark:bg-white/8'
                 }`}>
                   {completedSteps.includes(step.id) && <CheckCircle2 className="h-2.5 w-2.5" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-bold ${completedSteps.includes(step.id) ? 'text-t-magenta line-through opacity-70' : 'text-foreground'}`}>
+                  <p className={`text-sm font-bold ${completedSteps.includes(step.id) ? 'text-t-magenta line-through opacity-70' : 'text-foreground'}`}>
                     {step.label}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-t-dark-gray leading-relaxed">
+                  <p className="mt-1 text-xs text-t-dark-gray leading-relaxed">
                     {step.action}
                   </p>
                 </div>
@@ -137,8 +137,8 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
             <div className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Escalate only if needed</p>
-                <p className="mt-0.5 text-[10px] font-medium text-foreground">
+                <p className="type-kicker text-t-magenta">Escalate only if needed</p>
+                <p className="mt-1 text-xs font-medium text-foreground leading-relaxed">
                   {selectedCategory.transferCriteria}
                 </p>
               </div>
@@ -160,14 +160,14 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               <div key={i} className="glass-reading rounded-xl p-3">
                 <div className="mb-1 flex items-center gap-1.5">
                   <div className="h-1 w-1 rounded-full bg-t-magenta" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-t-dark-gray">{pivot.condition}</span>
+                  <span className="type-kicker text-t-dark-gray">{pivot.condition}</span>
                 </div>
-                <p className="text-xs font-medium text-foreground leading-relaxed">
+                <p className="text-sm font-medium text-foreground leading-relaxed">
                   "{pivot.pitch}"
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-white/50 p-1.5 dark:bg-black/20">
                   <Zap className="h-2.5 w-2.5 text-t-magenta" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-t-magenta">Benefit: {pivot.benefit}</span>
+                  <span className="text-xs font-semibold text-t-magenta">Benefit: {pivot.benefit}</span>
                 </div>
               </div>
             ))}
@@ -176,7 +176,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
         {/* Department Quick Links */}
         <section className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
-          <h3 className="mb-3 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">Escalation Cards</h3>
+          <h3 className="type-kicker mb-3 text-t-dark-gray">Escalation Cards</h3>
           <div className="grid gap-2 md:grid-cols-3">
             {[
               {
@@ -197,13 +197,13 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
             ].map((dept) => (
               <div key={dept.name} className="glass-reading rounded-2xl p-3">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-foreground">{dept.name}</p>
+                  <p className="text-xs font-black tracking-tight text-foreground">{dept.name}</p>
                   <ArrowUpRight className="h-3.5 w-3.5 text-t-magenta" />
                 </div>
-                <p className="mt-2 text-[10px] font-medium leading-relaxed text-t-dark-gray">{dept.when}</p>
+                <p className="mt-2 text-xs font-medium leading-relaxed text-t-dark-gray">{dept.when}</p>
                 <div className="mt-3 rounded-xl bg-t-light-gray/25 p-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Say this in the handoff</p>
-                  <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{dept.handoff}</p>
+                  <p className="type-micro text-t-magenta">Say this in the handoff</p>
+                  <p className="mt-1 text-xs font-medium leading-relaxed text-t-dark-gray">{dept.handoff}</p>
                 </div>
               </div>
             ))}
@@ -217,8 +217,8 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 function QuickStep({ label, copy }: { label: string; copy: string }) {
   return (
     <div className="glass-reading rounded-2xl px-3 py-3">
-      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-info-foreground">{label}</p>
-      <p className="mt-1 text-[11px] font-medium leading-relaxed text-info-foreground">{copy}</p>
+      <p className="type-micro text-info-foreground">{label}</p>
+      <p className="mt-1 text-xs font-medium leading-relaxed text-info-foreground">{copy}</p>
     </div>
   );
 }

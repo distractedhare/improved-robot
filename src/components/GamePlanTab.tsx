@@ -49,7 +49,7 @@ export default function GamePlanTab({
         type="button"
         onClick={() => onGenerate()}
         disabled={loading}
-        className="focus-ring cta-primary flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-black uppercase tracking-[0.18em] transition-transform group hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring cta-primary flex min-h-[56px] w-full items-center justify-center gap-2 rounded-[1.2rem] py-4 text-sm font-black tracking-tight transition-transform group hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -65,7 +65,7 @@ export default function GamePlanTab({
         type="button"
         onClick={onRunDemoScenario}
         disabled={loading}
-        className="focus-ring glass-feature w-full rounded-[1.6rem] px-4 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring glass-stage-quiet w-full rounded-[1.6rem] px-4 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50"
       >
         <div className="flex items-start gap-3">
           <div className="cta-primary mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white">
@@ -73,18 +73,18 @@ export default function GamePlanTab({
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-black uppercase tracking-[0.16em] text-t-magenta">
+              <p className="text-sm font-black tracking-tight text-foreground">
                 Run a Test Scenario
               </p>
-              <span className="rounded-full bg-t-magenta/12 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+              <span className="type-micro rounded-full glass-utility px-2 py-0.5 text-t-magenta">
                 Beta Safe
               </span>
             </div>
-            <p className="mt-1 text-[12px] font-medium leading-relaxed text-t-dark-gray">
+            <p className="mt-1 text-sm font-medium leading-relaxed text-t-dark-gray">
               Auto-load one of the Level Up &gt; Practice Scenarios presets so testers can try the live flow instantly without filling anything out first.
             </p>
             {lastDemoScenarioName && (
-              <p className="mt-2 text-[11px] font-black uppercase tracking-wide text-t-dark-gray">
+              <p className="mt-2 text-xs font-semibold text-t-muted">
                 Last loaded: {lastDemoScenarioName}
               </p>
             )}
@@ -143,11 +143,11 @@ export function GamePlanResults({
       className="space-y-6"
     >
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-black uppercase tracking-tight">Your Game Plan</h2>
+        <h2 className="text-2xl font-black tracking-tight">Your Game Plan</h2>
         <button
           type="button"
           onClick={onReset}
-          className="focus-ring text-xs font-black text-t-dark-gray hover:text-t-magenta flex items-center gap-1.5 transition-colors uppercase tracking-widest rounded"
+          className="focus-ring flex items-center gap-1.5 rounded text-xs font-semibold text-t-dark-gray transition-colors hover:text-t-magenta"
         >
           <RefreshCw className="w-3 h-3" /> Reset
         </button>
@@ -155,7 +155,7 @@ export function GamePlanResults({
 
       {/* Welcome Messages */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+        <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
           <Sparkles className="w-3 h-3 text-t-magenta" /> Open Strong
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -168,7 +168,7 @@ export function GamePlanResults({
       {/* One-Liners */}
       {script.oneLiners && script.oneLiners.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+          <h3 className="type-kicker px-1 flex items-center gap-2 text-t-magenta">
             <MessageSquare className="w-3 h-3" /> Quick One-Liners
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -181,7 +181,7 @@ export function GamePlanResults({
 
       {/* Discovery Questions */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+        <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
           <Target className="w-3 h-3 text-t-magenta" /> Dig Deeper
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -193,7 +193,7 @@ export function GamePlanResults({
 
       {/* Value Props */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+        <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
           <Zap className="w-3 h-3 text-t-magenta" /> What to Pitch
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -206,10 +206,10 @@ export function GamePlanResults({
       {/* Demographic Product Recommendations */}
       {demoRecs.length > 0 && demoSection && (
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+          <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
             <Users className="w-3 h-3 text-t-magenta" /> Recommended for {demoSection.label} ({context.age})
           </h3>
-          <p className="px-1 text-[10px] font-medium text-t-dark-gray/60">
+          <p className="px-1 text-xs font-medium text-t-dark-gray/70">
             {demoSection.trustLanguage}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -240,7 +240,7 @@ export function GamePlanResults({
 
       {demoAccessoryRecs.length > 0 && demoSection && (
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+          <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
             <ShoppingBag className="w-3 h-3 text-t-magenta" /> Top {demoSection.label} Accessories
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -254,7 +254,7 @@ export function GamePlanResults({
       {/* Accessory Recommendations */}
       {script.accessoryRecommendations && script.accessoryRecommendations.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+          <h3 className="type-kicker px-1 flex items-center gap-2 text-t-dark-gray">
             <ShoppingBag className="w-3 h-3 text-t-magenta" /> Recommended Accessories
           </h3>
           <DynamicAccessoryFlow recommendations={script.accessoryRecommendations} />
@@ -264,11 +264,11 @@ export function GamePlanResults({
       {/* Interactive Sales Tools Section */}
       <div className="glass-stage-quiet space-y-4 rounded-3xl p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] flex items-center gap-2">
+          <h3 className="type-kicker flex items-center gap-2 text-t-dark-gray">
             <Sparkles className="w-3 h-3 text-t-magenta" /> Interactive Sales Tools
           </h3>
-          <span className="glass-magenta rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-t-magenta">
-            Local Tools
+          <span className="glass-magenta rounded-full px-2 py-0.5 text-t-magenta">
+            <span className="type-micro">Local Tools</span>
           </span>
         </div>
 
@@ -280,7 +280,7 @@ export function GamePlanResults({
             }`}
           >
             <ArrowRightLeft className={`w-5 h-5 ${activeTool === 'credit' ? 'text-white' : 'text-t-muted'}`} />
-            <span className="text-[9px] font-black uppercase tracking-tight">Credit Pivot</span>
+            <span className="text-xs font-black tracking-tight">Credit Pivot</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'persona' ? 'none' : 'persona')}
@@ -289,7 +289,7 @@ export function GamePlanResults({
             }`}
           >
             <Users className={`w-5 h-5 ${activeTool === 'persona' ? 'text-white' : 'text-t-muted'}`} />
-            <span className="text-[9px] font-black uppercase tracking-tight">Persona Pitch</span>
+            <span className="text-xs font-black tracking-tight">Persona Pitch</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'math' ? 'none' : 'math')}
@@ -298,7 +298,7 @@ export function GamePlanResults({
             }`}
           >
             <Calculator className={`w-5 h-5 ${activeTool === 'math' ? 'text-white' : 'text-t-muted'}`} />
-            <span className="text-[9px] font-black uppercase tracking-tight">Plan Math</span>
+            <span className="text-xs font-black tracking-tight">Plan Math</span>
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'accessories' ? 'none' : 'accessories')}
@@ -307,7 +307,7 @@ export function GamePlanResults({
             }`}
           >
             <ShoppingBag className={`w-5 h-5 ${activeTool === 'accessories' ? 'text-white' : 'text-t-muted'}`} />
-            <span className="text-[9px] font-black uppercase tracking-tight">Acc. Flow</span>
+            <span className="text-xs font-black tracking-tight">Acc. Flow</span>
           </button>
         </div>
 
@@ -367,7 +367,7 @@ export function GamePlanResults({
 
       {/* Next Steps */}
       <div className="glass-stage-quiet rounded-3xl p-5">
-        <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+        <h3 className="type-kicker mb-3 flex items-center gap-2 text-t-magenta">
           <CheckCircle2 className="w-3 h-3" /> Close It Out
         </h3>
         <div className="space-y-1.5">
@@ -383,7 +383,7 @@ export function GamePlanResults({
       {/* Coach's Corner */}
       {script.coachsCorner && (
         <div className="glass-feature rounded-xl px-4 py-3">
-          <p className="text-[10px] text-t-dark-gray font-bold">
+          <p className="text-xs text-t-dark-gray font-semibold leading-relaxed">
             <span className="text-t-magenta font-black">Coach:</span> {script.coachsCorner}
           </p>
         </div>
@@ -394,7 +394,7 @@ export function GamePlanResults({
         <button
           type="button"
           onClick={onSwitchToObjections}
-          className="focus-ring cta-primary w-full rounded-xl py-4 tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          className="focus-ring cta-primary flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-transform"
         >
           <MessageSquare className="w-5 h-5" /> Getting Pushback? Let's Flip It
         </button>
@@ -419,8 +419,10 @@ function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
         {/* FRONT */}
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
+            <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-t-magenta">
+              <span className="type-micro">
               {CATEGORY_LABELS[rec.category] ?? rec.category}
+              </span>
             </span>
             <span className="text-xs font-black text-t-dark-gray">{rec.name}</span>
           </div>
@@ -434,8 +436,8 @@ function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">Why this?</p>
-          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+          <p className="type-kicker mb-1 text-t-magenta">Why this?</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
             {whyText}
           </p>
         </div>
@@ -468,10 +470,10 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
             />
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="text-[8px] font-black uppercase tracking-widest text-t-magenta bg-t-magenta/10 px-1.5 py-0.5 rounded-full">
-                  {rec.category}
+                <span className="rounded-full bg-t-magenta/10 px-1.5 py-0.5 text-t-magenta">
+                  <span className="type-micro">{rec.category}</span>
                 </span>
-                <span className="text-[10px] text-t-dark-gray font-bold uppercase tracking-wide">
+                <span className="text-xs text-t-dark-gray font-semibold">
                   {rec.items.join(' • ')}
                 </span>
               </div>
@@ -487,8 +489,8 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">The "Why"</p>
-          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+          <p className="type-kicker mb-2 text-t-magenta">The why</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
             {rec.why}
           </p>
         </div>
@@ -513,7 +515,7 @@ function OneLinerFlipCard({ line }: { line: string }) {
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-1">
             <Zap className="w-3 h-3 text-t-magenta" />
-            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Quick Hit</p>
+            <p className="type-kicker text-t-magenta">Quick hit</p>
           </div>
           <p className="text-xs font-black text-t-dark-gray leading-tight">
             "{line}"
@@ -525,8 +527,8 @@ function OneLinerFlipCard({ line }: { line: string }) {
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-1 tracking-widest">When to use</p>
-          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+          <p className="type-kicker mb-1 text-t-magenta">When to use</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
             Drop this when the customer is on the fence or needs a quick reason to say yes.
           </p>
         </div>
@@ -553,7 +555,7 @@ function WelcomeFlipCard({ message, index }: { message: string, index: number })
             <div className="w-5 h-5 rounded-full bg-t-magenta text-white text-[10px] font-black flex items-center justify-center">
               {index + 1}
             </div>
-            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Opening Hook</p>
+            <p className="type-kicker text-t-magenta">Opening hook</p>
           </div>
           <p className="text-sm font-bold text-t-dark-gray leading-tight">
             {message}
@@ -565,8 +567,8 @@ function WelcomeFlipCard({ message, index }: { message: string, index: number })
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Pro Tip</p>
-          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+          <p className="type-kicker mb-2 text-t-magenta">Pro tip</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
             Smile while you say this! Your energy sets the tone for the entire interaction.
           </p>
         </div>
@@ -591,7 +593,7 @@ function DiscoveryFlipCard({ question }: { question: string }) {
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-reading p-4 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-3 h-3 text-t-magenta" />
-            <p className="text-[9px] font-black text-t-magenta uppercase tracking-widest">Discovery Question</p>
+            <p className="type-kicker text-t-magenta">Discovery question</p>
           </div>
           <p className="text-xs font-bold text-t-dark-gray leading-tight">
             {question}
@@ -603,8 +605,8 @@ function DiscoveryFlipCard({ question }: { question: string }) {
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-4 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">Why ask this?</p>
-          <p className="text-[10px] font-medium text-white/90 leading-relaxed">
+          <p className="type-kicker mb-2 text-t-magenta">Why ask this?</p>
+          <p className="text-xs font-medium text-white/90 leading-relaxed">
             This helps uncover hidden needs and builds rapport by showing you care about their specific situation.
           </p>
         </div>
@@ -632,12 +634,12 @@ function ValuePropFlipCard({ prop }: { prop: string }) {
             <div className="w-8 h-8 rounded-lg bg-t-magenta/10 flex items-center justify-center">
               <Zap className="w-4 h-4 text-t-magenta" />
             </div>
-            <p className="text-[10px] font-black text-t-magenta uppercase tracking-widest">Key Value Prop</p>
+            <p className="type-kicker text-t-magenta">Key value prop</p>
           </div>
           <p className="text-sm font-black text-t-dark-gray leading-tight">
             {prop}
           </p>
-          <div className="mt-auto flex items-center justify-between text-[9px] font-black text-t-muted uppercase tracking-widest">
+          <div className="mt-auto flex items-center justify-between text-[11px] font-semibold text-t-muted">
             <span>Tap for talk track</span>
             <ChevronRight className="w-3 h-3" />
           </div>
@@ -648,11 +650,11 @@ function ValuePropFlipCard({ prop }: { prop: string }) {
           className="absolute inset-0 w-full h-full backface-hidden rounded-2xl glass-feature p-5 flex flex-col justify-center text-white"
           style={{ transform: "rotateY(180deg)" }}
         >
-          <p className="text-[9px] font-black text-t-magenta uppercase mb-2 tracking-widest">How to pitch it</p>
+          <p className="type-kicker mb-2 text-t-magenta">How to pitch it</p>
           <p className="text-xs font-medium text-white/90 leading-relaxed">
             {pitchTrack}
           </p>
-          <div className="mt-auto text-[9px] font-black text-t-magenta uppercase tracking-widest">
+          <div className="mt-auto text-[11px] font-semibold text-t-magenta">
             Tap to return
           </div>
         </div>

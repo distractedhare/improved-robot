@@ -633,6 +633,34 @@ a,
   position: relative;
 }
 
+@utility type-kicker {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@utility type-micro {
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility type-helper {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+@utility type-body-compact {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 /* Prize glow variants */
 @utility prize-glow-daily {
   box-shadow: 0 0 16px rgba(0, 165, 80, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
