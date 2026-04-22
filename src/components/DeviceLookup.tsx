@@ -1191,6 +1191,7 @@ export function DeviceComparison({
 }) {
   const [showDifferencesOnly, setShowDifferencesOnly] = useState(true);
   const [mobileChallengerIndex, setMobileChallengerIndex] = useState(1);
+  const [compareView, setCompareView] = useState<'rep' | 'full'>('rep');
   const summaries = useMemo(
     () => devices.map(device => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix)),
     [devices, weeklyData, ecosystemMatrix]
@@ -1243,11 +1244,18 @@ export function DeviceComparison({
       label: 'Released',
       values: devices.map(d => d.released),
     },
+    {
+      label: 'Core Specs',
+      values: devices.map(d => d.keySpecs),
+    },
   ];
 
-  const filteredRows = showDifferencesOnly
-    ? compareRows.filter((row) => new Set(row.values).size > 1)
-    : compareRows;
+  const repQuickRows = new Set(['Price', 'Best For', 'Lead With', 'Proof Point']);
+  const filteredRows = compareRows.filter((row) => {
+    if (compareView === 'rep' && !repQuickRows.has(row.label)) return false;
+    if (!showDifferencesOnly) return true;
+    return new Set(row.values).size > 1;
+  });
 
   const mobileCompareRows = [
     {
@@ -1271,6 +1279,11 @@ export function DeviceComparison({
       challengerValue: challengerSummary.primaryAngle.proof,
     },
   ];
+  const activePromos = weeklyData?.currentPromos.filter((promo) => {
+    if (!activeDevice) return false;
+    const anchor = activeDevice.name.toLowerCase().split(' ')[0];
+    return promo.name.toLowerCase().includes(anchor) || promo.details.toLowerCase().includes(anchor);
+  }).slice(0, 1) ?? [];
 
   return (
     <motion.div
@@ -1295,6 +1308,24 @@ export function DeviceComparison({
           </button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setCompareView('rep')}
+            className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
+              compareView === 'rep' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+            }`}
+          >
+            Rep quick compare
+          </button>
+          <button
+            type="button"
+            onClick={() => setCompareView('full')}
+            className={`focus-ring rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-wider transition-colors ${
+              compareView === 'full' ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+            }`}
+          >
+            Full detail
+          </button>
           {devices.map((device, index) => (
             <button
               type="button"
@@ -1309,6 +1340,71 @@ export function DeviceComparison({
           ))}
         </div>
       </div>
+
+      <div className="sticky top-2 z-20 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl dark:bg-[#0f0f10]/90">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {devices.map((device, index) => {
+            const isActive = index === clampedActiveIndex;
+            return (
+              <button
+                key={`${device.name}-sticky-identity`}
+                type="button"
+                onClick={() => onActiveIndexChange(index)}
+                className={`focus-ring min-w-[164px] rounded-2xl border p-2 text-left transition-colors ${
+                  isActive
+                    ? 'border-t-magenta/30 bg-t-magenta/10'
+                    : 'border-t-light-gray/70 bg-surface-elevated/85 hover:border-t-magenta/20'
+                }`}
+              >
+                <p className="truncate text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{device.name}</p>
+                <p className="mt-1 text-[11px] font-bold text-t-dark-gray">
+                  {typeof device.startingPrice === 'number' ? `$${device.startingPrice}` : String(device.startingPrice)}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <motion.div
+        key={`${activeDevice.name}-hero-focus`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="rounded-3xl glass-stage-quiet p-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Hero focus card</p>
+            <h3 className="mt-1 text-lg font-black tracking-tight text-t-dark-gray">{activeDevice.name}</h3>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{activeSummary.sayThis}</p>
+          </div>
+          <DeviceImageSlot
+            device={activeDevice}
+            className="h-16 w-16 shrink-0 rounded-[1.15rem] border border-t-light-gray/60 bg-white/85 p-2.5"
+            imageClassName="h-full w-full object-contain"
+            badgeSize="sm"
+          />
+        </div>
+        <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <div className="rounded-2xl glass-reading p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Core specs</p>
+            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{activeDevice.keySpecs}</p>
+          </div>
+          <div className="rounded-2xl glass-reading p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Primary angle</p>
+            <p className="mt-1 text-[11px] font-black text-t-dark-gray">{activeSummary.primaryAngle.title}</p>
+            <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{activeSummary.primaryAngle.proof}</p>
+          </div>
+        </div>
+        {activePromos.length > 0 ? (
+          <div className="mt-3 rounded-2xl border border-success-border bg-success-surface p-3">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-success-foreground">This week on this model</p>
+            <p className="mt-1 text-[11px] font-black text-success-foreground">{activePromos[0].name}</p>
+            <p className="mt-1 text-[10px] font-medium leading-relaxed text-success-foreground/80">{activePromos[0].details}</p>
+          </div>
+        ) : null}
+      </motion.div>
 
       <div className="space-y-4 md:hidden">
         <motion.div
