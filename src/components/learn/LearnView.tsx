@@ -831,66 +831,55 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                   </div>
                                 </div>
 
-                                <div className="mt-4 space-y-2.5">
+                                <div className="mt-4 grid grid-cols-3 gap-2">
                                   {presetDevices.slice(0, 3).map((device) => {
                                     const summary = summaryByName.get(device.name);
                                     const role = roleByName.get(device.name);
 
                                     return (
-                                      <div key={device.name} className="rounded-[1.45rem] glass-reading-strong p-3">
-                                        <div className="flex items-start gap-3">
-                                          <DeviceImage
-                                            device={device}
-                                            className="h-20 w-20 shrink-0 rounded-[1.2rem] border border-white/35 bg-white/92 p-2.5 shadow-sm"
-                                            imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
-                                            badgeSize="sm"
-                                          />
-                                          <div className="min-w-0 flex-1">
-                                            <div className="flex flex-wrap items-center gap-1.5">
-                                              {role ? (
-                                                <span className="rounded-full bg-t-magenta px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-white">
-                                                  {role.label}
-                                                </span>
-                                              ) : null}
-                                              <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
-                                                {summary ? getAppealTypeLabel(summary.appealType) : 'Quick scan'}
-                                              </span>
-                                            </div>
-                                            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                                              <p className="min-w-0 flex-1 text-[13px] font-black leading-tight text-foreground">
-                                                {device.name}
-                                              </p>
-                                              <span className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
-                                                {formatPresetDevicePrice(device)}
-                                              </span>
-                                            </div>
-                                            <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                                              {summary?.shortHook || role?.helper || 'Use one clear angle, then back it up with one everyday proof point.'}
-                                            </p>
-                                            <div className="mt-2 flex flex-wrap gap-1.5">
-                                              {(summary?.bestFit.slice(0, 2) ?? []).map((fit) => (
-                                                <span
-                                                  key={`${device.name}-${fit}`}
-                                                  className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta"
-                                                >
-                                                  {fit}
-                                                </span>
-                                              ))}
-                                            </div>
-                                          </div>
+                                      <div key={device.name} className="rounded-[1.45rem] glass-reading-strong p-2.5">
+                                        <div className="flex flex-wrap items-center justify-between gap-1">
+                                          {role ? (
+                                            <span className="rounded-full bg-t-magenta px-2 py-1 text-[7px] font-black uppercase tracking-[0.16em] text-white">
+                                              {role.label}
+                                            </span>
+                                          ) : (
+                                            <span className="rounded-full border border-t-light-gray bg-surface px-2 py-1 text-[7px] font-black uppercase tracking-[0.16em] text-t-dark-gray">
+                                              Quick scan
+                                            </span>
+                                          )}
+                                          <span className="rounded-full border border-t-magenta/20 bg-t-magenta/8 px-2 py-1 text-[7px] font-black uppercase tracking-[0.16em] text-t-magenta">
+                                            {formatPresetDevicePrice(device)}
+                                          </span>
                                         </div>
+                                        <DeviceImage
+                                          device={device}
+                                          className="mt-2 h-20 w-full rounded-[1.2rem] border border-white/35 bg-white/92 p-2.5 shadow-sm"
+                                          imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
+                                          badgeSize="sm"
+                                        />
+                                        <p className="mt-2 text-[11px] font-black leading-tight text-foreground">
+                                          {device.name}
+                                        </p>
+                                        <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-t-magenta">
+                                          {summary ? getAppealTypeLabel(summary.appealType) : role?.helper || 'Photo preview'}
+                                        </p>
+                                        <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                                          {summary?.bestFit[0] || role?.helper || 'Use one clear angle and move fast.'}
+                                        </p>
                                       </div>
                                     );
                                   })}
                                 </div>
 
-                                <div className="mt-4 rounded-[1.5rem] glass-reading p-3.5">
-                                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
-                                      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1.5 sm:max-w-[16rem] sm:justify-end">
+                                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+                                  <div className="rounded-[1.5rem] glass-reading p-3.5">
+                                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
+                                    <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
+                                  </div>
+                                  <div className="rounded-[1.5rem] glass-reading p-3.5">
+                                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Lineup fit</p>
+                                    <div className="mt-2 flex flex-wrap gap-1.5">
                                       {presetDevices.map((device) => (
                                         <span
                                           key={device.name}
