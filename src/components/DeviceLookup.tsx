@@ -531,10 +531,12 @@ export default function DeviceLookup({
       <div className={`rounded-[1.65rem] p-3 ${
         isSecondary ? 'glass-reading' : 'glass-stage-quiet'
       }`}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Active lineup</p>
-            <p className="mt-1 text-[11px] font-medium text-t-dark-gray">{lookupCopy.helper}</p>
+            {selectedDevices.length <= 1 ? (
+              <p className="mt-1 text-[11px] font-medium text-t-dark-gray">{lookupCopy.helper}</p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-t-light-gray bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-t-dark-gray">
@@ -554,6 +556,15 @@ export default function DeviceLookup({
                 {compareOpen ? 'Comparing' : 'Open compare'}
               </button>
             ) : null}
+            {selectedDevices.length > 0 ? (
+              <button
+                type="button"
+                onClick={onClearDevices}
+                className="focus-ring rounded-full glass-control px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
+              >
+                Clear all
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -568,7 +579,7 @@ export default function DeviceLookup({
                 Build the shortlist first, then open compare when you have the strongest two or three fits.
               </p>
             )}
-            <div className="flex flex-wrap gap-1.5 items-center">
+            <div className="flex flex-wrap items-center gap-1.5">
               {selectedDevices.map((device) => (
                 <div
                   key={device.name}
@@ -601,15 +612,8 @@ export default function DeviceLookup({
                   </button>
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={onClearDevices}
-                className="focus-ring rounded-full glass-control px-3 py-1 text-[10px] font-black uppercase tracking-wider text-t-muted transition-colors hover:text-t-magenta"
-              >
-                Clear all
-              </button>
             </div>
-            {onInspectDevice ? (
+            {selectedDevices.length <= 1 && onInspectDevice ? (
               <p className="text-[10px] font-medium text-t-muted">
                 Tap a selected device for a quick brief without leaving the showdown.
               </p>
@@ -645,75 +649,76 @@ export default function DeviceLookup({
 
       <div className={isBrowseExpanded ? 'block' : 'hidden lg:block'}>
         <div className="space-y-4">
-          {/* Sticky compact control bar */}
-          <div className={`sticky top-0 z-10 rounded-[1.35rem] p-2 backdrop-blur-sm ${
+          <div className={`sticky sticky-under-learn-tabs z-10 rounded-[1.35rem] p-2.5 backdrop-blur-sm sm:top-0 ${
             isSecondary ? 'glass-reading' : 'glass-control'
           }`}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-t-muted" />
-          <input
-            type="text"
-            aria-label="Search devices"
-            name="device-search"
-            placeholder={lookupCopy.searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="focus-ring w-full rounded-xl border-2 border-t-light-gray bg-white py-3 pl-10 pr-4 text-[11px] font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
-            autoComplete="off"
-          />
-        </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-t-muted" />
+              <input
+                type="text"
+                aria-label="Search devices"
+                name="device-search"
+                placeholder={lookupCopy.searchPlaceholder}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="focus-ring w-full rounded-xl border-2 border-t-light-gray bg-white py-3 pl-10 pr-4 text-[11px] font-bold text-foreground transition-all placeholder:text-t-dark-gray/30"
+                autoComplete="off"
+              />
+            </div>
 
-        <div className="mt-2 flex flex-wrap justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            {filters.length > 1 && filters.map(f => (
-              <button
-                type="button"
-                key={f.id}
-                onClick={() => setFilter(f.id)}
-                aria-pressed={filter === f.id}
-                className={`min-h-[44px] rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
-                  filter === f.id
-                    ? 'focus-ring glass-control-active text-white'
-                    : 'focus-ring glass-control text-t-dark-gray hover:text-t-magenta'
-                }`}
-              >
-                {f.label}
-              </button>
-              ))}
-          </div>
+            <div className="mt-2">
+              <div className="-mx-0.5 mobile-rail px-0.5 pb-1 sm:mx-0 sm:flex sm:flex-wrap sm:gap-1.5 sm:overflow-visible sm:px-0 sm:pb-0">
+                {filters.length > 1 && filters.map((f) => (
+                  <button
+                    type="button"
+                    key={f.id}
+                    onClick={() => setFilter(f.id)}
+                    aria-pressed={filter === f.id}
+                    className={`focus-ring rail-snap-start min-h-[40px] rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+                      filter === f.id
+                        ? 'glass-control-active text-white'
+                        : 'glass-control text-t-dark-gray hover:text-t-magenta'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <div className="flex items-center gap-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-t-muted">Sort</label>
-            <select
-              value={sortMode}
-              onChange={(event) => setSortMode(event.target.value as DeviceLookupSort)}
-              className="focus-ring rounded-full glass-control px-2 py-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray"
-            >
-              {SORT_OPTIONS.map(option => (
-                <option
-                  key={option.id}
-                  value={option.id}
-                  className="font-black uppercase"
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <label className="shrink-0 text-[10px] font-black uppercase tracking-widest text-t-muted">Sort</label>
+                <select
+                  value={sortMode}
+                  onChange={(event) => setSortMode(event.target.value as DeviceLookupSort)}
+                  className="focus-ring min-w-0 rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-dark-gray"
                 >
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {hasActiveControls ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch('');
-                  setFilter('all');
-                  setSortMode(defaultSortMode);
-                }}
-                className="focus-ring rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
-              >
-                Reset
-              </button>
-            ) : null}
-          </div>
-        </div>
+                  {SORT_OPTIONS.map(option => (
+                    <option
+                      key={option.id}
+                      value={option.id}
+                      className="font-black uppercase"
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {hasActiveControls ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch('');
+                    setFilter('all');
+                    setSortMode(defaultSortMode);
+                  }}
+                  className="focus-ring shrink-0 rounded-full glass-control px-3 py-2 text-[10px] font-black uppercase tracking-wide text-t-muted transition-colors hover:text-t-magenta"
+                >
+                  Reset
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <div className="space-y-1">
@@ -1412,7 +1417,7 @@ export function DeviceComparison({
         </div>
       </div>
 
-      <div className="sticky top-2 z-20 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl dark:bg-[#0f0f10]/90">
+      <div className="sticky sticky-under-compare-tabs z-20 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl sm:top-2 dark:bg-[#0f0f10]/90">
         <div className="flex gap-2 overflow-x-auto pb-1">
           {devices.map((device, index) => {
             const isActive = index === clampedActiveIndex;

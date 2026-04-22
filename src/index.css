@@ -52,6 +52,24 @@
   --font-sans: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  --app-mobile-chrome-offset: calc(env(safe-area-inset-top, 0px) + 7.25rem);
+  --learn-tabs-sticky-offset: var(--app-mobile-chrome-offset);
+  --device-controls-sticky-offset: calc(var(--app-mobile-chrome-offset) + 3.65rem);
+  --compare-sticky-offset: calc(var(--app-mobile-chrome-offset) + 3.9rem);
+  --compare-scroll-target-offset: calc(var(--app-mobile-chrome-offset) + 4.1rem);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-mobile-chrome-offset: calc(env(safe-area-inset-top, 0px) + 8.2rem);
+    --learn-tabs-sticky-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
+    --device-controls-sticky-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
+    --compare-sticky-offset: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+    --compare-scroll-target-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
+  }
+}
+
 html[data-theme="light"],
 :root {
   --bg-page: #F2F2F3;
@@ -64,14 +82,14 @@ html[data-theme="light"],
   --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.05);
   --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(226, 0, 116, 0.08);
 
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-strong: rgba(255, 255, 255, 0.72);
-  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-bg: rgba(255, 255, 255, 0.32);
+  --glass-bg-strong: rgba(255, 255, 255, 0.38);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.18);
   --glass-border: rgba(200, 200, 200, 0.50);
   --glass-border-subtle: rgba(200, 200, 200, 0.30);
   --glass-border-hover: rgba(226, 0, 116, 0.25);
-  --glass-blur: blur(32px) saturate(180%);
-  --glass-blur-strong: blur(40px) saturate(200%);
+  --glass-blur: blur(24px);
+  --glass-blur-strong: blur(28px);
   --glass-specular-top: rgba(255, 255, 255, 0.95);
   --glass-specular-bottom: rgba(0, 0, 0, 0.04);
   --glass-ring-light: rgba(255, 255, 255, 0.60);
@@ -205,14 +223,14 @@ html[data-theme="dark"],
   --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.25);
   --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(226, 0, 116, 0.15);
 
-  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.10);
   --glass-bg-strong: rgba(255, 255, 255, 0.14);
-  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.12);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-border-subtle: rgba(255, 255, 255, 0.07);
   --glass-border-hover: rgba(226, 0, 116, 0.35);
-  --glass-blur: blur(32px) saturate(180%);
-  --glass-blur-strong: blur(40px) saturate(200%);
+  --glass-blur: blur(24px);
+  --glass-blur-strong: blur(28px);
   --glass-specular-top: rgba(255, 255, 255, 0.45);
   --glass-specular-bottom: rgba(255, 255, 255, 0.08);
   --glass-ring-light: rgba(255, 255, 255, 0.10);
@@ -427,7 +445,7 @@ a,
 
 @utility cta-primary {
   background: var(--bg-cta);
-  color: white;
+  color: var(--text-on-magenta);
   box-shadow:
     var(--shadow-cta),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
@@ -443,11 +461,11 @@ a,
 }
 
 @utility neon-glow {
-  text-shadow: 0 0 8px rgba(226, 0, 116, 0.3);
+  text-shadow: 0 0 6px rgba(226, 0, 116, 0.18);
 }
 
 @utility neon-border {
-  box-shadow: 0 0 10px rgba(226, 0, 116, 0.2);
+  box-shadow: 0 0 8px rgba(226, 0, 116, 0.12);
 }
 
 @utility focus-ring {
@@ -603,7 +621,7 @@ a,
   box-shadow:
     var(--shadow-cta),
     inset 0 0.5px 0 0 rgb(255 255 255 / 0.32);
-  color: white;
+  color: var(--text-on-magenta);
   position: relative;
 }
 
@@ -631,6 +649,39 @@ a,
     0 12px 28px rgb(20 20 20 / 0.05),
     inset 0 0.5px 0 0 color-mix(in srgb, var(--glass-specular-top) 68%, transparent);
   position: relative;
+}
+
+@utility mobile-rail {
+  display: flex;
+  gap: 0.625rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-rail::-webkit-scrollbar {
+  display: none;
+}
+
+@utility rail-snap-start {
+  scroll-snap-align: start;
+}
+
+@utility sticky-under-header {
+  top: var(--learn-tabs-sticky-offset);
+}
+
+@utility sticky-under-learn-tabs {
+  top: var(--device-controls-sticky-offset);
+}
+
+@utility sticky-under-compare-tabs {
+  top: var(--compare-sticky-offset);
+}
+
+@utility scroll-target-under-chrome {
+  scroll-margin-top: var(--compare-scroll-target-offset);
 }
 
 @utility type-kicker {
@@ -719,8 +770,8 @@ a,
    CTA PULSE ANIMATION
    ============================================ */
 @keyframes magenta-pulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(226, 0, 116, 0.25), 0 0 30px rgba(226, 0, 116, 0.08); }
-  50% { box-shadow: 0 4px 24px rgba(226, 0, 116, 0.35), 0 0 50px rgba(226, 0, 116, 0.12); }
+  0%, 100% { box-shadow: 0 4px 16px rgba(226, 0, 116, 0.18), 0 0 24px rgba(226, 0, 116, 0.05); }
+  50% { box-shadow: 0 4px 22px rgba(226, 0, 116, 0.24), 0 0 36px rgba(226, 0, 116, 0.08); }
 }
 
 /* ============================================

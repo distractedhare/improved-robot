@@ -18,6 +18,9 @@
     "@google/genai": "^1.48.0",
     "@jridgewell/trace-mapping": "^0.3.31",
     "@mlc-ai/web-llm": "^0.2.82",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "@react-three/postprocessing": "^3.0.4",
     "axios": "^1.14.0",
     "canvas-confetti": "^1.9.4",
     "cookie-session": "^2.1.1",
@@ -26,11 +29,15 @@
     "express": "^5.2.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
+    "postprocessing": "^6.39.1",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-simple-maps": "^3.0.0",
-    "topojson-client": "^3.1.0"
+    "three": "^0.184.0",
+    "topojson-client": "^3.1.0",
+    "uuid": "^14.0.0",
+    "zustand": "^5.0.12"
   },
   "engines": {
     "node": ">=18.0.0"

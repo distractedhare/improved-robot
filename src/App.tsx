@@ -157,6 +157,7 @@ export default function App() {
   const [enhancingPlan, setEnhancingPlan] = useState(false);
   const [enhancingObjection, setEnhancingObjection] = useState(false);
   const [showHintPrompt, setShowHintPrompt] = useState(false);
+  const [levelUpImmersive, setLevelUpImmersive] = useState(false);
 
   // Track if user has tapped an intent (to show instant plays)
   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
@@ -551,6 +552,13 @@ export default function App() {
     handleDemoScenario(scenario);
   }, [handleDemoScenario]);
 
+  const handleStartLiveCallFromLevelUp = useCallback(() => {
+    reset();
+    setActiveTab('gameplan');
+    setMode('live');
+    setContextExpanded(false);
+  }, [reset]);
+
   const handleRunDemoScenario = useCallback(() => {
     const pool = DEMO_SCENARIOS.filter((scenario) => scenario.name !== lastDemoScenarioName);
     const choices = pool.length > 0 ? pool : DEMO_SCENARIOS;
@@ -609,8 +617,20 @@ export default function App() {
       setSettingsSection('team');
     }
 
+    if (nextMode !== 'level-up') {
+      setLevelUpImmersive(false);
+    }
+
     setMode(nextMode);
   }, [cancelInFlightRequests, mode]);
+
+  useEffect(() => {
+    if (mode !== 'level-up' && levelUpImmersive) {
+      setLevelUpImmersive(false);
+    }
+  }, [levelUpImmersive, mode]);
+
+  const isLevelUpImmersive = mode === 'level-up' && levelUpImmersive;
 
   return (
     <ErrorBoundary>
@@ -618,8 +638,14 @@ export default function App() {
       <PwaUpdater />
       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
 
-      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6 2xl:max-w-6xl">
-        {mode !== 'home' ? (
+      <main
+        className={`relative z-[1] mx-auto ${
+          isLevelUpImmersive
+            ? 'max-w-[min(100vw-0.75rem,118rem)] px-2 pt-1 pb-2 md:px-4 md:pt-1 md:pb-4 2xl:max-w-[118rem]'
+            : 'max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6 2xl:max-w-6xl'
+        }`}
+      >
+        {mode !== 'home' && !isLevelUpImmersive ? (
           <div className="glass-capsule mb-3 flex flex-wrap gap-2 rounded-[1.5rem] p-2.5">
             <StatusPill
               tone={isDataExpired ? 'warning' : 'neutral'}
@@ -673,7 +699,11 @@ export default function App() {
                 message="The practice tab can be reloaded without affecting the rest of the app."
               >
                 <Suspense fallback={<LazySectionFallback label="Level Up" />}>
-                  <LevelUpView onSelectScenario={handlePracticeScenario} />
+                  <LevelUpView
+                    onSelectScenario={handlePracticeScenario}
+                    onStartLiveCall={handleStartLiveCallFromLevelUp}
+                    onImmersiveChange={setLevelUpImmersive}
+                  />
                 </Suspense>
               </ErrorBoundary>
             </motion.section>

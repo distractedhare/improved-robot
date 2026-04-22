@@ -138,6 +138,13 @@ const INITIAL_BROWSE_OPEN_BY_CATEGORY: Record<DeviceCategory, boolean> = {
   accessories: true,
 };
 
+const INITIAL_LAUNCHPAD_HELP_BY_CATEGORY: Record<DeviceCategory, boolean> = {
+  phones: false,
+  tablets: false,
+  wearables: false,
+  accessories: false,
+};
+
 const clampCompareIndex = (index: number, length: number) => {
   if (length <= 0) return 0;
   return Math.min(index, length - 1);
@@ -180,6 +187,14 @@ const formatPresetDevicePrice = (device: Device) => {
   return Number.isFinite(priceValue) ? currencyFormatter.format(priceValue) : String(device.startingPrice);
 };
 
+const getLeadSentence = (copy: string) => {
+  const trimmed = copy.trim();
+  if (!trimmed) return '';
+  const punctuationIndex = trimmed.search(/[.!?](\s|$)/);
+  if (punctuationIndex === -1) return trimmed;
+  return trimmed.slice(0, punctuationIndex + 1);
+};
+
 type PresetPreview = {
   devices: Device[];
   narrative: string;
@@ -212,6 +227,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const [tab, setTab] = useState<LearnTab>('briefing');
   const [deviceCategory, setDeviceCategory] = useState<DeviceCategory>('phones');
   const [showAccessoryPitch, setShowAccessoryPitch] = useState(false);
+  const [briefingHelperOpen, setBriefingHelperOpen] = useState(false);
   const [compareOpenByCategory, setCompareOpenByCategory] = useState<Record<DeviceCategory, boolean>>({
     phones: false,
     tablets: false,
@@ -228,6 +244,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const [activePresetByCategory, setActivePresetByCategory] = useState<Record<DeviceCategory, DevicePreset | null>>(INITIAL_PRESET_BY_CATEGORY);
   const [compareSetByCategory, setCompareSetByCategory] = useState<Record<DeviceCategory, string[]>>(INITIAL_COMPARE_SET_BY_CATEGORY);
   const [browseOpenByCategory, setBrowseOpenByCategory] = useState<Record<DeviceCategory, boolean>>(INITIAL_BROWSE_OPEN_BY_CATEGORY);
+  const [launchpadHelpOpenByCategory, setLaunchpadHelpOpenByCategory] = useState<Record<DeviceCategory, boolean>>(INITIAL_LAUNCHPAD_HELP_BY_CATEGORY);
   const [focusedDeviceName, setFocusedDeviceName] = useState<string | null>(null);
   const comparisonRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Record<LearnTab, HTMLButtonElement | null>>({
@@ -266,6 +283,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const panelSurfaceClassName = tab === 'devices'
     ? 'rounded-[2.25rem] p-4 sm:p-5 glass-stage glass-specular'
     : 'rounded-[2.25rem] p-4 sm:p-5 glass-stage-quiet';
+  const briefingLead = getLeadSentence(learnCopy.hero.subtitle);
 
   useEffect(() => {
     setShowAccessoryPitch(false);
@@ -536,9 +554,9 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: 'easeOut' }}
-          className="relative overflow-hidden rounded-[2.5rem] px-5 py-6 sm:px-6 md:px-8 md:py-8 glass-billboard"
+          className="relative overflow-hidden rounded-[2rem] px-4 py-4 sm:rounded-[2.5rem] sm:px-6 sm:py-6 md:px-8 md:py-8 glass-billboard"
         >
-          <div className="relative z-10 space-y-6">
+          <div className="relative z-10 space-y-4 sm:space-y-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full glass-utility px-3 py-1.5">
                 <Sparkles className="h-3 w-3 text-t-magenta" />
@@ -546,28 +564,31 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   {learnCopy.hero.badge}
                 </p>
               </div>
-              <h2 className="mt-4 max-w-3xl text-3xl font-black leading-none tracking-tight text-foreground dark:text-white sm:text-4xl lg:text-5xl">
+              <h2 className="mt-3 max-w-3xl text-[2rem] font-black leading-none tracking-tight text-foreground dark:text-white sm:mt-4 sm:text-4xl lg:text-5xl">
                 {learnCopy.hero.title}
               </h2>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-relaxed text-t-dark-gray dark:text-white/82 md:text-base">
+              <p className="mt-2 max-w-2xl text-[12px] font-medium leading-relaxed text-t-dark-gray dark:text-white/82 sm:hidden">
+                {briefingLead}
+              </p>
+              <p className="mt-3 hidden max-w-2xl text-sm font-medium leading-relaxed text-t-dark-gray dark:text-white/82 sm:block md:text-base">
                 {learnCopy.hero.subtitle}
               </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl glass-utility px-4 py-3">
+              <div className="-mx-1 mt-4 mobile-rail px-1 pb-1 sm:mx-0 sm:mt-6 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
+                <div className="rail-snap-start min-w-[11.25rem] rounded-2xl glass-utility px-4 py-3 sm:min-w-0">
                   <div className="flex items-center gap-2">
                     <Newspaper className="h-4 w-4 text-t-magenta" />
                     <p className="text-[10px] font-black uppercase tracking-wider text-foreground dark:text-white">Daily Briefing</p>
                   </div>
                   <p className="mt-2 text-[10px] font-medium text-t-dark-gray dark:text-white/72">{learnCopy.hero.cards[0].subtitle}</p>
                 </div>
-                <div className="rounded-2xl glass-utility px-4 py-3">
+                <div className="rail-snap-start min-w-[11.25rem] rounded-2xl glass-utility px-4 py-3 sm:min-w-0">
                   <div className="flex items-center gap-2">
                     <Smartphone className="h-4 w-4 text-t-magenta" />
                     <p className="text-[10px] font-black uppercase tracking-wider text-foreground dark:text-white">Device Lab</p>
                   </div>
                   <p className="mt-2 text-[10px] font-medium text-t-dark-gray dark:text-white/72">{learnCopy.hero.cards[1].subtitle}</p>
                 </div>
-                <div className="rounded-2xl glass-utility px-4 py-3">
+                <div className="rail-snap-start min-w-[11.25rem] rounded-2xl glass-utility px-4 py-3 sm:min-w-0">
                   <div className="flex items-center gap-2">
                     <Crown className="h-4 w-4 text-t-magenta" />
                     <p className="text-[10px] font-black uppercase tracking-wider text-foreground dark:text-white">{learnCopy.hero.cards[2].title}</p>
@@ -578,7 +599,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
             </div>
 
             <div className="rounded-[1.75rem] glass-control p-3.5 sm:p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="hidden flex-col gap-3 sm:flex lg:flex-row lg:items-center lg:justify-between">
                 <div className="max-w-2xl">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
                     {learnCopy.onClockPanel.title}
@@ -602,12 +623,57 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   ))}
                 </div>
               </div>
+              <div className="sm:hidden">
+                <button
+                  type="button"
+                  onClick={() => setBriefingHelperOpen((current) => !current)}
+                  className="focus-ring flex w-full items-center justify-between gap-3 text-left"
+                  aria-expanded={briefingHelperOpen}
+                >
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
+                      {learnCopy.onClockPanel.title}
+                    </p>
+                    <p className="mt-1 text-[12px] font-semibold leading-relaxed text-foreground dark:text-white/92">
+                      Use Learn like a live billboard, then move fast.
+                    </p>
+                  </div>
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full glass-control text-t-magenta">
+                    {briefingHelperOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {briefingHelperOpen ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="mt-3 space-y-3"
+                  >
+                    <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray dark:text-white/74">
+                      {learnCopy.onClockPanel.description}
+                    </p>
+                    <div className="-mx-1 mobile-rail px-1 pb-1">
+                      {[
+                        'Start with what is live right now.',
+                        'Move into Devices once the call needs a winner.',
+                        'Use Plans or HINT only when the customer gives you the lane.',
+                      ].map((rule) => (
+                        <div key={rule} className="rail-snap-start min-w-[14rem] rounded-[1.1rem] glass-reading px-3 py-2">
+                          <p className="text-[10px] font-bold leading-relaxed text-foreground dark:text-white/88">{rule}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : null}
+              </div>
             </div>
           </div>
         </motion.div>
       ) : null}
 
-      <div className="grid grid-cols-3 gap-1.5 rounded-[1.5rem] p-1.5 glass-stage-quiet glass-specular md:grid-cols-6" role="tablist" aria-label="Learn sections">
+      <div className="sticky sticky-under-header z-10 -mx-1 rounded-[1.5rem] p-1.5 glass-stage-quiet glass-specular sm:static sm:mx-0" role="tablist" aria-label="Learn sections">
+        <div className="mobile-rail px-1 pb-1 sm:grid sm:grid-cols-3 sm:gap-1.5 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-6">
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
@@ -624,7 +690,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
               tabIndex={isActive ? 0 : -1}
               onClick={() => setTab(t.id)}
               onKeyDown={(event) => handleTabKeyDown(event, t.id)}
-              className={`focus-ring flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-2 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all md:text-xs ${
+              className={`focus-ring rail-snap-start flex min-h-[48px] min-w-[118px] items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all sm:min-w-0 sm:px-2 md:text-xs ${
                 isActive
                   ? 'glass-control-active'
                   : 'glass-control text-t-dark-gray hover:text-t-dark-gray'
@@ -635,6 +701,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
             </button>
           );
         })}
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -655,16 +722,40 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
 
           {tab === 'devices' && (
             <div className="space-y-4">
-              <LearnSectionHeader
-                eyebrow="Device Lab"
-                title="Compare fast. Pick a winner. Pitch the right add-ons."
-                description="This is the glamorous workbench: keep the shortlist tight, move into a winner fast, and only open the attach story once the device decision feels obvious."
-                icon={<Smartphone className="h-4 w-4" />}
-                chips={['Compare & pitch', 'Winner-driven attach', '2-3 device max']}
-                variant="compact"
-              />
+              <div className="rounded-[1.5rem] p-3 glass-stage-quiet sm:hidden">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-2xl glass-control text-t-magenta">
+                        <Smartphone className="h-4 w-4" />
+                      </div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">Device Lab</p>
+                    </div>
+                    <h2 className="mt-2 text-[1.35rem] font-black tracking-tight text-foreground">
+                      Compare fast. Pick a winner.
+                    </h2>
+                    <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                      Keep the shortlist tight, then move into the attach story only after the winner feels obvious.
+                    </p>
+                  </div>
+                  <span className="rounded-full glass-control px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray">
+                    2-3 max
+                  </span>
+                </div>
+              </div>
 
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
+              <div className="hidden sm:block">
+                <LearnSectionHeader
+                  eyebrow="Device Lab"
+                  title="Compare fast. Pick a winner. Pitch the right add-ons."
+                  description="This is the glamorous workbench: keep the shortlist tight, move into a winner fast, and only open the attach story once the device decision feels obvious."
+                  icon={<Smartphone className="h-4 w-4" />}
+                  chips={['Compare & pitch', 'Winner-driven attach', '2-3 device max']}
+                  variant="compact"
+                />
+              </div>
+
+              <div className="-mx-1 mobile-rail px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
                 {DEVICE_CATEGORIES.map((category) => {
                   const isActive = deviceCategory === category.id;
                   const selectionCount = selectedDevicesByCategory[category.id].length;
@@ -677,15 +768,15 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         setDeviceCategory(category.id);
                       }}
                       aria-pressed={isActive}
-                      className={`focus-ring min-w-[154px] rounded-[1.55rem] p-3 text-left transition-all lg:min-w-0 ${
+                      className={`focus-ring rail-snap-start min-w-[132px] rounded-[1.4rem] p-3 text-left transition-all lg:min-w-0 lg:rounded-[1.55rem] ${
                         isActive
                           ? 'glass-control-active shadow-sm shadow-t-magenta/12'
                           : 'glass-control text-t-dark-gray hover:border-t-magenta/30'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start justify-between gap-2.5">
                         <div className="flex min-w-0 items-center gap-2">
-                          <div className={`flex h-9 w-9 items-center justify-center rounded-2xl ${
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-2xl lg:h-9 lg:w-9 ${
                             isActive ? 'bg-white/18 text-white' : 'bg-surface-elevated text-t-magenta'
                           }`}>
                             <category.icon className="h-4 w-4" />
@@ -696,7 +787,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             }`}>
                               {category.label}
                             </p>
-                            <p className={`mt-1 text-[10px] font-medium leading-snug ${
+                            <p className={`mt-1 hidden text-[10px] font-medium leading-snug sm:block ${
                               isActive ? 'text-white/82' : 'text-t-muted'
                             }`}>
                               {category.helper}
@@ -740,8 +831,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                         onBrowseAll={() => handleBrowseExpandedChange(true)}
                       />
                     ) : (
-                      <div className="space-y-5">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="space-y-4 sm:space-y-5">
+                        <div className="hidden flex-col gap-3 sm:flex lg:flex-row lg:items-start lg:justify-between">
                           <div className="max-w-3xl">
                             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">{activeCategoryMeta.shellTitle}</p>
                             <h3 className="mt-2 text-2xl font-black tracking-tight text-foreground">Compare Launchpad</h3>
@@ -761,7 +852,54 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                           </div>
                         </div>
 
-                        <div className="grid gap-4 xl:grid-cols-2">
+                        <div className="sm:hidden">
+                          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">{activeCategoryMeta.shellTitle}</p>
+                          <div className="mt-2 flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <h3 className="text-[1.4rem] font-black tracking-tight text-foreground">Compare Launchpad</h3>
+                              <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                                Load a lineup fast, keep the photos visible, and only widen the compare when the caller needs it.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setLaunchpadHelpOpenByCategory((current) => ({
+                                ...current,
+                                [deviceCategory]: !current[deviceCategory],
+                              }))}
+                              className="focus-ring inline-flex shrink-0 items-center gap-1 rounded-full glass-control px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray"
+                              aria-expanded={launchpadHelpOpenByCategory[deviceCategory]}
+                            >
+                              How to use this
+                              {launchpadHelpOpenByCategory[deviceCategory] ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                            </button>
+                          </div>
+
+                          {launchpadHelpOpenByCategory[deviceCategory] ? (
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.18, ease: 'easeOut' }}
+                              className="mt-3 rounded-[1.4rem] glass-reading p-3"
+                            >
+                              <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">
+                                {activeCategoryMeta.shellDescription}
+                              </p>
+                              <div className="mt-3 space-y-2">
+                                {learnCopy.devices.fastCallRules.slice(0, 2).map((rule, index) => (
+                                  <div key={rule} className="rounded-[1rem] glass-reading px-3 py-2">
+                                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                      Fast rule {index + 1}
+                                    </p>
+                                    <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{rule}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          ) : null}
+                        </div>
+
+                        <div className="-mx-1 mobile-rail px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
                           {deviceConfig.presets.map((preset) => {
                             const presetPreview = buildPresetPreview(preset, deviceConfig.pool, weeklyData, ecosystemMatrix);
                             const { devices: presetDevices, narrative, roleByName, summaryByName } = presetPreview;
@@ -773,7 +911,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                 key={preset.label}
                                 type="button"
                                 onClick={() => handlePresetSelect(preset)}
-                                className={`group focus-ring overflow-hidden rounded-[2rem] p-4 text-left transition-all ${
+                                className={`group focus-ring rail-snap-start min-w-[min(86vw,22rem)] overflow-hidden rounded-[1.8rem] p-4 text-left transition-all lg:min-w-0 lg:rounded-[2rem] ${
                                   isActivePreset
                                     ? 'glass-stage shadow-lg shadow-t-magenta/10'
                                     : 'glass-control hover:-translate-y-0.5'
@@ -801,32 +939,37 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                       ) : null}
                                     </div>
 
-                                    <div className="mt-4 flex items-start justify-between gap-3">
-                                      <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-3">
-                                          <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                                            preset.primary ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'
-                                          }`}>
-                                            {preset.icon}
-                                          </div>
-                                          <div className="min-w-0">
-                                            <p className="text-sm font-black text-foreground">{preset.label}</p>
-                                            <p className="mt-1 text-[11px] font-semibold leading-relaxed text-t-dark-gray">
-                                              {preset.heroNote ?? preset.subtitle}
-                                            </p>
-                                          </div>
+                                    <div className="mt-4">
+                                      <div className="flex items-center gap-3">
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+                                          preset.primary ? 'bg-t-magenta text-white' : 'bg-t-light-gray/40 text-t-magenta'
+                                        }`}>
+                                          {preset.icon}
                                         </div>
-                                        <p className="mt-3 max-w-2xl text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                                          {narrative}
-                                        </p>
+                                        <div className="min-w-0 flex-1">
+                                          <p className="text-sm font-black text-foreground">{preset.label}</p>
+                                          <p className="mt-1 text-[11px] font-semibold leading-relaxed text-t-dark-gray">
+                                            {preset.heroNote ?? preset.subtitle}
+                                          </p>
+                                        </div>
                                       </div>
-                                      <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] ${
-                                        isActivePreset
-                                          ? 'bg-t-magenta text-white'
-                                          : 'glass-reading text-t-dark-gray'
-                                      }`}>
-                                        {isActivePreset ? 'Loaded now' : 'Tap to load'}
-                                      </span>
+                                      <div className="mt-3 flex items-center justify-between gap-2">
+                                        <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] ${
+                                          isActivePreset
+                                            ? 'bg-t-magenta text-white'
+                                            : 'glass-reading text-t-dark-gray'
+                                        }`}>
+                                          {isActivePreset ? 'Loaded now' : 'Load lineup'}
+                                        </span>
+                                        {priceRange ? (
+                                          <span className="glass-magenta rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                                            {priceRange}
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                      <p className="mt-3 hidden max-w-2xl text-[11px] font-medium leading-relaxed text-t-dark-gray lg:block">
+                                        {narrative}
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
@@ -835,9 +978,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                   {presetDevices.slice(0, 3).map((device) => {
                                     const summary = summaryByName.get(device.name);
                                     const role = roleByName.get(device.name);
+                                    const cue = summary?.bestFit[0] || role?.helper || 'Use one clear angle and move fast.';
 
                                     return (
-                                      <div key={device.name} className="rounded-[1.45rem] glass-reading-strong p-2.5">
+                                      <div key={device.name} className="rounded-[1.35rem] glass-reading-strong p-2.5">
                                         <div className="flex flex-wrap items-center justify-between gap-1">
                                           {role ? (
                                             <span className="rounded-full bg-t-magenta px-2 py-1 text-[7px] font-black uppercase tracking-[0.16em] text-white">
@@ -854,29 +998,30 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                         </div>
                                         <DeviceImage
                                           device={device}
-                                          className="mt-2 h-20 w-full rounded-[1.2rem] border border-white/35 bg-white/92 p-2.5 shadow-sm"
+                                          className="mt-2 h-16 w-full rounded-[1.05rem] border border-white/35 bg-white/92 p-2 shadow-sm sm:h-20 sm:rounded-[1.2rem] sm:p-2.5"
                                           imageClassName="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.04]"
                                           badgeSize="sm"
                                         />
-                                        <p className="mt-2 text-[11px] font-black leading-tight text-foreground">
+                                        <p className="mt-2 text-[10px] font-black leading-tight text-foreground sm:text-[11px]">
                                           {device.name}
                                         </p>
                                         <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-t-magenta">
                                           {summary ? getAppealTypeLabel(summary.appealType) : role?.helper || 'Photo preview'}
                                         </p>
-                                        <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">
-                                          {summary?.bestFit[0] || role?.helper || 'Use one clear angle and move fast.'}
+                                        <p className="mt-1 text-[9px] font-medium leading-relaxed text-t-dark-gray sm:text-[10px]">
+                                          {cue}
                                         </p>
                                       </div>
                                     );
                                   })}
                                 </div>
 
-                                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-                                  <div className="rounded-[1.5rem] glass-reading p-3.5">
-                                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
-                                    <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
-                                  </div>
+                                <div className="mt-4 rounded-[1.45rem] glass-reading p-3">
+                                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Use this when</p>
+                                  <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{preset.useWhen}</p>
+                                </div>
+
+                                <div className="mt-4 hidden gap-3 sm:grid">
                                   <div className="rounded-[1.5rem] glass-reading p-3.5">
                                     <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Lineup fit</p>
                                     <div className="mt-2 flex flex-wrap gap-1.5">
@@ -889,6 +1034,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                                         </span>
                                       ))}
                                     </div>
+                                  </div>
+                                  <div className="rounded-[1.5rem] glass-reading p-3.5 lg:hidden">
+                                    <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Lineup angle</p>
+                                    <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{narrative}</p>
                                   </div>
                                 </div>
                               </button>
@@ -928,32 +1077,20 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                     </div>
                   </div>
 
-                  <div ref={comparisonRef} className="space-y-6 scroll-mt-4 lg:col-span-7">
+                  <div ref={comparisonRef} className="space-y-6 scroll-target-under-chrome lg:col-span-7">
                     {selectedDevices.length > 0 ? (
                       <>
-                        {!showLineupHero ? (
+                        {!showLineupHero && !compareOpen ? (
                           <div className="rounded-[1.5rem] p-4 glass-stage-quiet">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                               <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">
-                                  {compareOpen ? 'Compare mode is live' : 'Shortlist ready'}
-                                </p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta">Shortlist ready</p>
                                 <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">
-                                  {compareOpen
-                                    ? 'Use the current best-fit card first, then swipe or step through the finalists only if the caller needs the side-by-side.'
-                                    : 'Add one or two alternates if the caller needs a cleaner side-by-side.'}
+                                  Add one or two alternates if the caller needs a cleaner side-by-side.
                                 </p>
                               </div>
                               <div className="flex flex-wrap gap-2">
-                                {compareOpen ? (
-                                  <button
-                                    type="button"
-                                    onClick={handleCloseCompare}
-                                    className="focus-ring rounded-full glass-control px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
-                                  >
-                                    Back to shortlist
-                                  </button>
-                                ) : compareDevices.length > 1 ? (
+                                {compareDevices.length > 1 ? (
                                   <button
                                     type="button"
                                     onClick={handleOpenCompare}
@@ -966,7 +1103,7 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             </div>
                           </div>
                         ) : compareOpen ? (
-                          <div className="flex justify-end">
+                          <div className="hidden justify-end sm:flex">
                             <button
                               type="button"
                               onClick={handleCloseCompare}
@@ -985,6 +1122,18 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             activeIndex={activeCompareIndex}
                             onActiveIndexChange={handleActiveCompareIndexChange}
                           />
+                        ) : null}
+
+                        {compareOpen ? (
+                          <div className="flex justify-end sm:hidden">
+                            <button
+                              type="button"
+                              onClick={handleCloseCompare}
+                              className="focus-ring rounded-full glass-control px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-t-dark-gray transition-colors hover:text-t-magenta"
+                            >
+                              Back to shortlist
+                            </button>
+                          </div>
                         ) : null}
 
                         {activeCompareDevice && (compareOpen || selectedDevices.length === 1) ? (

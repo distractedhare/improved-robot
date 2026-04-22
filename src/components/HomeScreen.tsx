@@ -11,6 +11,7 @@ import { motion } from 'motion/react';
 import {
   Zap, BookOpen, Trophy, TrendingUp,
   ChevronRight, Flame, Shield, Sparkles, Wifi,
+  type LucideIcon,
 } from 'lucide-react';
 import { getActiveRole, getEnabledRoles, setActiveRole, RoleConfig } from '../config/roles';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
@@ -22,7 +23,7 @@ interface HomeScreenProps {
   onReset: () => void;
 }
 
-const MODE_ICONS: Record<string, React.ElementType> = {
+const MODE_ICONS: Partial<Record<AppMode, LucideIcon>> = {
   live: Zap,
   learn: BookOpen,
   'level-up': Trophy,
@@ -183,7 +184,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
         >
         {(['primary', 'secondary', 'tertiary'] as const).map((tier, i) => {
           const card = role.actionCards[tier];
-          const Icon = MODE_ICONS[card.mode] || Zap;
+          const Icon: LucideIcon = MODE_ICONS[card.mode as AppMode] ?? Zap;
           const isPrimary = tier === 'primary';
 
           return (
