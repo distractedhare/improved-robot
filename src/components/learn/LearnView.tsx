@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, lazy, Suspense, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Newspaper, Smartphone, BookOpen, Shield, Watch, Tablet, Headphones, Wifi, Crown, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { WeeklyUpdate } from '../../services/weeklyUpdateSchema';
@@ -9,7 +9,6 @@ import { EcosystemMatrix } from '../../types/ecosystem';
 import DailyBriefing from '../DailyBriefing';
 import DeviceLookup, {
   type DevicePreset,
-  DeviceComparison,
   DeviceLineupHero,
   DeviceQuickBriefSheet,
   buildLineupNarrative,
@@ -20,13 +19,14 @@ import DeviceLookup, {
   WATCH_PRESETS,
   normalizeCompareSet,
 } from '../DeviceLookup';
+import { DeviceComparison } from '../DeviceComparison';
 import AccessoryPitchBuilder from '../AccessoryPitchBuilder';
 import AccessoriesReference from '../AccessoriesReference';
 import DeviceImage from '../DeviceImage';
-import PlaybookSection from './PlaybookSection';
-import EdgeSection from './EdgeSection';
-import HomeInternetSection from './HomeInternetSection';
-import PlansSection from './PlansSection';
+const PlaybookSection = lazy(() => import('./PlaybookSection'));
+const EdgeSection = lazy(() => import('./EdgeSection'));
+const HomeInternetSection = lazy(() => import('./HomeInternetSection'));
+const PlansSection = lazy(() => import('./PlansSection'));
 import { learnCopy } from './learnCopy';
 import LearnSectionHeader from './LearnSectionHeader';
 import { KipCoachNote } from '../kip';
@@ -1307,13 +1307,20 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
             </div>
           )}
 
-          {tab === 'plans' && <PlansSection />}
-
-          {tab === 'homeinternet' && <HomeInternetSection />}
-
-          {tab === 'playbook' && <PlaybookSection />}
-
-          {tab === 'edge' && <EdgeSection />}
+          {(tab === 'plans' || tab === 'homeinternet' || tab === 'playbook' || tab === 'edge') && (
+            <Suspense
+              fallback={
+                <div className="rounded-[1.85rem] border border-t-light-gray/40 bg-surface-elevated/40 p-8 text-center text-xs font-black uppercase tracking-[0.18em] text-t-muted">
+                  Loading…
+                </div>
+              }
+            >
+              {tab === 'plans' && <PlansSection />}
+              {tab === 'homeinternet' && <HomeInternetSection />}
+              {tab === 'playbook' && <PlaybookSection />}
+              {tab === 'edge' && <EdgeSection />}
+            </Suspense>
+          )}
         </motion.section>
       </AnimatePresence>
     </div>
