@@ -34,6 +34,7 @@ function formatCount(value: number, singular: string, plural = `${singular}s`): 
 
 export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmersiveChange }: LevelUpViewProps) {
   const [tab, setTab] = useState<LevelUpTab>('runner');
+  const [runnerLaunched, setRunnerLaunched] = useState(false);
   const [prizeData, setPrizeData] = useState(() => getPrizeData());
   const [isCompactRunnerViewport, setIsCompactRunnerViewport] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
@@ -54,6 +55,7 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
   const isRunnerImmersive =
     isRunnerTab &&
     (
+      runnerLaunched ||
       isCompactRunnerViewport ||
       runnerStatus === GameStatus.PLAYING ||
       runnerStatus === GameStatus.PAUSED ||
@@ -106,6 +108,12 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
   useEffect(() => {
     onImmersiveChange?.(isRunnerImmersive);
   }, [isRunnerImmersive, onImmersiveChange]);
+
+  // Leaving the Runner tab returns the rep to the landing page. Stops a
+  // half-played game from staying mounted while they're elsewhere.
+  useEffect(() => {
+    if (!isRunnerTab && runnerLaunched) setRunnerLaunched(false);
+  }, [isRunnerTab, runnerLaunched]);
 
   useEffect(() => () => onImmersiveChange?.(false), [onImmersiveChange]);
 
@@ -331,7 +339,12 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
             <PracticeScenarios onSelectScenario={onSelectScenario} />
           </div>
         ) : tab === 'runner' ? (
-          <RunnerTab immersive={isRunnerImmersive} onStartLiveCall={onStartLiveCall} />
+          <RunnerTab
+            immersive={isRunnerImmersive}
+            launched={runnerLaunched}
+            onLaunchedChange={setRunnerLaunched}
+            onStartLiveCall={onStartLiveCall}
+          />
         ) : (
           <PrizeHub />
         )}
