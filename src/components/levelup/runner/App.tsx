@@ -12,7 +12,7 @@ import { Environment } from './components/World/Environment';
 import { Player } from './components/World/Player';
 import { LevelManager } from './components/World/LevelManager';
 import { Effects } from './components/World/Effects';
-import { HUD } from './components/UI/HUD';
+import { HUD, HudControlPanel } from './components/UI/HUD';
 import { AudioSync } from './components/System/AudioSync';
 import { useStore } from './store';
 import { GameStatus } from './types';
@@ -79,13 +79,14 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
   const shellHeightClass = immersive ? 'h-[calc(100dvh-5rem)] md:h-[calc(100vh-8.5rem)]' : 'h-[72vh]';
   const status = useStore((state) => state.status);
   const showLiveCallShortcut = immersive && onStartLiveCall && status !== GameStatus.PLAYING;
+  const showControlPanel = status === GameStatus.PLAYING;
 
   return (
     <div
-      className={`relative w-full overflow-hidden bg-black select-none shadow-[0_30px_90px_rgba(0,0,0,0.4)] ${
+      className={`relative flex w-full flex-col overflow-hidden bg-black select-none shadow-[0_30px_90px_rgba(0,0,0,0.4)] ${
         immersive
           ? `${shellHeightClass} rounded-none border-0 md:rounded-[2.1rem] md:border md:border-white/8`
-          : 'min-h-[72vh] rounded-[1.85rem] border border-white/10'
+          : `${shellHeightClass} rounded-[1.85rem] border border-white/10`
       }`}
     >
       {showLiveCallShortcut ? (
@@ -102,20 +103,24 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
       ) : null}
 
       <AudioSync />
-      <HUD />
-      <Canvas
-        shadows
-        dpr={[1, 1.5]} 
-        gl={{ antialias: false, stencil: false, depth: true, powerPreference: "high-performance" }}
-        // Initial camera, matches the controller base
-        className={`w-full ${shellHeightClass}`}
-        camera={{ position: [0, 5.5, 8], fov: 60 }}
-      >
-        <CameraController />
-        <Suspense fallback={null}>
-            <Scene />
-        </Suspense>
-      </Canvas>
+
+      <div className="relative w-full flex-1 min-h-0 overflow-hidden">
+        <HUD />
+        <Canvas
+          shadows
+          dpr={[1, 1.5]}
+          gl={{ antialias: false, stencil: false, depth: true, powerPreference: 'high-performance' }}
+          className="h-full w-full"
+          camera={{ position: [0, 5.5, 8], fov: 60 }}
+        >
+          <CameraController />
+          <Suspense fallback={null}>
+              <Scene />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      {showControlPanel ? <HudControlPanel /> : null}
     </div>
   );
 }

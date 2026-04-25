@@ -7,7 +7,6 @@ import React from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   Activity,
-  Battery,
   BatteryCharging,
   ChevronRight,
   Crown,
@@ -649,45 +648,6 @@ const StatusChip = ({ label, active, accent }: { label: string; active: boolean;
     style={active ? { borderColor: accent, background: `${accent}30`, boxShadow: `0 0 12px ${accent}55` } : undefined}
   >
     {label}
-  </div>
-);
-
-const CharacterHudIdentity = ({
-  character,
-  level,
-  batteryPercent,
-}: {
-  character: CharacterDefinition;
-  level: number;
-  batteryPercent: number;
-}) => (
-  <div className="flex min-w-0 items-center gap-2">
-    <div
-      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-black sm:h-14 sm:w-14 sm:rounded-2xl"
-      style={{ borderColor: `${character.accent}80`, boxShadow: `0 0 18px ${character.accent}30` }}
-    >
-      <picture className="block h-full w-full">
-        <source media="(max-width: 420px)" srcSet={getCharacterAvatarSmall(character)} />
-        <img
-          src={getCharacterHudPortrait(character)}
-          alt={`${character.name} portrait`}
-          className="h-full w-full object-cover object-center"
-          loading="eager"
-        />
-      </picture>
-      <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: character.accent }} />
-    </div>
-    <div className="min-w-0">
-      <div className="text-[8px] font-black uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.22em]" style={{ color: character.accent }}>
-        {character.brand}
-      </div>
-      <div className="mt-0.5 truncate text-xs font-black text-white font-cyber leading-none sm:text-base">
-        {character.name}
-      </div>
-      <div className="mt-1 text-[8px] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[9px] sm:tracking-[0.18em]">
-        Lvl {level}/5 / {batteryPercent}%
-      </div>
-    </div>
   </div>
 );
 
@@ -1370,6 +1330,33 @@ const EndScreen = ({
   );
 };
 
+const Meter = ({
+  label,
+  value,
+  max = 1,
+  accent,
+  icon,
+}: {
+  label: string;
+  value: number;
+  max?: number;
+  accent: string;
+  icon: React.ReactNode;
+}) => {
+  const ratio = Math.min(1, Math.max(0, value / max));
+  return (
+    <div className="w-full min-w-0 rounded-[1.05rem] border border-white/10 bg-black/45 p-2 backdrop-blur-md sm:min-w-[150px] sm:rounded-2xl sm:p-3">
+      <div className="mb-2 flex items-center justify-between gap-1.5 text-[8px] uppercase tracking-[0.08em] text-white/50 sm:gap-3 sm:text-[10px] sm:tracking-[0.25em]">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">{icon}<span className="truncate whitespace-nowrap">{label}</span></div>
+        <span>{max === 1 ? `${Math.round(ratio * 100)}%` : `${Math.round(value)}`}</span>
+      </div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/10 sm:h-2">
+        <div className="h-full rounded-full" style={{ width: `${ratio * 100}%`, background: accent }} />
+      </div>
+    </div>
+  );
+};
+
 const AbilityGlyph = ({ slot, className = '' }: { slot: RunnerAbilitySlot; className?: string }) => {
   if (slot === 'blast') {
     return (
@@ -1442,53 +1429,6 @@ const AbilityIconButton = ({
   </button>
 );
 
-const MobileControls = () => {
-  const abilityEnergy = useStore((state) => state.abilityEnergy);
-  const sidekickCoreCharge = useStore((state) => state.sidekickCoreCharge);
-  const selectedCharacterId = useStore((state) => state.selectedCharacterId);
-  const character = getCharacterDefinition(selectedCharacterId);
-  const abilityLabel = CHARACTER_ABILITY_SHORT[character.id];
-  const smashLabel = CHARACTER_SMASH_SHORT[character.id];
-
-  return (
-    <div className="md:hidden pointer-events-auto grid w-full grid-cols-[1fr_auto] items-end gap-1.5 pb-[max(env(safe-area-inset-bottom,0px),0.25rem)]">
-      <div className="grid grid-cols-3 gap-1.5 rounded-[1.25rem] border border-white/10 bg-black/54 p-1.5 backdrop-blur-md">
-        <button onClick={() => controlDispatch('hud-left')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-sm font-black uppercase tracking-[0.12em] text-white">←</button>
-        <button onClick={() => controlDispatch('hud-jump')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-xs font-black uppercase tracking-[0.12em] text-white">Jump</button>
-        <button onClick={() => controlDispatch('hud-right')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-sm font-black uppercase tracking-[0.12em] text-white">→</button>
-      </div>
-      <div className="grid gap-1.5">
-        <AbilityIconButton
-          slot="smash"
-          label={`Smash: ${smashLabel}`}
-          accent={character.accent}
-          secondary="#E20074"
-          onClick={() => controlDispatch('hud-dash')}
-          compact
-        />
-        <AbilityIconButton
-          slot="blast"
-          label={`Blast: ${abilityLabel}`}
-          ready={abilityEnergy >= 0.99}
-          accent={character.accent}
-          secondary={character.secondary}
-          onClick={() => controlDispatch('hud-ability')}
-          compact
-        />
-        <AbilityIconButton
-          slot="core"
-          label="Core: Sidekick Core"
-          ready={sidekickCoreCharge >= 100}
-          accent="#FFFFFF"
-          secondary={character.secondary}
-          onClick={() => controlDispatch('hud-sidekick-core')}
-          compact
-        />
-      </div>
-    </div>
-  );
-};
-
 const PlayingHUD = () => {
   const score = useStore((state) => state.score);
   const battery = useStore((state) => state.battery);
@@ -1496,25 +1436,20 @@ const PlayingHUD = () => {
   const collectedLetters = useStore((state) => state.collectedLetters);
   const level = useStore((state) => state.level);
   const combo = useStore((state) => state.combo);
-  const status = useStore((state) => state.status);
   const togglePause = useStore((state) => state.togglePause);
+  const currentFact = useStore((state) => state.currentFact);
   const selectedCharacterId = useStore((state) => state.selectedCharacterId);
   const isImmortalityActive = useStore((state) => state.isImmortalityActive);
   const isMagnetActive = useStore((state) => state.isMagnetActive);
   const isScannerActive = useStore((state) => state.isScannerActive);
   const isOverclockActive = useStore((state) => state.isOverclockActive);
   const isMultiplierActive = useStore((state) => state.isMultiplierActive);
-  const abilityEnergy = useStore((state) => state.abilityEnergy);
-  const sidekickCoreCharge = useStore((state) => state.sidekickCoreCharge);
   const currentBossId = useStore((state) => state.currentBossId);
-  const saveProgress = useStore((state) => state.saveProgress);
 
   const character = getCharacterDefinition(selectedCharacterId);
   const currentBoss = getBossDefinition(currentBossId);
   const batteryRatio = Math.min(100, Math.max(0, (battery / Math.max(1, maxBattery)) * 100));
   const batteryPercent = Math.round(batteryRatio);
-  const abilityLabel = CHARACTER_ABILITY_SHORT[character.id];
-  const smashLabel = CHARACTER_SMASH_SHORT[character.id];
   const activeStatuses = [
     { label: 'Shield', active: isImmortalityActive, accent: '#ffffff' },
     { label: 'Magnet', active: isMagnetActive, accent: '#ffd74d' },
@@ -1522,122 +1457,206 @@ const PlayingHUD = () => {
     { label: 'Overclock', active: isOverclockActive, accent: '#2de6e6' },
     { label: 'Multiplier', active: isMultiplierActive, accent: '#ff8cc6' },
   ].filter((statusEntry) => statusEntry.active);
-  const activeStatusCount = activeStatuses.length;
 
   return (
-    <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-2.5 md:p-5">
+    <>
       <TutorialOverlay />
 
-      <div className="flex items-start justify-between gap-2 sm:gap-3">
-        <div className="pointer-events-none max-w-[35vw] shrink-0 self-start rounded-[1.05rem] bg-black/35 px-2.5 py-2 backdrop-blur-md sm:max-w-none sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
-          <div className="text-[9px] uppercase tracking-[0.28em] text-white/45 max-[420px]:sr-only sm:text-[10px] sm:tracking-[0.35em]">Sales value</div>
-          <div className="mt-0.5 truncate text-xl font-black italic text-white font-cyber sm:mt-1 sm:text-2xl md:text-5xl">{score.toLocaleString()}</div>
-          {combo > 1 && <div className="mt-1 text-xs font-black uppercase tracking-[0.22em] text-t-magenta md:mt-2 md:text-sm md:tracking-[0.25em]">Combo x{combo}</div>}
-        </div>
-
-        <div className="ml-auto flex min-w-0 w-[54vw] max-w-[12rem] flex-col gap-2 sm:w-auto sm:max-w-none sm:flex-row sm:items-start sm:gap-3">
-          <div className="hidden w-full flex-col gap-3 sm:flex sm:w-auto">
-            {currentBoss && (
-              <div className="rounded-full border border-[#E20074]/20 bg-black/60 px-4 py-2 text-left sm:max-w-[15rem]">
-                <div className="text-[10px] uppercase tracking-[0.24em] text-[#ff8cc6]">
-                  Threat: {currentBoss.name}
-                </div>
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-50 bg-[linear-gradient(180deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.42)_55%,transparent_100%)] px-3 pt-3 pb-7 sm:px-5 sm:pt-4 sm:pb-10">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[9px] uppercase tracking-[0.28em] text-white/55 sm:text-[10px] sm:tracking-[0.32em]">Sales value</div>
+            <div className="mt-0.5 text-2xl font-black italic tabular-nums text-white font-cyber sm:text-3xl md:text-4xl">{score.toLocaleString()}</div>
+            {combo > 1 && (
+              <div className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-t-magenta/45 bg-t-magenta/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                Combo x{combo}
               </div>
             )}
           </div>
-          <div className="w-full rounded-[1.05rem] border border-white/10 bg-black/58 px-2 py-2 backdrop-blur-md sm:min-w-[16rem] sm:rounded-[1.5rem] sm:px-4 sm:py-3 sm:w-auto">
-            <div className="flex items-center justify-between gap-2">
-              <CharacterHudIdentity character={character} level={level} batteryPercent={batteryPercent} />
-              <button
-                onClick={togglePause}
-                className="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white sm:hidden"
-                aria-label="Pause run"
-              >
-                <Pause size={14} />
-              </button>
+
+          <div className="ml-auto flex items-start gap-2">
+            <div
+              className="pointer-events-auto flex items-center gap-2 rounded-2xl border bg-black/55 px-2 py-1.5 backdrop-blur-md sm:gap-2.5 sm:rounded-[1.2rem] sm:px-2.5 sm:py-2"
+              style={{ borderColor: `${character.accent}55` }}
+            >
               <div
-                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-white/75 sm:flex"
-                style={{ borderColor: `${character.accent}45`, background: `${character.accent}14` }}
+                className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border bg-black sm:h-11 sm:w-11"
+                style={{ borderColor: `${character.accent}80` }}
               >
-                <Battery size={15} />
+                <picture className="block h-full w-full">
+                  <source media="(max-width: 420px)" srcSet={getCharacterAvatarSmall(character)} />
+                  <img
+                    src={getCharacterHudPortrait(character)}
+                    alt=""
+                    className="h-full w-full object-cover object-center"
+                    loading="eager"
+                  />
+                </picture>
+                <div className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: character.accent }} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <div className="truncate text-xs font-black text-white sm:text-sm">{character.name}</div>
+                  <div className="text-[9px] font-black uppercase tracking-[0.18em] text-white/45">L{level}</div>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/10 sm:w-24">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-t-magenta),color-mix(in_srgb,var(--color-t-magenta)_58%,white))]"
+                      style={{ width: `${batteryRatio}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] font-black tabular-nums text-white/65">{batteryPercent}%</span>
+                </div>
               </div>
             </div>
-            <div className="mt-1.5 h-2 rounded-full bg-white/10 overflow-hidden sm:mt-2 sm:h-3">
-              <div
-                className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-t-magenta),color-mix(in_srgb,var(--color-t-magenta)_58%,white))]"
-                style={{ width: `${batteryRatio}%` }}
-              />
-            </div>
-            <div className="hidden gap-2 mt-3 pointer-events-auto sm:flex">
-              <button onClick={() => saveProgress(true)} className="flex-1 rounded-xl border border-white/10 bg-white/10 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/80 max-[420px]:hidden">Save</button>
-              <button onClick={togglePause} className="flex-1 rounded-xl bg-t-magenta py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white flex items-center justify-center gap-2"><Pause size={12} />Pause</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute left-2.5 top-[6.65rem] flex gap-1 sm:left-1/2 sm:top-[5.35rem] sm:-translate-x-1/2 md:top-[4.9rem] md:gap-2">
-        {T_LIFE_WORD.map((char, idx) => {
-          const active = collectedLetters.includes(idx);
-          const color = TLIFE_COLORS[idx];
-          return (
-            <div
-              key={idx}
-              className="flex h-7 w-5 items-center justify-center rounded-md border font-black font-cyber text-xs transition-all sm:h-8 sm:w-6 sm:rounded-lg sm:text-sm md:h-10 md:w-8 md:rounded-xl md:text-base"
-              style={{
-                borderColor: active ? color : 'rgba(255,255,255,0.12)',
-                color: active ? (color === '#FFFFFF' ? '#000000' : '#FFFFFF') : 'rgba(255,255,255,0.22)',
-                background: active ? color : 'rgba(0,0,0,0.45)',
-                boxShadow: active ? `0 0 18px ${color}` : 'none',
-              }}
+            <button
+              type="button"
+              onClick={togglePause}
+              aria-label="Pause run"
+              className="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-black/55 text-white backdrop-blur-md transition-colors hover:bg-black/70 sm:h-11 sm:w-11"
             >
-              {char}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="absolute top-28 left-1/2 hidden -translate-x-1/2 gap-2 md:hidden">
-        {currentBoss ? (
-          <div className="rounded-full border border-[#E20074]/20 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-[#ff8cc6]">
-            {currentBoss.name}
+              <Pause size={16} />
+            </button>
           </div>
-        ) : null}
-        {activeStatusCount > 0 ? (
-          <div className="rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/72">
-            {activeStatusCount} boosts live
-          </div>
-        ) : null}
-      </div>
-
-      {activeStatuses.length > 0 ? (
-        <div className="absolute top-32 left-1/2 hidden -translate-x-1/2 flex-wrap gap-3 md:top-36 md:flex">
-          {activeStatuses.map((statusEntry) => (
-            <StatusChip
-              key={statusEntry.label}
-              label={statusEntry.label}
-              active={statusEntry.active}
-              accent={statusEntry.accent}
-            />
-          ))}
         </div>
-      ) : null}
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 md:relative md:min-h-[4.35rem]">
-        <div className="hidden md:flex justify-end items-end gap-3 pointer-events-auto">
-          <div className="mr-auto rounded-[1.2rem] bg-black/40 border border-white/10 backdrop-blur-md p-2 flex items-center gap-1.5 text-white/65 text-[10px] uppercase tracking-[0.18em]">
-            <button onClick={() => controlDispatch('hud-left')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">←</button>
-            <button onClick={() => controlDispatch('hud-jump')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">Jump</button>
-            <button onClick={() => controlDispatch('hud-right')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">→</button>
-            <div className="ml-2 hidden text-white/35 xl:block">arrows / WASD / swipe</div>
+        <div className="mt-2.5 flex items-center gap-1.5 sm:mt-3 sm:gap-2">
+          {T_LIFE_WORD.map((char, idx) => {
+            const active = collectedLetters.includes(idx);
+            const color = TLIFE_COLORS[idx];
+            return (
+              <div
+                key={idx}
+                className="flex h-6 w-5 items-center justify-center rounded-md border font-black font-cyber text-[10px] transition-all sm:h-7 sm:w-6 sm:rounded-lg sm:text-xs"
+                style={{
+                  borderColor: active ? color : 'rgba(255,255,255,0.12)',
+                  color: active ? (color === '#FFFFFF' ? '#000000' : '#FFFFFF') : 'rgba(255,255,255,0.28)',
+                  background: active ? color : 'rgba(0,0,0,0.45)',
+                  boxShadow: active ? `0 0 12px ${color}` : 'none',
+                }}
+              >
+                {char}
+              </div>
+            );
+          })}
+        </div>
+
+        {(currentBoss || activeStatuses.length > 0) && (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
+            {currentBoss && (
+              <div className="rounded-full border border-[#E20074]/35 bg-black/60 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.22em] text-[#ff8cc6] sm:px-3 sm:text-[10px]">
+                Threat · {currentBoss.name}
+              </div>
+            )}
+            {activeStatuses.map((statusEntry) => (
+              <StatusChip
+                key={statusEntry.label}
+                label={statusEntry.label}
+                active={statusEntry.active}
+                accent={statusEntry.accent}
+              />
+            ))}
           </div>
-          <div className="flex gap-2.5">
+        )}
+      </div>
+
+      <AnimatePresence>
+        {currentFact && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.96 }}
+            className="pointer-events-none absolute bottom-3 right-3 z-50 max-w-[16rem] rounded-2xl border border-[#E20074]/35 bg-black/72 p-3 backdrop-blur-xl sm:bottom-4 sm:right-4 sm:max-w-xs sm:rounded-[1.2rem]"
+          >
+            <div className="text-[9px] uppercase tracking-[0.28em] text-[#E20074] mb-1">Knowledge pulse</div>
+            <div className="text-xs leading-snug text-white/85">{currentFact}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export const HudControlPanel: React.FC = () => {
+  const dashEnergy = useStore((state) => state.dashEnergy);
+  const abilityEnergy = useStore((state) => state.abilityEnergy);
+  const sidekickCoreCharge = useStore((state) => state.sidekickCoreCharge);
+  const selectedCharacterId = useStore((state) => state.selectedCharacterId);
+  const character = getCharacterDefinition(selectedCharacterId);
+  const abilityLabel = CHARACTER_ABILITY_SHORT[character.id];
+  const smashLabel = CHARACTER_SMASH_SHORT[character.id];
+
+  return (
+    <div
+      className="relative flex w-full shrink-0 items-stretch gap-2.5 border-t border-white/10 bg-[linear-gradient(180deg,rgba(13,1,24,0.96),rgba(0,0,0,0.98))] px-3 py-3 sm:gap-4 sm:px-5 sm:py-4"
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.75rem)' }}
+    >
+      <div
+        className="relative hidden shrink-0 overflow-hidden rounded-2xl border bg-black sm:flex sm:w-[200px] md:w-[240px]"
+        style={{ borderColor: `${character.accent}55`, boxShadow: `0 16px 48px ${character.accent}22` }}
+      >
+        <picture className="absolute inset-0 block h-full w-full">
+          <source media="(max-width: 520px)" srcSet={getCharacterMobileFallback(character)} />
+          <img
+            src={getCharacterHeroArt(character)}
+            alt={character.name}
+            className="h-full w-full object-cover object-center"
+            loading="eager"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_45%,rgba(0,0,0,0.85)_100%)]" />
+        <div className="relative mt-auto p-3">
+          <div className="text-[9px] font-black uppercase tracking-[0.22em]" style={{ color: character.accent }}>
+            {character.brand}
+          </div>
+          <div className="mt-0.5 truncate text-base font-black text-white font-cyber leading-none">{character.name}</div>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: character.accent }} />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <Meter label="Smash" value={dashEnergy} accent={character.accent} icon={<AbilityGlyph slot="smash" className="h-3 w-3" />} />
+          <Meter label="Blast" value={abilityEnergy} accent={character.secondary} icon={<AbilityGlyph slot="blast" className="h-3 w-3" />} />
+          <Meter label="Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<AbilityGlyph slot="core" className="h-3 w-3" />} />
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto] items-stretch gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-1.5 rounded-2xl border border-white/10 bg-black/45 p-1.5 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => controlDispatch('hud-left')}
+              aria-label="Move left"
+              className="min-h-[3rem] rounded-xl bg-white/8 text-base font-black uppercase tracking-[0.16em] text-white transition-colors hover:bg-white/14 active:bg-white/20"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={() => controlDispatch('hud-jump')}
+              aria-label="Jump"
+              className="min-h-[3rem] rounded-xl bg-white/8 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/14 active:bg-white/20"
+            >
+              Jump
+            </button>
+            <button
+              type="button"
+              onClick={() => controlDispatch('hud-right')}
+              aria-label="Move right"
+              className="min-h-[3rem] rounded-xl bg-white/8 text-base font-black uppercase tracking-[0.16em] text-white transition-colors hover:bg-white/14 active:bg-white/20"
+            >
+              →
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
             <AbilityIconButton
               slot="smash"
               label={`Smash: ${smashLabel}`}
               accent={character.accent}
               secondary="#E20074"
               onClick={() => controlDispatch('hud-dash')}
+              compact
             />
             <AbilityIconButton
               slot="blast"
@@ -1646,6 +1665,7 @@ const PlayingHUD = () => {
               accent={character.accent}
               secondary={character.secondary}
               onClick={() => controlDispatch('hud-ability')}
+              compact
             />
             <AbilityIconButton
               slot="core"
@@ -1654,11 +1674,10 @@ const PlayingHUD = () => {
               accent="#FFFFFF"
               secondary={character.secondary}
               onClick={() => controlDispatch('hud-sidekick-core')}
+              compact
             />
           </div>
         </div>
-
-        <MobileControls />
       </div>
     </div>
   );
