@@ -1,4 +1,5 @@
 import React from 'react';
+import { pickKipLine } from '../services/kip/kipVoice';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -49,9 +50,11 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
 
   render() {
     if (this.state.hasError) {
+      const errorMessage = this.state.error?.message ?? '';
+      const kipLine = pickKipLine('recoverGenericError', errorMessage);
       const {
-        title = 'Something went wrong',
-        message = 'This section hit a snag. Reloading usually gets the demo back on track.',
+        title = 'We hit a hiccup',
+        message = 'This section glitched. Reloading usually catches the signal back up.',
         actionLabel = 'Reload',
         compact = false,
       } = this.props;
@@ -67,10 +70,14 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="mt-5 text-xl font-extrabold tracking-tight text-foreground">
+            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">Kip · Reset</p>
+            <h2 className="mt-1 text-xl font-extrabold tracking-tight text-foreground">
               {title}
             </h2>
-            <p className="mt-2 text-sm font-medium leading-relaxed text-t-dark-gray">
+            <p className="mt-2 text-sm font-bold leading-relaxed text-foreground">
+              {kipLine}
+            </p>
+            <p className="mt-2 text-[12px] font-medium leading-relaxed text-t-dark-gray">
               {message}
             </p>
             <button

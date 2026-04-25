@@ -8,6 +8,7 @@ import { recordBingoCellCompleted, recordBingoRows, recordStreak } from '../../s
 import { heavyCrash, successBuzz } from '../../utils/haptics';
 import BingoCell from './BingoCell';
 import BingoCelebration from './BingoCelebration';
+import { pickKipLine } from '../../services/kip/kipVoice';
 
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -84,6 +85,10 @@ export default function BingoBoard() {
     [board, completedIds]
   );
   const nearCompleteLines = lineProgress.filter((line) => line.filled === 4);
+  const rowToastLine = useMemo(
+    () => (rowToast ? pickKipLine('celebrateBingoRow', `${rowToast.count}`) : ''),
+    [rowToast]
+  );
 
   useEffect(() => {
     if (!rowToast) return undefined;
@@ -329,10 +334,10 @@ export default function BingoBoard() {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Row Complete</p>
-                <p className="mt-1 text-sm font-medium text-t-dark-gray">
-                  {rowToast.count > 1 ? `${rowToast.count} new lines just cleared.` : 'Nice work. You just cleared a bingo line.'}
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">
+                  Kip · {rowToast.count > 1 ? `${rowToast.count} lines down` : 'Line down'}
                 </p>
+                <p className="mt-1 text-sm font-medium text-t-dark-gray">{rowToastLine}</p>
               </div>
               <Flame className="h-5 w-5 text-t-berry" />
             </div>

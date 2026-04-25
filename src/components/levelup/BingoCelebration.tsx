@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Sparkles, Trophy, X } from 'lucide-react';
+import { pickKipLine } from '../../services/kip/kipVoice';
 
 interface BingoCelebrationProps {
   visible: boolean;
@@ -42,6 +43,7 @@ export default function BingoCelebration({
   onClose,
 }: BingoCelebrationProps) {
   const particles = useMemo(() => makeParticles(), [visible]);
+  const kipLine = useMemo(() => pickKipLine('celebrateBingoBoard', boardName), [boardName]);
 
   return (
     <AnimatePresence>
@@ -95,13 +97,12 @@ export default function BingoCelebration({
               </div>
 
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-t-magenta">Full board complete</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-t-magenta">Kip · Full board</p>
                 <h3 className="mt-2 text-4xl font-black uppercase tracking-tight text-t-magenta">
                   BINGO!
                 </h3>
-                <p className="mt-2 text-sm font-medium text-t-dark-gray">
-                  {boardName} is finished. Keep the momentum going and swap into the next challenge.
-                </p>
+                <p className="mt-3 text-base font-bold leading-snug text-foreground">{kipLine}</p>
+                <p className="mt-1 text-xs font-medium text-t-dark-gray">{boardName} closed out.</p>
               </div>
 
               <div className="grid grid-cols-3 gap-3 text-left">

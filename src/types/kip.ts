@@ -1,7 +1,67 @@
 import type { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
 
 export type KipMode = 'live' | 'learn' | 'level-up';
-export type KipTone = 'operator' | 'coach' | 'mission';
+
+/**
+ * Kip's tone register — the emotional setting of a given line.
+ *
+ * - `operator`  — neutral status read ("HINT clean. Attach hot.")
+ * - `coach`     — teaching/explaining ("Use this when …")
+ * - `mission`   — pre-game framing ("Mission focus: …")
+ * - `tip`       — ambient, low-pressure suggestion
+ * - `pivot`     — mid-call redirect
+ * - `celebrate` — wins
+ * - `recover`   — misses, errors, empty states
+ * - `hype`      — pre-call / pre-game energy
+ * - `tease`     — playful nudge
+ */
+export type KipTone =
+  | 'operator'
+  | 'coach'
+  | 'mission'
+  | 'tip'
+  | 'pivot'
+  | 'celebrate'
+  | 'recover'
+  | 'hype'
+  | 'tease';
+
+/**
+ * KipMood is the line-bank key used by `pickKipLine`. It's narrower
+ * than KipTone — moods describe the *situation* ("celebrateBingoRow"),
+ * tone describes the *register* ("celebrate").
+ */
+export type KipMood =
+  | 'greetingMorning'
+  | 'greetingAfternoon'
+  | 'greetingEvening'
+  | 'liveExploring'
+  | 'liveReadyToBuy'
+  | 'liveUpgrade'
+  | 'liveTechSupport'
+  | 'liveAccountSupport'
+  | 'liveOrderSupport'
+  | 'liveSupportFocus'
+  | 'pivotHintBlocked'
+  | 'pivotPriceObjection'
+  | 'pivotAttachHold'
+  | 'celebrateBingoCell'
+  | 'celebrateBingoRow'
+  | 'celebrateBingoBoard'
+  | 'celebrateRunnerWin'
+  | 'celebrateRunnerLoss'
+  | 'celebrateAttachSave'
+  | 'celebrateClose'
+  | 'recoverGenericError'
+  | 'recoverEmpty'
+  | 'recoverIdle'
+  | 'recoverLoading'
+  | 'hypePreCall'
+  | 'hypePreGame'
+  | 'teaseRecital'
+  | 'teaseOverbuild'
+  | 'briefingLearn'
+  | 'briefingPractice';
 
 export interface KipMessage {
   id: string;

@@ -36,6 +36,7 @@ import {
 import { TriviaModal } from './TriviaModal';
 import { TUTORIAL_DATA, TutorialOverlay } from './TutorialOverlay';
 import { audio } from '../System/Audio';
+import { pickKipLine } from '../../../../../services/kip/kipVoice';
 
 const SHOP_ITEMS: ShopItem[] = [
   {
@@ -1299,7 +1300,11 @@ const EndScreen = ({
         <div className="flex justify-center mb-4">{victory ? <Trophy size={56} /> : <Crown size={56} />}</div>
         <div className="text-[10px] uppercase tracking-[0.35em] text-white/55">{character.brand} • {character.name}</div>
         <div className="text-5xl md:text-6xl font-black font-cyber italic mt-3">{victory ? 'Elite advocate' : 'Shift ended'}</div>
-        <div className="text-lg text-white/75 mt-4 max-w-xl mx-auto leading-relaxed">
+        <div className="mt-4 text-[10px] uppercase tracking-[0.3em] text-[#ff8cc6]">Kip · {victory ? 'Hype' : 'Reset'}</div>
+        <div className="text-lg text-white/85 mt-2 max-w-xl mx-auto leading-relaxed">
+          {pickKipLine(victory ? 'celebrateRunnerWin' : 'celebrateRunnerLoss', `${score}:${level}`)}
+        </div>
+        <div className="text-sm text-white/55 mt-2 max-w-xl mx-auto leading-relaxed">
           {victory
             ? 'You cleared the arc, stacked the value story, and turned the run into a highlight reel.'
             : 'The floor hit back. Save the run state, swap tactics, and go again with meaner hands.'}

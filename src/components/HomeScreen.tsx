@@ -16,6 +16,8 @@ import {
 import { getActiveRole, getEnabledRoles, setActiveRole, RoleConfig } from '../config/roles';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
+import { pickKipGreeting } from '../services/kip/kipVoice';
+import { KipBadge } from './kip';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -28,18 +30,6 @@ const MODE_ICONS: Partial<Record<AppMode, LucideIcon>> = {
   learn: BookOpen,
   'level-up': Trophy,
 };
-
-/** Rotating coaching one-liners — one per session load. */
-const COACHING_LINES = [
-  'Every call is a chance to change someone\'s bill — and your paycheck.',
-  'Curiosity closes more deals than pressure ever will.',
-  'The best reps don\'t sell plans — they solve problems.',
-  'Ask one more question than you think you need to.',
-  'Nobody switches carriers for fun. Find their pain, fix it.',
-  'You don\'t need to know everything. You need to know where to look.',
-  'Confidence isn\'t knowing every spec — it\'s knowing you can find the answer.',
-  'The close starts in the first 30 seconds.',
-];
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -61,10 +51,8 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
   const enabledRoles = getEnabledRoles();
   const showRoleSelector = enabledRoles.length > 1;
 
-  // Pick a random coaching line on mount
-  const [coachingLine] = useState(
-    () => COACHING_LINES[Math.floor(Math.random() * COACHING_LINES.length)]
-  );
+  // Kip's daily greeting — stable for the whole shift, fresh tomorrow.
+  const [kipGreeting] = useState(() => pickKipGreeting());
 
   const handleRoleChange = useCallback((roleId: string) => {
     const newRole = enabledRoles.find(r => r.id === roleId);
@@ -109,8 +97,14 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             <p className="text-sm font-bold text-t-dark-gray sm:text-base">
               {role.greeting}
             </p>
-            <p className="mx-auto mt-2 max-w-xl text-[13px] text-t-dark-gray sm:mx-0">
-              {coachingLine}
+          </div>
+        </div>
+
+        <div className="glass-reading rounded-[1.45rem] p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+            <KipBadge tone="hype" compact />
+            <p className="text-[13px] font-bold leading-relaxed text-foreground sm:text-sm">
+              {kipGreeting}
             </p>
           </div>
         </div>

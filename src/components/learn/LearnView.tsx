@@ -261,6 +261,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   const selectedDevices = selectedDevicesByCategory[deviceCategory];
   const briefingKipNote = buildLearnKipNote({ section: 'briefing' });
   const devicesKipNote = buildLearnKipNote({ section: 'devices' });
+  const plansKipNote = buildLearnKipNote({ section: 'plans' });
+  const homeInternetKipNote = buildLearnKipNote({ section: 'homeinternet' });
+  const playbookKipNote = buildLearnKipNote({ section: 'playbook' });
+  const edgeKipNote = buildLearnKipNote({ section: 'edge' });
   const compareDevices = getOrderedDevices(
     selectedDevices,
     normalizeCompareSet(selectedDevices.map((device) => device.name), compareSetByCategory[deviceCategory])
@@ -1308,18 +1312,24 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           )}
 
           {(tab === 'plans' || tab === 'homeinternet' || tab === 'playbook' || tab === 'edge') && (
-            <Suspense
-              fallback={
-                <div className="rounded-[1.85rem] border border-t-light-gray/40 bg-surface-elevated/40 p-8 text-center text-xs font-black uppercase tracking-[0.18em] text-t-muted">
-                  Loading…
-                </div>
-              }
-            >
-              {tab === 'plans' && <PlansSection />}
-              {tab === 'homeinternet' && <HomeInternetSection />}
-              {tab === 'playbook' && <PlaybookSection />}
-              {tab === 'edge' && <EdgeSection />}
-            </Suspense>
+            <div className="space-y-4">
+              {tab === 'plans' && <KipCoachNote note={plansKipNote} />}
+              {tab === 'homeinternet' && <KipCoachNote note={homeInternetKipNote} />}
+              {tab === 'playbook' && <KipCoachNote note={playbookKipNote} />}
+              {tab === 'edge' && <KipCoachNote note={edgeKipNote} />}
+              <Suspense
+                fallback={
+                  <div className="rounded-[1.85rem] border border-t-light-gray/40 bg-surface-elevated/40 p-8 text-center text-xs font-black uppercase tracking-[0.18em] text-t-muted">
+                    Loading…
+                  </div>
+                }
+              >
+                {tab === 'plans' && <PlansSection />}
+                {tab === 'homeinternet' && <HomeInternetSection />}
+                {tab === 'playbook' && <PlaybookSection />}
+                {tab === 'edge' && <EdgeSection />}
+              </Suspense>
+            </div>
           )}
         </motion.section>
       </AnimatePresence>
