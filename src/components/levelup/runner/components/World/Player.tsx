@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../../store';
-import { GameStatus, LANE_WIDTH } from '../../types';
+import { GameStatus, LANE_WIDTH, type CharacterId } from '../../types';
 import { getCharacterDefinition } from '../../content';
 import { audio } from '../System/Audio';
 
@@ -28,6 +28,79 @@ const LENS_GEO = new THREE.CylinderGeometry(0.04, 0.04, 0.05, 16);
 const FLIP_PANEL_GEO = new THREE.BoxGeometry(0.34, 0.42, 0.05);
 const HALO_GEO = new THREE.TorusGeometry(0.45, 0.03, 12, 48);
 const DRONE_GEO = new THREE.SphereGeometry(0.1, 16, 16);
+const SHOULDER_PLATE_GEO = new THREE.BoxGeometry(0.26, 0.12, 0.2);
+const DISPLAY_FRAME_GEO = new THREE.BoxGeometry(0.42, 0.3, 0.05);
+const EQUALIZER_BAR_GEO = new THREE.BoxGeometry(0.045, 0.16, 0.035);
+const HINGE_GEO = new THREE.CylinderGeometry(0.035, 0.035, 0.46, 12);
+const SCANNER_VISOR_GEO = new THREE.BoxGeometry(0.32, 0.1, 0.045);
+const ANTENNA_GEO = new THREE.CylinderGeometry(0.018, 0.018, 0.34, 10);
+
+type SilhouetteProfile = {
+  torsoScale: [number, number, number];
+  chestScale: [number, number, number];
+  headScale: [number, number, number];
+  shoulderX: number;
+  armScale: [number, number, number];
+  legScale: [number, number, number];
+  hipScale: [number, number, number];
+};
+
+const CHARACTER_SILHOUETTES: Record<CharacterId, SilhouetteProfile> = {
+  apple: {
+    torsoScale: [0.84, 1.06, 0.88],
+    chestScale: [0.86, 0.84, 0.9],
+    headScale: [0.92, 0.92, 0.92],
+    shoulderX: 0.31,
+    armScale: [0.82, 1.02, 0.82],
+    legScale: [0.84, 1.06, 0.84],
+    hipScale: [0.82, 0.9, 0.88],
+  },
+  samsung: {
+    torsoScale: [1.16, 1.02, 1.04],
+    chestScale: [1.2, 1.04, 1],
+    headScale: [1.02, 0.98, 1.02],
+    shoulderX: 0.41,
+    armScale: [1.08, 1.06, 1.08],
+    legScale: [1.02, 1.02, 1.02],
+    hipScale: [1.12, 1, 1],
+  },
+  tcl: {
+    torsoScale: [1.26, 1.18, 1.12],
+    chestScale: [1.42, 1.34, 1],
+    headScale: [1.08, 0.94, 1.05],
+    shoulderX: 0.43,
+    armScale: [1.22, 1.12, 1.22],
+    legScale: [1.16, 1.04, 1.16],
+    hipScale: [1.24, 1.08, 1.08],
+  },
+  motorola: {
+    torsoScale: [0.94, 1, 0.92],
+    chestScale: [1.05, 1.22, 0.9],
+    headScale: [0.96, 0.96, 0.96],
+    shoulderX: 0.34,
+    armScale: [0.9, 1.06, 0.9],
+    legScale: [0.86, 1.16, 0.86],
+    hipScale: [0.9, 0.92, 0.94],
+  },
+  pixel: {
+    torsoScale: [0.92, 1.02, 0.95],
+    chestScale: [0.95, 0.9, 0.92],
+    headScale: [0.98, 1, 1],
+    shoulderX: 0.34,
+    armScale: [0.9, 1, 0.9],
+    legScale: [0.92, 1.04, 0.92],
+    hipScale: [0.9, 0.95, 0.95],
+  },
+  sidekick_core: {
+    torsoScale: [1, 1, 1],
+    chestScale: [1, 1, 1],
+    headScale: [1, 1, 1],
+    shoulderX: 0.34,
+    armScale: [1, 1, 1],
+    legScale: [1, 1, 1],
+    hipScale: [1, 1, 1],
+  },
+};
 
 export const Player: React.FC = () => {
   const groupRef = useRef<THREE.Group>(null);
@@ -74,6 +147,7 @@ export const Player: React.FC = () => {
   const lastDamageTime = useRef(0);
 
   const character = getCharacterDefinition(selectedCharacterId);
+  const silhouette = CHARACTER_SILHOUETTES[selectedCharacterId];
 
   const materials = useMemo(() => {
     const armorColor = isImmortalityActive ? '#FFFFFF' : character.armor;
@@ -371,10 +445,15 @@ export const Player: React.FC = () => {
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
       <group ref={bodyRef} position={[0, 1.05, 0]}>
-        <mesh geometry={TORSO_GEO} material={materials.armor} castShadow />
-        <mesh position={[0, 0.04, 0.19]} geometry={CHEST_PANEL_GEO} material={selectedCharacterId === 'tcl' ? materials.glow : materials.secondary} />
+        <mesh geometry={TORSO_GEO} material={materials.armor} scale={silhouette.torsoScale} castShadow />
+        <mesh
+          position={[0, 0.04, 0.19]}
+          geometry={CHEST_PANEL_GEO}
+          material={selectedCharacterId === 'tcl' ? materials.glow : materials.secondary}
+          scale={silhouette.chestScale}
+        />
 
-        <group ref={headRef} position={[0, 0.58, 0]}>
+        <group ref={headRef} position={[0, 0.58, 0]} scale={silhouette.headScale}>
           <mesh geometry={HEAD_GEO} material={materials.armor} castShadow />
           <mesh position={[0, 0, 0.16]}>
             <boxGeometry args={[selectedCharacterId === 'pixel' ? 0.26 : 0.18, 0.08, 0.04]} />
@@ -382,46 +461,54 @@ export const Player: React.FC = () => {
           </mesh>
         </group>
 
-        <group position={[0.34, 0.24, 0]}>
+        <group position={[silhouette.shoulderX, 0.24, 0]}>
           <group ref={rightArmRef}>
-            <mesh position={[0, -0.28, 0]} geometry={ARM_GEO} material={materials.armor} castShadow />
+            <mesh position={[0, -0.28, 0]} geometry={ARM_GEO} material={materials.armor} scale={silhouette.armScale} castShadow />
             <mesh position={[0, -0.62, 0]} geometry={JOINT_GEO} material={materials.accent} />
           </group>
         </group>
-        <group position={[-0.34, 0.24, 0]}>
+        <group position={[-silhouette.shoulderX, 0.24, 0]}>
           <group ref={leftArmRef}>
-            <mesh position={[0, -0.28, 0]} geometry={ARM_GEO} material={materials.armor} castShadow />
+            <mesh position={[0, -0.28, 0]} geometry={ARM_GEO} material={materials.armor} scale={silhouette.armScale} castShadow />
             <mesh position={[0, -0.62, 0]} geometry={JOINT_GEO} material={materials.accent} />
           </group>
         </group>
 
-        <mesh position={[0, -0.2, 0]} geometry={HIPS_GEO} material={materials.joint} />
+        <mesh position={[0, -0.2, 0]} geometry={HIPS_GEO} material={materials.joint} scale={silhouette.hipScale} />
 
         <group position={[0.14, -0.26, 0]}>
           <group ref={rightLegRef}>
-            <mesh position={[0, -0.38, 0]} geometry={LEG_GEO} material={materials.armor} castShadow />
+            <mesh position={[0, -0.38, 0]} geometry={LEG_GEO} material={materials.armor} scale={silhouette.legScale} castShadow />
           </group>
         </group>
         <group position={[-0.14, -0.26, 0]}>
           <group ref={leftLegRef}>
-            <mesh position={[0, -0.38, 0]} geometry={LEG_GEO} material={materials.armor} castShadow />
+            <mesh position={[0, -0.38, 0]} geometry={LEG_GEO} material={materials.armor} scale={silhouette.legScale} castShadow />
           </group>
         </group>
 
         {(selectedCharacterId === 'samsung' || selectedCharacterId === 'motorola') && (
           <>
-            <group ref={leftWingRef} position={[-0.28, 0.36, -0.16]}>
-              <mesh geometry={WING_GEO} material={materials.accent} />
+            <group ref={leftWingRef} position={[-0.32, 0.36, -0.16]}>
+              <mesh
+                geometry={WING_GEO}
+                material={materials.accent}
+                scale={selectedCharacterId === 'samsung' ? [1.45, 1.28, 1.18] : [0.92, 0.94, 0.85]}
+              />
             </group>
-            <group ref={rightWingRef} position={[0.28, 0.36, -0.16]}>
-              <mesh geometry={WING_GEO} material={materials.accent} />
+            <group ref={rightWingRef} position={[0.32, 0.36, -0.16]}>
+              <mesh
+                geometry={WING_GEO}
+                material={materials.accent}
+                scale={selectedCharacterId === 'samsung' ? [1.45, 1.28, 1.18] : [0.92, 0.94, 0.85]}
+              />
             </group>
           </>
         )}
 
         {selectedCharacterId === 'apple' && (
-          <group position={[-0.42, 0.34, 0.02]}>
-            <mesh geometry={CAMERA_CLUSTER_GEO} material={materials.secondary} />
+          <group position={[-0.38, 0.35, 0.02]}>
+            <mesh geometry={CAMERA_CLUSTER_GEO} material={materials.secondary} scale={[1.08, 1.08, 1]} />
             {[
               [-0.06, 0.05, 0.08],
               [0.06, 0.05, 0.08],
@@ -429,45 +516,67 @@ export const Player: React.FC = () => {
             ].map((pos, index) => (
               <mesh key={index} position={pos as any} rotation={[Math.PI / 2, 0, 0]} geometry={LENS_GEO} material={materials.accent} />
             ))}
-            <mesh rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.16, 0.02, 12, 40]} />
-              <primitive object={materials.accent} />
-            </mesh>
           </group>
+        )}
+        {selectedCharacterId === 'apple' && (
+          <mesh position={[0, 0.07, 0.245]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.18, 0.018, 12, 48]} />
+            <primitive object={materials.accent} />
+          </mesh>
+        )}
+
+        {selectedCharacterId === 'samsung' && (
+          <>
+            <mesh position={[-0.37, 0.32, 0.02]} geometry={SHOULDER_PLATE_GEO} material={materials.secondary} />
+            <mesh position={[0.37, 0.32, 0.02]} geometry={SHOULDER_PLATE_GEO} material={materials.secondary} />
+            <mesh position={[0, 0.06, 0.24]} geometry={DISPLAY_FRAME_GEO} material={materials.accent} scale={[0.92, 0.62, 0.9]} />
+          </>
         )}
 
         {selectedCharacterId === 'tcl' && (
           <>
             <group ref={chestPanelRef} position={[0, 0.05, 0.21]}>
               <mesh>
-                <boxGeometry args={[0.34, 0.22, 0.06]} />
+                <boxGeometry args={[0.42, 0.3, 0.06]} />
                 <primitive object={materials.glow} />
               </mesh>
+              {[-0.12, -0.04, 0.04, 0.12].map((x, index) => (
+                <mesh
+                  key={x}
+                  position={[x, -0.02, 0.05]}
+                  geometry={EQUALIZER_BAR_GEO}
+                  material={materials.accent}
+                  scale={[1, 0.65 + index * 0.22, 1]}
+                />
+              ))}
             </group>
-            <mesh position={[0, -0.08, 0.22]}>
-              <boxGeometry args={[0.3, 0.08, 0.04]} />
-              <primitive object={materials.accent} />
-            </mesh>
+            <mesh position={[-0.42, 0.22, 0.02]} geometry={SHOULDER_PLATE_GEO} material={materials.accent} scale={[0.92, 1.4, 1]} />
+            <mesh position={[0.42, 0.22, 0.02]} geometry={SHOULDER_PLATE_GEO} material={materials.accent} scale={[0.92, 1.4, 1]} />
           </>
         )}
 
         {selectedCharacterId === 'motorola' && (
           <group ref={chestPanelRef} position={[0, 0.02, 0.23]}>
             <mesh geometry={FLIP_PANEL_GEO} material={materials.secondary} />
+            <mesh position={[0, 0.02, 0.035]} rotation={[0, 0, Math.PI / 2]} geometry={HINGE_GEO} material={materials.accent} />
+            <mesh position={[0, -0.23, 0.02]} geometry={FLIP_PANEL_GEO} material={materials.accent} scale={[0.74, 0.48, 0.72]} />
           </group>
         )}
 
         {selectedCharacterId === 'pixel' && (
           <>
+            <mesh position={[0, 0.59, 0.18]} geometry={SCANNER_VISOR_GEO} material={materials.accent} />
+            <mesh position={[-0.2, 0.82, -0.02]} rotation={[0.18, 0, -0.32]} geometry={ANTENNA_GEO} material={materials.secondary} />
+            <mesh position={[0.2, 0.82, -0.02]} rotation={[0.18, 0, 0.32]} geometry={ANTENNA_GEO} material={materials.secondary} />
             <group ref={droneOrbitLeftRef} position={[-0.36, 0.54, 0]}>
               <group position={[0.22, 0.04, 0.12]}>
-                <mesh geometry={DRONE_GEO} material={materials.secondary} />
+                <mesh geometry={DRONE_GEO} material={materials.secondary} scale={[1.18, 1.18, 1.18]} />
                 <mesh position={[0, 0, 0.09]} geometry={JOINT_GEO} material={materials.accent} />
               </group>
             </group>
             <group ref={droneOrbitRightRef} position={[0.36, 0.54, 0]}>
               <group position={[-0.22, -0.02, -0.12]}>
-                <mesh geometry={DRONE_GEO} material={materials.secondary} />
+                <mesh geometry={DRONE_GEO} material={materials.secondary} scale={[1.18, 1.18, 1.18]} />
                 <mesh position={[0, 0, 0.09]} geometry={JOINT_GEO} material={materials.accent} />
               </group>
             </group>

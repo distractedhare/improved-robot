@@ -33,11 +33,11 @@ Direct browser fallback is also supported for local/internal testing only:
 
 Health check only:
 
-`npm run check:ai -- --url=https://customerconnect-ai.vercel.app --health-only`
+`npm run check:ai -- --url=https://meridianvrtesting.com --health-only`
 
 Full smoke test:
 
-`npm run check:ai -- --url=https://customerconnect-ai.vercel.app`
+`npm run check:ai -- --url=https://meridianvrtesting.com`
 
 The smoke test fails fast if the Vercel proxy is missing config, the auth is wrong, or the model returns an empty response.
 

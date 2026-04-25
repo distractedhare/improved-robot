@@ -15,7 +15,7 @@ interface HeaderProps {
 const MODES = [
   { id: 'live' as const, icon: Zap, label: 'Live Call', shortLabel: 'Live' },
   { id: 'learn' as const, icon: BookOpen, label: 'Learn', shortLabel: 'Learn' },
-  { id: 'level-up' as const, icon: Trophy, label: 'Level Up', shortLabel: 'Level Up', badge: 'NEW!' },
+  { id: 'level-up' as const, icon: Trophy, label: 'Level Up', shortLabel: 'Level Up' },
   { id: 'offline-coach' as const, icon: Wifi, label: 'Offline Coach', shortLabel: 'Offline' },
   { id: 'settings' as const, icon: Settings, label: 'Settings', shortLabel: 'Settings' },
 ] as const;
@@ -79,28 +79,28 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
       style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.35rem)' }}
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-2 2xl:max-w-6xl">
-        <div className="glass-capsule flex items-center gap-2 rounded-[1.8rem] px-3 py-2.5 sm:rounded-[2rem] sm:gap-3 sm:px-4 sm:py-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-            <motion.button
-              layout
-              type="button"
-              onClick={() => onModeChange('home')}
-              aria-label="Go to home screen"
-              className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.15rem] glass-control transition-transform hover:scale-[1.02] active:scale-95 sm:h-14 sm:w-14 sm:rounded-[1.35rem]"
-            >
+        <div className="glass-capsule flex items-center gap-2 rounded-[1.8rem] px-2.5 py-2 sm:rounded-[2rem] sm:gap-3 sm:px-4 sm:py-3">
+          <motion.button
+            layout
+            type="button"
+            onClick={() => onModeChange('home')}
+            aria-label="Go to home screen"
+            className="focus-ring flex min-w-0 flex-1 items-center gap-2 rounded-[1.35rem] p-1 text-left transition-transform hover:scale-[1.005] active:scale-[0.995] sm:gap-3 sm:p-2"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] glass-control sm:h-14 sm:w-14 sm:rounded-[1.35rem]">
               <img
                 src="/tmo-logo-v4.svg"
                 alt="T-Mobile logo"
-                className="h-7 w-7 sm:h-9 sm:w-9"
+                className="h-6 w-6 sm:h-9 sm:w-9"
               />
-            </motion.button>
+            </span>
 
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="truncate text-base font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
+                <h1 className="truncate text-[15px] font-extrabold tracking-tight text-foreground sm:text-xl md:text-2xl">
                   CustomerConnect AI
                 </h1>
-                <span className="type-micro rounded-full bg-surface-elevated/80 px-2 py-0.5 text-t-dark-gray sm:glass-control sm:px-2.5 sm:py-1 sm:text-t-magenta">
+                <span className="type-micro hidden whitespace-nowrap rounded-full bg-surface-elevated/80 px-2 py-0.5 text-t-dark-gray min-[430px]:inline-flex sm:glass-control sm:px-2.5 sm:py-1 sm:text-t-magenta">
                   Demo Ready
                 </span>
               </div>
@@ -108,15 +108,15 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                 T-Mobile virtual retail call coaching
               </p>
             </div>
-          </div>
+          </motion.button>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <button
               type="button"
               onClick={cycleTheme}
               aria-label={pref === 'auto' ? 'Theme: auto (follows system)' : pref === 'dark' ? 'Theme: dark' : 'Theme: light'}
               title={pref === 'auto' ? 'Auto' : pref === 'dark' ? 'Dark' : 'Light'}
-              className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full glass-control text-t-dark-gray transition-colors hover:text-t-magenta sm:h-12 sm:w-12"
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass-control text-t-dark-gray transition-colors hover:text-t-magenta sm:h-12 sm:w-12"
             >
               {pref === 'auto' ? <Monitor className="h-4 w-4" /> : isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -125,11 +125,12 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
               type="button"
               onClick={handleNewCall}
               aria-label="Start a new call"
-              className="focus-ring cta-primary inline-flex min-h-[42px] shrink-0 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:min-h-[48px] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-xs"
+              className="focus-ring cta-primary inline-flex min-h-[40px] shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white transition-transform hover:scale-[1.01] active:scale-95 sm:min-h-[48px] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-xs"
               style={{ touchAction: 'manipulation' }}
             >
               <UserPlus className="h-3.5 w-3.5 shrink-0" />
-              <span>Fresh Call</span>
+              <span className="hidden min-[390px]:inline">Fresh Call</span>
+              <span className="min-[390px]:hidden">Fresh</span>
             </button>
           </div>
         </div>
@@ -152,7 +153,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                     aria-selected={isActive}
                     aria-controls={`mode-panel-${item.id}`}
                     onClick={() => onModeChange(item.id)}
-                    className={`focus-ring rail-snap-start relative min-h-[48px] min-w-[120px] overflow-hidden rounded-full px-3 py-2.5 text-left transition-transform active:scale-[0.985] sm:min-h-[54px] sm:min-w-0 sm:py-3 ${
+                    className={`focus-ring rail-snap-start relative min-h-[48px] min-w-[104px] overflow-hidden rounded-full px-2.5 py-2.5 text-left transition-transform active:scale-[0.985] min-[430px]:min-w-[120px] sm:min-h-[54px] sm:min-w-0 sm:px-3 sm:py-3 ${
                       isActive
                         ? 'glass-control-active text-white'
                         : 'glass-control text-t-dark-gray hover:text-foreground'
@@ -175,17 +176,6 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                         <span className="hidden min-w-0 truncate text-xs font-black uppercase tracking-[0.16em] sm:inline">
                           {item.label}
                         </span>
-                        {'badge' in item ? (
-                          <span
-                            className={`mt-1 rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.18em] ${
-                              isActive
-                                ? 'bg-white/18 text-white'
-                                : 'bg-[#E20074]/12 text-[#E20074]'
-                            }`}
-                          >
-                            {item.badge}
-                          </span>
-                        ) : null}
                       </span>
                     </span>
                   </button>

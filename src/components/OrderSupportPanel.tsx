@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Package, ArrowUpRight, Headphones, Sparkles, CheckCircle2 } from 'lucide-react';
 import OrderSupportSelector, { OrderSupportType } from './OrderSupportSelector';
-import { SalesContext } from '../types';
+import { SalesContext, SupportFocus } from '../types';
+import { getOrderSupportTypeForFocus } from '../constants/supportFocus';
 
 interface OrderSupportPanelProps {
   context: SalesContext;
@@ -55,12 +56,26 @@ const PLAYS: Record<OrderSupportType, OrderPlay> = {
   },
 };
 
+const ORDER_TYPE_TO_FOCUS: Record<OrderSupportType, SupportFocus> = {
+  track_status: 'order_tracking',
+  modify_order: 'order_activation_issue',
+  return_exchange: 'order_missing_item',
+  cancel_order: 'order_delayed_shipment',
+  payment_issue: 'order_activation_issue',
+  missing_damaged: 'order_missing_item',
+};
+
 export default function OrderSupportPanel({ context, setContext }: OrderSupportPanelProps) {
-  const [selected, setSelected] = useState<OrderSupportType | null>(context.orderSupportType ?? null);
+  const resolvedInitialType = context.orderSupportType ?? getOrderSupportTypeForFocus(context.supportFocus) ?? null;
+  const [selected, setSelected] = useState<OrderSupportType | null>(resolvedInitialType);
+
+  useEffect(() => {
+    setSelected(context.orderSupportType ?? getOrderSupportTypeForFocus(context.supportFocus) ?? null);
+  }, [context.orderSupportType, context.supportFocus]);
 
   const handleSelect = (type: OrderSupportType) => {
     setSelected(type);
-    setContext(prev => ({ ...prev, orderSupportType: type }));
+    setContext(prev => ({ ...prev, orderSupportType: type, supportFocus: ORDER_TYPE_TO_FOCUS[type] }));
   };
 
   const play = selected ? PLAYS[selected] : null;

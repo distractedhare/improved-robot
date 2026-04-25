@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-04-05T12:37:24.133Z",
-  "version": "1.0.0",
+  "generatedAt": "2026-04-23T00:00:00.000Z",
+  "version": "1.0.1",
   "categories": {
     "welcome": {
       "exploring": [
@@ -438,9 +438,9 @@
           "I definitely get that — let's look at the full picture though, not just the line item."
         ],
         [
-          "Factor in streaming perks: Netflix + Hulu + Apple TV+ = ~$30/month you're NOT paying separately",
-          "Factor in streaming perks: Netflix + Hulu + Apple TV+ = ~$30/month you're NOT paying separately",
-          "Factor in streaming perks: Netflix + Hulu + Apple TV+ = ~$30/month you're NOT paying separately"
+          "Factor in current entertainment perks only after verifying the selected plan's Netflix, Hulu, and Apple TV terms",
+          "Factor in current entertainment perks only after checking the selected plan's Netflix, Hulu, and Apple TV terms",
+          "Use entertainment perks as value only after confirming the selected plan's Netflix, Hulu, and Apple TV terms"
         ],
         [
           "Compare total cost vs current carrier: include their hidden fees, activation charges, and the perks they charge extra for",
@@ -448,19 +448,19 @@
           "Compare total cost vs current carrier: include their hidden fees, activation charges, and the perks they charge extra for"
         ],
         [
-          "International savings: one trip abroad saves $672 vs AT&T/Verizon",
-          "International savings: one trip abroad saves $672 vs AT&T/Verizon",
-          "International savings: one trip abroad saves $672 vs AT&T/Verizon"
+          "International benefits can change the math for travelers — verify destination, plan, and usage before quoting savings",
+          "International benefits can shift the value story for travelers — verify destination, plan, and usage before quoting savings",
+          "For travelers, compare international benefits only after verifying destination, plan, and usage"
         ],
         [
-          "5-Year Price Guarantee means no surprise increases (AT&T has raised prices 4 times in 2 years)",
-          "5-Year Price Guarantee means no surprise increases (AT&T has raised prices 4 times in 2 years)",
-          "5-Year Price Guarantee means no surprise increases (AT&T has raised prices 4 times in 2 years)"
+          "5-Year Price Guarantee helps make the monthly cost feel predictable",
+          "5-Year Price Guarantee gives the customer a predictable monthly-cost story",
+          "Use the 5-Year Price Guarantee when predictability matters more than chasing a short-term discount"
         ],
         [
-          "Better Value plan: 3 lines for $140/month with all the premium perks",
-          "Better Value plan: 3 lines for $140/month with all the premium perks",
-          "Better Value plan: 3 lines for $140/month with all the premium perks"
+          "Better Value plan: public terms show 3 lines from $140+/month with AutoPay when eligibility fits",
+          "Better Value plan: use the $140+/month family anchor only after checking 3-line and port-in eligibility",
+          "Better Value plan: strong family anchor for 3+ lines, but verify exact account eligibility first"
         ],
         [
           "Ask: \"What are you paying now with everything included?\" — often T-Mobile is cheaper when you add it all up",
@@ -475,19 +475,19 @@
           "Totally get it! But I'd be happy to ask — are you happy with the price too, or just the service?"
         ],
         [
-          "AT&T/Verizon have been raising prices repeatedly — are they still happy with the bill?",
-          "AT&T/Verizon have been raising prices repeatedly — are they still happy with the bill?",
-          "AT&T/Verizon have been raising prices repeatedly – are they still happy with the bill?"
+          "If they're happy with the provider, ask whether they're equally happy with the full bill",
+          "If they like their provider, ask whether the full monthly bill still feels right",
+          "Respect the loyalty, then compare whether the total bill still matches what they value"
         ],
         [
-          "Do they get free streaming perks? (AT&T: $0 perks, Verizon: $10/each add-on)",
-          "Do they get free streaming perks? (AT&T: $0 perks, Verizon: $10/each add-on)",
-          "Do they get free streaming perks? (AT&T: $0 perks, Verizon: $10/each add-on)"
+          "Ask which entertainment perks they actually use, then compare current plan terms",
+          "Ask what entertainment services they pay for today, then compare current plan terms",
+          "Use streaming only if it matters to them, and verify current plan terms before quoting"
         ],
         [
-          "How about international roaming? ($12/day with AT&T/Verizon vs free with T-Mobile)",
-          "How about international roaming? ($12/day with AT&T/Verizon vs free with T-Mobile)",
-          "How about international roaming? ($12/day with AT&T/Verizon vs free with T-Mobile)"
+          "If they travel, compare international features by destination and plan instead of guessing",
+          "If travel matters, verify the destination and plan before making an international comparison",
+          "For travelers, destination and plan details come first; savings claims come after verification"
         ],
         [
           "T-Mobile's 5G is now the fastest (309 Mbps) — things have changed",
@@ -522,9 +522,9 @@
           "New devices often have better battery, camera, security updates"
         ],
         [
-          "iPhone 17e at $599 is FREE with trade-in on qualifying plan",
-          "iPhone 17e at $599 is FREE with trade-in on qualifying plan",
-          "iPhone 17e at $599 is FREE with trade-in on qualifying plan"
+          "Eligible switchers may have a no-trade iPhone 17e path — verify port-in and service requirements",
+          "For iPhone 17e, verify port-in, qualifying service, and bill-credit terms before using it as the close",
+          "The iPhone 17e offer can be strong, but eligibility comes first: port-in, service, and bill-credit terms"
         ],
         [
           "If their current phone works great, they can still save by switching their plan",

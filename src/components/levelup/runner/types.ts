@@ -64,6 +64,24 @@ export const TLIFE_COLORS = [
 
 export type CharacterId = 'apple' | 'samsung' | 'tcl' | 'motorola' | 'pixel' | 'sidekick_core';
 export type AbilityType = 'passive' | 'active' | 'ultimate' | 'defensive';
+export type RunnerAbilitySlot = 'smash' | 'blast' | 'core';
+
+export interface CharacterAssetSet {
+  fullCard: string;
+  heroBanner: string;
+  hudPortrait: string;
+  avatarSmall: string;
+  mobileFallback: string;
+  abilityIcons?: Partial<Record<RunnerAbilitySlot, string>>;
+}
+
+export interface BossAssetSet {
+  banner: string;
+  hudPortrait: string;
+  avatarSmall: string;
+  fullCard?: string;
+  abilityIcons?: Partial<Record<RunnerAbilitySlot, string>>;
+}
 
 export interface CharacterStats {
   speed: number;
@@ -107,6 +125,9 @@ export interface CharacterDefinition {
   armor: string;
   icon: string;
   cardImage: string;
+  heroImage?: string;
+  portraitImage?: string;
+  assets?: CharacterAssetSet;
   signature: string;
   supportOnly?: boolean;
   passiveName: string;
@@ -126,8 +147,13 @@ export interface BossDefinition {
   name: string;
   title: string;
   threatLevel: 'MiniBoss' | 'Boss' | 'FinalBoss';
+  faction: string;
   fantasy: string;
   visualTheme: string;
+  accent: string;
+  secondary: string;
+  emblem: string;
+  assets?: BossAssetSet;
   mechanics: string[];
   counterplay: string[];
   milestoneLevel: number;

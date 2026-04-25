@@ -129,7 +129,7 @@ export const VOCABULARY_CATEGORIES: VocabularyCategory[] = [
 ];
 
 /** Current bundle version — bump when categories change structurally */
-export const VOCABULARY_VERSION = '1.0.0';
+export const VOCABULARY_VERSION = '1.0.1';
 
 /** How often on-device refresh should run (hours) */
 export const VOCABULARY_TTL_HOURS = 168; // 7 days

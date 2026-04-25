@@ -96,6 +96,27 @@ export function deriveCustomerSignals(
     raw.push({ tag: 'battery-anxiety', strength: 0.4, source: 'intent' });
   }
 
+  switch (context.supportFocus) {
+    case 'tech_device_issue':
+      raw.push({ tag: 'battery-anxiety', strength: 0.65, source: 'supportFocus' });
+      raw.push({ tag: 'simplicity-first', strength: 0.5, source: 'supportFocus' });
+      break;
+    case 'tech_signal_issue':
+    case 'tech_internet_issue':
+      raw.push({ tag: 'storm-ready', strength: 0.55, source: 'supportFocus' });
+      break;
+    case 'account_billing':
+      raw.push({ tag: 'budget-sensitive', strength: 0.7, source: 'supportFocus' });
+      break;
+    case 'account_line_change':
+      raw.push({ tag: 'family-coordination', strength: 0.65, source: 'supportFocus' });
+      break;
+    case 'order_missing_item':
+    case 'order_activation_issue':
+      raw.push({ tag: 'simplicity-first', strength: 0.55, source: 'supportFocus' });
+      break;
+  }
+
   // ── Deduplicate: keep highest strength per tag ──
   const best = new Map<CustomerSignalTag, CustomerSignal>();
   for (const s of raw) {

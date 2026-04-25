@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserCircle, CreditCard, FileText, KeyRound, ArrowUpRight, Sparkles, Headphones, CheckCircle2 } from 'lucide-react';
-import { SalesContext } from '../types';
+import { SalesContext, SupportFocus } from '../types';
 
 interface AccountSupportPanelProps {
   context: SalesContext;
@@ -38,10 +38,10 @@ const PLAYS: Record<AccountTopic, AccountPlay> = {
     transferHint: 'Account locked, fraud flag, or identity verification failing? Transfer to Account Services / Fraud.',
   },
   other: {
-    acknowledge: '"Let me make sure I understand what you\'re after before I point you to the right place."',
-    quickAction: 'Clarify the ask in one sentence. If it\'s outside sales scope, set up a clean warm transfer with context so the customer doesn\'t repeat themselves.',
-    salesPivot: 'Even on a transfer, you earn the right to follow up. Offer a callback or note on the account to check in on their plan once this is resolved.',
-    transferHint: 'Default to Account Services if you\'re not sure — they can re-route internally.',
+    acknowledge: '"Let\'s clarify the line change first so we keep the account, owner, and plan path clean."',
+    quickAction: 'Confirm whether they are adding, removing, transferring, or changing responsibility for a line. Keep CPNI and authorized-user rules clean.',
+    salesPivot: 'Line changes are a natural plan-fit check — family plan, device promo, watch/tablet, or tracker may change the full math.',
+    transferHint: 'Transfer if ownership, responsibility, fraud, or cancellation authority goes past sales scope.',
   },
 };
 
@@ -49,12 +49,35 @@ const TOPICS: { id: AccountTopic; label: string; icon: typeof CreditCard; hint: 
   { id: 'billing', label: 'Billing', icon: CreditCard, hint: 'Charges, autopay, proration' },
   { id: 'plan', label: 'Plan', icon: FileText, hint: 'Plan change, features, perks' },
   { id: 'access', label: 'Access', icon: KeyRound, hint: 'Login, PIN, password reset' },
-  { id: 'other', label: 'Other', icon: UserCircle, hint: 'Not sure yet — triage first' },
+  { id: 'other', label: 'Line Change', icon: UserCircle, hint: 'Add, remove, transfer, or account change' },
 ];
 
-export default function AccountSupportPanel({ context: _context, setContext: _setContext }: AccountSupportPanelProps) {
-  const [selected, setSelected] = useState<AccountTopic | null>(null);
+const FOCUS_TO_TOPIC: Partial<Record<SupportFocus, AccountTopic>> = {
+  account_billing: 'billing',
+  account_plan_question: 'plan',
+  account_login_access: 'access',
+  account_line_change: 'other',
+};
+
+const TOPIC_TO_FOCUS: Record<AccountTopic, SupportFocus> = {
+  billing: 'account_billing',
+  plan: 'account_plan_question',
+  access: 'account_login_access',
+  other: 'account_line_change',
+};
+
+export default function AccountSupportPanel({ context, setContext }: AccountSupportPanelProps) {
+  const [selected, setSelected] = useState<AccountTopic | null>(context.supportFocus ? FOCUS_TO_TOPIC[context.supportFocus] ?? null : null);
   const play = selected ? PLAYS[selected] : null;
+
+  useEffect(() => {
+    setSelected(context.supportFocus ? FOCUS_TO_TOPIC[context.supportFocus] ?? null : null);
+  }, [context.supportFocus]);
+
+  const handleSelect = (topic: AccountTopic) => {
+    setSelected(topic);
+    setContext(prev => ({ ...prev, supportFocus: TOPIC_TO_FOCUS[topic] }));
+  };
 
   return (
     <div className="space-y-4">
@@ -87,7 +110,7 @@ export default function AccountSupportPanel({ context: _context, setContext: _se
                 key={topic.id}
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setSelected(topic.id)}
+                onClick={() => handleSelect(topic.id)}
                 className={`relative flex flex-col gap-2 rounded-xl p-3 text-left transition-all duration-150
                   ${isActive
                     ? 'glass-control-active text-white'

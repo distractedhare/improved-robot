@@ -18,6 +18,7 @@ import {
   ONE_LINERS,
 } from './salesMethodology';
 import { getVocabulary } from '../services/vocabularyService';
+import { getSupportFocusOption } from '../constants/supportFocus';
 
 // Re-export everything for convenience
 export * from './plans';
@@ -109,7 +110,7 @@ function buildValueProps(context: SalesContext): string[] {
     props.push(`🎯 TABLET DEAL: iPad up to $400 off with new tablet line ($5/mo on Experience Beyond/Better Value; $20/mo on other plans). Galaxy Tab A11+ FREE with S26 purchase.`);
     props.push(`🎯 TRACKER: SyncUP Tracker — real GPS on T-Mobile's network, not Bluetooth like AirTag. Great for kids, pets, cars, luggage.`);
     props.push(`🎯 PROTECTION: P360 covers drops, theft, screen at $0 — includes AppleCare Services + JUMP! upgrades. Better than AppleCare+ alone.`);
-    props.push(`🎯 HOME INTERNET: $30/mo with their voice line (Rely), no contract, 15-day test drive. Ask what they're paying their ISP.`);
+    props.push(`🎯 HOME INTERNET: Check availability first, then verify current bundle pricing, no annual contract, and any Month On Us or rebate eligibility.`);
     // Also add any product-specific props below
   }
 
@@ -117,8 +118,8 @@ function buildValueProps(context: SalesContext): string[] {
   if (context.product.includes('Phone') || context.product.includes('No Specific Product')) {
     const beyond = POSTPAID_PLANS.find(p => p.name === 'Experience Beyond');
     if (beyond) {
-      props.push(`Experience Beyond: Unlimited premium data, 250GB hotspot, Netflix + Hulu + Apple TV+ included (~$30/mo value)`);
-      props.push(`5-Year Price Guarantee — your rate is locked. ${carrier === 'AT&T' ? 'AT&T has raised prices 4+ times in 2 years.' : carrier === 'Verizon' ? 'Verizon only offers 3 years.' : 'No other carrier matches this.'}`);
+      props.push(`Experience Beyond: Premium data, hotspot, yearly upgrade eligibility, T-Satellite, and premium entertainment value. Verify current entertainment terms before quoting.`);
+      props.push(`5-Year Price Guarantee — lead with predictable monthly cost, then compare the customer's real bill instead of guessing competitor changes.`);
     }
 
     // Carrier-specific props
@@ -133,15 +134,15 @@ function buildValueProps(context: SalesContext): string[] {
     }
 
     // International roaming
-    props.push('International roaming in 215+ countries included free. Family of 4 on a 2-week trip: $0 vs $672 with AT&T/Verizon.');
+    props.push('International roaming in 215+ countries is a strong travel hook. Verify destination, plan, and usage needs before quoting savings.');
 
     // Streaming
-    props.push('Streaming perks: Netflix Standard with Ads + Hulu with Ads + Apple TV+ at $3/mo. AT&T includes zero. Verizon charges $10 each.');
+    props.push('Entertainment perks can change the monthly math. Verify the exact Netflix, Hulu, and Apple TV terms for the selected plan before using them as savings.');
   }
 
   if (context.product.includes('Home Internet')) {
-    props.push(`T-Mobile Home Internet starting at $30/mo with a voice line (Rely tier). No annual contract, 5-Year Price Guarantee.`);
-    props.push(`All-In tier: $50/mo with voice line — includes Hulu, Paramount+, Wi-Fi 7, mesh extender. Over $480/year in added value.`);
+    props.push(`T-Mobile Home Internet: verify address, plan tier, current bundle price, no annual contract, and 5-Year Price Guarantee eligibility.`);
+    props.push(`All-In tier: position it as the premium setup path, then verify current included equipment, entertainment, and rebate terms before quoting value.`);
     props.push('15-day test drive — full refund if not satisfied. Risk-free trial.');
   }
 
@@ -183,7 +184,7 @@ export function buildPromptContext(context: SalesContext): string {
   const sections: string[] = [];
 
   // Relevant plans
-  sections.push('=== T-MOBILE PLANS (March 2026) ===');
+  sections.push('=== T-MOBILE PLANS (April 2026) ===');
   sections.push('CRITICAL: Experience plans do NOT include taxes/fees in price (changed from Magenta era). Without AutoPay, add $5/line.');
   for (const plan of POSTPAID_PLANS.slice(0, 3)) { // Top 3 plans
     const priceStr = plan.pricing.map(p => `${p.lines}L: $${p.monthlyTotal}`).join(', ');
@@ -192,7 +193,7 @@ export function buildPromptContext(context: SalesContext): string {
 
   // Family-specific
   if (context.age === '35-54' || context.product.length > 1) {
-    sections.push(`Better Value: 3 lines for $140/mo (requires 3+ lines, port-ins). All premium perks included.`);
+    sections.push(`Better Value: public terms show 3 lines from $140+/mo with AutoPay; requires 3+ lines and eligible port-ins for new customers. Verify exact account eligibility before quoting.`);
   }
 
   // 55+ plans
@@ -251,6 +252,14 @@ export function buildPromptContext(context: SalesContext): string {
       sections.push(`TIMING: ${pivot.timing}`);
       sections.push(`COMMISSION TIP: ${BTS_IOT_VALUE_PROPS.commissionTip}`);
       sections.push(`PIVOT SCRIPTS: ${pivot.pivots.slice(0, 2).join(' | ')}`);
+    }
+
+    const supportFocus = getSupportFocusOption(context.supportFocus);
+    if (supportFocus) {
+      sections.push(`\n=== SUPPORT FOCUS ===`);
+      sections.push(`${supportFocus.label}: ${supportFocus.hint}`);
+      sections.push(`FIRST MOVE: ${supportFocus.planCue.step}`);
+      sections.push(`COACHING: ${supportFocus.planCue.coach}`);
     }
   }
 

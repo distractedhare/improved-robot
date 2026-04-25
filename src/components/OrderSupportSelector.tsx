@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Package, RefreshCcw, AlertTriangle, CreditCard, XCircle, Truck, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -57,6 +57,10 @@ interface OrderSupportSelectorProps {
 
 export default function OrderSupportSelector({ value, onChange, compact = false }: OrderSupportSelectorProps) {
   const [selected, setSelected] = useState<OrderSupportType | null>(value ?? null);
+
+  useEffect(() => {
+    setSelected(value ?? null);
+  }, [value]);
 
   const handle = (id: OrderSupportType) => {
     setSelected(id);

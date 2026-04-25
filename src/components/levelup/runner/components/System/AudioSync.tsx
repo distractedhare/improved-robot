@@ -13,19 +13,21 @@ export const AudioSync: React.FC = () => {
     }, [musicVolume]);
 
     useEffect(() => {
-        if (isMusicEnabled && (status === GameStatus.PLAYING || status === GameStatus.MENU || status === GameStatus.SETTINGS)) {
+        if (isMusicEnabled && status === GameStatus.PLAYING) {
             audio.startMusic();
+            audio.unmute();
         } else {
             audio.stopMusic();
+            audio.mute();
         }
     }, [isMusicEnabled, status]);
 
     useEffect(() => {
         const sync = () => {
-            // Updated to NOT mute during GameStatus.SETTINGS to allow soundtrack testing
-            if (document.hidden || status === GameStatus.PAUSED || status === GameStatus.TRIVIA || status === GameStatus.SHOP) {
+            if (document.hidden || status !== GameStatus.PLAYING) {
+                audio.stopMusic();
                 audio.mute();
-            } else if (status === GameStatus.PLAYING || status === GameStatus.MENU || status === GameStatus.SETTINGS) {
+            } else if (isMusicEnabled) {
                 audio.unmute();
             }
         };
@@ -33,7 +35,14 @@ export const AudioSync: React.FC = () => {
         sync();
         document.addEventListener('visibilitychange', sync);
         return () => document.removeEventListener('visibilitychange', sync);
-    }, [status]);
+    }, [isMusicEnabled, status]);
+
+    useEffect(() => {
+        return () => {
+            audio.stopMusic();
+            audio.mute();
+        };
+    }, []);
 
     return null;
 };

@@ -2,8 +2,8 @@
  * Prize / Reward tracking system.
  *
  * Tiers:
- *  - Daily:   Complete 8+ bingo cells OR (5+ cells + 70% Speed Round) → "Momentum" badge → 15-min break next working day
- *  - Weekly:  3+ bingo rows across any board → entered in free lunch raffle
+ *  - Daily:   Complete 8+ bingo cells → "Momentum" badge → 15-min break next working day
+ *  - Weekly:  3+ bingo rows on the single board → entered in free lunch raffle
  *  - Monthly: 15+ day streak → entered in grand prize raffle
  *
  * All tracking is localStorage — no server needed for the pilot.
@@ -149,9 +149,8 @@ function checkDailyPrize(data: PrizeData): void {
   if (data.daily.momentumEarned) return;
 
   const cellsOk = data.daily.cellsCompleted >= 8;
-  const comboOk = data.daily.cellsCompleted >= 5 && data.daily.quizCompleted && (data.daily.quizScore ?? 0) >= 70;
 
-  if (cellsOk || comboOk) {
+  if (cellsOk) {
     data.daily.momentumEarned = true;
     data.history.push({
       date: todayKey(),
@@ -191,13 +190,13 @@ export const PRIZE_TIERS = {
   daily: {
     label: 'Momentum Badge',
     reward: 'Extra 15-min break (next working day)',
-    requirement: '8 bingo cells OR (5 cells + 70% Speed Round)',
+    requirement: '8 bingo cells on the single board',
     color: 'var(--prize-daily)',
   },
   weekly: {
     label: 'Lunch Raffle',
     reward: 'Free lunch raffle entry',
-    requirement: '3+ bingo rows across any board',
+    requirement: '3+ bingo rows on the single board',
     color: 'var(--prize-weekly)',
   },
   monthly: {

@@ -18,7 +18,7 @@ interface SettingsViewProps {
 }
 
 const VERSION = "1.2.4-stable";
-const FALLBACK_BUILD_ID = "CC-AI-2026-04-08";
+const FALLBACK_BUILD_ID = "CC-AI-2026-04-23";
 
 function getRuntimeMeta() {
   const runtimeEnv = import.meta.env as ImportMetaEnv & Record<string, string | boolean | undefined>;

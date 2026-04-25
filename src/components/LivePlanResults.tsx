@@ -11,6 +11,9 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { SalesContext, SalesScript } from '../types';
+import { getSupportFocusLabel } from '../constants/supportFocus';
+import { KipPanel } from './kip';
+import { buildLiveKipRecommendation } from '../services/kip/kipRules';
 
 interface LivePlanResultsProps {
   script: SalesScript;
@@ -45,6 +48,8 @@ function getHintStatus(context: SalesContext): { label: string; tone: string; ic
 export default function LivePlanResults({ script, context }: LivePlanResultsProps) {
   const hintStatus = getHintStatus(context);
   const HintIcon = hintStatus.icon;
+  const supportFocusLabel = getSupportFocusLabel(context.supportFocus);
+  const kipRecommendation = buildLiveKipRecommendation({ context, script });
   const locationLabel = context.region !== 'Not Specified'
     ? `${context.region}${context.state ? ` · ${context.state}` : ''}${context.zipCode ? ` · ${context.zipCode}` : ''}`
     : context.zipCode
@@ -53,6 +58,8 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
 
   return (
     <div className="space-y-4">
+      <KipPanel recommendation={kipRecommendation} />
+
       <section className="glass-billboard overflow-hidden rounded-[2rem] p-5 text-white shadow-xl">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -69,7 +76,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           <div className="grid gap-2 sm:grid-cols-3 lg:w-[30rem]">
             <StatusPill label="Intent" value={INTENT_LABELS[context.purchaseIntent]} />
             <StatusPill label="Products" value={context.product.join(', ')} />
-            <StatusPill label="Location" value={locationLabel} />
+            <StatusPill label={supportFocusLabel ? 'Focus' : 'Location'} value={supportFocusLabel ?? locationLabel} />
           </div>
         </div>
 
@@ -82,6 +89,12 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white">
               <MessageSquare className="h-3.5 w-3.5" />
               From {context.currentCarrier}
+            </div>
+          ) : null}
+          {supportFocusLabel && locationLabel !== 'Location not set' ? (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white">
+              <Search className="h-3.5 w-3.5" />
+              {locationLabel}
             </div>
           ) : null}
         </div>

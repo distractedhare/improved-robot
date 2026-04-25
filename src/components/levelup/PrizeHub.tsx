@@ -48,7 +48,7 @@ export default function PrizeHub() {
           <HeroStat label="Today" value={prizeData.daily.momentumEarned ? 'Momentum Locked' : `${dailyStillWithinReach} cells left`} />
           <HeroStat label="This Week" value={prizeData.weekly.raffleEntered ? 'Lunch Entry Ready' : `${Math.max(3 - prizeData.weekly.totalRows, 0)} rows to go`} />
           <HeroStat label="This Month" value={prizeData.monthly.raffleEntered ? 'Grand Draw Ready' : `${Math.max(15 - prizeData.monthly.longestStreak, 0)} days left`} />
-          <HeroStat label="Last Quiz" value={prizeData.daily.quizCompleted ? `${prizeData.daily.quizScore ?? 0}%` : 'Not Played'} />
+          <HeroStat label="Runner Trivia" value={prizeData.daily.quizCompleted ? `${prizeData.daily.quizScore ?? 0}%` : 'No score yet'} />
         </div>
       </div>
 
@@ -64,9 +64,7 @@ export default function PrizeHub() {
             helper={
               prizeData.daily.momentumEarned
                 ? 'The daily badge is already secured. Anything else today is extra momentum.'
-                : prizeData.daily.quizCompleted && (prizeData.daily.quizScore ?? 0) >= 70
-                  ? `Quiz path is active. ${Math.max(5 - prizeData.daily.cellsCompleted, 0)} more cells locks it in.`
-                  : 'You can win this either by clearing 8 cells or by combining 5 cells with a 70%+ Speed Round.'
+                : 'Clear 8 cells on the single Bingo board. Runner trivia can still train knowledge, but Bingo owns the badge.'
             }
           />
 

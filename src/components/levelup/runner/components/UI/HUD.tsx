@@ -18,15 +18,13 @@ import {
   Settings,
   Shield,
   Sparkles,
-  Star,
-  Sword,
   Triangle,
   Trophy,
   X,
   Zap,
 } from 'lucide-react';
 import { useStore } from '../../store';
-import { GameStatus, TLIFE_COLORS, type CharacterDefinition, type CharacterId, type ShopItem } from '../../types';
+import { GameStatus, TLIFE_COLORS, type CharacterDefinition, type CharacterId, type RunnerAbilitySlot, type ShopItem } from '../../types';
 import {
   PLAYABLE_CHARACTERS,
   PRIMARY_BOSS,
@@ -96,6 +94,49 @@ const SHOP_ITEMS: ShopItem[] = [
 
 const controlDispatch = (eventName: string) => window.dispatchEvent(new Event(eventName));
 
+const CHARACTER_ABILITY_SHORT: Record<CharacterId, string> = {
+  apple: 'MagSafe',
+  samsung: 'Unfold',
+  tcl: 'Blast',
+  motorola: 'Boost',
+  pixel: 'Drone',
+  sidekick_core: 'Core Sync',
+};
+
+const CHARACTER_SMASH_SHORT: Record<CharacterId, string> = {
+  apple: 'Slash',
+  samsung: 'Guard',
+  tcl: 'Smash',
+  motorola: 'Burst',
+  pixel: 'Scan',
+  sidekick_core: 'Smash',
+};
+
+type CharacterStatKey = keyof CharacterDefinition['stats'];
+
+const CHARACTER_STAT_ROWS: Array<{ key: CharacterStatKey; label: string }> = [
+  { key: 'speed', label: 'Speed' },
+  { key: 'agility', label: 'Agility' },
+  { key: 'power', label: 'Power' },
+  { key: 'durability', label: 'Durability' },
+  { key: 'tech', label: 'Tech' },
+];
+
+const getCharacterAssets = (character: CharacterDefinition) => ({
+  fullCard: character.assets?.fullCard ?? character.cardImage,
+  heroBanner: character.assets?.heroBanner ?? character.heroImage ?? character.cardImage,
+  hudPortrait: character.assets?.hudPortrait ?? character.portraitImage ?? character.cardImage,
+  avatarSmall: character.assets?.avatarSmall ?? character.portraitImage ?? character.cardImage,
+  mobileFallback: character.assets?.mobileFallback ?? character.assets?.heroBanner ?? character.heroImage ?? character.cardImage,
+  abilityIcons: character.assets?.abilityIcons ?? {},
+});
+
+const getCharacterFullCard = (character: CharacterDefinition) => getCharacterAssets(character).fullCard;
+const getCharacterHeroArt = (character: CharacterDefinition) => getCharacterAssets(character).heroBanner;
+const getCharacterMobileFallback = (character: CharacterDefinition) => getCharacterAssets(character).mobileFallback;
+const getCharacterHudPortrait = (character: CharacterDefinition) => getCharacterAssets(character).hudPortrait;
+const getCharacterAvatarSmall = (character: CharacterDefinition) => getCharacterAssets(character).avatarSmall;
+
 const ArtworkFrame = ({
   src,
   alt,
@@ -103,6 +144,7 @@ const ArtworkFrame = ({
   wide = false,
   className = '',
   mediaClassName = '',
+  mobileSrc,
 }: {
   src: string;
   alt: string;
@@ -110,6 +152,7 @@ const ArtworkFrame = ({
   wide?: boolean;
   className?: string;
   mediaClassName?: string;
+  mobileSrc?: string;
 }) => (
   <div
     className={`overflow-hidden rounded-[1.55rem] border bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),rgba(255,255,255,0.02)_58%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(0,0,0,0.22))] ${className}`}
@@ -118,16 +161,19 @@ const ArtworkFrame = ({
     <div
       className={
         wide
-          ? `aspect-[16/9] ${mediaClassName}`
+          ? `aspect-[16/9] md:aspect-[21/9] ${mediaClassName}`
           : `flex items-start justify-center bg-[#050011] ${mediaClassName || 'h-[18rem] sm:h-[20rem]'}`
       }
     >
-      <img
-        src={src}
-        alt={alt}
-        className={wide ? 'h-full w-full object-cover object-center' : 'h-full w-full object-contain object-top p-2'}
-        loading="lazy"
-      />
+      <picture className="block h-full w-full">
+        {mobileSrc ? <source media="(max-width: 520px)" srcSet={mobileSrc} /> : null}
+        <img
+          src={src}
+          alt={alt}
+          className={wide ? 'h-full w-full object-cover object-center' : 'h-full w-full object-contain object-top p-2'}
+          loading="lazy"
+        />
+      </picture>
     </div>
   </div>
 );
@@ -217,42 +263,78 @@ const CharacterCard = ({
     <button
       type="button"
       onClick={onSelect}
-      className={`min-w-[285px] max-w-[320px] snap-center rounded-[1.8rem] border p-3 text-left transition-all pointer-events-auto ${
+      className={`min-w-[132px] max-w-[146px] snap-center rounded-[1.15rem] border p-2.5 text-left transition-all pointer-events-auto ${
         selected
-          ? 'bg-white/12 border-white/40 shadow-[0_20px_60px_rgba(0,0,0,0.35)] scale-[1.01]'
+          ? 'bg-white/12 border-white/40 shadow-[0_16px_45px_rgba(0,0,0,0.32)] scale-[1.01]'
           : 'bg-white/6 border-white/10 hover:bg-white/10'
       }`}
-      style={{ boxShadow: selected ? `0 0 0 1px ${character.accent}, 0 18px 60px rgba(0,0,0,0.4)` : undefined }}
+      style={{ boxShadow: selected ? `0 0 0 1px ${character.accent}, 0 14px 42px rgba(0,0,0,0.35)` : undefined }}
     >
-      <ArtworkFrame src={character.cardImage} alt={character.name} accent={character.accent} className="overflow-hidden" />
-
-      <div className="mt-3 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.32em] text-white/45">{character.brand}</div>
-          <div className="mt-1 text-2xl font-black text-white font-cyber leading-none">{character.name}</div>
-          <div className="mt-2 text-xs uppercase tracking-[0.24em]" style={{ color: character.accent }}>
-            {character.role}
-          </div>
-        </div>
+      <div
+        className="relative h-32 overflow-hidden rounded-[1rem] border bg-black"
+        style={{ borderColor: `${character.accent}66`, boxShadow: selected ? `0 0 22px ${character.accent}28` : undefined }}
+      >
+        <img
+          src={getCharacterAvatarSmall(character)}
+          alt=""
+          className="h-full w-full object-cover object-center"
+          loading="lazy"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/90 to-transparent" />
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border text-2xl font-black"
-          style={{ borderColor: character.accent, color: character.accent, background: `${character.accent}20` }}
+          className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-xl border text-sm font-black"
+          style={{ borderColor: character.accent, color: character.accent, background: `${character.accent}18` }}
         >
           {character.icon}
         </div>
+        <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: character.accent }} />
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-white/70">{character.tagline}</p>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+      <div className="mt-3 min-w-0">
+        <div className="text-[9px] uppercase tracking-[0.24em] text-white/45">{character.brand}</div>
+        <div className="mt-1 truncate text-sm font-black text-white font-cyber leading-none">{character.name}</div>
+      </div>
+      <div className="mt-3 border-t border-white/10 pt-2.5">
         <div className={`text-[10px] font-black uppercase tracking-[0.28em] ${selected ? 'text-white' : 'text-white/45'}`}>
-          {selected ? 'Runner selected' : 'Tap to select'}
-        </div>
-        <div className="text-[10px] uppercase tracking-[0.24em] text-white/35">
-          Preview below
+          {selected ? 'Selected' : 'Tap to pick'}
         </div>
       </div>
     </button>
   );
 };
+
+const CharacterStatPanel = ({ character }: { character: CharacterDefinition }) => (
+  <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <div className="text-[10px] uppercase tracking-[0.25em] text-white/45">Runner stats</div>
+        <div className="mt-1 text-lg font-black text-white">Card attributes</div>
+      </div>
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-lg font-black"
+        style={{ borderColor: character.accent, color: character.accent, background: `${character.accent}18` }}
+      >
+        {character.icon}
+      </div>
+    </div>
+    <div className="mt-4 grid gap-3">
+      {CHARACTER_STAT_ROWS.map((stat) => {
+        const value = character.stats[stat.key];
+        return (
+          <div key={stat.key} className="grid grid-cols-[5.7rem_minmax(0,1fr)_2rem] items-center gap-3">
+            <div className="text-[10px] font-black uppercase tracking-[0.18em] text-white/58">{stat.label}</div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.min(100, value * 10)}%`, background: `linear-gradient(90deg, ${character.accent}, ${character.secondary})` }}
+              />
+            </div>
+            <div className="text-right text-xs font-black text-white">{value}</div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
 
 const CharacterPreviewOverlay = ({
   character,
@@ -286,7 +368,7 @@ const CharacterPreviewOverlay = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.98 }}
           onClick={(event) => event.stopPropagation()}
-          className="w-full rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.16),transparent_40%),linear-gradient(180deg,rgba(11,4,21,0.96),rgba(0,0,0,0.95))] p-4 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
+          className="max-h-[88svh] w-full overflow-y-auto rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.16),transparent_40%),linear-gradient(180deg,rgba(11,4,21,0.96),rgba(0,0,0,0.95))] p-4 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
         >
           <div className="mb-5 flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -313,11 +395,11 @@ const CharacterPreviewOverlay = ({
 
           <div className="grid items-start gap-6 lg:grid-cols-[0.56fr_0.44fr]">
             <ArtworkFrame
-              src={character.cardImage}
+              src={getCharacterFullCard(character)}
               alt={character.name}
               accent={character.accent}
               className="mx-auto w-full max-w-[30rem]"
-              mediaClassName="h-[68vh] md:h-[76vh]"
+              mediaClassName="h-[38vh] sm:h-[58vh] md:h-[68vh]"
             />
 
             <div className="flex min-w-0 flex-col gap-4">
@@ -385,6 +467,40 @@ const QUICK_START_STEPS = [
   },
 ];
 
+const FIRST_RUN_RECOMMENDATION_ID: CharacterId = 'pixel';
+
+const CHARACTER_PICK_GUIDE: Partial<Record<CharacterId, {
+  pickLabel: string;
+  reason: string;
+  highlights: string[];
+}>> = {
+  apple: {
+    pickLabel: 'Best for clean timing',
+    reason: 'Fast and precise when the player wants a premium-feeling run with strong control.',
+    highlights: ['Fast lane recovery', 'Strong coin magnet', 'Clean-hit focus'],
+  },
+  samsung: {
+    pickLabel: 'Best for power control',
+    reason: 'Good for players who want more protection and broader clears instead of pure speed.',
+    highlights: ['Glide plus shield', 'Big scoring bursts', 'Durable feel'],
+  },
+  tcl: {
+    pickLabel: 'Best for survivability',
+    reason: 'The heaviest, safest-feeling build for players who want space-clearing power.',
+    highlights: ['Wide obstacle clears', 'Extra battery', 'Value-heavy scoring'],
+  },
+  motorola: {
+    pickLabel: 'Best for speed',
+    reason: 'The sharpest burst-speed pick for players who already like quick movement and risk.',
+    highlights: ['Highest speed', 'Fast dash loop', 'Aggressive combo flow'],
+  },
+  pixel: {
+    pickLabel: 'Recommended for first run',
+    reason: 'The easiest starter because it reveals paths, helps with routing, and smooths out pressure moments.',
+    highlights: ['Path reveal', 'Safe repositioning', 'Strong trivia assist'],
+  },
+};
+
 const TutorialGuideOverlay = ({
   selectedCharacter,
   onClose,
@@ -417,7 +533,7 @@ const TutorialGuideOverlay = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.98 }}
           onClick={(event) => event.stopPropagation()}
-          className="w-full rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.22),transparent_38%),linear-gradient(180deg,rgba(11,4,21,0.98),rgba(0,0,0,0.97))] p-5 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
+          className="max-h-[88svh] w-full overflow-y-auto rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.22),transparent_38%),linear-gradient(180deg,rgba(11,4,21,0.98),rgba(0,0,0,0.97))] p-5 text-white shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:p-6"
         >
           <div className="mb-6 flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -482,7 +598,7 @@ const TutorialGuideOverlay = ({
 
               <div className="space-y-3 rounded-[1.7rem] border border-white/10 bg-black/28 p-5">
                 <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">Training tips you will see in-run</div>
-                {TUTORIAL_DATA.map((tip) => {
+                {TUTORIAL_DATA.slice(0, 4).map((tip) => {
                   const Icon = tip.icon;
                   return (
                     <div key={tip.id} className="rounded-[1.3rem] border border-white/10 bg-white/5 p-4">
@@ -536,6 +652,45 @@ const StatusChip = ({ label, active, accent }: { label: string; active: boolean;
   </div>
 );
 
+const CharacterHudIdentity = ({
+  character,
+  level,
+  batteryPercent,
+}: {
+  character: CharacterDefinition;
+  level: number;
+  batteryPercent: number;
+}) => (
+  <div className="flex min-w-0 items-center gap-2">
+    <div
+      className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-black sm:h-14 sm:w-14 sm:rounded-2xl"
+      style={{ borderColor: `${character.accent}80`, boxShadow: `0 0 18px ${character.accent}30` }}
+    >
+      <picture className="block h-full w-full">
+        <source media="(max-width: 420px)" srcSet={getCharacterAvatarSmall(character)} />
+        <img
+          src={getCharacterHudPortrait(character)}
+          alt={`${character.name} portrait`}
+          className="h-full w-full object-cover object-center"
+          loading="eager"
+        />
+      </picture>
+      <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: character.accent }} />
+    </div>
+    <div className="min-w-0">
+      <div className="text-[8px] font-black uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.22em]" style={{ color: character.accent }}>
+        {character.brand}
+      </div>
+      <div className="mt-0.5 truncate text-xs font-black text-white font-cyber leading-none sm:text-base">
+        {character.name}
+      </div>
+      <div className="mt-1 text-[8px] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[9px] sm:tracking-[0.18em]">
+        Lvl {level}/5 / {batteryPercent}%
+      </div>
+    </div>
+  </div>
+);
+
 const SaveBanner = () => {
   const saveStatus = useStore((state) => state.saveStatus);
   const lastSavedAt = useStore((state) => state.lastSavedAt);
@@ -560,7 +715,7 @@ const SaveBanner = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[120] px-4 py-2 rounded-full bg-black/70 border border-[#E20074]/50 text-white text-xs uppercase tracking-[0.25em] pointer-events-none"
+      className="absolute bottom-3 left-1/2 z-[120] -translate-x-1/2 rounded-full border border-[#E20074]/45 bg-black/72 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-white pointer-events-none sm:bottom-5 sm:px-4 sm:py-2 sm:text-xs"
     >
       {message}
     </motion.div>
@@ -826,13 +981,12 @@ const MenuScreen: React.FC = () => {
     }
   }, [selectedCharacterId, setSelectedCharacter]);
 
-  const menuScrollRef = React.useRef<HTMLDivElement | null>(null);
-  const detailsRef = React.useRef<HTMLDivElement | null>(null);
   const [previewCharacterId, setPreviewCharacterId] = React.useState<CharacterId | null>(null);
   const [showTutorialGuide, setShowTutorialGuide] = React.useState(false);
-  const [showScrollCue, setShowScrollCue] = React.useState(true);
   const selectedCharacter = getCharacterDefinition(selectedCharacterId);
   const previewCharacter = previewCharacterId ? getCharacterDefinition(previewCharacterId) : null;
+  const selectedGuide = CHARACTER_PICK_GUIDE[selectedCharacter.id];
+  const isRecommendedStarter = selectedCharacter.id === FIRST_RUN_RECOMMENDATION_ID;
 
   const handleCardSelect = React.useCallback((characterId: CharacterId) => {
     setSelectedCharacter(characterId);
@@ -843,63 +997,38 @@ const MenuScreen: React.FC = () => {
     startGame();
   }, [startGame]);
 
-  const scrollToDetails = React.useCallback(() => {
-    detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
-  React.useEffect(() => {
-    const node = menuScrollRef.current;
-    if (!node) return;
-
-    const updateScrollCue = () => {
-      const canScroll = node.scrollHeight - node.clientHeight > 140;
-      const nearTop = node.scrollTop < 90;
-      setShowScrollCue(canScroll && nearTop);
-    };
-
-    updateScrollCue();
-    node.addEventListener('scroll', updateScrollCue, { passive: true });
-    window.addEventListener('resize', updateScrollCue);
-
-    return () => {
-      node.removeEventListener('scroll', updateScrollCue);
-      window.removeEventListener('resize', updateScrollCue);
-    };
-  }, []);
-
   return (
-    <div ref={menuScrollRef} className="absolute inset-0 z-[110] bg-[#050011] pointer-events-auto overflow-y-auto">
+    <div className="absolute inset-0 z-[110] bg-[#050011] pointer-events-auto overflow-y-auto">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.25),transparent_45%),linear-gradient(180deg,#080010_0%,#050011_50%,#000000_100%)]" />
       <div className="absolute inset-0 opacity-30 bg-[linear-gradient(rgba(226,0,116,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(226,0,116,0.15)_1px,transparent_1px)] bg-[size:36px_36px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
-        <div className="flex flex-wrap items-start justify-between gap-5 mb-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
+        <div className="grid gap-5 mb-6 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.32fr)] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-[0.35em] shadow-[6px_6px_0px_#E20074]">
-              T-Mobile sales arcade
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-[0.32em] shadow-[5px_5px_0px_#E20074]">
+              Optional training module
             </div>
-            <h1 className="text-6xl md:text-[120px] leading-[0.85] font-black font-cyber italic tracking-tight text-white mt-5">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl leading-[0.88] font-black font-cyber italic tracking-tight text-white mt-4">
               T-LIFE
               <br />
               <span className="text-[#E20074]">RUNNER</span>
             </h1>
-            <p className="max-w-2xl text-white/70 text-lg md:text-xl leading-relaxed mt-5">
-              Pick one of five runner kits, let Sidekick Core run support, and climb a boss ladder that ends with Dead Zone Titan.
-              If this is somebody's first run, open the tutorial before launch and the whole loop becomes much easier to read.
+            <p className="max-w-2xl text-white/70 text-sm md:text-base leading-relaxed mt-4">
+              Pick a runner, skim the controls, and launch. The lore and mastery boards are still here, but they stay secondary so the first screen feels playable instead of overwhelming.
             </p>
           </div>
 
-          <div className="grid gap-3 min-w-[250px]">
-            <div className="rounded-[1.5rem] bg-white/6 border border-white/10 p-4">
+          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="rounded-[1.35rem] bg-white/6 border border-white/10 p-3">
               <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">High score</div>
-              <div className="text-3xl text-white font-black mt-1">{highScore.toLocaleString()}</div>
+              <div className="text-2xl text-white font-black mt-1">{highScore.toLocaleString()}</div>
             </div>
-            <div className="rounded-[1.5rem] bg-white/6 border border-white/10 p-4">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Lifetime value</div>
-              <div className="text-3xl text-white font-black mt-1">{lifetimeScore.toLocaleString()}</div>
+            <div className="rounded-[1.35rem] bg-white/6 border border-white/10 p-3">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Lifetime score</div>
+              <div className="text-2xl text-white font-black mt-1">{lifetimeScore.toLocaleString()}</div>
             </div>
-            <div className="rounded-[1.5rem] bg-white/6 border border-white/10 p-4">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Injected knowledge deck</div>
+            <div className="rounded-[1.35rem] bg-white/6 border border-white/10 p-3">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Training deck</div>
               <div className="text-2xl text-white font-black mt-1">+{hostKnowledgeCount}</div>
             </div>
           </div>
@@ -908,179 +1037,261 @@ const MenuScreen: React.FC = () => {
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.35em] text-[#E20074]">Character select</div>
-            <div className="text-2xl text-white font-black mt-1">Choose from five runner builds</div>
+            <div className="text-2xl text-white font-black mt-1">Choose your runner in one clean pass</div>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
-              Tap a card to lock in your runner. The large full-card art is now an optional preview, not the default click behavior.
+              The selected runner stays pinned up top now, so people can scan the roster fast, see why a build fits them, and launch without guessing.
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3 text-white/40 text-xs uppercase tracking-[0.25em]">
-            <Triangle size={14} /> swipe or scroll cards
+            <Triangle size={14} /> select + launch
           </div>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4">
-          {PLAYABLE_CHARACTERS.map((character) => (
-            <CharacterCard
-              key={character.id}
-              character={character}
-              selected={character.id === selectedCharacterId}
-              onSelect={() => handleCardSelect(character.id)}
-            />
-          ))}
-        </div>
-
-        {showScrollCue ? (
-          <div className="mt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={scrollToDetails}
-              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-white/80 transition-colors hover:bg-white/12 hover:text-white"
-            >
-              More below: guide, selected runner, launch
-              <ChevronRight size={14} className="rotate-90" />
-            </button>
-          </div>
-        ) : null}
-
-        <div ref={detailsRef} className="grid xl:grid-cols-[1.15fr_0.85fr] gap-6 mt-8 items-start">
-          <div className="rounded-[2rem] bg-white/6 border border-white/10 p-6 md:p-8">
-            <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">Selected runner</div>
-            <div className="mt-5 grid lg:grid-cols-[0.62fr_0.38fr] gap-5">
-              <ArtworkFrame
-                src={selectedCharacter.cardImage}
-                alt={selectedCharacter.name}
-                accent={selectedCharacter.accent}
-                mediaClassName="h-[22rem] md:h-[28rem]"
-              />
-              <div className="min-w-0 space-y-4">
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: selectedCharacter.accent }}>
-                    {selectedCharacter.series}
+        <div className="min-w-0 rounded-[2rem] border border-white/10 bg-white/6 p-3 md:p-5">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+            <div className="min-w-0 rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(0,0,0,0.25))] p-4 md:p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-white/65">
+                  Selected runner
+                </div>
+                {selectedGuide ? (
+                  <div
+                    className="rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-white"
+                    style={{ borderColor: `${selectedCharacter.accent}88`, background: `${selectedCharacter.accent}26` }}
+                  >
+                    {selectedGuide.pickLabel}
                   </div>
-                  <div className="mt-2 text-4xl md:text-5xl font-black text-white font-cyber italic">{selectedCharacter.name}</div>
-                  <div className="mt-2 text-lg text-white/75">{selectedCharacter.title}</div>
+                ) : null}
+                {isRecommendedStarter ? (
+                  <div className="rounded-full border border-[#E20074]/45 bg-[#E20074]/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#ff8cc6]">
+                    First run favorite
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-4 grid min-w-0 gap-4">
+                <div
+                  className="relative isolate min-h-[13.5rem] overflow-hidden rounded-[1.6rem] border bg-[#050011] sm:min-h-[14.5rem] lg:min-h-[15rem]"
+                  style={{ borderColor: `${selectedCharacter.accent}66`, boxShadow: `0 24px 80px ${selectedCharacter.accent}18` }}
+                >
+                  <picture className="absolute inset-0 block h-full w-full">
+                    <source media="(max-width: 520px)" srcSet={getCharacterMobileFallback(selectedCharacter)} />
+                    <img
+                      src={getCharacterHeroArt(selectedCharacter)}
+                      alt={selectedCharacter.name}
+                      className="h-full w-full object-cover object-center"
+                      loading="lazy"
+                    />
+                  </picture>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/52 to-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/78 to-transparent" />
+                  <div className="relative z-10 flex min-h-[13.5rem] flex-col justify-end p-4 sm:min-h-[14.5rem] md:p-5 lg:min-h-[15rem]">
+                    <div className="max-w-[34rem]">
+                      <div className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: selectedCharacter.accent }}>
+                        {selectedCharacter.series}
+                      </div>
+                      <div className="mt-2 text-3xl font-black leading-none text-white font-cyber italic md:text-5xl">
+                        {selectedCharacter.name}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="rounded-full border border-white/12 bg-black/42 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white/78">
+                          {selectedCharacter.role}
+                        </div>
+                        <div
+                          className="rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-white"
+                          style={{ borderColor: `${selectedCharacter.accent}80`, background: `${selectedCharacter.accent}22` }}
+                        >
+                          {selectedCharacter.brand}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-start">
+                  <div className="min-w-0 rounded-[1.4rem] border border-white/10 bg-black/24 p-4">
+                    <div className="text-[10px] font-black uppercase tracking-[0.26em]" style={{ color: selectedCharacter.accent }}>
+                      Why this runner
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-white/72">
+                      {selectedGuide?.reason ?? selectedCharacter.lore}
+                    </p>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                      {(selectedGuide?.highlights ?? []).map((highlight) => (
+                        <div key={highlight} className="rounded-[1rem] border border-white/10 bg-white/6 px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.16em] text-white/82">
+                          {highlight}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 grid gap-2">
+                      {selectedCharacter.abilities.slice(0, 2).map((ability) => (
+                        <AbilityPill
+                          key={ability.id}
+                          label={ability.type}
+                          copy={`${ability.name} · ${ability.description}`}
+                          accent={selectedCharacter.accent}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="min-w-0">
+                    <CharacterStatPanel character={selectedCharacter} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="rounded-[1.8rem] border border-white/10 bg-black/30 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Launch deck</div>
+                    <div className="mt-2 text-2xl font-black text-white">Start Run</div>
+                    <p className="mt-2 text-sm leading-relaxed text-white/68">
+                      Your runner stays locked here while you browse, so the final choice is always visible before launch.
+                    </p>
+                  </div>
+                  <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-xl font-black"
+                    style={{ borderColor: selectedCharacter.accent, color: selectedCharacter.accent, background: `${selectedCharacter.accent}20` }}
+                  >
+                    {selectedCharacter.icon}
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/72">
+                    {selectedCharacter.brand}
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/72">
+                    {selectedCharacter.role}
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <button
+                    onClick={handleStartGame}
+                    className="w-full rounded-2xl bg-[#E20074] px-5 py-4 text-base font-black uppercase tracking-[0.22em] text-white transition-all hover:scale-[1.02] md:text-lg flex items-center justify-center gap-3"
+                  >
+                    Start Run <Play size={20} fill="currentColor" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTutorialGuide(true)}
+                    className="w-full rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.22em] text-white transition-all hover:bg-white/15 flex items-center justify-center gap-3"
+                  >
+                    How to play <ChevronRight size={18} />
+                  </button>
                   <button
                     type="button"
                     onClick={() => setPreviewCharacterId(selectedCharacter.id)}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/75 transition-colors hover:bg-white/12 hover:text-white"
+                    className="w-full rounded-2xl border border-white/12 bg-transparent px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-white/78 transition-colors hover:bg-white/8 hover:text-white flex items-center justify-center gap-2"
                   >
-                    <Triangle size={12} className="rotate-90" />
-                    Preview full card
+                    Preview full card <Triangle size={12} className="rotate-90" />
+                  </button>
+                  {hasResumeSave && (
+                    <button
+                      onClick={() => {
+                        audio.init();
+                        continueSavedRun();
+                      }}
+                      className="w-full rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.22em] text-white transition-all hover:bg-white/15 flex items-center justify-center gap-3"
+                    >
+                      Continue run <ChevronRight size={18} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => openSettings(GameStatus.MENU)}
+                    className="w-full rounded-2xl border border-white/10 bg-transparent px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-white/70 transition-all hover:border-white/20 hover:text-white flex items-center justify-center gap-3"
+                  >
+                    Settings + saves <Settings size={18} />
                   </button>
                 </div>
+              </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
-                  <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">Lore read</div>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">{selectedCharacter.lore}</p>
-                </div>
-
-                <div className="grid gap-2">
-                  {selectedCharacter.abilities.slice(0, 3).map((ability) => (
-                    <AbilityPill
-                      key={ability.id}
-                      label={ability.type}
-                      copy={`${ability.name} · ${ability.description}`}
-                      accent={selectedCharacter.accent}
+              <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Switch runner fast</div>
+                <div className="mt-2 text-xl font-black text-white">Pick a character portrait</div>
+                <p className="mt-2 text-sm leading-relaxed text-white/60">
+                  Tap once to update the selected bay. Stats and abilities stay up top so the roster can stay quick.
+                </p>
+                <div className="mt-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pr-1">
+                  {PLAYABLE_CHARACTERS.map((character) => (
+                    <CharacterCard
+                      key={character.id}
+                      character={character}
+                      selected={character.id === selectedCharacterId}
+                      onSelect={() => handleCardSelect(character.id)}
                     />
                   ))}
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="grid gap-6">
-            <div className="rounded-[2rem] bg-white/6 border border-white/10 p-5">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">First run guide</div>
-              <div className="mt-4 grid gap-3">
-                {QUICK_START_STEPS.map((step, index) => (
-                  <div key={step.title} className="rounded-[1.4rem] border border-white/10 bg-black/28 p-4">
-                    <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Step {index + 1}</div>
-                    <div className="mt-2 text-base font-black text-white">{step.title}</div>
-                    <p className="mt-1 text-sm leading-relaxed text-white/68">{step.copy}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] bg-white/6 border border-white/10 p-5">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Support intelligence</div>
-              <div className="mt-4 grid gap-4">
-                <ArtworkFrame
-                  src={SIDEKICK_CORE.cardImage}
-                  alt={SIDEKICK_CORE.name}
-                  accent={SIDEKICK_CORE.accent}
-                  className="mx-auto w-full max-w-[24rem]"
-                  mediaClassName="h-[24rem] md:h-[30rem]"
-                />
-                <div>
-                  <div className="text-2xl font-black text-white">{SIDEKICK_CORE.name}</div>
-                  <div className="text-sm uppercase tracking-[0.22em] text-white/45">{SIDEKICK_CORE.title}</div>
+        <div className="mt-5 grid gap-3 lg:grid-cols-3">
+          <details className="group rounded-[1.55rem] border border-white/10 bg-black/24 p-4 text-white" open>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.26em] text-[#ff8cc6] [&::-webkit-details-marker]:hidden">
+              First run guide
+              <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+            </summary>
+            <div className="mt-4 grid gap-3">
+              {QUICK_START_STEPS.map((step, index) => (
+                <div key={step.title} className="rounded-[1.2rem] border border-white/10 bg-white/5 p-3">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/45">Step {index + 1}</div>
+                  <div className="mt-1 text-sm font-black text-white">{step.title}</div>
+                  <p className="mt-1 text-xs leading-relaxed text-white/68">{step.copy}</p>
                 </div>
-                <div className="grid gap-2">
-                  {SIDEKICK_CORE.abilities.slice(0, 3).map((ability) => (
+              ))}
+            </div>
+          </details>
+
+          <details className="group rounded-[1.55rem] border border-white/10 bg-black/24 p-4 text-white">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.26em] text-[#ff8cc6] [&::-webkit-details-marker]:hidden">
+              Mastery
+              <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+            </summary>
+            <div className="mt-4 space-y-3">
+              {PLAYABLE_CHARACTERS.map((character) => (
+                <div key={character.id} className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-black" style={{ borderColor: character.accent, color: character.accent }}>
+                    {character.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3 text-xs text-white/75">
+                      <span>{character.brand}</span>
+                      <span>{(mastery[character.id] || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full" style={{ width: `${Math.min(100, (mastery[character.id] || 0) / 250)}%`, background: character.accent }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <details className="group rounded-[1.55rem] border border-white/10 bg-black/24 p-4 text-white">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.26em] text-[#ff8cc6] [&::-webkit-details-marker]:hidden">
+              Support + boss
+              <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+            </summary>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-[1.2rem] border border-white/10 bg-white/5 p-3">
+                <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Support intelligence</div>
+                <div className="mt-2 text-base font-black text-white">{SIDEKICK_CORE.name}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/45">{SIDEKICK_CORE.title}</div>
+                <div className="mt-3 grid gap-2">
+                  {SIDEKICK_CORE.abilities.slice(0, 2).map((ability) => (
                     <AbilityPill key={ability.id} label={ability.type} copy={ability.name} accent={SIDEKICK_CORE.accent} />
                   ))}
                 </div>
               </div>
+              <BossIntelCard compact />
             </div>
-
-            <BossIntelCard />
-
-            <div className="rounded-[2rem] bg-white/6 border border-white/10 p-6 md:p-8">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3">Mastery board</div>
-              <div className="space-y-3 mb-6">
-                {PLAYABLE_CHARACTERS.map((character) => (
-                  <div key={character.id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border" style={{ borderColor: character.accent, color: character.accent }}>
-                      {character.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between text-sm text-white/75">
-                        <span>{character.brand}</span>
-                        <span>{(mastery[character.id] || 0).toLocaleString()}</span>
-                      </div>
-                      <div className="h-2 mt-1 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${Math.min(100, (mastery[character.id] || 0) / 250)}%`, background: character.accent }} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid gap-3">
-                <button
-                  onClick={handleStartGame}
-                  className="w-full py-5 rounded-2xl bg-[#E20074] text-white font-black text-xl uppercase tracking-[0.25em] hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
-                >
-                  Start shift <Play size={22} fill="currentColor" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowTutorialGuide(true)}
-                  className="w-full py-4 rounded-2xl bg-white/10 border border-white/15 text-white font-black uppercase tracking-[0.22em] hover:bg-white/15 transition-all flex items-center justify-center gap-3"
-                >
-                  How to play <ChevronRight size={18} />
-                </button>
-                {hasResumeSave && (
-                  <button
-                    onClick={() => {
-                      audio.init();
-                      continueSavedRun();
-                    }}
-                    className="w-full py-4 rounded-2xl bg-white/10 border border-white/15 text-white font-black uppercase tracking-[0.22em] hover:bg-white/15 transition-all flex items-center justify-center gap-3"
-                  >
-                    Continue run <ChevronRight size={18} />
-                  </button>
-                )}
-                <button
-                  onClick={() => openSettings(GameStatus.MENU)}
-                  className="w-full py-4 rounded-2xl bg-transparent border border-white/10 text-white/70 font-black uppercase tracking-[0.22em] hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-3"
-                >
-                  Settings + saves <Settings size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
+          </details>
         </div>
 
         <AnimatePresence>
@@ -1174,54 +1385,132 @@ const Meter = ({
 }) => {
   const ratio = Math.min(1, Math.max(0, value / max));
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/45 backdrop-blur-md p-3 min-w-[150px]">
-      <div className="flex items-center justify-between gap-3 mb-2 text-[10px] uppercase tracking-[0.25em] text-white/50">
-        <div className="flex items-center gap-2">{icon}<span>{label}</span></div>
+    <div className="w-full min-w-0 rounded-[1.05rem] border border-white/10 bg-black/45 p-2 backdrop-blur-md sm:min-w-[150px] sm:rounded-2xl sm:p-3">
+      <div className="mb-2 flex items-center justify-between gap-1.5 text-[8px] uppercase tracking-[0.08em] text-white/50 sm:gap-3 sm:text-[10px] sm:tracking-[0.25em]">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">{icon}<span className="truncate whitespace-nowrap">{label}</span></div>
         <span>{max === 1 ? `${Math.round(ratio * 100)}%` : `${Math.round(value)}`}</span>
       </div>
-      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/10 sm:h-2">
         <div className="h-full rounded-full" style={{ width: `${ratio * 100}%`, background: accent }} />
       </div>
     </div>
   );
 };
 
+const AbilityGlyph = ({ slot, className = '' }: { slot: RunnerAbilitySlot; className?: string }) => {
+  if (slot === 'blast') {
+    return (
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+        <path d="M5 21h22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.45" />
+        <path d="M8 18v-7M13 18V7M18 18v-9M23 18v-5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <path d="M6 25c4-2.2 6.2-2.2 10 0s6 2.1 10 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (slot === 'core') {
+    return (
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+        <rect x="8" y="6" width="16" height="21" rx="4" fill="none" stroke="currentColor" strokeWidth="2.4" />
+        <path d="M13 4h6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        <path d="m17 10-4 7h4l-2 6 5-8h-4l1-5Z" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+      <path d="M11 15v-4a2 2 0 0 1 4 0v4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M15 15v-6a2 2 0 0 1 4 0v6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M19 15v-4a2 2 0 0 1 4 0v6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M8 16h14a4 4 0 0 1 4 4v1a6 6 0 0 1-6 6h-7a7 7 0 0 1-7-7v-2a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M8 12 4 9M24 8l4-4M27 15l4-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
+    </svg>
+  );
+};
+
+const AbilityIconButton = ({
+  slot,
+  label,
+  ready = true,
+  accent,
+  secondary,
+  onClick,
+  compact = false,
+}: {
+  slot: RunnerAbilitySlot;
+  label: string;
+  ready?: boolean;
+  accent: string;
+  secondary: string;
+  onClick: () => void;
+  compact?: boolean;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={label}
+    title={label}
+    className={`group relative inline-flex shrink-0 items-center justify-center overflow-hidden border font-black uppercase transition-all hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-white/70 ${
+      compact ? 'h-[3.25rem] w-[3.25rem] rounded-2xl' : 'h-14 w-14 rounded-2xl xl:w-auto xl:px-4'
+    }`}
+    style={{
+      borderColor: ready ? `${accent}aa` : `${accent}42`,
+      background: ready ? `linear-gradient(135deg, ${accent}, ${secondary})` : `${accent}18`,
+      color: ready ? '#050011' : '#FFFFFF',
+      boxShadow: ready ? `0 0 22px ${accent}40` : undefined,
+    }}
+  >
+    <span className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100" style={{ background: `radial-gradient(circle at 45% 20%, ${secondary}55, transparent 58%)` }} />
+    <AbilityGlyph slot={slot} className={compact ? 'relative h-6 w-6' : 'relative h-6 w-6'} />
+    <span className={compact ? 'sr-only' : 'sr-only xl:not-sr-only xl:relative xl:ml-2 xl:text-[10px] xl:tracking-[0.2em]'}>
+      {label}
+    </span>
+  </button>
+);
+
 const MobileControls = () => {
   const abilityEnergy = useStore((state) => state.abilityEnergy);
   const sidekickCoreCharge = useStore((state) => state.sidekickCoreCharge);
   const selectedCharacterId = useStore((state) => state.selectedCharacterId);
   const character = getCharacterDefinition(selectedCharacterId);
+  const abilityLabel = CHARACTER_ABILITY_SHORT[character.id];
+  const smashLabel = CHARACTER_SMASH_SHORT[character.id];
 
   return (
-    <div className="md:hidden pointer-events-auto grid grid-cols-[1fr_auto] gap-4 w-full items-end">
-      <div className="rounded-[2rem] bg-black/55 backdrop-blur-md border border-white/10 p-3 grid grid-cols-3 gap-2">
-        <button onClick={() => controlDispatch('hud-left')} className="py-4 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.2em]">←</button>
-        <button onClick={() => controlDispatch('hud-jump')} className="py-4 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.2em]">Jump</button>
-        <button onClick={() => controlDispatch('hud-right')} className="py-4 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.2em]">→</button>
+    <div className="md:hidden pointer-events-auto grid w-full grid-cols-[1fr_auto] items-end gap-1.5 pb-[max(env(safe-area-inset-bottom,0px),0.25rem)]">
+      <div className="grid grid-cols-3 gap-1.5 rounded-[1.45rem] border border-white/10 bg-black/58 p-1.5 backdrop-blur-md">
+        <button onClick={() => controlDispatch('hud-left')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">←</button>
+        <button onClick={() => controlDispatch('hud-jump')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">Jump</button>
+        <button onClick={() => controlDispatch('hud-right')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">→</button>
       </div>
-      <div className="grid gap-2">
-        <button
-          onClick={() => controlDispatch('hud-ability')}
-          className="w-28 py-4 rounded-2xl text-white font-black uppercase tracking-[0.18em] border"
-          style={{
-            background: abilityEnergy >= 0.99 ? character.accent : 'rgba(255,255,255,0.08)',
-            borderColor: abilityEnergy >= 0.99 ? character.accent : 'rgba(255,255,255,0.1)',
-          }}
-        >
-          Skill
-        </button>
-        <button
+      <div className="grid gap-1.5">
+        <AbilityIconButton
+          slot="smash"
+          label={`Smash: ${smashLabel}`}
+          accent={character.accent}
+          secondary="#E20074"
           onClick={() => controlDispatch('hud-dash')}
-          className="w-28 py-4 rounded-2xl bg-[#E20074] text-white font-black uppercase tracking-[0.18em]"
-        >
-          Smash
-        </button>
-        <button
+          compact
+        />
+        <AbilityIconButton
+          slot="blast"
+          label={`Blast: ${abilityLabel}`}
+          ready={abilityEnergy >= 0.99}
+          accent={character.accent}
+          secondary={character.secondary}
+          onClick={() => controlDispatch('hud-ability')}
+          compact
+        />
+        <AbilityIconButton
+          slot="core"
+          label="Core: Sidekick Core"
+          ready={sidekickCoreCharge >= 100}
+          accent="#FFFFFF"
+          secondary={character.secondary}
           onClick={() => controlDispatch('hud-sidekick-core')}
-          className={`w-28 py-3 rounded-2xl font-black uppercase tracking-[0.18em] ${sidekickCoreCharge >= 100 ? 'bg-white text-black' : 'bg-white/10 text-white/40'}`}
-        >
-          Sidekick Core
-        </button>
+          compact
+        />
       </div>
     </div>
   );
@@ -1251,25 +1540,32 @@ const PlayingHUD = () => {
 
   const character = getCharacterDefinition(selectedCharacterId);
   const currentBoss = getBossDefinition(currentBossId);
+  const batteryRatio = Math.min(100, Math.max(0, (battery / Math.max(1, maxBattery)) * 100));
+  const batteryPercent = Math.round(batteryRatio);
+  const abilityLabel = CHARACTER_ABILITY_SHORT[character.id];
+  const smashLabel = CHARACTER_SMASH_SHORT[character.id];
+  const activeStatuses = [
+    { label: 'Shield', active: isImmortalityActive, accent: '#ffffff' },
+    { label: 'Magnet', active: isMagnetActive, accent: '#ffd74d' },
+    { label: 'Scanner', active: isScannerActive, accent: '#00d9ff' },
+    { label: 'Overclock', active: isOverclockActive, accent: '#2de6e6' },
+    { label: 'Multiplier', active: isMultiplierActive, accent: '#ff8cc6' },
+  ].filter((statusEntry) => statusEntry.active);
+  const activeStatusCount = activeStatuses.length;
 
   return (
     <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-3 md:p-6">
       <TutorialOverlay />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="pointer-events-none self-start">
-          <div className="text-[10px] uppercase tracking-[0.35em] text-white/45">Sales value</div>
-          <div className="text-3xl md:text-5xl font-black text-white font-cyber italic mt-1">{score.toLocaleString()}</div>
-          {combo > 1 && <div className="mt-2 text-sm uppercase tracking-[0.25em] text-t-magenta font-black">Combo x{combo}</div>}
+      <div className="flex items-start justify-between gap-2 sm:gap-3">
+        <div className="pointer-events-none max-w-[35vw] shrink-0 self-start rounded-[1.05rem] bg-black/35 px-2.5 py-2 backdrop-blur-md sm:max-w-none sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+          <div className="text-[9px] uppercase tracking-[0.28em] text-white/45 max-[420px]:sr-only sm:text-[10px] sm:tracking-[0.35em]">Sales value</div>
+          <div className="mt-0.5 truncate text-xl font-black italic text-white font-cyber sm:mt-1 sm:text-2xl md:text-5xl">{score.toLocaleString()}</div>
+          {combo > 1 && <div className="mt-1 text-xs font-black uppercase tracking-[0.22em] text-t-magenta md:mt-2 md:text-sm md:tracking-[0.25em]">Combo x{combo}</div>}
         </div>
 
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-start">
-          <div className="flex w-full flex-col gap-3 sm:w-auto">
-            <div className="rounded-[1.5rem] bg-black/50 border border-white/10 backdrop-blur-md px-4 py-3 text-right sm:min-w-[11rem]">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-white/45">{character.brand}</div>
-              <div className="text-xl md:text-2xl text-white font-black">{character.name}</div>
-              <div className="text-[11px] uppercase tracking-[0.25em] mt-1" style={{ color: character.accent }}>Level {level}/5</div>
-            </div>
+        <div className="ml-auto flex min-w-0 w-[54vw] max-w-[12rem] flex-col gap-2 sm:w-auto sm:max-w-none sm:flex-row sm:items-start sm:gap-3">
+          <div className="hidden w-full flex-col gap-3 sm:flex sm:w-auto">
             {currentBoss && (
               <div className="rounded-full border border-[#E20074]/20 bg-black/60 px-4 py-2 text-left sm:max-w-[15rem]">
                 <div className="text-[10px] uppercase tracking-[0.24em] text-[#ff8cc6]">
@@ -1278,33 +1574,45 @@ const PlayingHUD = () => {
               </div>
             )}
           </div>
-          <div className="w-full rounded-[1.5rem] bg-black/50 border border-white/10 backdrop-blur-md px-4 py-3 sm:min-w-[10.625rem] sm:w-auto">
-            <div className="flex items-center justify-between gap-3 text-white/60 text-[10px] uppercase tracking-[0.25em] mb-2">
-              <div className="flex items-center gap-2"><Battery size={14} /><span>Battery</span></div>
-              <span>{Math.round((battery / maxBattery) * 100)}%</span>
+          <div className="w-full rounded-[1.05rem] border border-white/10 bg-black/58 px-2 py-2 backdrop-blur-md sm:min-w-[16rem] sm:rounded-[1.5rem] sm:px-4 sm:py-3 sm:w-auto">
+            <div className="flex items-center justify-between gap-2">
+              <CharacterHudIdentity character={character} level={level} batteryPercent={batteryPercent} />
+              <button
+                onClick={togglePause}
+                className="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white sm:hidden"
+                aria-label="Pause run"
+              >
+                <Pause size={14} />
+              </button>
+              <div
+                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-white/75 sm:flex"
+                style={{ borderColor: `${character.accent}45`, background: `${character.accent}14` }}
+              >
+                <Battery size={15} />
+              </div>
             </div>
-            <div className="h-3 rounded-full bg-white/10 overflow-hidden">
+            <div className="mt-1.5 h-2 rounded-full bg-white/10 overflow-hidden sm:mt-2 sm:h-3">
               <div
                 className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-t-magenta),color-mix(in_srgb,var(--color-t-magenta)_58%,white))]"
-                style={{ width: `${(battery / maxBattery) * 100}%` }}
+                style={{ width: `${batteryRatio}%` }}
               />
             </div>
-            <div className="flex gap-2 mt-3 pointer-events-auto">
-              <button onClick={() => saveProgress(true)} className="flex-1 py-2 rounded-xl bg-white/10 border border-white/10 text-white/80 text-[10px] uppercase tracking-[0.25em] font-black">Save</button>
-              <button onClick={togglePause} className="flex-1 py-2 rounded-xl bg-t-magenta text-white text-[10px] uppercase tracking-[0.25em] font-black flex items-center justify-center gap-2"><Pause size={12} />Pause</button>
+            <div className="hidden gap-2 mt-3 pointer-events-auto sm:flex">
+              <button onClick={() => saveProgress(true)} className="flex-1 rounded-xl border border-white/10 bg-white/10 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/80 max-[420px]:hidden">Save</button>
+              <button onClick={togglePause} className="flex-1 rounded-xl bg-t-magenta py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white flex items-center justify-center gap-2"><Pause size={12} />Pause</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 flex gap-2 md:gap-3">
+      <div className="absolute left-3 top-[7.15rem] flex gap-1.5 sm:left-1/2 sm:top-[5.35rem] sm:-translate-x-1/2 md:top-24 md:gap-3">
         {T_LIFE_WORD.map((char, idx) => {
           const active = collectedLetters.includes(idx);
           const color = TLIFE_COLORS[idx];
           return (
             <div
               key={idx}
-              className="w-8 h-10 md:w-10 md:h-12 rounded-xl border-2 flex items-center justify-center font-black font-cyber text-lg transition-all"
+              className="flex h-8 w-6 items-center justify-center rounded-lg border-2 font-black font-cyber text-sm transition-all md:h-12 md:w-10 md:rounded-xl md:text-lg"
               style={{
                 borderColor: active ? color : 'rgba(255,255,255,0.12)',
                 color: active ? (color === '#FFFFFF' ? '#000000' : '#FFFFFF') : 'rgba(255,255,255,0.22)',
@@ -1318,46 +1626,84 @@ const PlayingHUD = () => {
         })}
       </div>
 
-      <div className="flex flex-wrap gap-3 absolute top-32 md:top-36 left-1/2 -translate-x-1/2">
-        <StatusChip label="Shield" active={isImmortalityActive} accent="#ffffff" />
-        <StatusChip label="Magnet" active={isMagnetActive} accent="#ffd74d" />
-        <StatusChip label="Scanner" active={isScannerActive} accent="#00d9ff" />
-        <StatusChip label="Overclock" active={isOverclockActive} accent="#2de6e6" />
-        <StatusChip label="Multiplier" active={isMultiplierActive} accent="#ff8cc6" />
+      <div className="absolute top-28 left-1/2 hidden -translate-x-1/2 gap-2 md:hidden">
+        {currentBoss ? (
+          <div className="rounded-full border border-[#E20074]/20 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-[#ff8cc6]">
+            {currentBoss.name}
+          </div>
+        ) : null}
+        {activeStatusCount > 0 ? (
+          <div className="rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/72">
+            {activeStatusCount} boosts live
+          </div>
+        ) : null}
       </div>
+
+      {activeStatuses.length > 0 ? (
+        <div className="absolute top-32 left-1/2 hidden -translate-x-1/2 flex-wrap gap-3 md:top-36 md:flex">
+          {activeStatuses.map((statusEntry) => (
+            <StatusChip
+              key={statusEntry.label}
+              label={statusEntry.label}
+              active={statusEntry.active}
+              accent={statusEntry.accent}
+            />
+          ))}
+        </div>
+      ) : null}
 
       <AnimatePresence>
         {currentFact && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="absolute top-52 md:top-56 left-1/2 -translate-x-1/2 w-[min(90vw,540px)] rounded-[1.6rem] bg-black/75 border border-[#E20074]/40 backdrop-blur-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
+            initial={{ opacity: 0, x: 24, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 24, scale: 0.95 }}
+            className="absolute bottom-[6.75rem] left-3 right-3 rounded-[1.25rem] border border-[#E20074]/35 bg-black/78 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl md:bottom-28 md:left-auto md:right-5 md:w-[min(28rem,36vw)] md:rounded-[1.6rem] md:p-4"
           >
             <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074] mb-2">Knowledge pulse</div>
-            <div className="text-sm md:text-base text-white/85 leading-relaxed">{currentFact}</div>
+            <div className="text-xs leading-relaxed text-white/85 md:text-base">{currentFact}</div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-          <Meter label="Dash" value={dashEnergy} accent="#E20074" icon={<Zap size={12} />} />
-          <Meter label={character.abilityName} value={abilityEnergy} accent={character.accent} icon={<Sword size={12} />} />
-          <Meter label="Sidekick Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<Star size={12} />} />
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+        <div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:gap-3 md:justify-start">
+          <Meter label="Smash" value={dashEnergy} accent={character.accent} icon={<AbilityGlyph slot="smash" className="h-3 w-3" />} />
+          <Meter label="Blast" value={abilityEnergy} accent={character.secondary} icon={<AbilityGlyph slot="blast" className="h-3 w-3" />} />
+          <Meter label="Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<AbilityGlyph slot="core" className="h-3 w-3" />} />
         </div>
 
-        <div className="hidden md:flex justify-between items-end gap-4 pointer-events-auto">
-          <div className="rounded-[1.6rem] bg-black/50 border border-white/10 backdrop-blur-md p-3 flex items-center gap-2 text-white/70 text-xs uppercase tracking-[0.22em]">
+        <div className="hidden md:flex justify-between items-end gap-3 pointer-events-auto">
+          <div className="rounded-[1.45rem] bg-black/50 border border-white/10 backdrop-blur-md p-2.5 flex items-center gap-2 text-white/70 text-xs uppercase tracking-[0.22em]">
             <button onClick={() => controlDispatch('hud-left')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">←</button>
             <button onClick={() => controlDispatch('hud-jump')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">Jump</button>
             <button onClick={() => controlDispatch('hud-right')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">→</button>
-            <div className="ml-3 text-white/35">or arrows / WASD / swipe</div>
+            <div className="ml-2 hidden text-white/35 xl:block">or arrows / WASD / swipe</div>
           </div>
-          <div className="flex gap-3">
-            <button onClick={() => controlDispatch('hud-dash')} className="px-5 py-4 rounded-2xl bg-[#E20074] text-white font-black uppercase tracking-[0.22em]">Smash</button>
-            <button onClick={() => controlDispatch('hud-ability')} className="px-5 py-4 rounded-2xl text-white font-black uppercase tracking-[0.22em] border" style={{ background: abilityEnergy >= 0.99 ? `${character.accent}` : 'rgba(255,255,255,0.08)', borderColor: abilityEnergy >= 0.99 ? character.accent : 'rgba(255,255,255,0.12)' }}>{character.abilityName}</button>
-            <button onClick={() => controlDispatch('hud-sidekick-core')} className={`px-5 py-4 rounded-2xl font-black uppercase tracking-[0.22em] ${sidekickCoreCharge >= 100 ? 'bg-white text-black' : 'bg-white/10 text-white/45'}`}>Sidekick Core</button>
+          <div className="flex gap-2.5">
+            <AbilityIconButton
+              slot="smash"
+              label={`Smash: ${smashLabel}`}
+              accent={character.accent}
+              secondary="#E20074"
+              onClick={() => controlDispatch('hud-dash')}
+            />
+            <AbilityIconButton
+              slot="blast"
+              label={`Blast: ${abilityLabel}`}
+              ready={abilityEnergy >= 0.99}
+              accent={character.accent}
+              secondary={character.secondary}
+              onClick={() => controlDispatch('hud-ability')}
+            />
+            <AbilityIconButton
+              slot="core"
+              label="Core: Sidekick Core"
+              ready={sidekickCoreCharge >= 100}
+              accent="#FFFFFF"
+              secondary={character.secondary}
+              onClick={() => controlDispatch('hud-sidekick-core')}
+            />
           </div>
         </div>
 

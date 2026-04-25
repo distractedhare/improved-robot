@@ -75,18 +75,18 @@ interface RunnerAppProps {
 }
 
 function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
-  const shellHeightClass = immersive ? 'h-[calc(100vh-8.5rem)]' : 'h-[72vh]';
+  const shellHeightClass = immersive ? 'h-[calc(100dvh-5rem)] md:h-[calc(100vh-8.5rem)]' : 'h-[72vh]';
 
   return (
     <div
       className={`relative w-full overflow-hidden bg-black select-none shadow-[0_30px_90px_rgba(0,0,0,0.4)] ${
         immersive
-          ? `${shellHeightClass} rounded-[2.1rem] border border-white/8`
+          ? `${shellHeightClass} rounded-none border-0 md:rounded-[2.1rem] md:border md:border-white/8`
           : 'min-h-[72vh] rounded-[1.85rem] border border-white/10'
       }`}
     >
       {immersive && onStartLiveCall ? (
-        <div className="pointer-events-none absolute right-3 top-3 z-[140] sm:right-4 sm:top-4">
+        <div className="pointer-events-none absolute right-3 top-3 z-[140] hidden sm:block sm:right-4 sm:top-4">
           <button
             type="button"
             onClick={onStartLiveCall}
@@ -105,7 +105,7 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
         dpr={[1, 1.5]} 
         gl={{ antialias: false, stencil: false, depth: true, powerPreference: "high-performance" }}
         // Initial camera, matches the controller base
-        className={`${shellHeightClass} w-full`}
+        className={`w-full ${shellHeightClass}`}
         camera={{ position: [0, 5.5, 8], fov: 60 }}
       >
         <CameraController />

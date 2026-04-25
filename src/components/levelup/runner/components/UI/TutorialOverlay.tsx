@@ -95,11 +95,11 @@ export const TutorialOverlay: React.FC = () => {
           initial={{ x: 280, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 280, opacity: 0 }}
-          className="absolute right-4 md:right-8 bottom-36 md:bottom-28 z-[70] w-[min(92vw,330px)] pointer-events-none"
+          className="absolute bottom-[7.25rem] left-3 right-3 z-[70] pointer-events-none md:bottom-24 md:left-auto md:right-6 md:w-[min(20rem,30vw)]"
         >
-          <div className="rounded-[1.8rem] bg-black/70 border border-white/10 backdrop-blur-2xl p-5 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#E20074]/20 border border-[#E20074]/40 text-[#ff8cc6] flex items-center justify-center">
+          <div className="rounded-[1.35rem] border border-white/10 bg-black/72 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl md:rounded-[1.7rem] md:p-4">
+            <div className="mb-2.5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#E20074]/40 bg-[#E20074]/20 text-[#ff8cc6] md:h-11 md:w-11">
                 <activeTip.icon size={20} />
               </div>
               <div>
@@ -107,8 +107,8 @@ export const TutorialOverlay: React.FC = () => {
                 <div className="text-white font-black uppercase tracking-[0.1em]">{activeTip.title}</div>
               </div>
             </div>
-            <p className="text-sm text-white/75 leading-relaxed">{activeTip.description}</p>
-            <div className="mt-4 h-1 rounded-full bg-white/10 overflow-hidden">
+            <p className="text-[12px] leading-relaxed text-white/78 md:text-[13px]">{activeTip.description}</p>
+            <div className="mt-3.5 h-1 overflow-hidden rounded-full bg-white/10">
               <motion.div initial={{ width: '100%' }} animate={{ width: '0%' }} transition={{ duration: 5.6, ease: 'linear' }} className="h-full bg-[#E20074]" />
             </div>
           </div>

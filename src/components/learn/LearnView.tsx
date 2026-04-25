@@ -29,6 +29,8 @@ import HomeInternetSection from './HomeInternetSection';
 import PlansSection from './PlansSection';
 import { learnCopy } from './learnCopy';
 import LearnSectionHeader from './LearnSectionHeader';
+import { KipCoachNote } from '../kip';
+import { buildLearnKipNote } from '../../services/kip/kipRules';
 
 type LearnTab = 'briefing' | 'devices' | 'plans' | 'homeinternet' | 'playbook' | 'edge';
 type DeviceCategory = 'phones' | 'tablets' | 'wearables' | 'accessories';
@@ -257,6 +259,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
   });
   const deviceConfig = getDeviceConfig();
   const selectedDevices = selectedDevicesByCategory[deviceCategory];
+  const briefingKipNote = buildLearnKipNote({ section: 'briefing' });
+  const devicesKipNote = buildLearnKipNote({ section: 'devices' });
   const compareDevices = getOrderedDevices(
     selectedDevices,
     normalizeCompareSet(selectedDevices.map((device) => device.name), compareSetByCategory[deviceCategory])
@@ -728,7 +732,10 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
           className={`space-y-4 ${panelSurfaceClassName}`}
         >
           {tab === 'briefing' && (
-            <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
+            <>
+              <KipCoachNote note={briefingKipNote} />
+              <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
+            </>
           )}
 
           {tab === 'devices' && (
@@ -765,6 +772,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                   variant="compact"
                 />
               </div>
+
+              <KipCoachNote note={devicesKipNote} />
 
               <div className="-mx-1 mobile-rail px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
                 {DEVICE_CATEGORIES.map((category) => {

@@ -1,14 +1,10 @@
-import { useState } from 'react';
-import { 
-  ArrowRight, 
+import { useEffect, useRef, useState } from 'react';
+import {
   CheckCircle2, 
   Smartphone, 
   Wifi, 
   Watch, 
   Tablet, 
-  Users, 
-  User, 
-  MapPin, 
   ArrowLeft,
   Sparkles,
   ChevronRight,
@@ -17,41 +13,54 @@ import {
   ArrowUpCircle,
   Package,
   Wrench,
-  UserCircle,
-  Monitor
+  UserCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext } from '../types';
+import { getSupportOptionsForIntent } from '../constants/supportFocus';
 
 interface GuidedContextFlowProps {
   context: SalesContext;
   setContext: (value: React.SetStateAction<SalesContext>) => void;
-  onComplete: () => void;
+  onComplete: (finalContext?: SalesContext) => void;
+  currentStep: GuidedFlowStep;
+  onStepChange: (step: GuidedFlowStep) => void;
 }
 
-type Step = 'intent' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'plan' | 'age';
+export type GuidedFlowStep = 'intent' | 'supportFocus' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'plan' | 'age';
 
-const STEPS: Step[] = ['intent', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
+const STEPS: GuidedFlowStep[] = ['intent', 'supportFocus', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
+const SUPPORT_INTENTS: SalesContext['purchaseIntent'][] = ['order support', 'tech support', 'account support'];
 
-export default function GuidedContextFlow({ context, setContext, onComplete }: GuidedContextFlowProps) {
-  const [currentStep, setCurrentStep] = useState<Step>('intent');
+export default function GuidedContextFlow({ context, setContext, onComplete, currentStep, onStepChange }: GuidedContextFlowProps) {
   const [direction, setDirection] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [flippedPlans, setFlippedPlans] = useState<Record<string, boolean>>({});
+  const selectionTimerRef = useRef<number | null>(null);
+
+  const clearSelectionTimer = () => {
+    if (selectionTimerRef.current === null) return;
+    window.clearTimeout(selectionTimerRef.current);
+    selectionTimerRef.current = null;
+  };
+
+  useEffect(() => () => clearSelectionTimer(), []);
 
   const togglePlanFlip = (id: string) => {
     setFlippedPlans(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const goToStep = (step: Step) => {
+  const goToStep = (step: GuidedFlowStep) => {
     const currentIndex = STEPS.indexOf(currentStep);
     const nextIndex = STEPS.indexOf(step);
     setDirection(nextIndex > currentIndex ? 1 : -1);
-    setCurrentStep(step);
+    onStepChange(step);
   };
 
-  const handleOptionSelect = (id: string, update: Partial<SalesContext>, nextStep: Step | 'complete') => {
+  const handleOptionSelect = (id: string, update: Partial<SalesContext>, nextStep: GuidedFlowStep | 'complete') => {
+    clearSelectionTimer();
     setSelectedId(id);
+    const nextContext = { ...context, ...update };
     setContext(prev => ({ ...prev, ...update }));
     
     // Conditional logic
@@ -72,13 +81,14 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
     }
 
     // Delay to allow the user to read the card's advice before transitioning
-    setTimeout(() => {
+    selectionTimerRef.current = window.setTimeout(() => {
       if (finalNextStep === 'complete') {
-        onComplete();
+        onComplete(nextContext);
       } else {
         goToStep(finalNextStep);
       }
       setSelectedId(null);
+      selectionTimerRef.current = null;
     }, 1000);
   };
 
@@ -144,13 +154,17 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
             onClick={() => {
-                const supportIntents = ['order support', 'tech support', 'account support'];
-                const next: Step = supportIntents.includes(opt.id)
-                  ? 'age'
+                const isSupportIntent = SUPPORT_INTENTS.includes(opt.id as SalesContext['purchaseIntent']);
+                const next: GuidedFlowStep = isSupportIntent
+                  ? 'supportFocus'
                   : opt.id === 'upgrade / add a line'
                   ? 'product'
                   : 'hintCheck';
-                handleOptionSelect(opt.id, { purchaseIntent: opt.id as any }, next);
+                handleOptionSelect(opt.id, {
+                  purchaseIntent: opt.id as SalesContext['purchaseIntent'],
+                  supportFocus: undefined,
+                  orderSupportType: undefined,
+                }, next);
               }}
             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all text-center group shadow-sm hover:shadow-md relative overflow-hidden ${
               selectedId === opt.id 
@@ -177,6 +191,77 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       </button>
     </motion.div>
   );
+
+  const renderSupportFocus = () => {
+    const options = getSupportOptionsForIntent(context.purchaseIntent);
+    const title = context.purchaseIntent === 'tech support'
+      ? 'What needs fixing?'
+      : context.purchaseIntent === 'account support'
+        ? 'What account lane?'
+        : 'What order issue?';
+    const helper = context.purchaseIntent === 'tech support'
+      ? 'Pick the immediate problem so the plan starts with the right fix.'
+      : context.purchaseIntent === 'account support'
+        ? 'Choose the narrow topic before the rep sees a talk track.'
+        : 'Narrow the order issue before moving to the resolution path.';
+
+    return (
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-5"
+      >
+        <div className="text-center space-y-2">
+          <p className="type-micro text-t-magenta">Stage 2</p>
+          <h2 className="text-2xl font-black uppercase tracking-tight text-t-dark-gray">{title}</h2>
+          <p className="text-sm font-medium text-t-muted">{helper}</p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((option) => (
+            <motion.button
+              key={option.id}
+              variants={cardVariants}
+              animate={selectedId === option.id ? "selected" : "show"}
+              whileHover={selectedId ? {} : { scale: 1.015, y: -3 }}
+              whileTap={selectedId ? {} : "tap"}
+              onClick={() => {
+                handleOptionSelect(
+                  option.id,
+                  {
+                    ...option.contextPatch,
+                    supportFocus: option.id,
+                  },
+                  'complete',
+                );
+              }}
+              className={`min-h-[116px] rounded-2xl border-2 p-4 text-left transition-all shadow-sm ${
+                selectedId === option.id
+                  ? 'border-t-magenta bg-t-magenta/10'
+                  : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+              }`}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-tight text-t-dark-gray">{option.label}</p>
+                  <p className="mt-2 text-[11px] font-medium leading-relaxed text-t-muted">{option.hint}</p>
+                </div>
+                {selectedId === option.id ? <CheckCircle2 className="h-4 w-4 shrink-0 text-t-magenta" /> : <ChevronRight className="h-4 w-4 shrink-0 text-t-muted" />}
+              </div>
+            </motion.button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => onComplete(context)}
+          className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted transition-colors hover:text-t-magenta"
+        >
+          Skip focus and build plan
+        </button>
+      </motion.div>
+    );
+  };
 
   const renderHintCheck = () => (
     <motion.div 
@@ -431,7 +516,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             whileTap={selectedId ? {} : "tap"}
             onClick={() => {
                 const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
-                const next: Step = isUpgrade ? 'age' : p.id === 'iOS' ? 'plan' : 'brand';
+                const next: GuidedFlowStep = isUpgrade ? 'age' : p.id === 'iOS' ? 'plan' : 'brand';
                 handleOptionSelect(p.id, { desiredPlatform: p.id as any }, next);
               }}
             className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left group shadow-sm hover:shadow-md ${
@@ -646,7 +731,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
         ))}
       </div>
       <button 
-        onClick={() => onComplete()}
+        onClick={() => onComplete(context)}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
         Skip / Not Sure
@@ -678,12 +763,12 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       <div className="flex gap-1.5 mb-8 px-2">
         {STEPS.map((step, i) => {
           const currentIndex = STEPS.indexOf(currentStep);
-          const supportIntents = ['order support', 'tech support', 'account support'];
-          const isSupport = supportIntents.includes(context.purchaseIntent);
+          const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
           const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
 
-          // Support: only intent + age
-          if (isSupport && !['intent', 'age'].includes(step)) return null;
+          // Support: intent + focused issue only.
+          if (isSupport && !['intent', 'supportFocus'].includes(step)) return null;
+          if (!isSupport && step === 'supportFocus') return null;
           // Upgrade: skip hintCheck, carrier, brand, plan; keep currentDevice
           if (isUpgrade && ['hintCheck', 'carrier', 'brand', 'plan'].includes(step)) return null;
           // Standard: hide currentDevice
@@ -718,6 +803,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
             style={{ backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
           >
             {currentStep === 'intent' && renderIntent()}
+            {currentStep === 'supportFocus' && renderSupportFocus()}
             {currentStep === 'hintCheck' && renderHintCheck()}
             {currentStep === 'product' && renderProduct()}
             {currentStep === 'currentDevice' && renderCurrentDevice()}
@@ -735,15 +821,14 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
       {currentStep !== 'intent' && (
         <button
           onClick={() => {
-            const supportIntents = ['order support', 'tech support', 'account support'];
-            const isSupport = supportIntents.includes(context.purchaseIntent);
+            const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
             const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
 
-            let prevStep: Step;
+            let prevStep: GuidedFlowStep;
             if (isSupport) {
               prevStep = 'intent';
             } else if (isUpgrade) {
-              const upgradeMap: Partial<Record<Step, Step>> = {
+              const upgradeMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
                 product: 'intent',
                 currentDevice: 'product',
                 lines: 'currentDevice',
@@ -752,7 +837,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete }: G
               };
               prevStep = upgradeMap[currentStep] ?? 'intent';
             } else {
-              const standardMap: Partial<Record<Step, Step>> = {
+              const standardMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
                 hintCheck: 'intent',
                 product: 'hintCheck',
                 carrier: 'product',

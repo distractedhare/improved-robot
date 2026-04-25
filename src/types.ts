@@ -1,5 +1,19 @@
 import { OrderSupportType } from './components/OrderSupportSelector';
 
+export type SupportFocus =
+  | 'tech_device_issue'
+  | 'tech_signal_issue'
+  | 'tech_internet_issue'
+  | 'tech_frustrated_urgent'
+  | 'account_billing'
+  | 'account_plan_question'
+  | 'account_login_access'
+  | 'account_line_change'
+  | 'order_tracking'
+  | 'order_activation_issue'
+  | 'order_delayed_shipment'
+  | 'order_missing_item';
+
 export interface SalesContext {
   age: '18-24' | '25-34' | '35-54' | '55+' | 'Not Specified';
   region: 'New England' | 'Mid-Atlantic' | 'South Atlantic' | 'Southeast' | 'Deep South' | 'Mid-South' | 'Great Lakes' | 'Upper Midwest' | 'Great Plains' | 'Texas & Oklahoma' | 'Desert Southwest' | 'Rocky Mountains' | 'Pacific Northwest' | 'California' | 'Alaska' | 'Hawaii' | 'Not Specified';
@@ -8,6 +22,7 @@ export interface SalesContext {
   product: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[];
   purchaseIntent: 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
   orderSupportType?: OrderSupportType;
+  supportFocus?: SupportFocus;
   plan?: string;
   currentCarrier?: 'AT&T' | 'Verizon' | 'Spectrum' | 'Xfinity' | 'US Cellular' | 'Prepaid (Mint, Boost, etc.)' | 'Other' | 'Not Specified';
   totalLines?: number;

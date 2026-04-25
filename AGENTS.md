@@ -124,7 +124,12 @@ improved-robot/
 
 7. **Don't commit to main without asking.** B wants to review commits before push.
 
-8. **If you break one of these rules or spot drift, update AGENTS.md before
+8. **Use relevant tools automatically.** Do not ask permission to inspect files,
+   search the repo, read docs, check branches/commits, run tests, or validate
+   the app. Ask only before destructive actions, deployments, merges, major
+   architecture pivots, or when access is blocked.
+
+9. **If you break one of these rules or spot drift, update AGENTS.md before
    fixing the drift.** Rules that aren't written down don't count.
 
 ---

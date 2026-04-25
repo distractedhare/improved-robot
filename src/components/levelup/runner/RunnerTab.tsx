@@ -3,8 +3,17 @@ import { BookOpen, HardHat, Loader2, RefreshCw, TriangleAlert, Zap } from 'lucid
 import ErrorBoundary from '../../ErrorBoundary';
 import { createRunnerHostBridge } from './hostBridge';
 import MagentaRunner from '../MagentaRunner';
+import { useStore as useRunnerStore } from './store';
+import { GameStatus } from './types';
 
 const RunnerApp = lazy(() => import('./App'));
+
+const ACTIVE_RUN_STATUSES = new Set<GameStatus>([
+  GameStatus.PLAYING,
+  GameStatus.PAUSED,
+  GameStatus.TRIVIA,
+  GameStatus.SHOP,
+]);
 
 interface RunnerTabProps {
   immersive?: boolean;
@@ -66,6 +75,21 @@ export default function RunnerTab({ immersive = false, onStartLiveCall }: Runner
   const [retryCount, setRetryCount] = useState(0);
   const [showGuide, setShowGuide] = useState(false);
   const [showLiteMode, setShowLiteMode] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      const state = useRunnerStore.getState();
+      if (ACTIVE_RUN_STATUSES.has(state.status)) {
+        state.saveProgress(true);
+        state.setStatus(GameStatus.MENU);
+        return;
+      }
+
+      if (state.status === GameStatus.SETTINGS && state.settingsReturnStatus !== GameStatus.MENU) {
+        state.setStatus(GameStatus.MENU);
+      }
+    };
+  }, []);
 
   const retryRunner = () => {
     setShowGuide(false);

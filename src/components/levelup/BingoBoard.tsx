@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { Flame, Sparkles, Trophy, Clock, Target, Lightbulb } from 'lucide-react';
-import { BINGO_BOARDS, BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
+import { BingoCell as BingoCellType, getBoardLayout, getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
 import { formatBingoDuration, getBingoStats, getBoardProgress, getWinningLines, toggleBingoCell } from '../../services/bingoService';
 import { recordBingoCellCompleted, recordBingoRows, recordStreak } from '../../services/prizeService';
 import { heavyCrash, successBuzz } from '../../utils/haptics';
@@ -62,8 +62,8 @@ const LINE_META = [
 ];
 
 export default function BingoBoard() {
-  const [activeBoardId, setActiveBoardId] = useState(() => getFeaturedBoardId());
-  const [progress, setProgress] = useState(() => getBoardProgress(getFeaturedBoardId()));
+  const activeBoardId = getFeaturedBoardId();
+  const [progress, setProgress] = useState(() => getBoardProgress(activeBoardId));
   const [rowToast, setRowToast] = useState<{ count: number } | null>(null);
   const [rowSlam, setRowSlam] = useState<{ id: number; count: number } | null>(null);
   const [boardCelebration, setBoardCelebration] = useState(false);
@@ -84,10 +84,6 @@ export default function BingoBoard() {
     [board, completedIds]
   );
   const nearCompleteLines = lineProgress.filter((line) => line.filled === 4);
-
-  useEffect(() => {
-    setProgress(getBoardProgress(activeBoardId));
-  }, [activeBoardId]);
 
   useEffect(() => {
     if (!rowToast) return undefined;
@@ -136,7 +132,7 @@ export default function BingoBoard() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta">Weekly Challenge</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta">Single Bingo Game</p>
             <h3 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-foreground">{activeBoard.name}</h3>
             <p className="mt-1 text-[12px] sm:text-sm font-medium text-t-dark-gray leading-snug">{activeBoard.subtitle}</p>
           </div>
@@ -145,33 +141,6 @@ export default function BingoBoard() {
               {stats.progressPct}%
             </div>
           </div>
-        </div>
-
-        {/* Board selector */}
-        <div className="flex overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 gap-2 scrollbar-hide" role="tablist" aria-label="Weekly challenge boards">
-          {BINGO_BOARDS.map((boardOption) => {
-            const isActive = boardOption.id === activeBoardId;
-            return (
-              <button
-                key={boardOption.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`bingo-board-panel-${boardOption.id}`}
-                onClick={() => setActiveBoardId(boardOption.id)}
-                className={`focus-ring min-w-[160px] sm:min-w-0 flex-shrink-0 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.97] ${
-                  isActive
-                    ? 'bg-t-magenta text-white shadow-[0_8px_20px_rgba(226,0,116,0.25)]'
-                    : 'glass-card text-t-dark-gray hover:border-t-magenta/30'
-                }`}
-              >
-                <p className="text-[10px] font-black uppercase tracking-[0.18em]">{boardOption.name}</p>
-                <p className={`mt-1 text-[11px] font-medium leading-relaxed ${isActive ? 'text-white/80' : 'text-t-dark-gray'}`}>
-                  {boardOption.subtitle}
-                </p>
-              </button>
-            );
-          })}
         </div>
       </div>
 

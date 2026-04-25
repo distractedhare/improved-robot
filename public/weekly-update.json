@@ -1,88 +1,99 @@
 {
   "metadata": {
-    "updatedDate": "2026-04-02",
-    "validUntil": "2026-04-09",
-    "version": "3.0.0"
+    "updatedDate": "2026-04-23",
+    "validUntil": "2026-04-30",
+    "version": "3.1.0"
   },
   "weeklyFocus": {
-    "headline": "iPhone 17 Launch + Better Value Push + HINT Month On Us",
-    "context": "iPhone 17 On Us for switchers (no trade-in), Galaxy S26 Ultra On Us with new line on Beyond. Better Value 3 lines $140/mo with Netflix, Hulu, Apple TV+, T-Satellite; push HINT on every call with code MONTHONUS."
+    "headline": "Verified April 23: iPhone 17e switcher offer, Better Value, and HINT Month On Us",
+    "context": "Use verified public T-Mobile offers only: iPhone 17e On Us for eligible port-ins with no trade-in, iPhone 17 Pro up to $830 off with trade on Experience More, Galaxy S26 Ultra up to $800 off with add-a-line, Better Value family pricing, and Home Internet Month On Us plus up to $300 back with code MONTHONUS."
   },
   "trending": [
     {
-      "buzz": "iPhone 17 On Us — no trade-in needed",
-      "source": "T-Mobile.com hero banner, TV ads, social",
-      "repTip": "Switchers on Beyond or Better Value (3 lines). No trade-in. Via 24 monthly bill credits."
+      "buzz": "iPhone 17e On Us — no trade-in needed for eligible port-ins",
+      "source": "T-Mobile Apple deals page",
+      "repTip": "Use this for switchers first: qualifying credit, eligible port-in, and $45+/mo plan with AutoPay required; up to $630 via 24 monthly bill credits."
     },
     {
-      "buzz": "T-Satellite now powering apps",
-      "source": "T-Mobile.com, press, outdoor communities",
-      "repTip": "WhatsApp, AllTrails, and more work via satellite now. Included on Beyond or $10/mo add-on."
+      "buzz": "T-Satellite is an off-grid app story, not just a texting story",
+      "source": "T-Mobile T-Satellite page and support page",
+      "repTip": "Talk about WhatsApp, AllTrails, Google Maps, AccuWeather, T-Life, and other optimized apps, but set expectations around outdoor use and limited satellite data speeds."
     },
     {
-      "buzz": "iPhone Air just launched",
-      "source": "Apple marketing, social buzz",
-      "repTip": "On Us when you switch on Beyond or Better Value — no trade-in. Thinnest iPhone ever."
+      "buzz": "Home Internet Month On Us plus up to $300 back",
+      "source": "T-Mobile Home Internet deals page",
+      "repTip": "Check the address early, use code MONTHONUS, and set expectations: bill credit may take 2 cycles; rebate card can take up to 14 weeks after submission."
     },
     {
-      "buzz": "T-Mobile families saved $3,700 vs AT&T & Verizon over 5 years",
-      "source": "HarrisX Billing Snapshots, T-Mobile ads",
-      "repTip": "Based on actual bills with 3+ lines. Great closer when someone says they're happy with their carrier."
+      "buzz": "Better Value remains the family-plan anchor",
+      "source": "T-Mobile plan pages and Better Value newsroom",
+      "repTip": "Best fit is 3+ line households: $140+/mo with AutoPay, 3+ new lines and 2 eligible ports for new customers, plus T-Satellite and 5-Year Price Guarantee."
     }
   ],
   "currentPromos": [
     {
-      "name": "iPhone 17 On Us (Switchers)",
-      "details": "Free iPhone 17, no trade-in needed. Via 24 monthly bill credits on Experience Beyond or Better Value (3 lines); port from AT&T, Verizon, Claro, UScellular, Xfinity, Spectrum, Liberty PR.",
+      "name": "iPhone 17e On Us (Eligible Port-In)",
+      "details": "No trade-in needed for eligible port-ins. Requires qualifying credit, qualifying $45+/mo service with AutoPay, eligible port-in, active line, and 24 monthly bill credits up to $630.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
       "commonObjections": [
         {
           "objection": "I don't want 24 months of bill credits",
-          "response": "No contract — you can leave anytime. The credits just offset the device cost monthly, and most people stay because the value is unbeatable."
+          "response": "The offer is delivered as monthly bill credits, not an annual service contract. Set the expectation clearly: credits stop if the account or line stops qualifying."
         }
       ]
     },
     {
-      "name": "Galaxy S26 Ultra On Us (New Line)",
-      "details": "Free with new line on Experience Beyond ($100+/mo w/ AutoPay). No trade-in needed, up to $1,300 via 24 monthly bill credits.",
+      "name": "iPhone 17 Pro — Up to $830 Off With Trade",
+      "details": "Trade in an eligible device on Experience More or qualifying Go5G Plus and save up to $830 via 24 monthly bill credits. Requires qualifying credit, $85+/mo service with AutoPay, tax, and device connection charge.",
+      "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
+      "commonObjections": [
+        {
+          "objection": "My trade-in probably isn't worth anything",
+          "response": "Do not guess. Check the device first, then show the exact credit tier so the customer sees the real monthly math."
+        }
+      ]
+    },
+    {
+      "name": "Galaxy S26 Ultra — Up to $800 Off Add-a-Line",
+      "details": "Save up to $800 on Galaxy S26 Ultra via 24 monthly bill credits when adding a line on an Experience or Better Value plan. Requires qualifying credit and service.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
       "commonObjections": [
         {
           "objection": "I'm an iPhone person",
-          "response": "Lots of people say that until they try the S26 Ultra's S Pen and Nightography camera. But iPhone 17 is On Us too — either way you win."
+          "response": "Keep it customer-led: if they are Apple-first, pivot to the iPhone 17e or iPhone 17 Pro offers. If they want camera, S Pen, and big-screen productivity, show the S26 Ultra math."
         }
       ]
     },
     {
       "name": "Home Internet Month On Us + Up to $300 Back",
-      "details": "Code MONTHONUS at checkout. Plus up to $300 back via prepaid Mastercard ($100 Rely, $200 Amplified, $300 All-In). Digital activations only, requires postpaid voice line.",
+      "details": "Use code MONTHONUS at checkout for a month via bill credit, plus up to $300 back by plan tier after rebate registration: $100 Rely, $200 Amplified, $300 All-In. New qualifying Internet line required.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line", "order support", "tech support", "account support"],
       "commonObjections": [
         {
           "objection": "I already have internet at home",
-          "response": "Most cable companies charge $60-80/mo. Our All-In is $30/mo bundled — plus a month free and up to $300 back, no contract, no data caps."
+          "response": "Start with the address check and plan fit. If available, show the Month On Us plus rebate value and remind them there is no annual contract."
         }
       ]
     },
     {
       "name": "Pay Off Your Phone — Up to $800/Line",
-      "details": "We pay off your current phone up to $800/line via prepaid Mastercard, typically within 15 days. Requires new financed phone, eligible trade-in, port-in, qualifying service.",
+      "details": "Limited-time switcher reimbursement up to $800/line via virtual prepaid Mastercard for eligible remaining device balances or carrier early termination fees. Requires new financed smartphone, eligible trade-in, port-in, qualifying service, proof submission, and active good standing.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"],
       "commonObjections": [
         {
           "objection": "I still owe money on my phone",
-          "response": "That's exactly what this is for. We pay off up to $800 of what you owe so switching is painless."
+          "response": "That is exactly when to verify payoff eligibility. Explain the proof submission and prepaid Mastercard timeline before promising the switch math."
         }
       ]
     },
     {
-      "name": "Better Value Plan — Save $1,000+/Year",
-      "details": "3 lines for $140/mo (after AutoPay). Includes Netflix, Hulu, Apple TV+, T-Satellite, unlimited premium data, 4K streaming, $5/mo watch/tablet lines, 5-Year Price Guarantee.",
+      "name": "Better Value Family Plan",
+      "details": "Limited-time family plan starts at $140+/mo for 3 lines with AutoPay, plus taxes and fees. New customers need 3+ new lines and 2 eligible port-ins. Includes premium-data benefits, T-Satellite, 2-year upgrade path, entertainment perks, $5 watch/tablet lines, and 5-Year Price Guarantee.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line", "account support"],
       "commonObjections": [
         {
           "objection": "Requires 3 lines minimum",
-          "response": "That's the family sweet spot. For 1-2 lines, Experience More at $90/mo single line gives a similar feature set."
+          "response": "Correct. Do not force it onto 1-2 line accounts. Use Experience More or Experience Beyond for smaller households and bring Better Value back when 3+ lines are real."
         }
       ]
     }
@@ -90,52 +101,52 @@
   "planUpdates": [
     {
       "planName": "Experience Beyond",
-      "change": "$105/mo single, $170/mo 3 lines w/ AutoPay. Best deals, yearly upgrades, T-Satellite, Netflix/Hulu/AppleTV+, unlimited hotspot, 4K, 15GB international data in 215+ countries.",
-      "effectiveDate": "2026-01-01",
-      "talkingPoint": "The premium play — best device deals, yearly upgrades, and T-Satellite even off-grid."
+      "change": "Premium Experience plan with yearly upgrade eligibility, strong device offers, T-Satellite included, premium entertainment benefits, hotspot, 4K streaming, and international data features.",
+      "effectiveDate": "2026-04-23",
+      "talkingPoint": "Use Beyond when the customer values yearly upgrades, the strongest phone offers, travel, satellite, and premium entertainment more than the lowest monthly price."
     },
     {
       "planName": "Experience More",
-      "change": "$90/mo single, $185/mo 3 lines before AutoPay. Strong trade-in deals, 2-year upgrades, Netflix/Hulu/AppleTV+, unlimited premium data.",
-      "effectiveDate": "2026-01-01",
-      "talkingPoint": "Sweet spot for individuals and couples — premium perks at mid-tier pricing."
+      "change": "Mid-premium Experience plan with 2-year upgrade eligibility, strong trade-in offers, premium data, Netflix benefit, and Apple TV discounted/included benefit depending on current terms.",
+      "effectiveDate": "2026-04-23",
+      "talkingPoint": "Use More as the smaller-household sweet spot: better promos and perks without making the customer pay for yearly upgrades."
     },
     {
       "planName": "Better Value",
-      "change": "3+ lines required. $140/mo for 3 lines w/ AutoPay. Netflix/Hulu/AppleTV+, T-Satellite, unlimited premium data, 4K, $5/mo watch/tablet, 5-Year Price Guarantee.",
-      "effectiveDate": "2026-03-01",
-      "talkingPoint": "Everything families want — $46.67/line with Netflix, Hulu, and T-Satellite built in."
+      "change": "Limited-time family plan for 3+ lines. Public T-Mobile terms list $140+/mo for 3 lines with AutoPay, plus taxes/fees, 3+ new lines and 2 eligible ports for new customers, T-Satellite, entertainment perks, $5 watch/tablet lines, 2-year upgrade eligibility, and 5-Year Price Guarantee.",
+      "effectiveDate": "2026-04-23",
+      "talkingPoint": "Best family-plan anchor when the account truly has 3+ lines. Verify line and port requirements before positioning device promos."
     },
     {
       "planName": "Essentials",
-      "change": "$65/mo single, $120/mo 3 lines before AutoPay. Basic unlimited with 5G. Fewer promos but iPhone 17e On Us qualifies.",
-      "effectiveDate": "2026-01-01",
-      "talkingPoint": "Budget-friendly unlimited — iPhone 17e On Us still works here."
+      "change": "Budget unlimited lane. Public device offers still reference qualifying Essentials or $45+/mo service for some iPhone 17e switcher paths, but promo value is narrower than Experience or Better Value.",
+      "effectiveDate": "2026-04-23",
+      "talkingPoint": "Use Essentials for true budget buyers, then compare what they lose in promos, perks, and upgrade paths."
     }
   ],
   "competitiveIntel": [
     {
-      "carrier": "AT&T",
-      "intel": "AT&T launched Unlimited Your Way 2.0 — stripped ALL streaming perks from every plan.",
-      "talkingPoint": "AT&T removed every streaming perk; we include Netflix, Hulu, and Apple TV+ — that's $30+/mo in value they just took away.",
+      "carrier": "AT&T / Verizon",
+      "intel": "T-Mobile's Apple deals page cites HarrisX Billing Snapshots showing families with 3+ lines saved $3,700 vs AT&T and Verizon over five years.",
+      "talkingPoint": "Use it as a value proof point, not a guaranteed bill quote: 'T-Mobile says families like yours have saved meaningfully over time, so let's compare your actual bill.'",
       "appliesToIntents": ["exploring", "upgrade / add a line"]
     },
     {
-      "carrier": "AT&T",
-      "intel": "AT&T raising legacy plan prices again in April 2026 ($10-20/mo increases) — at least the 4th hike in ~2 years.",
-      "talkingPoint": "AT&T is raising prices again; our 5-Year Price Guarantee means your rate is locked.",
+      "carrier": "Cable Internet",
+      "intel": "T-Mobile Home Internet Contract Freedom reimburses eligible previous internet provider early termination fees up to $750 via virtual prepaid card.",
+      "talkingPoint": "If a cable contract is the blocker, check HINT availability and explain the ETF reimbursement requirements before promising timing.",
       "appliesToIntents": ["exploring", "upgrade / add a line", "account support"]
     },
     {
-      "carrier": "Verizon",
-      "intel": "Verizon settled $100M class action over hidden fees that ballooned from $0.40 to $3.78/line/month.",
-      "talkingPoint": "Verizon got sued for hidden fees that grew 9x; we're upfront about everything with a locked rate.",
+      "carrier": "All Carriers",
+      "intel": "T-Satellite can be added by non-T-Mobile customers for $10/mo with eligible unlocked phones, while Experience Beyond and Better Value include T-Satellite in current public terms.",
+      "talkingPoint": "Satellite is a differentiation hook: if they hike, camp, road trip, or work in dead zones, connect the plan to a real use case.",
       "appliesToIntents": ["exploring", "upgrade / add a line"]
     },
     {
       "carrier": "All Carriers",
-      "intel": "T-Mobile families saved $3,700 vs AT&T/Verizon over 5 years (3+ lines, HarrisX Billing Snapshots Q3 2021-Q4 2025).",
-      "talkingPoint": "Based on actual customer bills, T-Mobile families save $3,700 over 5 years vs AT&T and Verizon.",
+      "intel": "T-Mobile positions Better Value around 3+ line households, 2-year upgrade eligibility, T-Satellite, entertainment perks, and a 5-Year Price Guarantee.",
+      "talkingPoint": "Do not lead with every perk. Pick the one that matches the customer: price lock, satellite, entertainment, or upgrade cadence.",
       "appliesToIntents": ["exploring", "ready to buy", "upgrade / add a line"]
     }
   ],
@@ -177,16 +188,16 @@
         "What matters most — price, the phone, coverage, or extras like streaming?"
       ],
       "keyMoves": [
-        "Lead with iPhone 17 On Us — no trade-in for switchers.",
-        "Mention streaming perks: Netflix, Hulu, Apple TV+ included; AT&T stripped all theirs.",
-        "Drop the $3,700 savings stat vs AT&T/Verizon over 5 years."
+        "Lead with verified fit: iPhone 17e On Us for eligible port-ins, or iPhone 17 Pro savings when trade-in is real.",
+        "Mention the right perk only after discovery: satellite, entertainment, price lock, or upgrade cadence.",
+        "Use the $3,700 savings stat as a comparison starter, then verify the customer's actual bill."
       ],
       "closingTips": [
         "No pressure: 'Let me save this so you have the numbers when you're ready.'",
-        "Urgency: 'The iPhone 17 On Us deal is limited time.'"
+        "Urgency: 'These device and Home Internet offers are limited-time, so let's verify eligibility while they are still live.'"
       ],
       "avoidMoves": [
-        "Don't push hard — browsers need space.",
+        "Don't push hard — buyers need space.",
         "Don't overwhelm with promos — pick the one that fits."
       ]
     },
@@ -201,8 +212,8 @@
       ],
       "keyMoves": [
         "Move quickly — they're ready; don't over-explain.",
-        "For 3+ lines: Better Value at $140/mo is the slam dunk.",
-        "Before checkout: 'Do you have internet at home? $30/mo bundled.'"
+        "For true 3+ line households: Better Value at $140+/mo with AutoPay can be the family anchor.",
+        "Before checkout: 'Do you want me to check whether Home Internet is available at your address too?'"
       ],
       "closingTips": [
         "Direct: 'I can get you set up in 15 minutes with same-day delivery.'",
@@ -252,7 +263,7 @@
       ],
       "closingTips": [
         "Service-to-sales: 'All set! Quick question — who's your home internet provider?'",
-        "Home Internet: '$30/mo bundled, $300 back. Want me to check your address?'"
+        "Home Internet: 'If your address qualifies, there is a Month On Us and up to $300 back path. Want me to check?'"
       ],
       "avoidMoves": [
         "Don't pitch before resolving their issue.",
@@ -294,11 +305,11 @@
       "keyMoves": [
         "Resolve their issue first.",
         "While in the account: look for old plans, missing P360, no Home Internet.",
-        "If 3+ lines: mention Better Value at $140/mo — could save money with better perks."
+        "If 3+ lines: mention Better Value at $140+/mo with AutoPay and verify the exact account requirements."
       ],
       "closingTips": [
         "'While I was in your account, I noticed a couple things that could save you money — want to hear them?'",
-        "Home Internet: '$30/mo, no contract, 5-Year Price Guarantee, month free plus $300 back.'"
+        "Home Internet: 'No annual contract, 5-Year Price Guarantee on eligible internet plans, Month On Us, and up to $300 back when qualified.'"
       ],
       "avoidMoves": [
         "Don't upsell if they're frustrated about a billing error — fix it first.",
@@ -309,7 +320,7 @@
   "planSellingGuide": [
     {
       "planName": "Experience Beyond",
-      "positioning": "The absolute best — yearly upgrades, T-Satellite, all streaming.",
+      "positioning": "The premium plan — yearly upgrades, T-Satellite, strongest device eligibility, and premium entertainment.",
       "idealCustomer": "Premium seekers, frequent travelers, tech enthusiasts, families who want it all.",
       "whyNotCheaper": "You lose yearly upgrades, T-Satellite, and the best device deals. The difference is $15/line — less than one streaming subscription.",
       "whyNotPricier": "This IS the top tier. Nothing above this.",
@@ -337,35 +348,35 @@
           }
         },
         {
-          "feature": "Netflix + Hulu + Apple TV+",
+          "feature": "Premium entertainment bundle",
           "whyItMatters": {
-            "young-adult": "That's $30+/mo in streaming you don't pay separately.",
-            "family": "Everyone gets their own profile — no more password sharing.",
-            "senior": "All your shows in one place, included in your bill.",
-            "business": "Entertainment for travel days, included at no extra cost.",
-            "budget": "$30/mo in streaming value makes this plan cheaper than it looks.",
-            "switcher": "AT&T just stripped all streaming. We include it."
+            "young-adult": "Streaming value helps offset the premium plan cost.",
+            "family": "Entertainment perks can replace separate subscriptions on the household budget.",
+            "senior": "One wireless plan can carry key entertainment benefits without more shopping.",
+            "business": "Entertainment for travel downtime is built into the premium value story.",
+            "budget": "Do the real math: included or discounted entertainment can narrow the price gap.",
+            "switcher": "It gives you a concrete non-phone reason to switch beyond the device deal."
           }
         },
         {
-          "feature": "Best device deals (no trade-in for switchers)",
+          "feature": "Best device-deal eligibility",
           "whyItMatters": {
-            "young-adult": "iPhone 17 On Us, no trade-in. Keep your old phone as backup.",
-            "family": "Multiple phones On Us when you switch — huge day-one savings.",
-            "senior": "Get a new phone free without the hassle of trading in.",
-            "business": "Equip the whole team with flagship devices at no device cost.",
-            "budget": "Free phone = $0 device payment on your bill.",
-            "switcher": "Free flagship phone, keep your old one — that's why you switch."
+            "young-adult": "Flagship phone promos are strongest when the plan qualifies.",
+            "family": "Multiple qualifying lines can make device credits add up fast.",
+            "senior": "Use the plan to unlock better device math, then verify eligibility line by line.",
+            "business": "Strong device credits can lower the cost of refreshing team equipment.",
+            "budget": "The plan may cost more, but the device and perk math can offset it.",
+            "switcher": "Use current verified offers, not old launch claims, to make the switch worth it."
           }
         }
       ],
       "demographicPitch": {
-        "young-adult": "Yearly upgrades, satellite for festivals and trips, and $30+/mo in streaming included. The plan that keeps up with you.",
-        "family": "Best phones, Netflix for movie night, T-Satellite so the kids can always reach you. $170/mo for 3 lines with AutoPay.",
+        "young-adult": "Yearly upgrades, satellite for festivals and trips, and premium entertainment value. The plan that keeps up with you.",
+        "family": "Best phone eligibility, entertainment value, and T-Satellite so the kids can reach you off-grid. Verify the exact 3-line quote before closing.",
         "senior": "Your phone always works — even in remote areas. Streaming included, new phone every year.",
         "business": "Best devices, global roaming in 215+ countries, satellite backup for dead zones. Professional-grade wireless.",
-        "budget": "Streaming ($30/mo) + yearly upgrades (higher trade value) + T-Satellite ($10/mo elsewhere). Beyond actually costs less than it looks.",
-        "switcher": "Free iPhone 17, no trade-in, yearly upgrades, satellite connectivity. The plan that makes the switch worth it."
+        "budget": "Entertainment value + yearly upgrades + T-Satellite can make Beyond cost less than the sticker price suggests.",
+        "switcher": "Strong current phone offers, yearly upgrades, and satellite connectivity. The plan that makes the switch worth it."
       },
       "upgradeFrom": "You're paying for data you can't fully use. Beyond unlocks 4K streaming, yearly upgrades, and T-Satellite — for about $15 more per line.",
       "anchorPrice": "$57/line for 3 lines — less than $2/day per person."
@@ -378,14 +389,14 @@
       "whyNotPricier": "Beyond adds yearly upgrades and T-Satellite — worth it only if you upgrade phones often or travel to remote areas.",
       "features": [
         {
-          "feature": "Netflix + Hulu + Apple TV+",
+          "feature": "Netflix + Apple TV entertainment value",
           "whyItMatters": {
-            "young-adult": "$30+/mo in streaming included — that alone closes the gap with Essentials.",
-            "family": "Everyone gets their streaming profiles without extra subscriptions.",
-            "senior": "All your shows bundled in one simple bill.",
-            "business": "Entertainment included for downtime — no extra apps to manage.",
-            "budget": "The streaming value alone makes this cheaper than Essentials + paying for Netflix.",
-            "switcher": "AT&T stripped all streaming; we include Netflix, Hulu, and Apple TV+."
+            "young-adult": "Entertainment value helps close the gap with Essentials.",
+            "family": "Streaming value can replace separate subscriptions for small households.",
+            "senior": "Fewer separate subscriptions to manage.",
+            "business": "Entertainment value is useful for travel and downtime.",
+            "budget": "The streaming value can make this cheaper than Essentials plus separate subscriptions.",
+            "switcher": "It gives you a perk story without needing the top-tier yearly upgrade plan."
           }
         },
         {
@@ -423,14 +434,14 @@
         }
       ],
       "demographicPitch": {
-        "young-adult": "All the streaming, premium data, and strong device deals without paying for yearly upgrades you might not use. $90/mo single line.",
-        "family": "Netflix, Hulu, Apple TV+ for everyone, plus solid trade-in deals. Great for couples or small families.",
+        "young-adult": "Entertainment value, premium data, and strong device deals without paying for yearly upgrades you might not use.",
+        "family": "Entertainment value plus solid trade-in deals. Great for couples or small families.",
         "senior": "Streaming included, reliable data, and a new phone every 2 years. Simple and premium.",
         "business": "Premium data, device deals, and streaming perks at a sensible price point.",
         "budget": "Once you add up the streaming value ($30/mo), Experience More is actually cheaper than Essentials + separate subscriptions.",
         "switcher": "Great device deals, all streaming included, premium data. The plan most switchers land on."
       },
-      "upgradeFrom": "You're missing Netflix, Hulu, and Apple TV+ on your current plan. Experience More adds $30+/mo in streaming for about $20 more per line.",
+      "upgradeFrom": "You're missing premium data, stronger device offers, and entertainment value on your current plan. Experience More can add those without jumping to yearly upgrades.",
       "anchorPrice": "$47/line for 3 lines."
     },
     {
@@ -441,14 +452,14 @@
       "whyNotPricier": "Beyond adds yearly upgrades — most families don't need that.",
       "features": [
         {
-          "feature": "Netflix + Hulu + Apple TV+",
+          "feature": "Entertainment + T-Satellite value",
           "whyItMatters": {
             "young-adult": "$30+/mo in streaming built into the family plan.",
-            "family": "Movie night is covered — Netflix, Hulu, and Apple TV+ for everyone.",
+            "family": "Movie night and off-grid reach both become part of the family plan story.",
             "senior": "All your shows included, no extra bills to manage.",
             "business": "Streaming perks for the whole household at no added cost.",
             "budget": "This streaming alone is worth more than the price difference from Essentials.",
-            "switcher": "AT&T just removed streaming; we include it on a plan that's still cheaper."
+            "switcher": "You get premium-style benefits on a family plan built around value."
           }
         },
         {
@@ -486,12 +497,12 @@
         }
       ],
       "demographicPitch": {
-        "young-adult": "Get on the family plan — Netflix, Hulu, Apple TV+, and T-Satellite for $47/line with 3 lines.",
-        "family": "Everything the family needs: streaming, T-Satellite, $5 watch lines, and a locked price. $140/mo for 3 lines with AutoPay.",
+        "young-adult": "Get on the family plan: entertainment value, T-Satellite, and 2-year upgrades around $47/line with 3 lines.",
+        "family": "Everything the family needs: entertainment, T-Satellite, $5 watch lines, and a locked price. Public terms show $140+/mo for 3 lines with AutoPay.",
         "senior": "Streaming, satellite connectivity, and a 5-Year Price Guarantee. Predictable and packed with value.",
         "business": "Equip a small team with premium perks at value pricing — $47/line for 3 lines.",
         "budget": "More perks than Essentials at a similar per-line price when you have 3+ lines. The math works.",
-        "switcher": "Switch 3 lines, get Netflix, T-Satellite, and the best family pricing in wireless. $140/mo with AutoPay."
+        "switcher": "Switch 3 lines, get entertainment value, T-Satellite, and family pricing. Verify the 2-port requirement before quoting."
       },
       "upgradeFrom": "You're on Essentials and missing streaming, T-Satellite, and better device deals. Better Value adds all of that for roughly the same per-line cost with 3 lines.",
       "anchorPrice": "$47/line for 3 lines with AutoPay."
@@ -528,12 +539,12 @@
         {
           "feature": "iPhone 17e On Us eligible",
           "whyItMatters": {
-            "young-adult": "Free iPhone 17e even on the cheapest plan.",
-            "family": "Get the kids phones without paying for a premium plan.",
-            "senior": "A brand-new iPhone at no device cost.",
-            "business": "Equip light users with a free phone on the lowest-cost plan.",
-            "budget": "Free phone on the cheapest plan — can't beat that.",
-            "switcher": "Switch and get a free iPhone 17e, even on Essentials."
+            "young-adult": "Eligible switchers may still have a no-trade iPhone 17e path.",
+            "family": "Check whether the kids' lines qualify before pitching a device outcome.",
+            "senior": "A newer iPhone may be possible without jumping to a premium plan, if the account qualifies.",
+            "business": "Light users may qualify for a lower-cost phone path.",
+            "budget": "Verify the $45+/mo service and port-in requirements before using this as the close.",
+            "switcher": "Switching can unlock the iPhone 17e path, but eligibility matters."
           }
         },
         {
@@ -554,7 +565,7 @@
         "senior": "Simple, affordable unlimited. No frills, no confusion, and iPhone 17e On Us.",
         "business": "Lowest-cost unlimited for team members who just need talk, text, and data.",
         "budget": "$30/line for 3 lines with AutoPay — the most affordable unlimited plan we offer.",
-        "switcher": "Switch and get a free iPhone 17e. Start here and upgrade anytime if you want more."
+        "switcher": "Switchers may qualify for the iPhone 17e offer. Start simple and upgrade later if you want more."
       },
       "upgradeFrom": "Essentials Saver saves a few dollars but loses promo eligibility — Essentials is the true entry point.",
       "anchorPrice": "$30/line for 3 lines with AutoPay."

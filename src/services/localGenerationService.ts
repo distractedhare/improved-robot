@@ -4,6 +4,7 @@ import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITOR
 import { findScenario } from '../data/objectionPlaybook';
 import { getDeepDiveScripts, OBJECTION_SCRIPTS } from '../data/recommendationRules';
 import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
+import { getSupportFocusOption } from '../constants/supportFocus';
 
 const DEEP_DIVE_SCRIPT_MAP: Record<string, string[]> = {
   account_access: ['OBJ_TOO_COMPLICATED'],
@@ -192,12 +193,12 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
 
   // Build enriched script
   const welcomeMessages = playbook?.openers?.length
-    ? playbook.openers
-    : template.welcomeMessages;
+    ? [...playbook.openers]
+    : [...template.welcomeMessages];
 
   const discoveryQuestions = playbook?.discovery?.length
     ? [...playbook.discovery, ...template.discoveryQuestions.slice(0, 4)]
-    : template.discoveryQuestions;
+    : [...template.discoveryQuestions];
 
   // Value props: combine matching promos + template props
   const matchingPromos = weekly.currentPromos
@@ -226,13 +227,13 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
 
   // Purchase steps from playbook key moves + template steps
   const purchaseSteps = playbook?.keyMoves?.length
-    ? playbook.keyMoves
-    : template.purchaseSteps;
+    ? [...playbook.keyMoves]
+    : [...template.purchaseSteps];
 
   // One-liners
   const oneLiners = playbook?.oneLiners?.length
-    ? playbook.oneLiners
-    : template.oneLiners || [];
+    ? [...playbook.oneLiners]
+    : [...template.oneLiners || []];
 
   // Coach's corner: keep it short and actionable
   const closingTip = sanitizeAuthoredCopy(playbook?.closingTips?.[0] || '');
@@ -282,6 +283,16 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     discoveryQuestions.push(`What's the main reason for the jump from ${switchingFrom} to ${switchingTo}?`);
     oneLiners.push(`Moving from ${switchingFrom} to ${switchingTo} is way easier than it used to be — I'll walk you through the setup.`);
     coachsCorner += ` Customer is switching platforms (${switchingFrom} -> ${switchingTo}). Emphasize data safety and ease of use.`;
+  }
+
+  const supportFocus = getSupportFocusOption(context.supportFocus);
+  if (supportFocus) {
+    welcomeMessages.unshift(supportFocus.planCue.opener);
+    discoveryQuestions.unshift(supportFocus.planCue.discovery);
+    valuePropositions.unshift(supportFocus.planCue.value);
+    purchaseSteps.unshift(supportFocus.planCue.step);
+    oneLiners.unshift(supportFocus.planCue.opener);
+    coachsCorner = `${supportFocus.planCue.coach} ${coachsCorner}`;
   }
 
   return {
