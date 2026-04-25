@@ -323,6 +323,9 @@ export default function BingoBoard() {
       <AnimatePresence>
         {rowToast && (
           <motion.div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}

@@ -1,4 +1,15 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__github__pull_request_read",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_commit",
+      "mcp__github__list_commits",
+      "mcp__github__search_pull_requests",
+      "Bash(npm run lint)",
+      "Bash(git fetch *)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
