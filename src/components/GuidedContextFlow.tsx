@@ -32,6 +32,20 @@ export type GuidedFlowStep = 'intent' | 'supportFocus' | 'hintCheck' | 'product'
 const STEPS: GuidedFlowStep[] = ['intent', 'supportFocus', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
 const SUPPORT_INTENTS: SalesContext['purchaseIntent'][] = ['order support', 'tech support', 'account support'];
 
+const STEP_LABELS: Record<GuidedFlowStep, string> = {
+  intent: 'Purchase intent',
+  supportFocus: 'Support focus',
+  hintCheck: 'HINT eligibility',
+  product: 'Product interest',
+  currentDevice: 'Current device',
+  carrier: 'Current carrier',
+  lines: 'Number of lines',
+  platform: 'Platform preference',
+  brand: 'Brand preference',
+  plan: 'Plan preference',
+  age: 'Customer age',
+};
+
 export default function GuidedContextFlow({ context, setContext, onComplete, currentStep, onStepChange }: GuidedContextFlowProps) {
   const [direction, setDirection] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -784,6 +798,10 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
             />
           );
         })}
+      </div>
+
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {`Step ${STEPS.indexOf(currentStep) + 1} of ${STEPS.length}: ${STEP_LABELS[currentStep]}`}
       </div>
 
       <div className="relative" style={{ perspective: 1200 }}>

@@ -321,7 +321,8 @@ export default function BingoBoard() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 z-[80] w-[min(92vw,380px)] -translate-x-1/2 glass-elevated rounded-xl p-4"
+            className="fixed left-1/2 z-[90] w-[min(92vw,380px)] -translate-x-1/2 glass-elevated rounded-xl p-4"
+            style={{ bottom: 'max(env(safe-area-inset-bottom, 0px) + 1.5rem, 1.5rem)' }}
           >
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-t-magenta text-white shadow-md">

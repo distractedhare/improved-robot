@@ -78,7 +78,7 @@ export default function BingoCelebration({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 24 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-            className="relative z-[1] w-full max-w-md overflow-hidden rounded-[1.75rem] glass-modal p-6"
+            className="relative z-[1] w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-[1.75rem] glass-modal p-6"
           >
             <button
               type="button"

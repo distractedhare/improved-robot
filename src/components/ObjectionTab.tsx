@@ -138,7 +138,7 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
         }`} />
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-t-dark-gray">{scenario.label}</p>
-          <p className="text-[10px] text-t-muted font-medium mt-0.5">{scenario.description}</p>
+          <p className="text-[11px] text-t-muted font-medium mt-0.5">{scenario.description}</p>
         </div>
         {isSelected && (
           <CheckCircle2 className="w-4 h-4 text-t-magenta shrink-0 mt-0.5" />
@@ -170,7 +170,7 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
 	                <p className="mb-1.5 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-t-berry">
 	                  <Lightbulb className="w-2.5 h-2.5" /> Coach's Tip
 	                </p>
-	                <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed">
+	                <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
 	                  {scenario.tip}
                 </p>
               </div>
@@ -253,7 +253,7 @@ function CategorySection({ category, expandedScenario, setExpandedScenario, sele
               </span>
             )}
           </div>
-          <p className="text-[10px] text-t-muted font-medium mt-0.5">{category.description}</p>
+          <p className="text-[11px] text-t-muted font-medium mt-0.5">{category.description}</p>
         </div>
         <ChevronDown className={`w-4 h-4 text-t-dark-gray/30 transition-transform shrink-0 ${
           isOpen ? 'rotate-180' : ''
@@ -346,7 +346,7 @@ export default function ObjectionTab({
       {selectedGamePlanItems.length > 0 && (
         <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-3 flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-t-magenta shrink-0" />
-          <p className="text-[11px] text-t-dark-gray font-medium">
+          <p className="text-xs text-t-dark-gray font-medium">
             <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> game plan move{selectedGamePlanItems.length === 1 ? '' : 's'} marked — deep dive will account for these.
           </p>
         </div>
@@ -401,7 +401,7 @@ function TriageCard({ title, body }: { title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-t-light-gray bg-surface-elevated px-3 py-3">
       <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
-      <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{body}</p>
+      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{body}</p>
     </div>
   );
 }

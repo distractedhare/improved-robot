@@ -153,7 +153,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                     aria-selected={isActive}
                     aria-controls={`mode-panel-${item.id}`}
                     onClick={() => onModeChange(item.id)}
-                    className={`focus-ring rail-snap-start relative min-h-[48px] min-w-[104px] overflow-hidden rounded-full px-2.5 py-2.5 text-left transition-transform active:scale-[0.985] min-[430px]:min-w-[120px] sm:min-h-[54px] sm:min-w-0 sm:px-3 sm:py-3 ${
+                    className={`focus-ring rail-snap-start relative min-h-[48px] min-w-[120px] overflow-hidden rounded-full px-2.5 py-2.5 text-left transition-transform active:scale-[0.985] sm:min-h-[54px] sm:min-w-0 sm:px-3 sm:py-3 ${
                       isActive
                         ? 'glass-control-active text-white'
                         : 'glass-control text-t-dark-gray hover:text-foreground'

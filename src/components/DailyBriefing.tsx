@@ -353,66 +353,6 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
   );
 }
 
-function PromoAccordionList({ promos }: { promos: import('../services/weeklyUpdateSchema').Promo[] }) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-
-  return (
-    <div className="space-y-1.5">
-      {promos.map((promo, i) => {
-        const isOpen = openIdx === i;
-        return (
-          <div key={i} className="glass-reading overflow-hidden rounded-xl">
-            <button
-              type="button"
-              onClick={() => setOpenIdx(isOpen ? null : i)}
-              className="w-full flex items-center justify-between p-3 text-left hover:bg-t-light-gray/10 transition-colors"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="shrink-0 w-5 h-5 rounded-full bg-t-magenta/15 flex items-center justify-center text-[8px] font-black text-t-magenta">{i + 1}</span>
-                <span className="text-xs font-black text-t-dark-gray uppercase truncate">{promo.name}</span>
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-t-muted shrink-0 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-3 pb-3 space-y-2">
-                    <p className="text-[11px] text-t-dark-gray font-medium leading-relaxed mt-2">{promo.details}</p>
-                    {promo.commonObjections.length > 0 && (
-                      <div className="space-y-1.5">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Common Objections</p>
-                        {promo.commonObjections.map((obj, j) => (
-                          <div key={j} className="rounded-lg bg-t-light-gray/10 p-2">
-                            <p className="text-[10px] font-bold text-t-dark-gray">{obj.objection}</p>
-                            <p className="text-[10px] font-medium text-t-magenta mt-1">{obj.response}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-1">
-                      {promo.appliesToIntents.map((intent, j) => (
-                        <span key={j} className="text-[8px] font-black uppercase bg-t-magenta/10 text-t-magenta px-1.5 py-0.5 rounded-full">
-                          {intent}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function BriefingCard({
   icon, title, id, expanded, onToggle, children, accent, warning
 }: {
