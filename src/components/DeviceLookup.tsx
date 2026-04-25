@@ -1417,8 +1417,8 @@ export function DeviceComparison({
         </div>
       </div>
 
-      <div className="sticky sticky-under-compare-tabs z-20 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl sm:top-2 dark:bg-[#0f0f10]/90">
-        <p className="px-2 pb-2 text-[8px] font-black uppercase tracking-[0.16em] text-t-muted">
+      <div className="sticky sticky-under-compare-tabs z-30 -mt-1 rounded-3xl border border-t-light-gray/60 bg-white/85 p-2 backdrop-blur-xl dark:bg-[#0f0f10]/90">
+        <p className="hidden px-2 pb-2 text-[8px] font-black uppercase tracking-[0.16em] text-t-muted sm:block">
           Tap any chip to refresh the hero brief and keep the winner in focus.
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1">

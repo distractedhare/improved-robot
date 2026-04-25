@@ -1636,7 +1636,7 @@ export const HudControlPanel: React.FC = () => {
               type="button"
               onClick={() => controlDispatch('hud-jump')}
               aria-label="Jump"
-              className="min-h-[3rem] rounded-xl bg-white/8 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/14 active:bg-white/20"
+              className="min-h-[3rem] rounded-xl bg-white/8 text-xs font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/14 active:bg-white/20"
             >
               Jump
             </button>

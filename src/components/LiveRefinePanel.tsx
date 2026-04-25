@@ -99,7 +99,7 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, y: 18, x: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="glass-modal flex max-h-[88svh] w-full flex-col overflow-hidden rounded-t-[2rem] md:h-[calc(100svh-2rem)] md:max-h-none md:max-w-[34rem] md:rounded-[2rem]"
+            className="glass-modal flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[2rem] md:h-[calc(100dvh-2rem)] md:max-h-none md:max-w-[34rem] md:rounded-[2rem]"
           >
             <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
               <div>
@@ -224,7 +224,10 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
               </section>
             </div>
 
-            <div className="flex flex-col gap-2 border-t border-white/10 px-5 py-4 sm:flex-row">
+            <div
+              className="flex flex-col gap-2 border-t border-white/10 px-5 pt-4 sm:flex-row"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 1rem)' }}
+            >
               <button
                 type="button"
                 onClick={() => onApply(draft)}

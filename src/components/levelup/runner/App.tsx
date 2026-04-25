@@ -76,7 +76,6 @@ interface RunnerAppProps {
 }
 
 function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
-  const shellHeightClass = immersive ? 'h-[calc(100dvh-5rem)] md:h-[calc(100vh-8.5rem)]' : 'h-[72vh]';
   const status = useStore((state) => state.status);
   const showLiveCallShortcut = immersive && onStartLiveCall && status !== GameStatus.PLAYING;
   const showControlPanel = status === GameStatus.PLAYING;
@@ -85,8 +84,8 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
     <div
       className={`relative flex w-full flex-col overflow-hidden bg-black select-none shadow-[0_30px_90px_rgba(0,0,0,0.4)] ${
         immersive
-          ? `${shellHeightClass} rounded-none border-0 md:rounded-[2.1rem] md:border md:border-white/8`
-          : `${shellHeightClass} rounded-[1.85rem] border border-white/10`
+          ? 'h-[calc(100dvh-5rem)] md:h-[calc(100vh-8.5rem)] rounded-none border-0 md:rounded-[2.1rem] md:border md:border-white/8'
+          : 'min-h-[72vh] rounded-[1.85rem] border border-white/10'
       }`}
     >
       {showLiveCallShortcut ? (
@@ -104,7 +103,7 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
 
       <AudioSync />
 
-      <div className="relative w-full flex-1 min-h-0 overflow-hidden">
+      <div className="relative w-full flex-1 min-h-[24rem] overflow-hidden">
         <HUD />
         <Canvas
           shadows

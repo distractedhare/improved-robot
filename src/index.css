@@ -56,8 +56,8 @@
   --app-mobile-chrome-offset: calc(env(safe-area-inset-top, 0px) + 7.25rem);
   --learn-tabs-sticky-offset: var(--app-mobile-chrome-offset);
   --device-controls-sticky-offset: calc(var(--app-mobile-chrome-offset) + 3.65rem);
-  --compare-sticky-offset: calc(var(--app-mobile-chrome-offset) + 3.9rem);
-  --compare-scroll-target-offset: calc(var(--app-mobile-chrome-offset) + 4.1rem);
+  --compare-sticky-offset: calc(var(--device-controls-sticky-offset) + 7.25rem);
+  --compare-scroll-target-offset: calc(var(--compare-sticky-offset) + 0.25rem);
 }
 
 @media (min-width: 640px) {
@@ -65,8 +65,8 @@
     --app-mobile-chrome-offset: calc(env(safe-area-inset-top, 0px) + 8.2rem);
     --learn-tabs-sticky-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
     --device-controls-sticky-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
-    --compare-sticky-offset: calc(env(safe-area-inset-top, 0px) + 0.5rem);
-    --compare-scroll-target-offset: calc(env(safe-area-inset-top, 0px) + 1rem);
+    --compare-sticky-offset: calc(var(--device-controls-sticky-offset) + 6.75rem);
+    --compare-scroll-target-offset: calc(var(--compare-sticky-offset) + 0.25rem);
   }
 }
 

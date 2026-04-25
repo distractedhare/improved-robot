@@ -408,7 +408,7 @@ function DemoRecFlipCard({ rec }: { rec: DemoProductRec }) {
   const whyText = rec.why?.trim() || 'Lead with the fit, keep the proof simple, and only open the backup angle if they need it.';
 
   return (
-    <div className="relative h-[120px] perspective-1000">
+    <div className="relative h-[120px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -450,7 +450,7 @@ function DemoAccessoryFlipCard({ rec }: { rec: DemoAccessoryRec }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="relative h-[160px] perspective-1000">
+    <div className="relative h-[160px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -503,7 +503,7 @@ function OneLinerFlipCard({ line }: { line: string }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="relative h-[100px] perspective-1000">
+    <div className="relative h-[100px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -541,7 +541,7 @@ function WelcomeFlipCard({ message, index }: { message: string, index: number })
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="relative h-[120px] perspective-1000">
+    <div className="relative h-[120px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -581,7 +581,7 @@ function DiscoveryFlipCard({ question }: { question: string }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="relative h-[120px] perspective-1000">
+    <div className="relative h-[120px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -620,7 +620,7 @@ function ValuePropFlipCard({ prop }: { prop: string }) {
   const pitchTrack = getValuePropPitchTrack(prop);
 
   return (
-    <div className="relative h-[140px] perspective-1000">
+    <div className="relative h-[140px] w-full min-w-0 overflow-hidden perspective-1000">
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
