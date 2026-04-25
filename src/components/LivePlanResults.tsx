@@ -29,6 +29,8 @@ const INTENT_LABELS: Record<SalesContext['purchaseIntent'], string> = {
   'account support': 'Account Support',
 };
 
+const HINT_LIVE_IMAGE = '/images/home-internet/hint-rep-recommendation.png';
+
 function getHintStatus(context: SalesContext): { label: string; tone: string; icon: typeof Wifi } {
   if (!context.product.includes('Home Internet')) {
     return { label: 'HINT not in play', tone: 'glass-utility text-white/80', icon: Wifi };
@@ -50,6 +52,7 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
   const HintIcon = hintStatus.icon;
   const supportFocusLabel = getSupportFocusLabel(context.supportFocus);
   const kipRecommendation = buildLiveKipRecommendation({ context, script });
+  const homeInternetInPlay = context.product.includes('Home Internet');
   const locationLabel = context.region !== 'Not Specified'
     ? `${context.region}${context.state ? ` · ${context.state}` : ''}${context.zipCode ? ` · ${context.zipCode}` : ''}`
     : context.zipCode
@@ -79,6 +82,28 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
             <StatusPill label={supportFocusLabel ? 'Focus' : 'Location'} value={supportFocusLabel ?? locationLabel} />
           </div>
         </div>
+
+        {homeInternetInPlay ? (
+          <div className="mt-4 overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/22">
+            <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_16rem]">
+              <div className="p-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/62">HINT visual cue</p>
+                <p className="mt-1 text-sm font-black text-white">Check coverage, then keep the setup story simple.</p>
+                <p className="mt-1 text-[11px] font-medium leading-relaxed text-white/70">
+                  Use this as the rep reminder: address first, easy setup second, attach only after the home qualifies.
+                </p>
+              </div>
+              <img
+                src={HINT_LIVE_IMAGE}
+                alt="Home Internet coverage check recommendation"
+                className="h-36 w-full object-cover md:h-full"
+                width={768}
+                height={432}
+                loading="lazy"
+              />
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${hintStatus.tone}`}>

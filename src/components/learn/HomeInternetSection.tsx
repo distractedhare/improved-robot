@@ -11,6 +11,7 @@ const PLAN_IMAGES: Record<string, string> = {
 };
 
 const PRODUCT_IMAGE_FALLBACK = '/images/ui/product-card-fallback.svg';
+const HOME_INTERNET_HERO_IMAGE = '/images/home-internet/hint-hero-gateway.png';
 
 export default function HomeInternetSection() {
   const [activeSection, setActiveSection] = useState<Section>('plans');
@@ -25,6 +26,33 @@ export default function HomeInternetSection() {
         chips={['From $35/mo', '15-day test drive', 'Self-install']}
         variant="compact"
       />
+
+      <div className="overflow-hidden rounded-[1.8rem] border border-t-magenta/20 glass-billboard text-white shadow-xl">
+        <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="p-5 sm:p-6">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/75">
+              <Router className="h-3.5 w-3.5 text-white" /> Home Wi-Fi story
+            </p>
+            <h3 className="max-w-xl text-2xl font-black uppercase tracking-tight sm:text-3xl">
+              Make HINT feel simple before you talk specs.
+            </h3>
+            <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-white/78">
+              Lead with the customer outcome: fewer cable headaches, easy gateway setup, and whole-home coverage after the address qualifies.
+            </p>
+          </div>
+          <div className="relative min-h-[13rem] overflow-hidden lg:min-h-full">
+            <img
+              src={HOME_INTERNET_HERO_IMAGE}
+              alt="T-Mobile Home Internet gateway with magenta signal coverage in a home"
+              className="h-full min-h-[13rem] w-full object-cover"
+              width={768}
+              height={432}
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-black/28 lg:to-transparent" />
+          </div>
+        </div>
+      </div>
 
       <div className="rounded-[1.8rem] glass-reading-strong p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
