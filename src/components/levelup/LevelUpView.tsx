@@ -13,13 +13,13 @@ import { GameStatus } from './runner/types';
 import { KipMissionBriefing } from '../kip';
 import { buildLevelUpMissionBriefing } from '../../services/kip/kipRules';
 
-type LevelUpTab = 'bingo' | 'practice' | 'runner' | 'prizes';
+type LevelUpTab = 'runner' | 'bingo' | 'practice' | 'prizes';
 
 const LEVEL_UP_TABS = [
+  { id: 'runner' as const, icon: HardHat, label: 'Runner' },
   { id: 'bingo' as const, icon: Trophy, label: 'Bingo' },
   { id: 'practice' as const, icon: Play, label: 'Practice' },
   { id: 'prizes' as const, icon: Award, label: 'Prizes' },
-  { id: 'runner' as const, icon: HardHat, label: 'Runner' },
 ];
 
 interface LevelUpViewProps {
@@ -33,7 +33,7 @@ function formatCount(value: number, singular: string, plural = `${singular}s`): 
 }
 
 export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmersiveChange }: LevelUpViewProps) {
-  const [tab, setTab] = useState<LevelUpTab>('bingo');
+  const [tab, setTab] = useState<LevelUpTab>('runner');
   const [prizeData, setPrizeData] = useState(() => getPrizeData());
   const [isCompactRunnerViewport, setIsCompactRunnerViewport] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false

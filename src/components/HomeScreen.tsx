@@ -6,18 +6,19 @@
  * is just enabling a role in config/roles.ts.
  */
 
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import {
   Zap, BookOpen, Trophy, TrendingUp,
   ChevronRight, Flame, Shield, Sparkles, Wifi,
+  Activity, Target, Calendar,
   type LucideIcon,
 } from 'lucide-react';
 import { getActiveRole, getEnabledRoles, setActiveRole, RoleConfig } from '../config/roles';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { pickKipGreeting } from '../services/kip/kipVoice';
-import { KipBadge } from './kip';
+import { getPrizeData } from '../services/prizeService';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -53,6 +54,19 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
 
   // Kip's daily greeting — stable for the whole shift, fresh tomorrow.
   const [kipGreeting] = useState(() => pickKipGreeting());
+
+  // Live progress strip (gamification metrics).
+  const [prizeData, setPrizeData] = useState(() => getPrizeData());
+  useEffect(() => {
+    const refresh = () => setPrizeData(getPrizeData());
+    refresh();
+    const intervalId = window.setInterval(refresh, 6000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refresh);
+    };
+  }, []);
 
   const handleRoleChange = useCallback((roleId: string) => {
     const newRole = enabledRoles.find(r => r.id === roleId);
@@ -100,13 +114,62 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           </div>
         </div>
 
-        <div className="glass-reading rounded-[1.45rem] p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
-            <KipBadge tone="hype" compact />
-            <p className="text-[13px] font-bold leading-relaxed text-foreground sm:text-sm">
-              {kipGreeting}
-            </p>
+        <div
+          className="relative overflow-hidden rounded-[1.85rem] p-5 sm:p-6"
+          style={{
+            background:
+              'radial-gradient(ellipse at top left, rgba(226,0,116,0.18), transparent 55%), linear-gradient(180deg, rgba(226,0,116,0.08), rgba(0,0,0,0.04))',
+            border: '1px solid rgba(226,0,116,0.22)',
+          }}
+        >
+          <div className="flex items-start gap-4 sm:gap-5">
+            <div
+              className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[1.4rem] bg-t-magenta text-white shadow-[0_22px_44px_-22px_rgba(226,0,116,0.95)] sm:h-20 sm:w-20 sm:rounded-[1.6rem]"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.45),transparent_42%)]" />
+              <Flame className="relative h-8 w-8 sm:h-10 sm:w-10" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-t-magenta" />
+                Kip · Game on
+              </p>
+              <p className="mt-2 text-base font-black leading-snug text-foreground sm:text-lg">
+                {kipGreeting}
+              </p>
+              <p className="mt-1.5 text-[11px] font-medium leading-relaxed text-t-dark-gray sm:text-xs">
+                I’ll flag the play, hype the wins, and shrug the misses. Let’s stack a shift.
+              </p>
+            </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+          <MetricChip
+            icon={Activity}
+            label="Today"
+            value={`${prizeData.daily.cellsCompleted}/25`}
+            sub="cells run"
+          />
+          <MetricChip
+            icon={Target}
+            label="Quiz"
+            value={prizeData.daily.quizScore !== null ? `${Math.round(prizeData.daily.quizScore)}%` : '—'}
+            sub={prizeData.daily.quizScore !== null ? 'accuracy' : 'no run yet'}
+          />
+          <MetricChip
+            icon={Calendar}
+            label="Week"
+            value={`${prizeData.weekly.totalRows}`}
+            sub="rows cleared"
+          />
+          <MetricChip
+            icon={Flame}
+            label="Streak"
+            value={`${prizeData.monthly.longestStreak}`}
+            sub={prizeData.monthly.longestStreak === 1 ? 'day' : 'days'}
+          />
         </div>
 
         {showRoleSelector && (
@@ -262,6 +325,29 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           </div>
         </motion.div>
       </motion.section>
+    </div>
+  );
+}
+
+function MetricChip({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <div className="glass-reading rounded-[1.2rem] px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
+        <Icon className="h-3 w-3" />
+        {label}
+      </div>
+      <div className="mt-1 text-lg font-black tabular-nums text-foreground sm:text-xl">{value}</div>
+      <div className="mt-0.5 text-[10px] font-medium text-t-muted">{sub}</div>
     </div>
   );
 }

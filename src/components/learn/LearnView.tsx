@@ -737,7 +737,36 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
         >
           {tab === 'briefing' && (
             <>
-              <KipCoachNote note={briefingKipNote} />
+              <div
+                className="relative overflow-hidden rounded-[1.85rem] p-5 sm:p-6"
+                style={{
+                  background:
+                    'radial-gradient(ellipse at top left, rgba(226,0,116,0.18), transparent 55%), linear-gradient(180deg, rgba(226,0,116,0.08), rgba(0,0,0,0.04))',
+                  border: '1px solid rgba(226,0,116,0.22)',
+                }}
+              >
+                <div className="flex items-start gap-4 sm:gap-5">
+                  <div
+                    className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[1.2rem] bg-t-magenta text-white shadow-[0_22px_44px_-22px_rgba(226,0,116,0.95)] sm:h-16 sm:w-16 sm:rounded-[1.4rem]"
+                    aria-hidden="true"
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.45),transparent_42%)]" />
+                    <Newspaper className="relative h-6 w-6 sm:h-7 sm:w-7" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-t-magenta" />
+                      Kip · {briefingKipNote.headline}
+                    </p>
+                    <p className="mt-2 text-base font-black leading-snug text-foreground sm:text-lg">
+                      The one thing this week
+                    </p>
+                    <p className="mt-1.5 text-[12px] font-medium leading-relaxed text-t-dark-gray sm:text-sm">
+                      {briefingKipNote.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
               <DailyBriefing weeklyData={weeklyData} weeklySource={weeklySource} onDataUpdate={onDataUpdate} />
             </>
           )}

@@ -19,12 +19,13 @@ export const Effects: React.FC = () => {
 
   return (
     <EffectComposer enableNormalPass={false} multisampling={0}>
-      {/* Tighter bloom to avoid fog: High threshold, moderate radius */}
-      <Bloom 
-        luminanceThreshold={0.75} 
-        mipmapBlur 
-        intensity={1.0 + (shakeIntensity * 2.0)} 
-        radius={0.6}
+      {/* Bloom: lowered threshold + bumped intensity so the magenta horizon
+          and the additive dash strips actually carry the scene. */}
+      <Bloom
+        luminanceThreshold={0.6}
+        mipmapBlur
+        intensity={1.4 + (shakeIntensity * 2.0)}
+        radius={0.7}
         levels={8}
       />
       

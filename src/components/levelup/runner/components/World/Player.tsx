@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Trail } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store';
 import { GameStatus, LANE_WIDTH, type CharacterId } from '../../types';
@@ -117,6 +118,9 @@ export const Player: React.FC = () => {
   const haloRef = useRef<THREE.Mesh>(null);
   const droneOrbitLeftRef = useRef<THREE.Group>(null);
   const droneOrbitRightRef = useRef<THREE.Group>(null);
+  const trailAnchorRef = useRef<THREE.Mesh>(null);
+  const groundPulseRef = useRef<THREE.Mesh>(null);
+  const groundPulseMatRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const status = useStore((state) => state.status);
   const laneCount = useStore((state) => state.laneCount);
@@ -367,6 +371,16 @@ export const Player: React.FC = () => {
       if (rightLegRef.current) rightLegRef.current.rotation.x = cycle * 1.05;
       bodyRef.current.position.y = isDashing ? 0.92 : 1.05 + Math.abs(cycle) * 0.08;
       bodyRef.current.rotation.y = Math.sin(time * 0.5) * 0.04;
+
+      // Ground pulse: when a footfall hits (cycle near a peak), the disc
+      // briefly scales up and fades. Drives off the same cycle as the legs
+      // so it lands exactly on contact.
+      if (groundPulseRef.current && groundPulseMatRef.current) {
+        const footfall = Math.max(0, Math.abs(cycle));
+        const pulse = footfall * footfall;
+        groundPulseRef.current.scale.setScalar(0.6 + pulse * 1.2);
+        groundPulseMatRef.current.opacity = 0.18 + pulse * 0.42;
+      }
     } else {
       if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -2.2, delta * 8);
       if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -2.2, delta * 8);
@@ -442,8 +456,43 @@ export const Player: React.FC = () => {
     return () => window.removeEventListener('player-hit', checkHit);
   }, [takeDamage, isImmortalityActive, isIFraming, triggerShake]);
 
+  const trailColor = isImmortalityActive ? '#FFFFFF' : character.accent;
+  const trailLength = isDashing ? 12 : 6;
+
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
+      {/* Ground pulse — fades in on each footfall, contributes to bloom. */}
+      <mesh
+        ref={groundPulseRef}
+        position={[0, 0.03, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        renderOrder={2}
+      >
+        <ringGeometry args={[0.45, 1.1, 32]} />
+        <meshBasicMaterial
+          ref={groundPulseMatRef}
+          color={trailColor}
+          transparent
+          depthWrite={false}
+          toneMapped={false}
+          opacity={0.2}
+        />
+      </mesh>
+
+      {/* Speed trail — follows an invisible anchor at torso height. */}
+      <Trail
+        width={0.55}
+        length={trailLength}
+        color={trailColor}
+        attenuation={(t: number) => t * t}
+        decay={4}
+      >
+        <mesh ref={trailAnchorRef} position={[0, 1.1, 0.1]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      </Trail>
+
       <group ref={bodyRef} position={[0, 1.05, 0]}>
         <mesh geometry={TORSO_GEO} material={materials.armor} scale={silhouette.torsoScale} castShadow />
         <mesh
