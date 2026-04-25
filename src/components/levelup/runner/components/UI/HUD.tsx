@@ -1102,7 +1102,7 @@ const MenuScreen: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid min-w-0 gap-4">
               <div className="rounded-[1.8rem] border border-white/10 bg-black/30 p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -1170,13 +1170,13 @@ const MenuScreen: React.FC = () => {
                 </div>
               </div>
 
-              <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5">
+              <div className="min-w-0 overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/5 p-5">
                 <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Switch runner fast</div>
                 <div className="mt-2 text-xl font-black text-white">Pick a character portrait</div>
                 <p className="mt-2 text-sm leading-relaxed text-white/60">
                   Tap once to update the selected bay. Stats and abilities stay up top so the roster can stay quick.
                 </p>
-                <div className="mt-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pr-1">
+                <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto snap-x snap-mandatory px-1 pb-2">
                   {PLAYABLE_CHARACTERS.map((character) => (
                     <CharacterCard
                       key={character.id}
