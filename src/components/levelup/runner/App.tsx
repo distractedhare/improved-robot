@@ -15,6 +15,7 @@ import { Effects } from './components/World/Effects';
 import { HUD } from './components/UI/HUD';
 import { AudioSync } from './components/System/AudioSync';
 import { useStore } from './store';
+import { GameStatus } from './types';
 
 // Dynamic Camera Controller
 const CameraController = () => {
@@ -76,6 +77,8 @@ interface RunnerAppProps {
 
 function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
   const shellHeightClass = immersive ? 'h-[calc(100dvh-5rem)] md:h-[calc(100vh-8.5rem)]' : 'h-[72vh]';
+  const status = useStore((state) => state.status);
+  const showLiveCallShortcut = immersive && onStartLiveCall && status !== GameStatus.PLAYING;
 
   return (
     <div
@@ -85,7 +88,7 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
           : 'min-h-[72vh] rounded-[1.85rem] border border-white/10'
       }`}
     >
-      {immersive && onStartLiveCall ? (
+      {showLiveCallShortcut ? (
         <div className="pointer-events-none absolute right-3 top-3 z-[140] hidden sm:block sm:right-4 sm:top-4">
           <button
             type="button"

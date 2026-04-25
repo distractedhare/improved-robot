@@ -1232,7 +1232,7 @@ const MenuScreen: React.FC = () => {
         </div>
 
         <div className="mt-5 grid gap-3 lg:grid-cols-3">
-          <details className="group rounded-[1.55rem] border border-white/10 bg-black/24 p-4 text-white" open>
+          <details className="group rounded-[1.55rem] border border-white/10 bg-black/24 p-4 text-white">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.26em] text-[#ff8cc6] [&::-webkit-details-marker]:hidden">
               First run guide
               <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
@@ -1370,33 +1370,6 @@ const EndScreen = ({
   );
 };
 
-const Meter = ({
-  label,
-  value,
-  max = 1,
-  accent,
-  icon,
-}: {
-  label: string;
-  value: number;
-  max?: number;
-  accent: string;
-  icon: React.ReactNode;
-}) => {
-  const ratio = Math.min(1, Math.max(0, value / max));
-  return (
-    <div className="w-full min-w-0 rounded-[1.05rem] border border-white/10 bg-black/45 p-2 backdrop-blur-md sm:min-w-[150px] sm:rounded-2xl sm:p-3">
-      <div className="mb-2 flex items-center justify-between gap-1.5 text-[8px] uppercase tracking-[0.08em] text-white/50 sm:gap-3 sm:text-[10px] sm:tracking-[0.25em]">
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">{icon}<span className="truncate whitespace-nowrap">{label}</span></div>
-        <span>{max === 1 ? `${Math.round(ratio * 100)}%` : `${Math.round(value)}`}</span>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/10 sm:h-2">
-        <div className="h-full rounded-full" style={{ width: `${ratio * 100}%`, background: accent }} />
-      </div>
-    </div>
-  );
-};
-
 const AbilityGlyph = ({ slot, className = '' }: { slot: RunnerAbilitySlot; className?: string }) => {
   if (slot === 'blast') {
     return (
@@ -1452,7 +1425,7 @@ const AbilityIconButton = ({
     aria-label={label}
     title={label}
     className={`group relative inline-flex shrink-0 items-center justify-center overflow-hidden border font-black uppercase transition-all hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-white/70 ${
-      compact ? 'h-[3.25rem] w-[3.25rem] rounded-2xl' : 'h-14 w-14 rounded-2xl xl:w-auto xl:px-4'
+      compact ? 'h-[2.85rem] w-[2.85rem] rounded-xl' : 'h-14 w-14 rounded-2xl xl:w-auto xl:px-4'
     }`}
     style={{
       borderColor: ready ? `${accent}aa` : `${accent}42`,
@@ -1462,7 +1435,7 @@ const AbilityIconButton = ({
     }}
   >
     <span className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100" style={{ background: `radial-gradient(circle at 45% 20%, ${secondary}55, transparent 58%)` }} />
-    <AbilityGlyph slot={slot} className={compact ? 'relative h-6 w-6' : 'relative h-6 w-6'} />
+    <AbilityGlyph slot={slot} className={compact ? 'relative h-5 w-5' : 'relative h-6 w-6'} />
     <span className={compact ? 'sr-only' : 'sr-only xl:not-sr-only xl:relative xl:ml-2 xl:text-[10px] xl:tracking-[0.2em]'}>
       {label}
     </span>
@@ -1479,10 +1452,10 @@ const MobileControls = () => {
 
   return (
     <div className="md:hidden pointer-events-auto grid w-full grid-cols-[1fr_auto] items-end gap-1.5 pb-[max(env(safe-area-inset-bottom,0px),0.25rem)]">
-      <div className="grid grid-cols-3 gap-1.5 rounded-[1.45rem] border border-white/10 bg-black/58 p-1.5 backdrop-blur-md">
-        <button onClick={() => controlDispatch('hud-left')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">←</button>
-        <button onClick={() => controlDispatch('hud-jump')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">Jump</button>
-        <button onClick={() => controlDispatch('hud-right')} className="min-h-[3rem] rounded-xl bg-white/10 text-sm font-black uppercase tracking-[0.16em] text-white">→</button>
+      <div className="grid grid-cols-3 gap-1.5 rounded-[1.25rem] border border-white/10 bg-black/54 p-1.5 backdrop-blur-md">
+        <button onClick={() => controlDispatch('hud-left')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-sm font-black uppercase tracking-[0.12em] text-white">←</button>
+        <button onClick={() => controlDispatch('hud-jump')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-xs font-black uppercase tracking-[0.12em] text-white">Jump</button>
+        <button onClick={() => controlDispatch('hud-right')} className="min-h-[2.65rem] rounded-lg bg-white/10 text-sm font-black uppercase tracking-[0.12em] text-white">→</button>
       </div>
       <div className="grid gap-1.5">
         <AbilityIconButton
@@ -1525,14 +1498,12 @@ const PlayingHUD = () => {
   const combo = useStore((state) => state.combo);
   const status = useStore((state) => state.status);
   const togglePause = useStore((state) => state.togglePause);
-  const currentFact = useStore((state) => state.currentFact);
   const selectedCharacterId = useStore((state) => state.selectedCharacterId);
   const isImmortalityActive = useStore((state) => state.isImmortalityActive);
   const isMagnetActive = useStore((state) => state.isMagnetActive);
   const isScannerActive = useStore((state) => state.isScannerActive);
   const isOverclockActive = useStore((state) => state.isOverclockActive);
   const isMultiplierActive = useStore((state) => state.isMultiplierActive);
-  const dashEnergy = useStore((state) => state.dashEnergy);
   const abilityEnergy = useStore((state) => state.abilityEnergy);
   const sidekickCoreCharge = useStore((state) => state.sidekickCoreCharge);
   const currentBossId = useStore((state) => state.currentBossId);
@@ -1554,7 +1525,7 @@ const PlayingHUD = () => {
   const activeStatusCount = activeStatuses.length;
 
   return (
-    <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-3 md:p-6">
+    <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-2.5 md:p-5">
       <TutorialOverlay />
 
       <div className="flex items-start justify-between gap-2 sm:gap-3">
@@ -1605,14 +1576,14 @@ const PlayingHUD = () => {
         </div>
       </div>
 
-      <div className="absolute left-3 top-[7.15rem] flex gap-1.5 sm:left-1/2 sm:top-[5.35rem] sm:-translate-x-1/2 md:top-24 md:gap-3">
+      <div className="absolute left-2.5 top-[6.65rem] flex gap-1 sm:left-1/2 sm:top-[5.35rem] sm:-translate-x-1/2 md:top-[4.9rem] md:gap-2">
         {T_LIFE_WORD.map((char, idx) => {
           const active = collectedLetters.includes(idx);
           const color = TLIFE_COLORS[idx];
           return (
             <div
               key={idx}
-              className="flex h-8 w-6 items-center justify-center rounded-lg border-2 font-black font-cyber text-sm transition-all md:h-12 md:w-10 md:rounded-xl md:text-lg"
+              className="flex h-7 w-5 items-center justify-center rounded-md border font-black font-cyber text-xs transition-all sm:h-8 sm:w-6 sm:rounded-lg sm:text-sm md:h-10 md:w-8 md:rounded-xl md:text-base"
               style={{
                 borderColor: active ? color : 'rgba(255,255,255,0.12)',
                 color: active ? (color === '#FFFFFF' ? '#000000' : '#FFFFFF') : 'rgba(255,255,255,0.22)',
@@ -1652,33 +1623,13 @@ const PlayingHUD = () => {
         </div>
       ) : null}
 
-      <AnimatePresence>
-        {currentFact && (
-          <motion.div
-            initial={{ opacity: 0, x: 24, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 24, scale: 0.95 }}
-            className="absolute bottom-[6.75rem] left-3 right-3 rounded-[1.25rem] border border-[#E20074]/35 bg-black/78 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl md:bottom-28 md:left-auto md:right-5 md:w-[min(28rem,36vw)] md:rounded-[1.6rem] md:p-4"
-          >
-            <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074] mb-2">Knowledge pulse</div>
-            <div className="text-xs leading-relaxed text-white/85 md:text-base">{currentFact}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
-        <div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:gap-3 md:justify-start">
-          <Meter label="Smash" value={dashEnergy} accent={character.accent} icon={<AbilityGlyph slot="smash" className="h-3 w-3" />} />
-          <Meter label="Blast" value={abilityEnergy} accent={character.secondary} icon={<AbilityGlyph slot="blast" className="h-3 w-3" />} />
-          <Meter label="Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<AbilityGlyph slot="core" className="h-3 w-3" />} />
-        </div>
-
-        <div className="hidden md:flex justify-between items-end gap-3 pointer-events-auto">
-          <div className="rounded-[1.45rem] bg-black/50 border border-white/10 backdrop-blur-md p-2.5 flex items-center gap-2 text-white/70 text-xs uppercase tracking-[0.22em]">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 md:relative md:min-h-[4.35rem]">
+        <div className="hidden md:flex justify-end items-end gap-3 pointer-events-auto">
+          <div className="mr-auto rounded-[1.2rem] bg-black/40 border border-white/10 backdrop-blur-md p-2 flex items-center gap-1.5 text-white/65 text-[10px] uppercase tracking-[0.18em]">
             <button onClick={() => controlDispatch('hud-left')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">←</button>
             <button onClick={() => controlDispatch('hud-jump')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">Jump</button>
             <button onClick={() => controlDispatch('hud-right')} className="px-3 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all">→</button>
-            <div className="ml-2 hidden text-white/35 xl:block">or arrows / WASD / swipe</div>
+            <div className="ml-2 hidden text-white/35 xl:block">arrows / WASD / swipe</div>
           </div>
           <div className="flex gap-2.5">
             <AbilityIconButton
@@ -1732,7 +1683,6 @@ export const HUD: React.FC = () => {
   return (
     <>
       <PlayingHUD />
-      <SaveBanner />
     </>
   );
 };
