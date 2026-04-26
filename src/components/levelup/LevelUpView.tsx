@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Award, Flame, HardHat, Play, Sparkles, Star, Ticket, Trophy, Zap } from 'lucide-react';
 import { getTeamConfig, getMascotEmoji } from '../../services/teamConfigService';
 import { getBoardById, getFeaturedBoardId } from '../../constants/bingoBoard';
+import { getPrizeData } from '../../services/prizeService';
 import { DemoScenario } from '../../constants/demoScenarios';
 import BingoBoard from './BingoBoard';
+import PrizeHub from './PrizeHub';
+import PracticeScenarios from './PracticeScenarios';
 import RunnerTab from './runner/RunnerTab';
 import { useStore as useRunnerStore } from './runner/store';
 import { GameStatus } from './runner/types';
@@ -32,6 +35,7 @@ function formatCount(value: number, singular: string, plural = `${singular}s`): 
 export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmersiveChange }: LevelUpViewProps) {
   const [tab, setTab] = useState<LevelUpTab>('runner');
   const [runnerLaunched, setRunnerLaunched] = useState(false);
+  const [prizeData, setPrizeData] = useState(() => getPrizeData());
   const [isCompactRunnerViewport, setIsCompactRunnerViewport] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
   );
@@ -41,7 +45,7 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
   const runnerStatus = useRunnerStore((state) => state.status);
   const settingsReturnStatus = useRunnerStore((state) => state.settingsReturnStatus);
   const hasTeam = teamConfig.teamName.trim().length > 0;
-  
+  const todayWithinReach = Math.max(8 - prizeData.daily.cellsCompleted, 0);
   const isRunnerTab = tab === 'runner';
   const isRunnerActivePlay =
     runnerStatus === GameStatus.PLAYING ||
@@ -61,8 +65,19 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
       runnerStatus === GameStatus.VICTORY ||
       (runnerStatus === GameStatus.SETTINGS && settingsReturnStatus !== GameStatus.MENU)
     );
-    
   const missionBriefing = buildLevelUpMissionBriefing({ area: tab });
+
+  useEffect(() => {
+    const refresh = () => setPrizeData(getPrizeData());
+    refresh();
+    const intervalId = window.setInterval(refresh, 4000);
+    window.addEventListener('focus', refresh);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refresh);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -246,18 +261,30 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <DashboardCard
-              icon={<HardHat className="h-4 w-4 text-t-magenta" />}
-              label="Runner Arcade"
-              value="Live"
-              detail="Sidekick Core stays support-side"
-            />
+          <div className="grid gap-3 md:grid-cols-4">
             <DashboardCard
               icon={<Trophy className="h-4 w-4 text-t-magenta" />}
               label="Bingo Game"
               value={featuredBoard.name}
               detail="One board, one clean habit loop"
+            />
+            <DashboardCard
+              icon={<Flame className="h-4 w-4 text-t-berry" />}
+              label="Current Streak"
+              value={formatCount(prizeData.monthly.longestStreak, 'day')}
+              detail="Best run this month"
+            />
+            <DashboardCard
+              icon={<Ticket className="h-4 w-4 text-t-magenta" />}
+              label="Tickets Earned"
+              value={`${prizeData.history.length}`}
+              detail="Daily, weekly, and monthly wins"
+            />
+            <DashboardCard
+              icon={<Star className="h-4 w-4 text-warning-accent" />}
+              label="Still in Reach"
+              value={todayWithinReach === 0 ? 'Daily Goal Hit' : formatCount(todayWithinReach, 'cell')}
+              detail={todayWithinReach === 0 ? 'Momentum badge is live' : "to lock in today's badge"}
             />
           </div>
 
@@ -276,9 +303,13 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
             <div className="glass-reading rounded-2xl p-4">
               <p className="type-kicker text-t-magenta">Best next move</p>
               <p className="mt-2 text-sm font-bold text-foreground">
-                {tab === 'runner'
-                  ? 'Use Runner only when the rep wants a quick arcade break with training baked in.'
-                  : 'Use Bingo to reinforce the exact call behaviors you want reps repeating.'}
+                {tab === 'practice'
+                  ? 'Pick a scenario, then jump straight into Live with the plan already loaded.'
+                  : tab === 'prizes'
+                      ? 'See what is still realistically within reach today, not just the reward list.'
+                      : tab === 'runner'
+                        ? 'Use Runner only when the rep wants a quick arcade break with training baked in.'
+                        : 'Use Bingo to reinforce the exact call behaviors you want reps repeating.'}
               </p>
             </div>
           </div>
@@ -296,13 +327,26 @@ export default function LevelUpView({ onSelectScenario, onStartLiveCall, onImmer
       >
         {tab === 'bingo' ? (
           <BingoBoard />
-        ) : (
+        ) : tab === 'practice' ? (
+          <div className="space-y-4">
+            <div className="glass-feature rounded-2xl p-4">
+              <p className="type-kicker text-info-foreground">Practice scenarios</p>
+              <p className="mt-2 text-xs font-medium leading-relaxed text-info-foreground">
+                "Rehearse the live-call flow with one realistic customer setup, then let the app jump you into Live with the
+                full plan already loaded."
+              </p>
+            </div>
+            <PracticeScenarios onSelectScenario={onSelectScenario} />
+          </div>
+        ) : tab === 'runner' ? (
           <RunnerTab
             immersive={isRunnerImmersive}
             launched={runnerLaunched}
             onLaunchedChange={setRunnerLaunched}
             onStartLiveCall={onStartLiveCall}
           />
+        ) : (
+          <PrizeHub />
         )}
       </div>
     </div>
