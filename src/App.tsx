@@ -103,6 +103,16 @@ function logDevWarning(message: string, error?: unknown): void {
   }
 }
 
+const VALID_APP_MODES: ReadonlySet<AppMode> = new Set<AppMode>([
+  'home', 'live', 'learn', 'level-up', 'offline-coach', 'settings',
+]);
+
+function parseModeFromHash(): AppMode | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.location.hash.replace(/^#\/?/, '');
+  return VALID_APP_MODES.has(raw as AppMode) ? (raw as AppMode) : null;
+}
+
 function isPastValidUntil(dateString?: string): boolean {
   if (!dateString) return true;
 
@@ -235,7 +245,7 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('home');
+  const [mode, setMode] = useState<AppMode>(() => parseModeFromHash() ?? 'home');
   const [settingsSection, setSettingsSection] = useState<SettingsTab>('team');
   const [refineOpen, setRefineOpen] = useState(false);
   const [guidedFlowStep, setGuidedFlowStep] = useState<GuidedFlowStep>('intent');
@@ -273,6 +283,24 @@ export default function App() {
     }, 1200);
 
     return () => window.clearTimeout(preloadSettings);
+  }, []);
+
+  // Keep the URL hash in sync with the current mode so refresh, share, and
+  // back/forward navigate to the right view (QA bug 8 — deep linking).
+  useEffect(() => {
+    const expected = mode === 'home' ? '' : `#${mode}`;
+    if (window.location.hash === expected) return;
+    const url = expected || `${window.location.pathname}${window.location.search}`;
+    window.history.pushState(null, '', url);
+  }, [mode]);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const next = parseModeFromHash() ?? 'home';
+      setMode((current) => (current === next ? current : next));
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   // Weekly update state
