@@ -3,11 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Center, Text } from '@react-three/drei';
+import { Center, Text as DreiText } from '@react-three/drei';
 import { v4 as uuidv4 } from 'uuid';
+
+// Drei's <Text> uses troika under the hood, which spins up a worker to load and
+// SDF-bake the font. If that worker fails (it has, in some Vite-served dev
+// environments), the suspending Text takes the entire <Suspense fallback={null}>
+// wrapping <Scene/> down with it — the canvas stays mounted but the whole 3D
+// scene renders nothing and the player sees a black void.
+//
+// Wrapping each Text in its own granular Suspense isolates the suspension. A
+// failing label silently disappears; the rest of the scene still renders.
+const Text = (props: React.ComponentProps<typeof DreiText>) => (
+  <Suspense fallback={null}>
+    <DreiText {...props} />
+  </Suspense>
+);
 import { useStore } from '../../store';
 import {
   GameStatus,
