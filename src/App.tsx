@@ -294,10 +294,15 @@ export default function App() {
     window.history.pushState(null, '', url);
   }, [mode]);
 
+  // Stable forwarder so the hashchange listener can route through the same
+  // cleanup/preload pathway as a header click without re-subscribing on every
+  // mode change.
+  const handleModeChangeRef = useRef<((m: AppMode) => void) | null>(null);
+
   useEffect(() => {
     const onHashChange = () => {
       const next = parseModeFromHash() ?? 'home';
-      setMode((current) => (current === next ? current : next));
+      handleModeChangeRef.current?.(next);
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -726,6 +731,8 @@ export default function App() {
 
     setMode(nextMode);
   }, [cancelInFlightRequests, mode]);
+
+  handleModeChangeRef.current = handleModeChange;
 
   const handleHintStatusClick = useCallback(() => {
     setShowHintPrompt(true);
