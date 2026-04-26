@@ -103,6 +103,16 @@ function logDevWarning(message: string, error?: unknown): void {
   }
 }
 
+const VALID_APP_MODES: ReadonlySet<AppMode> = new Set<AppMode>([
+  'home', 'live', 'learn', 'level-up', 'offline-coach', 'settings',
+]);
+
+function parseModeFromHash(): AppMode | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.location.hash.replace(/^#\/?/, '');
+  return VALID_APP_MODES.has(raw as AppMode) ? (raw as AppMode) : null;
+}
+
 function isPastValidUntil(dateString?: string): boolean {
   if (!dateString) return true;
 
@@ -235,7 +245,7 @@ export default function App() {
   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
-  const [mode, setMode] = useState<AppMode>('home');
+  const [mode, setMode] = useState<AppMode>(() => parseModeFromHash() ?? 'home');
   const [settingsSection, setSettingsSection] = useState<SettingsTab>('team');
   const [refineOpen, setRefineOpen] = useState(false);
   const [guidedFlowStep, setGuidedFlowStep] = useState<GuidedFlowStep>('intent');
@@ -273,6 +283,29 @@ export default function App() {
     }, 1200);
 
     return () => window.clearTimeout(preloadSettings);
+  }, []);
+
+  // Keep the URL hash in sync with the current mode so refresh, share, and
+  // back/forward navigate to the right view (QA bug 8 — deep linking).
+  useEffect(() => {
+    const expected = mode === 'home' ? '' : `#${mode}`;
+    if (window.location.hash === expected) return;
+    const url = expected || `${window.location.pathname}${window.location.search}`;
+    window.history.pushState(null, '', url);
+  }, [mode]);
+
+  // Stable forwarder so the hashchange listener can route through the same
+  // cleanup/preload pathway as a header click without re-subscribing on every
+  // mode change.
+  const handleModeChangeRef = useRef<((m: AppMode) => void) | null>(null);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const next = parseModeFromHash() ?? 'home';
+      handleModeChangeRef.current?.(next);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   // Weekly update state
@@ -699,6 +732,8 @@ export default function App() {
     setMode(nextMode);
   }, [cancelInFlightRequests, mode]);
 
+  handleModeChangeRef.current = handleModeChange;
+
   const handleHintStatusClick = useCallback(() => {
     setShowHintPrompt(true);
   }, []);
@@ -757,7 +792,7 @@ export default function App() {
         }`}
       >
         {mode !== 'home' && !isLevelUpImmersive ? (
-          <div className="glass-capsule mb-3 flex flex-wrap gap-2 rounded-[1.5rem] p-2.5">
+          <div className="glass-capsule mb-3 flex w-fit max-w-full flex-wrap gap-2 rounded-[1.5rem] p-2.5">
             <StatusPill
               tone={dataStatusTone}
               label="Data"

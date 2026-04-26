@@ -35,3 +35,8 @@ Format per entry:
 **Trigger:** Seeded `lessons.md` with four entries; one (`agents/scope-discipline`) was a principle generalized from system prompts, not from any actual user correction.
 **Generalized:** `lessons.md` records *real corrections only*. Before writing a lesson, name the specific user message that triggered it. If you can't name one, the principle belongs in a different file (operating norms, conventions) — not the corrections ledger.
 **Reference:** —
+
+## 2026-04-26 · css/dynamic-text-sizing
+**Trigger:** Hero h1 clamp(1.375rem, ...) wrapped on 320px viewport because floor was tuned to "Good morning" (shorter); runtime showed "Good evening 🔥" (longer).
+**Generalized:** When sizing dynamic text with clamp(), tune the floor against the LONGEST possible runtime string value, not the shortest sample at dev time.
+**Reference:** src/routes/home/HomeScreen.tsx

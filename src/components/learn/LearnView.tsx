@@ -847,14 +847,18 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                             </p>
                           </div>
                         </div>
-                        <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
-                          isActive
-                            ? 'bg-white/18 text-white'
-                            : selectionCount > 0
-                              ? 'bg-t-magenta/10 text-t-magenta'
-                              : 'bg-t-light-gray/40 text-t-muted'
-                        }`}>
-                          {selectionCount}
+                        <span
+                          aria-label={selectionCount > 0 ? `${selectionCount} selected` : 'None selected'}
+                          title={selectionCount > 0 ? `${selectionCount} selected` : 'None selected'}
+                          className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
+                            isActive
+                              ? 'bg-white/18 text-white'
+                              : selectionCount > 0
+                                ? 'bg-t-magenta/10 text-t-magenta'
+                                : 'bg-t-light-gray/40 text-t-muted'
+                          }`}
+                        >
+                          {selectionCount > 0 ? `${selectionCount} picked` : 'None'}
                         </span>
                       </div>
                     </button>

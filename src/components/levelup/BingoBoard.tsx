@@ -302,14 +302,8 @@ export default function BingoBoard() {
                   {rowSlam.count > 1 ? `${rowSlam.count} lines` : 'Row complete'}
                 </p>
                 <p
-                  className="text-[72px] sm:text-[96px] font-black uppercase leading-none tracking-tight"
-                  style={{
-                    background: 'linear-gradient(135deg, #FFFFFF 0%, #E20074 55%, #861B54 100%)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    color: 'transparent',
-                    filter: 'drop-shadow(0 8px 18px rgba(226,0,116,0.55))',
-                  }}
+                  className="text-gradient-bingo text-[72px] sm:text-[96px] font-black uppercase leading-none tracking-tight"
+                  style={{ filter: 'drop-shadow(0 8px 18px rgba(226,0,116,0.55))' }}
                 >
                   BINGO!
                 </p>

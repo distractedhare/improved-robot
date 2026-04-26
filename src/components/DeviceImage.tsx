@@ -54,19 +54,41 @@ export default function DeviceImage({
 
   const currentSource = sources[fallbackIndex];
   const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
+  const [loaded, setLoaded] = useState(false);
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
+
+  // Reset loaded state during render when the source changes — avoids the race
+  // where a cached image's onLoad fires before a useEffect-driven reset runs.
+  if (currentSource !== loadedSource && loaded) {
+    setLoaded(false);
+  }
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {currentSource ? (
-        <img
-          src={currentSource}
-          alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
-          className={imageClassName}
-          loading="lazy"
-          width={160}
-          height={160}
-          onError={() => setFallbackIndex((current) => current + 1)}
-        />
+        <>
+          <div
+            aria-hidden="true"
+            className={`device-image-skeleton pointer-events-none absolute inset-0 transition-opacity duration-200 ${loaded ? 'opacity-0' : 'opacity-100'}`}
+          />
+          <img
+            src={currentSource}
+            alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
+            className={`${imageClassName} transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+            loading="lazy"
+            width={160}
+            height={160}
+            onLoad={() => {
+              setLoaded(true);
+              setLoadedSource(currentSource);
+            }}
+            onError={() => {
+              setLoaded(false);
+              setLoadedSource(null);
+              setFallbackIndex((current) => current + 1);
+            }}
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-lg bg-surface-elevated px-2 text-center text-[9px] font-black uppercase tracking-wider text-t-dark-gray/60">
           {placeholderLabel}
