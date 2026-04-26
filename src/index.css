@@ -490,10 +490,13 @@ a,
 }
 
 @utility text-gradient-magenta {
+  color: #E20074;
   background: linear-gradient(135deg, #E20074, #861B54);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-background-clip: text;
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 @utility card-featured {
@@ -508,6 +511,29 @@ a,
 }
 @utility pulse-live {
   animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes device-image-shimmer {
+  0% { background-position: -120% 0; }
+  100% { background-position: 220% 0; }
+}
+@utility device-image-skeleton {
+  background-color: color-mix(in srgb, var(--border-surface) 35%, transparent);
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--border-surface) 18%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: device-image-shimmer 1.6s ease-in-out infinite;
+  border-radius: inherit;
+}
+@media (prefers-reduced-motion: reduce) {
+  .device-image-skeleton {
+    animation: none;
+  }
 }
 
 @utility card-success-glow {

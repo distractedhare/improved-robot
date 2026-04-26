@@ -757,7 +757,7 @@ export default function App() {
         }`}
       >
         {mode !== 'home' && !isLevelUpImmersive ? (
-          <div className="glass-capsule mb-3 flex flex-wrap gap-2 rounded-[1.5rem] p-2.5">
+          <div className="glass-capsule mb-3 flex w-fit max-w-full flex-wrap gap-2 rounded-[1.5rem] p-2.5">
             <StatusPill
               tone={dataStatusTone}
               label="Data"

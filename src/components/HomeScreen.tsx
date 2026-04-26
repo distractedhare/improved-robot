@@ -98,14 +98,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             </span>
           </div>
           <div>
-            <h1
-              className="mb-1 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl"
-              style={{
-                background: 'linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
+            <h1 className="text-gradient-magenta mb-1 font-black tracking-tight [font-size:clamp(1.625rem,7vw,3rem)] lg:text-5xl">
               {getGreeting()} {role.icon}
             </h1>
             <p className="text-sm font-bold text-t-dark-gray sm:text-base">
@@ -341,13 +334,13 @@ function MetricChip({
   sub: string;
 }) {
   return (
-    <div className="glass-reading rounded-[1.2rem] px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-t-magenta">
-        <Icon className="h-3 w-3" />
-        {label}
+    <div className="glass-reading min-w-0 rounded-[1.2rem] px-3 py-2.5">
+      <div className="flex items-center gap-1.5 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.14em] text-t-magenta sm:tracking-[0.2em]">
+        <Icon className="h-3 w-3 shrink-0" />
+        <span className="truncate">{label}</span>
       </div>
       <div className="mt-1 text-lg font-black tabular-nums text-foreground sm:text-xl">{value}</div>
-      <div className="mt-0.5 text-[10px] font-medium text-t-muted">{sub}</div>
+      <div className="mt-0.5 truncate text-[10px] font-medium text-t-muted">{sub}</div>
     </div>
   );
 }

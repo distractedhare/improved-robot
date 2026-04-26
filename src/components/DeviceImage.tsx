@@ -54,19 +54,36 @@ export default function DeviceImage({
 
   const currentSource = sources[fallbackIndex];
   const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [currentSource]);
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {currentSource ? (
-        <img
-          src={currentSource}
-          alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
-          className={imageClassName}
-          loading="lazy"
-          width={160}
-          height={160}
-          onError={() => setFallbackIndex((current) => current + 1)}
-        />
+        <>
+          {!loaded ? (
+            <div
+              aria-hidden="true"
+              className="device-image-skeleton absolute inset-0"
+            />
+          ) : null}
+          <img
+            src={currentSource}
+            alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
+            className={`${imageClassName} transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+            loading="lazy"
+            width={160}
+            height={160}
+            onLoad={() => setLoaded(true)}
+            onError={() => {
+              setLoaded(false);
+              setFallbackIndex((current) => current + 1);
+            }}
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-lg bg-surface-elevated px-2 text-center text-[9px] font-black uppercase tracking-wider text-t-dark-gray/60">
           {placeholderLabel}

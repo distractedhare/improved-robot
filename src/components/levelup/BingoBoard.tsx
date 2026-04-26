@@ -304,10 +304,11 @@ export default function BingoBoard() {
                 <p
                   className="text-[72px] sm:text-[96px] font-black uppercase leading-none tracking-tight"
                   style={{
+                    color: '#FFFFFF',
                     background: 'linear-gradient(135deg, #FFFFFF 0%, #E20074 55%, #861B54 100%)',
                     WebkitBackgroundClip: 'text',
                     backgroundClip: 'text',
-                    color: 'transparent',
+                    WebkitTextFillColor: 'transparent',
                     filter: 'drop-shadow(0 8px 18px rgba(226,0,116,0.55))',
                   }}
                 >
