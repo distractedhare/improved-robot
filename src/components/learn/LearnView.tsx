@@ -848,8 +848,8 @@ export default function LearnView({ weeklyData, weeklySource, ecosystemMatrix, o
                           </div>
                         </div>
                         <span
-                          aria-label={`${selectionCount} selected`}
-                          title={`${selectionCount} selected`}
+                          aria-label={selectionCount > 0 ? `${selectionCount} selected` : 'None selected'}
+                          title={selectionCount > 0 ? `${selectionCount} selected` : 'None selected'}
                           className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${
                             isActive
                               ? 'bg-white/18 text-white'
