@@ -96,7 +96,9 @@ const StarField: React.FC = () => {
  * Replaces the previous flat magenta plane + thin static lane separators.
  */
 const LaneFloor: React.FC = () => {
-    const { laneCount, status, speed } = useStore(state => ({ laneCount: state.laneCount, status: state.status, speed: state.speed }));
+    const laneCount = useStore(state => state.laneCount);
+    const status = useStore(state => state.status);
+    const speed = useStore(state => state.speed);
     const dashMatRef = useRef<THREE.ShaderMaterial>(null);
 
     const separators = useMemo(() => {
@@ -254,7 +256,8 @@ const RetroSun: React.FC = () => {
  */
 const MagentaHorizon: React.FC = () => {
     const matRef = useRef<THREE.ShaderMaterial>(null);
-    const { status, speed } = useStore(state => ({ status: state.status, speed: state.speed }));
+    const status = useStore(state => state.status);
+    const speed = useStore(state => state.speed);
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },

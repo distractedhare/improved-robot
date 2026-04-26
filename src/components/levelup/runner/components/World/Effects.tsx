@@ -18,7 +18,7 @@ export const Effects: React.FC = () => {
   }, [shakeIntensity]);
 
   return (
-    <EffectComposer enableNormalPass={false} multisampling={4}>
+    <EffectComposer enableNormalPass={false} multisampling={0}>
       {/* Bloom: lowered threshold + bumped intensity so the magenta horizon
           and the additive dash strips actually carry the scene. */}
       <Bloom
