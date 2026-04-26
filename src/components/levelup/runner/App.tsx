@@ -107,7 +107,7 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
         <Canvas
           shadows
           dpr={[1, 2]}
-          gl={{ antialias: true, stencil: false, depth: true, powerPreference: 'high-performance' }}
+          gl={{ antialias: false, stencil: false, depth: true, powerPreference: 'high-performance' }}
           className="h-full w-full"
           camera={{ position: [0, 5.5, 8], fov: 60 }}
         >
