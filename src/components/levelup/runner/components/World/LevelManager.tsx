@@ -9,17 +9,23 @@ import * as THREE from 'three';
 import { Center, Text as DreiText } from '@react-three/drei';
 import { v4 as uuidv4 } from 'uuid';
 
-// Drei's <Text> uses troika under the hood, which spins up a worker to load and
-// SDF-bake the font. If that worker fails (it has, in some Vite-served dev
-// environments), the suspending Text takes the entire <Suspense fallback={null}>
-// wrapping <Scene/> down with it — the canvas stays mounted but the whole 3D
-// scene renders nothing and the player sees a black void.
+// Drei's <Text> uses troika under the hood, which suspends on a Promise that
+// `preloadFont` is supposed to resolve. With no `font` prop, troika falls back
+// to its FontResolver, which fetches Unicode range data from
+// https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver — a CDN dependency
+// that hangs forever on restricted enterprise networks (or any offline /
+// blocked-CDN scenario). Pointing every Text at a local Poppins TTF bypasses
+// the CDN, lets every Text share the suspend cache (one preload, not N), and
+// quiets the "WorkerModule response with empty or unknown messageId" warnings
+// caused by hazards mounting/unmounting before troika finishes.
 //
-// Wrapping each Text in its own granular Suspense isolates the suspension. A
-// failing label silently disappears; the rest of the scene still renders.
+// The granular <Suspense fallback={null}> stays as belt-and-suspenders so any
+// remaining font-load hiccup silently drops a single label instead of taking
+// down the entire 3D scene.
+const RUNNER_TEXT_FONT = '/fonts/poppins-700.ttf';
 const Text = (props: React.ComponentProps<typeof DreiText>) => (
   <Suspense fallback={null}>
-    <DreiText {...props} />
+    <DreiText font={RUNNER_TEXT_FONT} {...props} />
   </Suspense>
 );
 import { useStore } from '../../store';
