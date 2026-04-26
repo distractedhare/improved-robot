@@ -482,8 +482,9 @@ export const Player: React.FC = () => {
 
       {/* Speed trail — follows an invisible anchor at torso height.
           Wrapped because drei's Trail can null-deref its anchor during
-          retry/remount; isolating keeps the player rendering. */}
-      <SceneErrorBoundary>
+          retry/remount; isolating keeps the player rendering. resetKey
+          on `status` recovers the trail on the next game transition. */}
+      <SceneErrorBoundary resetKey={status}>
         <Trail
           width={0.55}
           length={trailLength}

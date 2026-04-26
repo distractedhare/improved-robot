@@ -19,13 +19,26 @@ import { LANE_WIDTH } from '../../types';
  *
  * The app-level ErrorBoundary renders DOM JSX as fallback, which crashes
  * inside `<Canvas>` — three.js JSX only. Hence this minimal local one.
+ *
+ * Pass `resetKey` (e.g. game `status`) when the failure mode is transient
+ * (Trail null-deref during remount) so the boundary recovers on the next
+ * state transition. Omit it for deterministic failures (GPU capability)
+ * to avoid retry loops.
  */
+type SceneBoundaryProps = React.PropsWithChildren<{ resetKey?: string | number }>;
 interface SceneBoundaryState { hasError: boolean }
-export class SceneErrorBoundary extends React.Component<React.PropsWithChildren, SceneBoundaryState> {
+export class SceneErrorBoundary extends React.Component<SceneBoundaryProps, SceneBoundaryState> {
   state: SceneBoundaryState = { hasError: false };
   static getDerivedStateFromError(): SceneBoundaryState { return { hasError: true }; }
-  componentDidCatch(error: Error) {
-    if (import.meta.env.DEV) console.warn('[runner scene] suppressed:', error.message);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    if (import.meta.env.DEV) {
+      console.warn('[runner scene] suppressed:', error.message, errorInfo.componentStack);
+    }
+  }
+  componentDidUpdate(prev: SceneBoundaryProps) {
+    if (this.state.hasError && prev.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false });
+    }
   }
   render() { return this.state.hasError ? null : this.props.children; }
 }
