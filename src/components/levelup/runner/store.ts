@@ -828,8 +828,14 @@ export const useStore = create<GameState>((set, get) => ({
     const overclockBoost = isOverclockActive ? 1.18 : 1;
     const dashBoost = isDashing ? character.gameplay.dashBurstMultiplier : 1;
     const sidekickCoreBoost = isSidekickCoreActive ? 1.08 : 1;
-    const comboBoost = 1 + Math.min(0.16, combo * 0.01);
-    const speed = baseSpeed * overclockBoost * dashBoost * sidekickCoreBoost * comboBoost;
+    
+    // Dynamic difficulty: speed increases naturally the further you survive in the run
+    const distanceBoost = 1 + Math.min(0.25, state.distance * 0.00008);
+    
+    // Reward highly skilled players who maintain large combos with a slightly higher cap
+    const comboBoost = 1 + Math.min(0.22, combo * 0.012);
+    
+    const speed = baseSpeed * overclockBoost * dashBoost * sidekickCoreBoost * comboBoost * distanceBoost;
     const scoreMultiplier = (isMultiplierActive ? 2 : 1) * (isSidekickCoreActive ? 1.18 : 1);
 
     set({

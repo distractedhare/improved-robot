@@ -102,13 +102,12 @@ function App({ immersive = false, onStartLiveCall }: RunnerAppProps) {
       ) : null}
 
       <AudioSync />
-
       <div className="relative w-full flex-1 min-h-[24rem] overflow-hidden">
         <HUD />
         <Canvas
           shadows
-          dpr={[1, 1.5]}
-          gl={{ antialias: false, stencil: false, depth: true, powerPreference: 'high-performance' }}
+          dpr={[1, 2]}
+          gl={{ antialias: true, stencil: false, depth: true, powerPreference: 'high-performance' }}
           className="h-full w-full"
           camera={{ position: [0, 5.5, 8], fov: 60 }}
         >

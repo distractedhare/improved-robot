@@ -1,4 +1,4 @@
-import { CreateMLCEngine, InitProgressReport, MLCEngine } from "@mlc-ai/web-llm";
+import type { InitProgressReport, MLCEngine } from "@mlc-ai/web-llm";
 
 type ProgressListener = (progress: InitProgressReport) => void;
 type ReadyListener = (isReady: boolean) => void;
@@ -19,6 +19,7 @@ class LocalAiService {
     if (this.isInitializing) return;
     this.isInitializing = true;
     try {
+      const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
       // Gemma running locally through WebGPU
       this.engine = await CreateMLCEngine(
         "gemma-2b-it-q4f32_1-MLC",

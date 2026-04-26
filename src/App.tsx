@@ -23,14 +23,17 @@ import { getSessionStats, trackIntentUsed, trackObjectionAnalyzed, trackPlanGene
 import { DEMO_SCENARIOS, DemoScenario } from './constants/demoScenarios';
 import { isAbortError } from './services/networkUtils';
 import { AppMode } from './components/Header';
+import { useSalesStore } from './store/useSalesStore';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import HomeScreen from './components/HomeScreen';
-import GuidedContextFlow, { type GuidedFlowStep } from './components/GuidedContextFlow';
-import LiveRefinePanel from './components/LiveRefinePanel';
-import LivePlanResults from './components/LivePlanResults';
-import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
+const GuidedContextFlow = lazy(() => import('./components/GuidedContextFlow'));
+import type { GuidedFlowStep } from './components/GuidedContextFlow';
+const LiveRefinePanel = lazy(() => import('./components/LiveRefinePanel'));
+const LivePlanResults = lazy(() => import('./components/LivePlanResults'));
+const ObjectionTab = lazy(() => import('./components/ObjectionTab'));
+const ObjectionResults = lazy(() => import('./components/ObjectionTab').then(m => ({ default: m.ObjectionResults })));
 import PwaUpdater from './components/PwaUpdater';
 import { refreshPwaApp } from './services/pwaRefreshService';
 import { getSupportFocusLabel } from './constants/supportFocus';
@@ -212,27 +215,27 @@ function getTroubleshootingCategory(context: SalesContext): SalesContext['produc
 }
 
 export default function App() {
-  const [context, setContext] = useState<SalesContext>({
-    age: 'Not Specified',
-    region: 'Not Specified',
-    zipCode: '',
-    product: ['Phone'],
-    purchaseIntent: 'exploring',
-    currentCarrier: 'Not Specified',
-    totalLines: undefined,
-    familyCount: undefined,
-    currentPlatform: 'Not Specified',
-    desiredPlatform: 'Not Specified',
-    hintAvailable: undefined
-  });
-  const [script, setScript] = useState<SalesScript | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [selectedObjections, setSelectedObjections] = useState<string[]>([]);
-  const [objectionResult, setObjectionResult] = useState<ObjectionAnalysis | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
+  const {
+    context,
+    setContext,
+    script,
+    loading,
+    error,
+    selectedObjections,
+    setSelectedObjections,
+    objectionResult,
+    setObjectionResult,
+    analyzing,
+    selectedGamePlanItems,
+    weeklyData,
+    weeklyLoaded,
+    weeklySource,
+    handleGenerate,
+    handleAnalyzeObjection,
+    reset: storeReset,
+    cancelInFlightRequests,
+    refreshWeeklyData
+  } = useSalesStore();
 
   const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'troubleshoot'>('gameplan');
   const [mode, setMode] = useState<AppMode>('home');
@@ -242,8 +245,6 @@ export default function App() {
   const [, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
   const [refreshingApp, setRefreshingApp] = useState(false);
-  const [enhancingPlan, setEnhancingPlan] = useState(false);
-  const [enhancingObjection, setEnhancingObjection] = useState(false);
   const [showHintPrompt, setShowHintPrompt] = useState(false);
   const [levelUpImmersive, setLevelUpImmersive] = useState(false);
 
@@ -259,11 +260,9 @@ export default function App() {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-
     const initialScrollReset = window.setTimeout(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }, 0);
-
     return () => window.clearTimeout(initialScrollReset);
   }, []);
 
@@ -271,36 +270,8 @@ export default function App() {
     const preloadSettings = window.setTimeout(() => {
       void loadSettingsView();
     }, 1200);
-
     return () => window.clearTimeout(preloadSettings);
   }, []);
-
-  // Weekly update state
-  const [weeklyData, setWeeklyData] = useState<WeeklyUpdate | null>(null);
-  const [weeklySource, setWeeklySource] = useState<WeeklyUpdateSource>('placeholder');
-  const [weeklyLoaded, setWeeklyLoaded] = useState(false);
-
-  // Debounce ref
-  const lastGenerateTime = useRef(0);
-  const planRequestIdRef = useRef(0);
-  const objectionRequestIdRef = useRef(0);
-  const planRequestAbortRef = useRef<AbortController | null>(null);
-  const objectionRequestAbortRef = useRef<AbortController | null>(null);
-
-  const cancelPlanRequest = useCallback(() => {
-    planRequestAbortRef.current?.abort();
-    planRequestAbortRef.current = null;
-  }, []);
-
-  const cancelObjectionRequest = useCallback(() => {
-    objectionRequestAbortRef.current?.abort();
-    objectionRequestAbortRef.current = null;
-  }, []);
-
-  const cancelInFlightRequests = useCallback(() => {
-    cancelPlanRequest();
-    cancelObjectionRequest();
-  }, [cancelObjectionRequest, cancelPlanRequest]);
 
   const refreshSessionStats = useCallback(() => {
     try {
@@ -310,40 +281,23 @@ export default function App() {
     }
   }, []);
 
-  const refreshWeeklyData = useCallback(async (signal?: AbortSignal) => {
-    const { data, source } = await loadWeeklyUpdate({ signal });
-    if (signal?.aborted) return null;
-    setWeeklyData(data);
-    setWeeklySource(source);
-    setWeeklyLoaded(true);
-    return { data, source };
-  }, []);
-
-  const handleWeeklyDataRefresh = useCallback(async () => {
-    await refreshWeeklyData();
-  }, [refreshWeeklyData]);
-
   useEffect(() => {
     const controller = new AbortController();
-
-    void refreshWeeklyData(controller.signal).catch((error) => {
+    useSalesStore.getState().refreshWeeklyData(controller.signal).catch((error) => {
       if (!isAbortError(error)) {
         logDevWarning('Weekly update warm-up failed, falling back to local placeholder data.', error);
       }
     });
-
     return () => controller.abort();
-  }, [refreshWeeklyData]);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-
     void warmAIEnhancement({ signal: controller.signal }).catch((error) => {
       if (!isAbortError(error)) {
         logDevWarning('AI enhancement warm-up failed, but the live experience is still available.', error);
       }
     });
-
     return () => controller.abort();
   }, []);
 
@@ -351,7 +305,6 @@ export default function App() {
   const [ecosystemMatrix, setEcosystemMatrix] = useState<EcosystemMatrix | null>(null);
   useEffect(() => {
     const controller = new AbortController();
-
     void loadEcosystemMatrix({ signal: controller.signal })
       .then((data) => {
         if (!controller.signal.aborted && data) {
@@ -363,40 +316,20 @@ export default function App() {
           logDevWarning('Ecosystem matrix warm-up failed, but the app will keep using embedded content.', error);
         }
       });
-
     return () => controller.abort();
   }, []);
 
   useEffect(() => () => cancelInFlightRequests(), [cancelInFlightRequests]);
 
-  const ensureWeeklyDataLoaded = useCallback(async (signal?: AbortSignal) => {
-    if (weeklyLoaded && weeklyData) return weeklyData;
-
-    const loaded = await refreshWeeklyData(signal);
-    if (!loaded) {
-      throw new Error('Weekly data could not be loaded.');
-    }
-    const { data, source } = loaded;
-    setWeeklyData(data);
-    setWeeklySource(source);
-    setWeeklyLoaded(true);
-    return data;
-  }, [refreshWeeklyData, weeklyData, weeklyLoaded]);
-
   const handleContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
     cancelInFlightRequests();
-    planRequestIdRef.current += 1;
-    objectionRequestIdRef.current += 1;
-    setLoading(false);
-    setAnalyzing(false);
-    setEnhancingPlan(false);
-    setEnhancingObjection(false);
+    useSalesStore.setState({
+      loading: false, analyzing: false, enhancingPlan: false, enhancingObjection: false,
+      script: null, objectionResult: null, selectedObjections: [], selectedGamePlanItems: [], error: null
+    });
     const nextContext = typeof value === 'function' ? value(context) : value;
     setContext(nextContext);
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
+    
     if (
       nextContext.purchaseIntent === 'tech support' ||
       nextContext.purchaseIntent === 'order support' ||
@@ -406,216 +339,21 @@ export default function App() {
     } else {
       setActiveTab('gameplan');
     }
-    setError(null);
-  }, [cancelInFlightRequests, context]);
-
-  const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
-    const now = Date.now();
-    if (now - lastGenerateTime.current < 1000) return;
-    lastGenerateTime.current = now;
-
-    cancelPlanRequest();
-    const controller = new AbortController();
-    planRequestAbortRef.current = controller;
-
-    const ctx = overrideContext || context;
-    const requestId = ++planRequestIdRef.current;
-    let localResult: SalesScript | null = null;
-    objectionRequestIdRef.current += 1;
-    setLoading(true);
-    setEnhancingPlan(false);
-    setEnhancingObjection(false);
-    setError(null);
-
-    try {
-      const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
-      if (controller.signal.aborted || planRequestIdRef.current !== requestId) return;
-
-      const result = generateScript(ctx, resolvedWeeklyData);
-      localResult = result;
-      setScript(result);
-      setObjectionResult(null);
-      setSelectedObjections([]);
-      setSelectedGamePlanItems([]);
-      if (!overrideContext) {
-        try {
-          trackPlanGenerated();
-          refreshSessionStats();
-        } catch (trackingError) {
-          logDevWarning('Plan tracking failed, but the game plan was built.', trackingError);
-        }
-      }
-
-      setEnhancingPlan(true);
-      void (async () => {
-        try {
-          const enhancement = await generateScriptEnhancement(ctx, result, resolvedWeeklyData, { signal: controller.signal });
-          if (!enhancement || controller.signal.aborted || planRequestIdRef.current !== requestId) return;
-
-          startTransition(() => {
-            setScript((current) => current ? mergeScriptEnhancement(current, enhancement) : current);
-          });
-        } catch (enhancementError) {
-          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-            console.warn('AI plan enhancement failed, but the local plan is still available.', enhancementError);
-          }
-        } finally {
-          if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
-            setEnhancingPlan(false);
-          }
-        }
-      })();
-    } catch (err) {
-      if (isAbortError(err)) return;
-      if (planRequestIdRef.current !== requestId) return;
-      if (!localResult) {
-        setError('Couldn\'t build your game plan. Try again, and if it keeps happening refresh the app.');
-      } else {
-        logDevWarning('Game plan fallback hit a recoverable issue after local content was already ready.', err);
-      }
-      if (import.meta.env.DEV) {
-        console.error(err);
-      }
-      setEnhancingPlan(false);
-    } finally {
-      if (!controller.signal.aborted && planRequestIdRef.current === requestId) {
-        setLoading(false);
-      }
-      if (planRequestAbortRef.current === controller) {
-        planRequestAbortRef.current = null;
-      }
-    }
-  }, [cancelPlanRequest, context, ensureWeeklyDataLoaded, refreshSessionStats]);
-
-  const handleAnalyzeObjection = useCallback(async () => {
-    if (selectedObjections.length === 0) return;
-
-    cancelObjectionRequest();
-    const controller = new AbortController();
-    objectionRequestAbortRef.current = controller;
-
-    const requestId = ++objectionRequestIdRef.current;
-    let localResult: ObjectionAnalysis | null = null;
-    setAnalyzing(true);
-    setEnhancingObjection(false);
-    setError(null);
-    try {
-      const resolvedWeeklyData = await ensureWeeklyDataLoaded(controller.signal);
-      if (controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
-
-      const result = analyzeObjectionLocal(
-        selectedObjections.join(', '),
-        context,
-        script,
-        selectedGamePlanItems,
-        resolvedWeeklyData,
-      );
-      localResult = result;
-      setObjectionResult(result);
-      try {
-        trackObjectionAnalyzed(selectedObjections);
-        refreshSessionStats();
-      } catch (trackingError) {
-        logDevWarning('Objection tracking failed, but the analysis was built.', trackingError);
-      }
-
-      setEnhancingObjection(true);
-      void (async () => {
-        try {
-          const enhancement = await generateObjectionEnhancement(
-            selectedObjections.join(', '),
-            context,
-            result,
-            resolvedWeeklyData,
-            { signal: controller.signal },
-          );
-
-          if (!enhancement || controller.signal.aborted || objectionRequestIdRef.current !== requestId) return;
-
-          startTransition(() => {
-            setObjectionResult((current) => current ? mergeObjectionEnhancement(current, enhancement) : current);
-          });
-        } catch (enhancementError) {
-          if (!isAbortError(enhancementError) && import.meta.env.DEV) {
-            console.warn('AI objection enhancement failed, but the local analysis is still available.', enhancementError);
-          }
-        } finally {
-          if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
-            setEnhancingObjection(false);
-          }
-        }
-      })();
-    } catch (err) {
-      if (isAbortError(err)) return;
-      if (objectionRequestIdRef.current !== requestId) return;
-      if (!localResult) {
-        setError('Couldn\'t analyze that objection. Try selecting fewer concerns or reset.');
-      } else {
-        logDevWarning('Objection fallback hit a recoverable issue after local analysis was already ready.', err);
-      }
-      if (import.meta.env.DEV) {
-        console.error(err);
-      }
-      setEnhancingObjection(false);
-    } finally {
-      if (!controller.signal.aborted && objectionRequestIdRef.current === requestId) {
-        setAnalyzing(false);
-      }
-      if (objectionRequestAbortRef.current === controller) {
-        objectionRequestAbortRef.current = null;
-      }
-    }
-  }, [cancelObjectionRequest, selectedObjections, context, script, selectedGamePlanItems, ensureWeeklyDataLoaded, refreshSessionStats]);
+  }, [cancelInFlightRequests, context, setContext]);
 
   const reset = useCallback(() => {
-    cancelInFlightRequests();
-    planRequestIdRef.current += 1;
-    objectionRequestIdRef.current += 1;
-    setLoading(false);
-    setAnalyzing(false);
-    setEnhancingPlan(false);
-    setEnhancingObjection(false);
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
-    setContext({
-      age: 'Not Specified',
-      region: 'Not Specified',
-      zipCode: '',
-      product: ['Phone'],
-      purchaseIntent: 'exploring',
-      currentCarrier: 'Not Specified',
-      totalLines: undefined,
-      familyCount: undefined,
-      currentPlatform: 'Not Specified',
-      desiredPlatform: 'Not Specified',
-      hintAvailable: undefined
-    });
+    storeReset();
     setGuidedFlowStep('intent');
-    setError(null);
-    resetRotation();
-  }, [cancelInFlightRequests]);
+  }, [storeReset]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {
-    cancelInFlightRequests();
-    planRequestIdRef.current += 1;
-    objectionRequestIdRef.current += 1;
-    setLoading(false);
-    setAnalyzing(false);
-    setEnhancingPlan(false);
-    setEnhancingObjection(false);
-    setScript(null);
-    setObjectionResult(null);
-    setSelectedObjections([]);
-    setSelectedGamePlanItems([]);
+    storeReset();
     setContext(scenario.context);
     setGuidedFlowStep('intent');
     setActiveTab('gameplan');
-    setError(null);
     setMode('live');
     void handleGenerate(scenario.context);
-  }, [cancelInFlightRequests, handleGenerate]);
+  }, [handleGenerate, setContext, storeReset]);
 
   /** From Level Up practice — loads scenario AND switches to Live */
   const handlePracticeScenario = useCallback((scenario: DemoScenario) => {
@@ -682,10 +420,7 @@ export default function App() {
 
     if (nextMode !== 'live') {
       cancelInFlightRequests();
-      setLoading(false);
-      setAnalyzing(false);
-      setEnhancingPlan(false);
-      setEnhancingObjection(false);
+      useSalesStore.setState({ loading: false, analyzing: false, enhancingPlan: false, enhancingObjection: false });
     }
 
     if (nextMode === 'settings' && mode !== 'offline-coach') {
@@ -707,8 +442,7 @@ export default function App() {
     const nextContext = finalContext ?? context;
     setActiveTab('gameplan');
     setRefineOpen(false);
-    setError(null);
-    lastGenerateTime.current = 0;
+    useSalesStore.setState({ error: null });
 
     try {
       trackIntentUsed(nextContext.purchaseIntent);
@@ -724,7 +458,6 @@ export default function App() {
     setRefineOpen(false);
     handleContextUpdate(nextContext);
     setActiveTab('gameplan');
-    lastGenerateTime.current = 0;
     void handleGenerate(nextContext);
   }, [handleContextUpdate, handleGenerate]);
 
@@ -838,7 +571,7 @@ export default function App() {
                     weeklyData={weeklyData}
                     weeklySource={weeklySource}
                     ecosystemMatrix={ecosystemMatrix}
-                    onDataUpdate={handleWeeklyDataRefresh}
+                    onDataUpdate={() => { void refreshWeeklyData(); }}
                   />
                 </Suspense>
               </ErrorBoundary>
@@ -955,13 +688,15 @@ export default function App() {
 
           {!hasLiveOutput ? (
             <section className="glass-stage mx-auto max-w-2xl rounded-[2rem] p-5 md:p-6">
-              <GuidedContextFlow
-                context={context}
-                setContext={handleContextUpdate}
-                onComplete={handleGuidedComplete}
-                currentStep={guidedFlowStep}
-                onStepChange={setGuidedFlowStep}
-              />
+              <Suspense fallback={<LazySectionFallback label="Guided Flow" />}>
+                <GuidedContextFlow
+                  context={context}
+                  setContext={handleContextUpdate}
+                  onComplete={handleGuidedComplete}
+                  currentStep={guidedFlowStep}
+                  onStepChange={setGuidedFlowStep}
+                />
+              </Suspense>
             </section>
           ) : (
             <div className="space-y-3">
@@ -1013,17 +748,19 @@ export default function App() {
               <AnimatePresence mode="wait">
                 {activeTab === 'objections' && (
                   <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
-                    <ObjectionTab
-                      context={context}
-                      script={script}
-                      selectedObjections={selectedObjections}
-                      setSelectedObjections={setSelectedObjections}
-                      selectedGamePlanItems={selectedGamePlanItems}
-                      objectionResult={objectionResult}
-                      analyzing={analyzing}
-                      onAnalyze={handleAnalyzeObjection}
-                      onClearResult={() => setObjectionResult(null)}
-                    />
+                    <Suspense fallback={<LazySectionFallback label="Objections" />}>
+                      <ObjectionTab
+                        context={context}
+                        script={script}
+                        selectedObjections={selectedObjections}
+                        setSelectedObjections={setSelectedObjections}
+                        selectedGamePlanItems={selectedGamePlanItems}
+                        objectionResult={objectionResult}
+                        analyzing={analyzing}
+                        onAnalyze={handleAnalyzeObjection}
+                        onClearResult={() => setObjectionResult(null)}
+                      />
+                    </Suspense>
                   </div>
                 )}
                 {activeTab === 'troubleshoot' && (
@@ -1071,7 +808,9 @@ export default function App() {
                     )}
 
                     {activeTab === 'gameplan' && script && !loading && (
-                      <LivePlanResults script={script} context={context} />
+                      <Suspense fallback={<LazySectionFallback label="Game Plan Results" />}>
+                        <LivePlanResults script={script} context={context} />
+                      </Suspense>
                     )}
                   </AnimatePresence>
                 </div>
@@ -1101,12 +840,14 @@ export default function App() {
             <span>Shift-safe, no PII, and fully offline. Local plan renders before AI polish.</span>
           </p>
         </div>
-        <LiveRefinePanel
-          open={refineOpen}
-          context={context}
-          onClose={() => setRefineOpen(false)}
-          onApply={handleRefineApply}
-        />
+        <Suspense fallback={null}>
+          <LiveRefinePanel
+            open={refineOpen}
+            context={context}
+            onClose={() => setRefineOpen(false)}
+            onApply={handleRefineApply}
+          />
+        </Suspense>
         </>
 	        </ErrorBoundary>
 	            </motion.section>
