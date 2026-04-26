@@ -40,6 +40,19 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
+/**
+ * Kip's tone is always "hype" on Rep Home (operator-energy, never sleepy), but
+ * the kicker LABEL shifts by shift block so a "Good evening" greeting doesn't
+ * pair with a static "Game on" — keeps the line and the kicker on the same
+ * time-of-day beat without breaking the vibe.
+ */
+function getKipKicker(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Game on';
+  if (hour < 17) return 'Mid-shift';
+  return 'Closing stretch';
+}
+
 function formatDate(): string {
   return new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -119,7 +132,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           greeting={kipGreeting}
           tagline="I’ll flag the play, hype the wins, and shrug the misses. Let’s stack a shift."
           tone="hype"
-          toneLabel="Game on"
+          toneLabel={getKipKicker()}
         />
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">

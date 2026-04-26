@@ -25,8 +25,14 @@ interface KipHeroProps {
   toneLabel?: string;
 }
 
-const HERO_SVG = '/kip/kip-hero.svg';
-const HERO_PNG = '/levelup/runner/portraits/tmobile_sidekick_core_portrait.png';
+// Kip's canonical hero assets. Three-tier loading — animated SVG preferred,
+// static PNG portrait as fallback, Lucide Flame as last resort. Drop EITHER
+// or BOTH files at the paths below and KipHero picks them up automatically.
+// The portrait should be the helmeted-operator Kip from the character sheet
+// (magenta visor, T-Mobile jacket, robotic chrome hands). Do NOT reuse any
+// `/levelup/runner/portraits/*` file — those are unrelated runner-game characters.
+const HERO_SVG = '/kip/hero.svg';
+const HERO_PNG = '/kip/hero.png';
 
 const TONE_KICKER: Record<KipTone, string> = {
   operator: 'Operator',
@@ -58,16 +64,28 @@ const TONE_GLOW: Record<KipTone, string> = {
 type Source = 'svg' | 'png' | 'fallback';
 
 export default function KipHero({ greeting, tagline, tone = 'hype', toneLabel }: KipHeroProps) {
-  // Probe the SVG once; fall back to PNG if it 404s. We never block paint:
-  // the PNG renders immediately while the probe runs.
-  const [source, setSource] = useState<Source>('png');
+  // Default to the Lucide fallback so we never paint a broken image. Probe
+  // the SVG and PNG in priority order; switch to whichever loads. If neither
+  // exists yet (Kip art not dropped in /kip/), the Flame fallback stays.
+  const [source, setSource] = useState<Source>('fallback');
 
   useEffect(() => {
     let cancelled = false;
-    const probe = new Image();
-    probe.onload = () => { if (!cancelled) setSource('svg'); };
-    probe.onerror = () => { if (!cancelled) setSource('png'); };
-    probe.src = HERO_SVG;
+    const tryLoad = (src: string) => new Promise<boolean>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    });
+    (async () => {
+      if (await tryLoad(HERO_SVG)) {
+        if (!cancelled) setSource('svg');
+        return;
+      }
+      if (await tryLoad(HERO_PNG)) {
+        if (!cancelled) setSource('png');
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
 
@@ -81,7 +99,7 @@ export default function KipHero({ greeting, tagline, tone = 'hype', toneLabel }:
       }}
     >
       <div className="flex items-start gap-4 sm:gap-5">
-        <KipPortrait source={source} onPngFail={() => setSource('fallback')} tone={tone} />
+        <KipPortrait source={source} tone={tone} />
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">
             <Radio className="h-3 w-3" aria-hidden="true" />
@@ -103,11 +121,10 @@ export default function KipHero({ greeting, tagline, tone = 'hype', toneLabel }:
 
 interface KipPortraitProps {
   source: Source;
-  onPngFail: () => void;
   tone: KipTone;
 }
 
-function KipPortrait({ source, onPngFail, tone }: KipPortraitProps) {
+function KipPortrait({ source, tone }: KipPortraitProps) {
   const glow = TONE_GLOW[tone];
   return (
     <div
@@ -131,32 +148,32 @@ function KipPortrait({ source, onPngFail, tone }: KipPortraitProps) {
         }}
       />
 
-      {source === 'svg' && (
-        <img
-          src={HERO_SVG}
-          alt="Kip"
-          className="kip-breathe relative h-full w-full object-cover"
-          // SVG is built to its viewBox; no scale gymnastics needed.
-        />
-      )}
-      {source === 'png' && (
-        <img
-          src={HERO_PNG}
-          alt="Kip"
-          className="kip-breathe relative h-full w-full object-cover"
-          loading="lazy"
-          // Crop to operator's chest-up framing. The asset is square but
-          // includes some headroom + foot space; this lifts the eyeline.
-          style={{ transform: 'scale(1.12) translateY(2%)', transformOrigin: 'center 36%' }}
-          onError={onPngFail}
-        />
-      )}
-      {source === 'fallback' && (
-        <div className="relative flex h-full w-full items-center justify-center text-white">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.45),transparent_42%)]" />
-          <Flame className="kip-breathe relative h-12 w-12" />
-        </div>
-      )}
+      {/* The breathing animation lives on a wrapper so its transform: scale()
+          keyframes don't clobber the crop transform on the inner <img>. */}
+      <div className="kip-breathe relative h-full w-full">
+        {source === 'svg' && (
+          <img
+            src={HERO_SVG}
+            alt="Kip"
+            className="relative h-full w-full object-cover"
+            // SVG is built to its viewBox; no scale gymnastics needed.
+          />
+        )}
+        {source === 'png' && (
+          <img
+            src={HERO_PNG}
+            alt="Kip"
+            className="relative h-full w-full object-cover"
+            loading="lazy"
+          />
+        )}
+        {source === 'fallback' && (
+          <div className="relative flex h-full w-full items-center justify-center text-white">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.45),transparent_42%)]" />
+            <Flame className="relative h-12 w-12" />
+          </div>
+        )}
+      </div>
 
       {/* Soft top-left specular shine kept consistent with KipBadge. */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.32),transparent_44%)]" />
