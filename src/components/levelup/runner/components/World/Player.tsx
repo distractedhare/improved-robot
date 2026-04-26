@@ -11,6 +11,7 @@ import { useStore } from '../../store';
 import { GameStatus, LANE_WIDTH, type CharacterId } from '../../types';
 import { getCharacterDefinition } from '../../content';
 import { audio } from '../System/Audio';
+import { SceneErrorBoundary } from './Environment';
 
 const GRAVITY = 50;
 const JUMP_FORCE = 16;
@@ -479,19 +480,23 @@ export const Player: React.FC = () => {
         />
       </mesh>
 
-      {/* Speed trail — follows an invisible anchor at torso height. */}
-      <Trail
-        width={0.55}
-        length={trailLength}
-        color={trailColor}
-        attenuation={(t: number) => t * t}
-        decay={4}
-      >
-        <mesh ref={trailAnchorRef} position={[0, 1.1, 0.1]}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshBasicMaterial transparent opacity={0} />
-        </mesh>
-      </Trail>
+      {/* Speed trail — follows an invisible anchor at torso height.
+          Wrapped because drei's Trail can null-deref its anchor during
+          retry/remount; isolating keeps the player rendering. */}
+      <SceneErrorBoundary>
+        <Trail
+          width={0.55}
+          length={trailLength}
+          color={trailColor}
+          attenuation={(t: number) => t * t}
+          decay={4}
+        >
+          <mesh ref={trailAnchorRef} position={[0, 1.1, 0.1]}>
+            <sphereGeometry args={[0.05, 8, 8]} />
+            <meshBasicMaterial transparent opacity={0} />
+          </mesh>
+        </Trail>
+      </SceneErrorBoundary>
 
       <group ref={bodyRef} position={[0, 1.05, 0]}>
         <mesh geometry={TORSO_GEO} material={materials.armor} scale={silhouette.torsoScale} castShadow />

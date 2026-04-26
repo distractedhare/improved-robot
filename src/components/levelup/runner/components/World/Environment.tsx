@@ -11,6 +11,25 @@ import * as THREE from 'three';
 import { useStore } from '../../store';
 import { LANE_WIDTH } from '../../types';
 
+/**
+ * Scene-safe error boundary. Renders `null` on failure so a single broken
+ * effect (e.g. MeshReflectorMaterial render-target alloc on a low-end GPU,
+ * a Trail null-deref during remount) drops just that piece instead of
+ * killing the whole Canvas.
+ *
+ * The app-level ErrorBoundary renders DOM JSX as fallback, which crashes
+ * inside `<Canvas>` — three.js JSX only. Hence this minimal local one.
+ */
+interface SceneBoundaryState { hasError: boolean }
+export class SceneErrorBoundary extends React.Component<React.PropsWithChildren, SceneBoundaryState> {
+  state: SceneBoundaryState = { hasError: false };
+  static getDerivedStateFromError(): SceneBoundaryState { return { hasError: true }; }
+  componentDidCatch(error: Error) {
+    if (import.meta.env.DEV) console.warn('[runner scene] suppressed:', error.message);
+  }
+  render() { return this.state.hasError ? null : this.props.children; }
+}
+
 const StarField: React.FC = () => {
   const speed = useStore(state => state.speed);
   const status = useStore(state => state.status);
@@ -501,6 +520,8 @@ const SynthwaveCity: React.FC = () => {
 export const Environment: React.FC = () => {
   return (
     <>
+      {/* Canvas clear color — fallback if SkyDome shader fails to compile. */}
+      <color attach="background" args={['#02000a']} />
       <fog attach="fog" args={['#1a0420', 40, 130]} />
 
       <ambientLight intensity={0.4} color="#E20074" />
@@ -512,7 +533,11 @@ export const Environment: React.FC = () => {
       <MagentaHorizon />
       <SynthwaveCity />
       <MovingGrid />
-      <LaneFloor />
+      {/* Reflector can throw on GPUs without half-float render targets;
+          isolate so the rest of the scene still renders. */}
+      <SceneErrorBoundary>
+        <LaneFloor />
+      </SceneErrorBoundary>
 
       <RetroSun />
     </>

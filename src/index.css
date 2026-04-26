@@ -50,6 +50,7 @@
   --color-tooltip-foreground: var(--tooltip-foreground);
 
   --font-sans: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-cyber: "Orbitron", "Exo 2", "Poppins", ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
 }
 
 :root {
