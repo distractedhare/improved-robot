@@ -55,21 +55,22 @@ export default function DeviceImage({
   const currentSource = sources[fallbackIndex];
   const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
   const [loaded, setLoaded] = useState(false);
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Reset loaded state during render when the source changes — avoids the race
+  // where a cached image's onLoad fires before a useEffect-driven reset runs.
+  if (currentSource !== loadedSource && loaded) {
     setLoaded(false);
-  }, [currentSource]);
+  }
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {currentSource ? (
         <>
-          {!loaded ? (
-            <div
-              aria-hidden="true"
-              className="device-image-skeleton absolute inset-0"
-            />
-          ) : null}
+          <div
+            aria-hidden="true"
+            className={`device-image-skeleton pointer-events-none absolute inset-0 transition-opacity duration-200 ${loaded ? 'opacity-0' : 'opacity-100'}`}
+          />
           <img
             src={currentSource}
             alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
@@ -77,9 +78,13 @@ export default function DeviceImage({
             loading="lazy"
             width={160}
             height={160}
-            onLoad={() => setLoaded(true)}
+            onLoad={() => {
+              setLoaded(true);
+              setLoadedSource(currentSource);
+            }}
             onError={() => {
               setLoaded(false);
+              setLoadedSource(null);
               setFallbackIndex((current) => current + 1);
             }}
           />

@@ -335,7 +335,7 @@ function MetricChip({
 }) {
   return (
     <div className="glass-reading min-w-0 rounded-[1.2rem] px-3 py-2.5">
-      <div className="flex items-center gap-1.5 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.14em] text-t-magenta sm:tracking-[0.2em]">
+      <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.14em] text-t-magenta sm:tracking-[0.2em]">
         <Icon className="h-3 w-3 shrink-0" />
         <span className="truncate">{label}</span>
       </div>

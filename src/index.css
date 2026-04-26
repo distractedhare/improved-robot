@@ -491,10 +491,20 @@ a,
 
 @utility text-gradient-magenta {
   color: #E20074;
-  background: linear-gradient(135deg, #E20074, #861B54);
-  background-clip: text;
-  -webkit-background-clip: text;
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    background: linear-gradient(135deg, #E20074, #861B54);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+@utility text-gradient-bingo {
+  color: #FFFFFF;
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    background: linear-gradient(135deg, #FFFFFF 0%, #E20074 55%, #861B54 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 }
