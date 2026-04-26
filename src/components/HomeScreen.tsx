@@ -98,7 +98,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             </span>
           </div>
           <div>
-            <h1 className="text-gradient-magenta mb-1 font-black tracking-tight [font-size:clamp(1.625rem,7vw,3rem)] lg:text-5xl">
+            <h1 className="text-gradient-magenta mb-1 font-black tracking-tight [font-size:clamp(1.375rem,7vw,3rem)] lg:text-5xl">
               {getGreeting()} {role.icon}
             </h1>
             <p className="text-sm font-bold text-t-dark-gray sm:text-base">
