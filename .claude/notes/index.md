@@ -10,4 +10,5 @@ entries roll off the bottom as new sessions are added.
 
 ---
 
+- **2026-04-26-02** · Agent framework recap + planning checkpoint on next app-work item → [`sessions/2026-04-26-02.md`](sessions/2026-04-26-02.md)
 - **2026-04-25-01** · Kip prevalence + runner visual elevation + launcher + librarian setup → [`sessions/2026-04-25-01.md`](sessions/2026-04-25-01.md)
