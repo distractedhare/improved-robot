@@ -7,7 +7,11 @@
       "mcp__github__list_commits",
       "mcp__github__search_pull_requests",
       "Bash(npm run lint)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Write(./.claude/notes/**)",
+      "Edit(./.claude/notes/**)",
+      "Write(./.claude/agents/**)",
+      "Edit(./.claude/agents/**)"
     ]
   },
   "hooks": {

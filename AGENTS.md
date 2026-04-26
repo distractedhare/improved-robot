@@ -158,3 +158,17 @@ See `.salvage-from-pwa/README.md`. Three components (`SupportPanel.tsx`,
 `TransferBailout.tsx`, `LearnTagGroup.tsx`) from the retired pwa fork are
 preserved there. They may or may not fit this repo's current architecture —
 review before porting in.
+
+---
+
+## 7. Subagents
+
+This project ships a roster of Claude Code subagents in `.claude/agents/`.
+Five are fully-fleshed personas (`librarian`, `qa-engineer`, `sales-trainer`,
+`kip-systems-designer`, `product-engineer`) and five are stubs awaiting
+demand-driven promotion (`ux-designer`, `data-analyst`, `product-manager`,
+`visual-designer`, `devops`). The librarian handles cross-session memory and
+is authorized to promote stubs to full agents per the criteria in
+`.claude/agents/README.md` — that README is the canonical roster, when-to-
+invoke guide, and promotion-rules document. Read it before adding or
+modifying any agent.
