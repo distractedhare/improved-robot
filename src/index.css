@@ -510,6 +510,28 @@ a,
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
+@keyframes kip-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
+}
+@keyframes kip-glow-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
+}
+@utility kip-breathe {
+  animation: kip-breathe 5.4s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+@utility kip-glow-pulse {
+  animation: kip-glow-pulse 3.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kip-breathe,
+  .kip-glow-pulse {
+    animation: none;
+  }
+}
+
 @utility card-success-glow {
   box-shadow: 0 0 16px rgba(0, 165, 80, 0.14), 0 8px 24px rgba(0, 165, 80, 0.08);
   border-color: rgba(0, 165, 80, 0.24);
