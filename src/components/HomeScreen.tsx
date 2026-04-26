@@ -19,6 +19,7 @@ import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { pickKipGreeting } from '../services/kip/kipVoice';
 import { getPrizeData } from '../services/prizeService';
+import { KipHero } from './kip';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -37,6 +38,19 @@ function getGreeting(): string {
   if (hour < 12) return 'Good morning';
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
+}
+
+/**
+ * Kip's tone is always "hype" on Rep Home (operator-energy, never sleepy), but
+ * the kicker LABEL shifts by shift block so a "Good evening" greeting doesn't
+ * pair with a static "Game on" — keeps the line and the kicker on the same
+ * time-of-day beat without breaking the vibe.
+ */
+function getKipKicker(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Game on';
+  if (hour < 17) return 'Mid-shift';
+  return 'Closing stretch';
 }
 
 function formatDate(): string {
@@ -114,36 +128,12 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           </div>
         </div>
 
-        <div
-          className="relative overflow-hidden rounded-[1.85rem] p-5 sm:p-6"
-          style={{
-            background:
-              'radial-gradient(ellipse at top left, rgba(226,0,116,0.18), transparent 55%), linear-gradient(180deg, rgba(226,0,116,0.08), rgba(0,0,0,0.04))',
-            border: '1px solid rgba(226,0,116,0.22)',
-          }}
-        >
-          <div className="flex items-start gap-4 sm:gap-5">
-            <div
-              className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[1.4rem] bg-t-magenta text-white shadow-[0_22px_44px_-22px_rgba(226,0,116,0.95)] sm:h-20 sm:w-20 sm:rounded-[1.6rem]"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.45),transparent_42%)]" />
-              <Flame className="relative h-8 w-8 sm:h-10 sm:w-10" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-t-magenta">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-t-magenta" />
-                Kip · Game on
-              </p>
-              <p className="mt-2 text-base font-black leading-snug text-foreground sm:text-lg">
-                {kipGreeting}
-              </p>
-              <p className="mt-1.5 text-[11px] font-medium leading-relaxed text-t-dark-gray sm:text-xs">
-                I’ll flag the play, hype the wins, and shrug the misses. Let’s stack a shift.
-              </p>
-            </div>
-          </div>
-        </div>
+        <KipHero
+          greeting={kipGreeting}
+          tagline="I’ll flag the play, hype the wins, and shrug the misses. Let’s stack a shift."
+          tone="hype"
+          toneLabel={getKipKicker()}
+        />
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           <MetricChip
