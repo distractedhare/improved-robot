@@ -10,4 +10,5 @@ entries roll off the bottom as new sessions are added.
 
 ---
 
+- **2026-04-27-01-qa-index** · QA pass working index → [`sessions/2026-04-27-01-qa-index.md`](sessions/2026-04-27-01-qa-index.md)
 - **2026-04-25-01** · Kip prevalence + runner visual elevation + launcher + librarian setup → [`sessions/2026-04-25-01.md`](sessions/2026-04-25-01.md)
