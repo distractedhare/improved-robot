@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 .vercel
+.tmp.driveupload/
+.tmp.original_levelup.tsx
+.deprecated/test-artifacts/

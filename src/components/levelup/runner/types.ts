@@ -146,7 +146,9 @@ export interface BossDefinition {
   id: string;
   name: string;
   title: string;
-  threatLevel: 'MiniBoss' | 'Boss' | 'FinalBoss';
+  // 'HiddenArchitect' is reserved for lore-only entities (e.g. Bell Sovereign)
+  // that exist as content stubs but are not wired into the level progression.
+  threatLevel: 'MiniBoss' | 'Boss' | 'FinalBoss' | 'HiddenArchitect';
   faction: string;
   fantasy: string;
   visualTheme: string;

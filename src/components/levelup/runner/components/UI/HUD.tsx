@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   Activity,
@@ -37,6 +37,57 @@ import { TriviaModal } from './TriviaModal';
 import { TUTORIAL_DATA, TutorialOverlay } from './TutorialOverlay';
 import { audio } from '../System/Audio';
 import { pickKipLine } from '../../../../../services/kip/kipVoice';
+import type { KipMood } from '../../../../../types/kip';
+
+// Battery state vocabulary. Research lock: four named states mapped from
+// the raw battery/maxBattery ratio. The ratio can exceed 100 if the player
+// has battery upgrades; that's "overcharged".
+type BatteryState = 'overcharged' | 'stable' | 'redline' | 'critical';
+
+const BATTERY_STATE_LABEL: Record<BatteryState, string> = {
+  overcharged: 'Overcharged',
+  stable: 'Stable',
+  redline: 'Redline',
+  critical: 'Critical',
+};
+
+const BATTERY_STATE_COLOR: Record<BatteryState, string> = {
+  overcharged: '#FF4DFF',
+  stable: 'rgba(255,255,255,0.62)',
+  redline: '#FFB23E',
+  critical: '#FF3060',
+};
+
+const BATTERY_STATE_TO_MOOD: Record<BatteryState, KipMood> = {
+  overcharged: 'runnerBatteryOvercharged',
+  stable: 'runnerBatteryStable',
+  redline: 'runnerBatteryRedline',
+  critical: 'runnerBatteryCritical',
+};
+
+// Rank lets us detect downward transitions without writing a 4×4 case table.
+const BATTERY_STATE_RANK: Record<BatteryState, number> = {
+  critical: 0,
+  redline: 1,
+  stable: 2,
+  overcharged: 3,
+};
+
+function getBatteryState(rawPercent: number): BatteryState {
+  if (rawPercent > 100) return 'overcharged';
+  if (rawPercent > 40) return 'stable';
+  if (rawPercent > 15) return 'redline';
+  return 'critical';
+}
+
+// Loss-screen subtitle bank — research-blessed framings (battery drain /
+// signal collapse / power loss). Picked deterministically per run so it
+// varies without feeling random.
+const RUN_END_LOSS_SUBTITLES: readonly string[] = [
+  'Battery drained. Save the run state, swap tactics, and run it back.',
+  'Signal collapsed. Save the run, switch hands, go again.',
+  'Power loss. Bank the read, swap loadouts, run it back.',
+] as const;
 
 const SHOP_ITEMS: ShopItem[] = [
   {
@@ -1307,7 +1358,9 @@ const EndScreen = ({
         <div className="text-sm text-white/55 mt-2 max-w-xl mx-auto leading-relaxed">
           {victory
             ? 'You cleared the arc, stacked the value story, and turned the run into a highlight reel.'
-            : 'The floor hit back. Save the run state, swap tactics, and go again with meaner hands.'}
+            : RUN_END_LOSS_SUBTITLES[
+                Math.abs(score + level) % RUN_END_LOSS_SUBTITLES.length
+              ]}
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mt-8">
@@ -1453,8 +1506,48 @@ const PlayingHUD = () => {
 
   const character = getCharacterDefinition(selectedCharacterId);
   const currentBoss = getBossDefinition(currentBossId);
-  const batteryRatio = Math.min(100, Math.max(0, (battery / Math.max(1, maxBattery)) * 100));
+  const batteryRawPercent = (battery / Math.max(1, maxBattery)) * 100;
+  const batteryRatio = Math.min(100, Math.max(0, batteryRawPercent));
   const batteryPercent = Math.round(batteryRatio);
+  const batteryState = getBatteryState(batteryRawPercent);
+
+  // Local Kip toast for battery state transitions. Throttled by state name —
+  // one fire per downward transition, then a 4.5s timeout to clear. Doesn't
+  // touch the runner store, so it can't desync with the existing currentFact
+  // ticker beside it.
+  const lastBatteryStateRef = useRef<BatteryState>(batteryState);
+  const [kipToast, setKipToast] = useState<string | null>(null);
+  const kipToastTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const previous = lastBatteryStateRef.current;
+    if (previous !== batteryState) {
+      const wasDownward =
+        BATTERY_STATE_RANK[batteryState] < BATTERY_STATE_RANK[previous];
+      if (wasDownward) {
+        const mood = BATTERY_STATE_TO_MOOD[batteryState];
+        setKipToast(pickKipLine(mood, `${batteryState}:${level}`));
+        if (kipToastTimerRef.current !== null) {
+          window.clearTimeout(kipToastTimerRef.current);
+        }
+        kipToastTimerRef.current = window.setTimeout(() => {
+          setKipToast(null);
+          kipToastTimerRef.current = null;
+        }, 4500);
+      }
+      lastBatteryStateRef.current = batteryState;
+    }
+  }, [batteryState, level]);
+
+  useEffect(
+    () => () => {
+      if (kipToastTimerRef.current !== null) {
+        window.clearTimeout(kipToastTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const activeStatuses = [
     { label: 'Shield', active: isImmortalityActive, accent: '#ffffff' },
     { label: 'Magnet', active: isMagnetActive, accent: '#ffd74d' },
@@ -1512,6 +1605,14 @@ const PlayingHUD = () => {
                     />
                   </div>
                   <span className="text-[9px] font-black tabular-nums text-white/65">{batteryPercent}%</span>
+                  <span
+                    className={`text-[8px] font-black uppercase tracking-[0.18em] sm:text-[9px] ${
+                      batteryState === 'critical' ? 'animate-pulse' : ''
+                    }`}
+                    style={{ color: BATTERY_STATE_COLOR[batteryState] }}
+                  >
+                    {BATTERY_STATE_LABEL[batteryState]}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1576,6 +1677,24 @@ const PlayingHUD = () => {
           >
             <div className="text-[9px] uppercase tracking-[0.28em] text-[#E20074] mb-1">Knowledge pulse</div>
             <div className="text-xs leading-snug text-white/85">{currentFact}</div>
+          </motion.div>
+        )}
+        {kipToast && (
+          <motion.div
+            key={kipToast}
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.96 }}
+            className="pointer-events-none absolute bottom-3 left-3 z-50 max-w-[14rem] rounded-2xl border bg-black/72 p-3 backdrop-blur-xl sm:bottom-4 sm:left-4 sm:max-w-xs sm:rounded-[1.2rem]"
+            style={{ borderColor: `${BATTERY_STATE_COLOR[batteryState]}55` }}
+          >
+            <div
+              className="text-[9px] uppercase tracking-[0.28em] mb-1"
+              style={{ color: BATTERY_STATE_COLOR[batteryState] }}
+            >
+              Kip · {BATTERY_STATE_LABEL[batteryState]}
+            </div>
+            <div className="text-xs leading-snug text-white/90">{kipToast}</div>
           </motion.div>
         )}
       </AnimatePresence>

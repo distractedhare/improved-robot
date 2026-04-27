@@ -66,9 +66,9 @@ const LINES: Record<KipMood, readonly string[]> = {
   ],
 
   liveExploring: [
-    'Find the why. Skip the spec sheet.',
+    'Read the room first.',
     'One question. Then listen.',
-    'Don’t pitch yet. Read the room.',
+    'Hold the pitch. Find the why.',
   ],
   liveReadyToBuy: [
     'They’re nodding. Don’t over-sell.',
@@ -76,9 +76,9 @@ const LINES: Record<KipMood, readonly string[]> = {
     'Ready buyer. Stay clean.',
   ],
   liveUpgrade: [
-    'Make the upgrade a value story, not a price story.',
-    'Lead with what changes for them.',
-    'Reframe the upgrade. Make it personal.',
+    'Upgrade lane. Lead with what changes.',
+    'Make it personal. Skip the spec sheet.',
+    'Value story first. Price after.',
   ],
   liveTechSupport: [
     'Fix it first. Earn the pivot.',
@@ -86,19 +86,19 @@ const LINES: Record<KipMood, readonly string[]> = {
     'Tech first. Sales follows.',
   ],
   liveAccountSupport: [
-    'Make it feel simple and safe.',
+    'Calm voice. Simple steps.',
     'Lower the temperature. Then move.',
-    'Account lane. Calm voice.',
+    'Account lane. Keep it safe.',
   ],
   liveOrderSupport: [
-    'Lower order anxiety before the next step.',
-    'Reassure, then offer.',
-    'Order lane. Don’t stack add-ons yet.',
+    'Reassure first. Offer after.',
+    'Order lane. Don’t stack add-ons.',
+    'Steady the order. Read the room.',
   ],
   liveSupportFocus: [
     'Stabilize the lane first.',
     'One issue at a time.',
-    'Hold the pitch. Fix the issue.',
+    'Fix it. Then pivot.',
   ],
 
   pivotHintBlocked: [
@@ -188,21 +188,59 @@ const LINES: Record<KipMood, readonly string[]> = {
   ],
 
   teaseRecital: [
-    'Try to skip the spec recital this round.',
-    'Less spec sheet, more story.',
+    'Skip the spec recital. Tell it.',
+    'Less spec sheet. More story.',
   ],
   teaseOverbuild: [
-    'Easy on the stack. Anchor first.',
-    'Cool the bundle. Read first.',
+    'Cool the stack. Anchor first.',
+    'Slow the bundle. Read first.',
   ],
 
   briefingLearn: [
-    'Read it once. Translate it once. Now you own it.',
-    'Pick one beat. Run it on the next call.',
+    'One beat. Run it next call.',
+    'Translate it once. Now you own it.',
   ],
   briefingPractice: [
-    'Pick one scenario. Run it for real.',
+    'One scenario. For real.',
     'Reps, then results.',
+  ],
+
+  // Runner moods. Operator voice — short, no instruction, no explanation.
+  runnerBatteryOvercharged: [
+    'Battery hot. Push the lane.',
+    'Overcharged. Stack the run.',
+    'Power up. Hunt cells.',
+  ],
+  runnerBatteryStable: [
+    'Battery clean. Keep the read.',
+    'Stable. Eyes up.',
+    'Power steady. Run it.',
+  ],
+  runnerBatteryRedline: [
+    'Battery low. Push smart.',
+    'Red-line. Pick your spots.',
+    'Power dipping. Hunt cells.',
+  ],
+  runnerBatteryCritical: [
+    'Critical. Find a battery.',
+    'Power thin. One clean lane.',
+    'Last sliver. Don’t panic.',
+  ],
+  runnerLaneRead: [
+    'Clean lane left.',
+    'Right open. Shift.',
+    'Center clear.',
+    'Lane swap. Now.',
+  ],
+  runnerBossPhase: [
+    'Phase shift. Watch the read.',
+    'Boss switching gears.',
+    'New pattern. Eyes up.',
+  ],
+  runnerRunEnd: [
+    'Battery drain. Run logged.',
+    'Signal collapsed. Reset.',
+    'Power loss. Run it back.',
   ],
 };
 

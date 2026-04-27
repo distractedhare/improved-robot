@@ -648,6 +648,41 @@ export const RUNNER_BOSSES: BossDefinition[] = [
     ],
     milestoneLevel: 5,
   },
+  {
+    // Lore-only stub. Bell Sovereign is the monopoly machine at the center of
+    // the grid — visible in skylines, billboard fragments, loading-screen
+    // propaganda. Not yet a fightable boss. milestoneLevel:6 keeps it out of
+    // getBossForLevel/getBossForProgress for any current run (levels 1-5).
+    id: 'bell_sovereign',
+    name: 'Bell Sovereign',
+    title: 'The Monopoly Machine',
+    threatLevel: 'HiddenArchitect',
+    faction: 'The Old Network Order',
+    fantasy:
+      'The unseen architect at the center of the grid — a legacy monopoly that bought the wires, the towers, and the rules, and turned connection into rent. Watching from billboards and skylines. Not fightable. Yet.',
+    visualTheme:
+      'Brass cathedral with bell-shaped lower body, ornate copper-and-rust mechanical detail, glowing magenta core eyes at the top, illuminated bell-mark sigil at the chest. Reads like a religious icon to the old monopoly.',
+    // Wired to the cropped glory render from Bell Character 1 master sheet.
+    // Used by the loading-screen propaganda card. WebP-first via <picture>.
+    assets: {
+      banner: '/levelup/runner/bosses/bell-banner.png',
+      hudPortrait: '/levelup/runner/bosses/bell-banner.png',
+      avatarSmall: '/levelup/runner/bosses/bell-banner.png',
+    },
+    accent: '#C9A24A',
+    secondary: '#E8C547',
+    emblem: '⚜',
+    mechanics: [
+      'Appears as background lore — billboards, skylines, loading-screen text',
+      'Suppresses the grid silently; never engages a runner directly',
+      'Reserved for future arc structure (Bell finale)',
+    ],
+    counterplay: [
+      'Not yet engageable; lore-only presence',
+      'Future: gauntlet structure with boss-specific suppression and crescendo',
+    ],
+    milestoneLevel: 6,
+  },
 ];
 
 export const PRIMARY_BOSS = RUNNER_BOSSES.find((boss) => boss.id === 'dead_zone_titan') ?? RUNNER_BOSSES[0];

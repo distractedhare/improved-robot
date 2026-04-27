@@ -15,6 +15,15 @@ const difficultyLabel = (difficulty: number) => {
   return 'Elite';
 };
 
+// Header kicker variants. Most prompts are a "Signal Check"; HESITATION-
+// prefixed prompts (the customer-objection beats) escalate to "Kip Challenge";
+// elite-difficulty signals get the "Bonus Round" treatment.
+const triviaSurfaceLabel = (question: string, difficulty: number): string => {
+  if (question.startsWith('HESITATION:')) return 'Kip Challenge';
+  if (difficulty >= 4) return 'Bonus Round';
+  return 'Signal Check';
+};
+
 export const TriviaModal: React.FC = () => {
   const currentTriviaQuestion = useStore((state) => state.currentTriviaQuestion);
   const triviaFeedback = useStore((state) => state.triviaFeedback);
@@ -22,6 +31,11 @@ export const TriviaModal: React.FC = () => {
   const closeTrivia = useStore((state) => state.closeTrivia);
 
   if (!currentTriviaQuestion) return null;
+
+  const surfaceLabel = triviaSurfaceLabel(
+    currentTriviaQuestion.question,
+    currentTriviaQuestion.difficulty,
+  );
 
   return (
     <div className="absolute inset-0 z-[120] bg-black/65 backdrop-blur-2xl p-4 flex items-center justify-center pointer-events-auto">
@@ -36,8 +50,8 @@ export const TriviaModal: React.FC = () => {
               {currentTriviaQuestion.question.startsWith('HESITATION:') ? <ShieldAlert size={24} /> : <Brain size={24} />}
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-[0.35em] text-white/65">Knowledge check</div>
-              <div className="text-2xl font-black font-cyber italic">{difficultyLabel(currentTriviaQuestion.difficulty)} prompt</div>
+              <div className="text-[10px] uppercase tracking-[0.35em] text-white/65">{surfaceLabel}</div>
+              <div className="text-2xl font-black font-cyber italic">{difficultyLabel(currentTriviaQuestion.difficulty)} signal</div>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">

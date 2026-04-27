@@ -61,7 +61,17 @@ export type KipMood =
   | 'teaseRecital'
   | 'teaseOverbuild'
   | 'briefingLearn'
-  | 'briefingPractice';
+  | 'briefingPractice'
+  // Runner-specific moods. Operator voice only — these fire from the
+  // runner HUD when battery state changes, lanes open, bosses phase,
+  // or the run ends. See plan: Pass 1 (text + voice).
+  | 'runnerBatteryOvercharged'
+  | 'runnerBatteryStable'
+  | 'runnerBatteryRedline'
+  | 'runnerBatteryCritical'
+  | 'runnerLaneRead'
+  | 'runnerBossPhase'
+  | 'runnerRunEnd';
 
 export interface KipMessage {
   id: string;

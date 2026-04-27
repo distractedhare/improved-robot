@@ -5,8 +5,69 @@ import { createRunnerHostBridge } from './hostBridge';
 import MagentaRunner from '../MagentaRunner';
 import { useStore as useRunnerStore } from './store';
 import { GameStatus } from './types';
-import { getCharacterDefinition } from './content';
+import { getCharacterDefinition, RUNNER_BOSSES } from './content';
 import { pickKipLine } from '../../../services/kip/kipVoice';
+
+/**
+ * Bell Sovereign propaganda strip — surfaces the lore-only HiddenArchitect
+ * boss while the rep waits for the runner to load. Pure ornament: no
+ * gameplay, no progression, no clickable affordance. Just enough to plant
+ * the idea that something larger is watching the grid.
+ */
+function BellPropagandaStrip() {
+  const bell = RUNNER_BOSSES.find((b) => b.id === 'bell_sovereign');
+  if (!bell || !bell.assets?.banner) return null;
+  return (
+    <div
+      className="mt-6 grid items-stretch gap-4 overflow-hidden rounded-[1.4rem] border bg-[linear-gradient(135deg,rgba(8,4,0,0.85),rgba(0,0,0,0.92))] p-3 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-5 sm:p-4"
+      style={{ borderColor: `${bell.accent}33` }}
+      aria-label="Bell Sovereign — lore preview"
+    >
+      <div
+        className="relative overflow-hidden rounded-[1.05rem] border bg-black"
+        style={{ borderColor: `${bell.accent}55` }}
+      >
+        <picture>
+          <source srcSet={bell.assets.banner.replace(/\.png$/, '.webp')} type="image/webp" />
+          <img
+            src={bell.assets.banner}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="h-full w-full object-cover object-top"
+          />
+        </picture>
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%)',
+          }}
+        />
+      </div>
+      <div className="min-w-0 text-left">
+        <p
+          className="text-[9px] font-black uppercase tracking-[0.32em]"
+          style={{ color: bell.accent }}
+        >
+          {bell.faction}
+        </p>
+        <h4 className="mt-1 text-base font-black uppercase leading-snug text-white sm:text-lg">
+          {bell.name}
+        </h4>
+        <p className="mt-1 text-[11px] font-medium leading-relaxed text-white/65 sm:text-xs">
+          {bell.fantasy}
+        </p>
+        <p
+          className="mt-2 text-[9px] font-black uppercase tracking-[0.28em]"
+          style={{ color: bell.accent }}
+        >
+          Always on. Always sovereign.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const RunnerApp = lazy(() => import('./App'));
 
@@ -462,6 +523,7 @@ export default function RunnerTab({ immersive = false, launched = false, onLaunc
             <p className="mt-3 text-sm font-medium leading-relaxed text-white/75">
               Pulling in live quiz content, weekly facts, and your saved runner progress before the track opens.
             </p>
+            <BellPropagandaStrip />
           </div>
         </div>
       </div>
