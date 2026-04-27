@@ -1,6 +1,8 @@
-> Working note for the 2026-04-27 QA pass. Not a session log.
+# QA pass index · 2026-04-27 · `claude/qa-with-librarian-ixjrF`
 
-# 2026-04-27-01 · QA INDEX (executive-polish pass on `claude/qa-with-librarian-ixjrF`)
+> Working note, not a session log. Lives outside `sessions/` so the
+> `YYYY-MM-DD-NN.md` convention there is preserved. The end-of-block
+> session log lands separately under `.claude/notes/sessions/`.
 
 Parallel-dispatch index. One area per block. Each block names highest-risk surfaces, the verification ask, and any prior lesson that constrains the check.
 
