@@ -457,15 +457,10 @@ export const CHARACTERS: CharacterDefinition[] = [
     cardImage: '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
     assets: {
       fullCard: '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
-      heroBanner: '/levelup/runner/kip/sidekick-core-banner.svg',
+      heroBanner: '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
       hudPortrait: '/levelup/runner/portraits/tmobile_sidekick_core_portrait.png',
-      avatarSmall: '/levelup/runner/kip/kip-avatar.svg',
-      mobileFallback: '/levelup/runner/kip/sidekick-core-banner.svg',
-      abilityIcons: {
-        smash: '/levelup/runner/abilities/kip-smash.svg',
-        blast: '/levelup/runner/abilities/kip-blast.svg',
-        core: '/levelup/runner/abilities/kip-core.svg',
-      },
+      avatarSmall: '/levelup/runner/portraits/tmobile_sidekick_core_portrait.png',
+      mobileFallback: '/levelup/runner/portraits/tmobile_sidekick_core_portrait.png',
     },
     signature: 'A pocket-sized Sidekick Core assistant with an expressive magenta operator presence.',
     supportOnly: true,
