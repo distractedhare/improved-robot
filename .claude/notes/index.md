@@ -11,3 +11,6 @@ entries roll off the bottom as new sessions are added.
 ---
 
 - **2026-04-25-01** · Kip prevalence + runner visual elevation + launcher + librarian setup → [`sessions/2026-04-25-01.md`](sessions/2026-04-25-01.md)
+
+Working notes (not session logs) live alongside in `.claude/notes/qa/` and
+similar siblings. They are not indexed here.
